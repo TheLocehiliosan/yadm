@@ -148,9 +148,11 @@ function clone() {
   #; fetch / merge (and possibly fallback to reset)
   debug "Doing an initial fetch of the origin"
   git fetch origin
+  debug "Doing an initial merge of origin/master"
   git merge origin/master || {
+    debug "Merge failed, doing a reset."
     git reset origin/master
-    echo <<EOF
+    cat <<EOF
 **NOTE**
   Merging origin/master failed.
   YADM did 'reset origin/master' instead.
