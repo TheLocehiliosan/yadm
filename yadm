@@ -342,13 +342,8 @@ function perms() {
   fi
 
   #; remove group/other permissions from collected globs
-  perms_modified=$(chmod -v go-rwx ${GLOBS[@]})
-
-  #; report any changed permissions
-  if [ -n "$perms_modified" ] ; then
-    echo "Updated permissions:"
-    ls -l $perms_modified | sort | uniq
-  fi
+  chmod -f go-rwx ${GLOBS[@]} >/dev/null 2>&1
+  #; TODO: detect and report changing permissions in a portable way
 
 }
 
