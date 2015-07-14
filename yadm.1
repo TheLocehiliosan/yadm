@@ -1,0 +1,32 @@
+.TH yadm 1 "14 July 2015" "1.00"
+.SH NAME
+yadm \- Yet Another Dotfiles Manager
+.SH SYNOPSIS
+Manage dotfiles maintained in a Git repository. Manage alternate files for
+specific systems or hosts. Encrypt/decrypt private files.
+
+Git Commands:
+Any Git command or alias can be used as a [COMMAND]. It will operate on YADM's
+repository and files in the work tree (usually $HOME).
+
+Commands:
+  init  [-f]            - Initialize an empty repository
+  clone [-f] <URL>      - Clone an existing repository
+  config [name] [value] - Configure a setting
+  list [-a]             - List tracked files
+  alt                   - Create links for alternates
+  encrypt               - Encrypt files
+  decrypt               - Decrypt files
+  perms                 - Fix perms for private files
+
+Paths:
+  $HOME/.yadm/config    - YADM's configuration file
+  $HOME/.yadm/repo.git  - YADM's Git repository
+  $HOME/.yadm/encrypt   - List of globs used for encrypt/decrypt
+.SH DESCRIPTION
+.SH OPTIONS
+.SH SEE ALSO
+.SH REPORTING BUGS
+.SH AUTHOR
+Tim Byrne (sultan@locehilios.com)
+
