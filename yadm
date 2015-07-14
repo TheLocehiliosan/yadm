@@ -28,7 +28,7 @@ YADM_ARCHIVE="$YADM_DIR/files.gpg"
 #; flag when something may have changes (which prompts auto actions to be performed)
 CHANGES_POSSIBLE=0
 
-#; use the YADM repo for all git operations
+#; use the yadm repo for all git operations
 export GIT_DIR="$YADM_REPO"
 
 function main() {
@@ -56,16 +56,16 @@ function main() {
     while [[ $# > 0 ]] ; do
       key="$1"
       case $key in
-        -a|--all)        #; used by list()
+        -a) #; used by list()
           LIST_ALL="YES"
         ;;
-        -d|--debug)      #; used by all commands
+        -d) #; used by all commands
           DEBUG="YES"
         ;;
-        -f|--force)      #; used by init() and clone()
+        -f) #; used by init() and clone()
           FORCE="YES"
         ;;
-        -w|--work-tree)  #; used by init() and clone()
+        -w) #; used by init() and clone()
           if [[ ! "$2" =~ ^/ ]] ; then
             error_out "You must specify a fully qualified work tree"
           fi
@@ -95,7 +95,7 @@ function main() {
 
 }
 
-#; ****** YADM Commands ******
+#; ****** yadm Commands ******
 
 function alt() {
 
@@ -103,7 +103,7 @@ function alt() {
 
   #; regex for matching "<file>##SYSTEM.HOSTNAME"
   match_system=$(uname -s)
-  match_host=$(hostname)
+  match_host=$(hostname -s)
   match="^(.+)##($match_system|$match_system.$match_host)$"
 
   #; process relative to YADM_WORK
@@ -111,7 +111,7 @@ function alt() {
   cd $YADM_WORK
 
   #; only be noisy if the "alt" command was run directly
-  [ "$YADM_COMMAND" == "alt" ] && LOUD="YES"
+  [ "$YADM_COMMAND" == "alt" ] && loud="YES"
 
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
@@ -121,7 +121,7 @@ function alt() {
       if [[ $tracked_file =~ $match ]] ; then
         new_link="${BASH_REMATCH[1]}"
         debug "Linking $tracked_file to $new_link"
-        [ -n "$LOUD" ] && echo "Linking $tracked_file to $new_link"
+        [ -n "$loud" ] && echo "Linking $tracked_file to $new_link"
         ln -fs "$tracked_file" "$new_link"
       fi
     fi
@@ -144,8 +144,8 @@ function clone() {
   debug "Adding remote to new repo"
   git remote add origin "$1"
   debug "Configuring new repo to track origin/master"
-	git config branch.master.remote origin
-	git config branch.master.merge refs/heads/master
+  git config branch.master.remote origin
+  git config branch.master.merge refs/heads/master
 
   #; fetch / merge (and possibly fallback to reset)
   debug "Doing an initial fetch of the origin"
@@ -157,7 +157,7 @@ function clone() {
     cat <<EOF
 **NOTE**
   Merging origin/master failed.
-  YADM did 'reset origin/master' instead.
+  yadm did 'reset origin/master' instead.
 
   This likely happened because you had files in your
   work-tree, which conflict files tracked by origin/master
@@ -177,11 +177,11 @@ function config() {
   #; ensure we have a file, even if empty
   [ -f "$YADM_CONFIG" ] || touch "$YADM_CONFIG"
 
-  if [ -z "$@" ] ; then
+  if [ -z "$*" ] ; then
     #; with no parameters, provide some helpful documentation
-    echo TODO: Print help about available YADM configurations
+    echo TODO: Print help about available yadm configurations
   else
-    #; operate on the YADM configuration file
+    #; operate on the yadm configuration file
     git config --file="$YADM_CONFIG" $@
   fi
 
@@ -249,28 +249,28 @@ function git_command() {
 function help() {
 
   cat << EOF
-Usage: yadm [COMMAND] [OPTIONS ...]
+Usage: yadm <command> [options...]
 
 Manage dotfiles maintained in a Git repository. Manage alternate files
 for specific systems or hosts. Encrypt/decrypt private files.
 
 Git Commands:
-Any Git command or alias can be used as a [COMMAND]. It will operate
-on YADM's repository and files in the work tree (usually \$HOME).
+Any Git command or alias can be used as a <command>. It will operate
+on yadm's repository and files in the work tree (usually \$HOME).
 
 Commands:
-  init  [-f]            - Initialize an empty repository
-  clone [-f] GIT_URL    - Clone an existing repository
-  config [name] [value] - Configure a setting
-  list [-a]             - List tracked files
-  alt                   - Create links for alternates
-  encrypt               - Encrypt files
-  decrypt               - Decrypt files
-  perms                 - Fix perms for private files
+  yadm init [-f]             - Initialize an empty repository
+  yadm clone <url> [-f]      - Clone an existing repository
+  yadm config <name> <value> - Configure a setting
+  yadm list [-a]             - List tracked files
+  yadm alt                   - Create links for alternates
+  yadm encrypt               - Encrypt files
+  yadm decrypt               - Decrypt files
+  yadm perms                 - Fix perms for private files
 
-Paths:
-  \$HOME/.yadm/config    - YADM's configuration file
-  \$HOME/.yadm/repo.git  - YADM's Git repository
+Files:
+  \$HOME/.yadm/config    - yadm's configuration file
+  \$HOME/.yadm/repo.git  - yadm's Git repository
   \$HOME/.yadm/encrypt   - List of globs used for encrypt/decrypt
 
 Use "man yadm" for complete documentation.
@@ -330,7 +330,7 @@ function perms() {
   [ -f "$YADM_ARCHIVE" ] && GLOBS=("${GLOBS[@]}" "$YADM_ARCHIVE")
 
   #; include all .ssh files (unless disabled)
-  if [[ $(config yadm.ssh-perms) != "false" ]] ; then
+  if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
     GLOBS=("${GLOBS[@]}" $(eval /bin/ls ".ssh/*" 2>/dev/null))
   fi
 
@@ -365,10 +365,10 @@ function configure_repo() {
   #; change bare to false (there is a working directory)
   git config core.bare 'false'
 
-  #; set the worktree for the YADM repo
+  #; set the worktree for the yadm repo
   git config core.worktree "$YADM_WORK"
 
-  #; possibly used later to ensure we're working on the YADM repo
+  #; possibly used later to ensure we're working on the yadm repo
   git config yadm.managed 'true'
 
 }
@@ -381,7 +381,7 @@ function debug() {
 
 function error_out() {
 
-	echo -e "ERROR: $@"
+  echo -e "ERROR: $@"
   exit 1
 
 }
@@ -392,7 +392,7 @@ function auto_alt() {
 
   #; process alternates if there are possible changes
   if [ "$CHANGES_POSSIBLE" == "1" ] ; then
-    auto_alt=$(config yadm.auto-alt)
+    auto_alt=$(config --bool yadm.auto-alt)
     if [ "$auto_alt" != "false" ] ; then
       alt
     fi
@@ -404,7 +404,7 @@ function auto_perms() {
 
   #; process permissions if there are possible changes
   if [ "$CHANGES_POSSIBLE" == "1" ] ; then
-    auto_perms=$(config yadm.auto-perms)
+    auto_perms=$(config --bool yadm.auto-perms)
     if [ "$auto_perms" != "false" ] ; then
       perms
     fi

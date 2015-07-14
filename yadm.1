@@ -1,32 +1,415 @@
+." vim: set spell so=8:
 .TH yadm 1 "14 July 2015" "1.00"
 .SH NAME
 yadm \- Yet Another Dotfiles Manager
 .SH SYNOPSIS
-Manage dotfiles maintained in a Git repository. Manage alternate files for
-specific systems or hosts. Encrypt/decrypt private files.
+.B yadm
+.I command
+.RI [ options ]
 
-Git Commands:
-Any Git command or alias can be used as a [COMMAND]. It will operate on YADM's
-repository and files in the work tree (usually $HOME).
+.B yadm
+.I git-command-or-alias
+.RI [ options ]
 
-Commands:
-  init  [-f]            - Initialize an empty repository
-  clone [-f] <URL>      - Clone an existing repository
-  config [name] [value] - Configure a setting
-  list [-a]             - List tracked files
-  alt                   - Create links for alternates
-  encrypt               - Encrypt files
-  decrypt               - Decrypt files
-  perms                 - Fix perms for private files
+.B yadm
+init
+.RB [ -f ]
 
-Paths:
-  $HOME/.yadm/config    - YADM's configuration file
-  $HOME/.yadm/repo.git  - YADM's Git repository
-  $HOME/.yadm/encrypt   - List of globs used for encrypt/decrypt
+.B yadm
+.RI clone " url
+.RB [ -f ]
+.RB [ -w
+.IR directory ]
+
+.B yadm
+.RI config " name
+.RI [ value ]
+
+.B yadm
+config
+.RB [ -e ]
+
+.B yadm
+list
+.RB [ -a ]
+
+.BR yadm " encrypt
+
+.BR yadm " decrypt
+
+.BR yadm " alt
+
+.BR yadm " perms
 .SH DESCRIPTION
-.SH OPTIONS
-.SH SEE ALSO
-.SH REPORTING BUGS
-.SH AUTHOR
-Tim Byrne (sultan@locehilios.com)
+.B yadm
+is a tool for managing a collection of files across multiple computers,
+using a shared Git repository.
+In addition,
+.B yadm
+provides a feature to select alternate versions of files
+based on the operation system or host name.
+Lastly,
+.B yadm
+supplies the ability to manage a subset of secure files, which are
+encrypted before they are included in the repository.
+.SH COMMANDS
+.TP
+.IR git-command " or " git-alias
+Any command not internally handled by
+.B yadm
+is passed through to
+.BR git (1).
+Git commands or aliases are invoked with the
+.B yadm
+managed repository.
+The working directory for git commands will be the configured
+.IR work-tree " (usually
+.IR $HOME ).
 
+Dotfiles are managed by using standard
+.B git
+commands;
+.IR add ,
+.IR commit ,
+.IR push ,
+.IR pull ,
+etc.
+
+.RI The " config
+command is not passed directly through.
+Instead use the
+.I gitconfig
+command (see below).
+.TP
+.B alt
+Create symbolic links for any managed files matching the naming rules describe in the ALTERNATES section.
+It is usually unnecessary to run this command, as
+.B yadm
+automatically processes alternates by default.
+This automatic behavior can be disabled by setting the configuration
+.I yadm.auto-alt
+to "false".
+.TP
+.BI clone " url
+Clone a remote repository for tracking dotfiles.
+After the contents of the remote repository have been fetched, a "merge" of
+.I origin/master
+is attempted.
+If there are conflicting files already present in the
+.IR work-tree ,
+this merge will fail and instead a "reset" of
+.I origin/master
+will be done.
+It is up to the user to resolve these conflicts,
+but if the desired action is to have the contents in the repository overwrite the existing files,
+then a "hard reset" should accomplish that:
+
+.RS
+.RS
+yadm reset --hard origin/master
+.RE
+.RE
+.IP
+The repository is stored in
+.IR $HOME/.yadm/repo.git .
+By default,
+.I $HOME
+will be used as the
+.IR work-tree ,
+but this can be overridden with the
+.BR -w " option.
+.B yadm
+can be forced to overwrite an existing repository by providing the
+.BR -f " option.
+.TP
+.B config
+This command manages configurations for
+.BR yadm .
+This command works exactly they way
+.BR git-config (1)
+does.
+See the CONFIGURATION section for more details.
+.TP
+.B decrypt
+Decrypt all files stored in
+.IR $HOME/.yadm/files.gpg .
+Files decrypted will be relative to the configured
+.IR work-tree " (usually
+.IR $HOME ).
+.TP
+.B encrypt
+Encrypt all files matching the patterns found in
+.IR $HOME/.yadm/encrypt .
+See the ENCRYPTION section for more details.
+.TP
+.B gitconfig
+Pass options to the
+.B git config
+command. Since
+.B yadm
+already uses the
+.I config
+command to manage its own configurations,
+this command is provided as a way to change configurations of the repository managed by
+.BR yadm .
+One particularly useful case may be to configure the repository so untracked files are hidden from status commands:
+
+.RS
+.RS
+yadm gitconfig status.showUntrackedFiles no
+.RE
+.RE
+.TP
+.B help
+Print a summary of
+.BR yadm " commands.
+.TP
+.B init
+Initialize a new, empty repository for tracking dotfiles.
+The repository is stored in
+.IR $HOME/.yadm/repo.git .
+By default,
+.I $HOME
+will be used as the
+.IR work-tree ,
+but this can be overridden with the
+.BR -w " option.
+.B yadm
+can be forced to overwrite an existing repository by providing the
+.BR -f " option.
+.TP
+.B list
+Print a list of files managed by
+.BR yadm .
+.RB The " -a
+option will cause all managed files to be listed.
+Otherwise, the list will only include files from the current directory or below.
+.TP
+.B perms
+Update permissions as described in the PERMISSIONS section.
+It is usually unnecessary to run this command, as
+.B yadm
+automatically processes permissions by default.
+This automatic behavior can be disabled by setting the configuration
+.I yadm.auto-perms
+to "false".
+.TP
+.B version
+Print the version of
+.BR yadm .
+.SH CONFIGURATION
+.B yadm
+uses a configuration file named
+.IR $HOME/.yadm/config .
+This file uses the same format as
+.BR git-config (1).
+Also, you can control the contents of the configuration file
+via the
+.B yadm config
+command (which works exactly like
+.BR git-config ).
+For example, to disable alternates you can run the command:
+
+.RS
+yadm config yadm.auto-alt false
+.RE
+
+The following is the full list of supported configurations:
+.TP
+.B yadm.auto-alt
+Disable the automatic linking described in the section ALTERNATES.
+If disabled, you may still run
+.B yadm alt
+manually to create the alternate links.
+This feature is enabled by default.
+.TP
+.B yadm.auto-perms
+Disable the automatic permission changes described in the section PERMISSIONS.
+If disabled, you may still run
+.B yadm perms
+manually to update permissions.
+This feature is enabled by default.
+.TP
+.B yadm.ssh-perms
+Disable the permission changes to
+.IR $HOME/.ssh/* .
+This feature is enabled by default.
+.SH ALTERNATES
+When managing a set of files across different systems, it can be useful to have
+an automated way of choosing an alternate version of a file for a different
+operation system or simply for a different host.
+.B yadm
+implements a feature which will automatically create a symbolic link to
+the appropriate version of a file, as long as you follow a specific naming
+convention.
+.B yadm
+can detect files with names ending with:
+
+.RS
+.BR ##SYSTEM " or " ##SYSTEM.HOSTNAME
+.RE
+
+If there are any files managed by
+.BR yadm \'s
+repository which match this naming convention,
+symbolic links will be created for the most appropriate version.
+This may best be demonstrated by example. Assume the following files are managed by
+.BR yadm \'s
+repository:
+
+  - $HOME/path/example.txt##Darwin
+  - $HOME/path/example.txt##Darwin.host1
+  - $HOME/path/example.txt##Darwin.host2
+  - $HOME/path/example.txt##Linux
+  - $HOME/path/example.txt##Linux.host1
+  - $HOME/path/example.txt##Linux.host2
+
+If running on a Macbook named "host2",
+.B yadm
+will create a symbolic link which looks like this:
+
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##Darwin.host2
+
+However, on another Mackbook named "host3",
+.B yadm
+will create a symbolic link which looks like this:
+
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##Darwin
+
+Since the hostname doesn't match any of the managed files, the more generic version is chosen.
+
+If running on a Linux server named "host4" the link will be:
+
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##Linux
+
+If running on a Solaris server, no link will be created because there are no
+files managed for that SYSTEM.
+
+SYSTEM is determined by running
+.B uname\ -s
+HOSTNAME by running
+.BR hostname\ -s .
+.B yadm
+will automatically create these links by default. This can be disabled using the
+.I yadm.auto-alt
+configuration.
+Even if disabled, links can be manually created by running
+.BR yadm\ alt .
+.SH ENCRYPTION
+It can be useful to manage confidential files, like SSH keys, across multiple
+systems. However, doing so would put plain text data into a Git repository,
+which often resides on a public system.
+.B yadm
+implements a feature which can make it easy to encrypt and decrypt a set of
+files so the encrypted version can be maintained in the Git repository.
+This feature will only work if the
+.BR gpg (1)
+command is available.
+
+To use this feature, a list of patterns must be created and saved as
+.IR $HOME/.yadm/encrypt .
+This list of patterns should be relative to the configured
+.IR work-tree " (usually
+.IR $HOME ).
+For example:
+
+.RS
+.BR \  .ssh/*.key
+.RE
+
+The
+.B yadm encrypt
+command will find all files matching the patterns, and prompt for a password. Once a
+password has confirmed, the matching files will be encrypted and saved as
+.IR $HOME/.yadm/files.gpg .
+The patterns and files.gpg should be added to the
+.B yadm
+repository so they are available across multiple systems.
+
+To decrypt these files later, or on another system run
+.BR yadm\ decrypt
+and provide the correct password.
+After files are decrypted, permissions are automatically updated as described
+in the PERMISSIONS section.
+
+.SH PERMISSIONS
+When files are checked out of a Git repository, their initial permissions are
+dependent upon the user's umask. This can result in confidential files with lax permissions.
+
+To prevent this,
+.B yadm
+will automatically update the permissions of confidential files.
+The "group" and "others" permissions will be removed from the following files:
+
+.RI - " $HOME/.yadm/files.gpg
+
+- All files matching patterns in
+.I $HOME/.yadm/encrypt
+
+- The SSH directory and files,
+.I .ssh/*
+
+.B yadm
+will automatically update permissions by default. This can be disabled using the
+.I yadm.auto-perms
+configuration.
+Even if disabled, permissions can be manually updated by running
+.BR yadm\ perms .
+The SSH directory processing can be disabled using the
+.I yadm.ssh-perms
+configuration.
+.SH FILES
+.TP
+.I $HOME/.yadm/config
+Configuration file for
+.BR yadm .
+.TP
+.I $HOME/.yadm/repo.git
+Git repository used by
+.BR yadm .
+.TP
+.I $HOME/.yadm/encrypt
+List of globs used for encrypt/decrypt
+.TP
+.I $HOME/.yadm/files.gpg
+All files encrypted with
+.B yadm encrypt
+are stored in this file.
+.SH EXAMPLES
+.TP
+.B yadm init
+Create an empty repo for managing files
+.TP
+.B yadm add .bash_profile ; yadm commit
+Add
+.I .bash_profile
+to the Git index and create a new commit
+.TP
+.B yadm remote add origin <url>
+Add a remote origin to an existing repository
+.TP
+.B yadm push -u origin master
+Initial push of master to origin
+.TP
+.B echo ".ssh/*.key" >> $HOME/.yadm/encrypt
+Add a new pattern to the list of encrypted files
+.TP
+.B yadm encrypt ; yadm add ~/.yadm/files.gpg ; yadm commit
+Commit a new set of encrypted files
+.SH REPORTING BUGS
+Report issues or create pull requests at GitHub:
+
+https://github.com/TheLocehiliosan/yadm
+.SH AUTHOR
+Tim Byrne <sultan@locehilios.com>
+.SH SEE ALSO
+
+.BR git (1),
+.BR gpg (1)
+
+Other management tools which inspired the creation of
+.BR yadm :
+
+.BR homeshick " <https://github.com/andsens/homeshick>
+
+.BR vcsh " <https://github.com/RichiH/vcsh>
