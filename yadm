@@ -331,7 +331,7 @@ function perms() {
 
   #; include all .ssh files (unless disabled)
   if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
-    GLOBS=("${GLOBS[@]}" $(eval /bin/ls ".ssh/*" 2>/dev/null))
+    GLOBS=("${GLOBS[@]}" ".ssh" ".ssh/*")
   fi
 
   #; include globs found in YADM_ENCRYPT (if present)
