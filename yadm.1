@@ -36,6 +36,7 @@ list
 .BR yadm " encrypt
 
 .BR yadm " decrypt
+.RB [ -l ]
 
 .BR yadm " alt
 
@@ -136,6 +137,9 @@ Decrypt all files stored in
 Files decrypted will be relative to the configured
 .IR work-tree " (usually
 .IR $HOME ).
+Using the
+.B -l
+option will list the files stored without extracting them.
 .TP
 .B encrypt
 Encrypt all files matching the patterns found in

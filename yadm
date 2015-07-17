@@ -65,6 +65,9 @@ function main() {
         -f) #; used by init() and clone()
           FORCE="YES"
         ;;
+        -l) #; used by decrypt()
+          DO_LIST="YES"
+        ;;
         -w) #; used by init() and clone()
           if [[ ! "$2" =~ ^/ ]] ; then
             error_out "You must specify a fully qualified work tree"
@@ -194,10 +197,16 @@ function decrypt() {
 
   YADM_WORK=$(git config core.worktree)
 
+  if [ "$DO_LIST" == "YES" ] ; then
+    tar_option="t"
+  else
+    tar_option="x"
+  fi
+
   #; decrypt the archive
-  (gpg -d "$YADM_ARCHIVE" || echo 1) | tar xv -C "$YADM_WORK"
+  (gpg -d "$YADM_ARCHIVE" || echo 1) | tar v$tar_option -C "$YADM_WORK"
   if [ $? = 0 ] ; then
-    echo "All files decrypted."
+    [ ! "$DO_LIST" == "YES" ] && echo "All files decrypted."
   else
     error_out "Unable to extract encrypted files."
   fi
@@ -265,13 +274,14 @@ Commands:
   yadm list [-a]             - List tracked files
   yadm alt                   - Create links for alternates
   yadm encrypt               - Encrypt files
-  yadm decrypt               - Decrypt files
+  yadm decrypt [-l]          - Decrypt files
   yadm perms                 - Fix perms for private files
 
 Files:
   \$HOME/.yadm/config    - yadm's configuration file
   \$HOME/.yadm/repo.git  - yadm's Git repository
   \$HOME/.yadm/encrypt   - List of globs used for encrypt/decrypt
+  \$HOME/.yadm/files.gpg - Encrypted data stored here
 
 Use "man yadm" for complete documentation.
 EOF

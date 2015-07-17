@@ -21,7 +21,7 @@
 
        yadm encrypt
 
-       yadm decrypt
+       yadm decrypt [-l]
 
        yadm alt
 
@@ -78,18 +78,19 @@
        decrypt
               Decrypt   all  files  stored  in  $HOME/.yadm/files.gpg.   Files
               decrypted will be relative to the configured work-tree  (usually
-              $HOME).
+              $HOME).   Using the -l option will list the files stored without
+              extracting them.
 
        encrypt
-              Encrypt    all    files   matching   the   patterns   found   in
-              $HOME/.yadm/encrypt.   See  the  ENCRYPTION  section  for   more
+              Encrypt   all   files   matching   the   patterns    found    in
+              $HOME/.yadm/encrypt.    See  the  ENCRYPTION  section  for  more
               details.
 
        gitconfig
-              Pass  options to the git config command. Since yadm already uses
-              the config command to manage its own configurations,  this  com-
+              Pass options to the git config command. Since yadm already  uses
+              the  config  command to manage its own configurations, this com-
               mand is provided as a way to change configurations of the repos-
-              itory managed by yadm.  One particularly useful case may  be  to
+              itory  managed  by yadm.  One particularly useful case may be to
               configure the repository so untracked files are hidden from sta-
               tus commands:
 
@@ -97,29 +98,29 @@
 
        help   Print a summary of yadm commands.
 
-       init   Initialize a new, empty repository for tracking  dotfiles.   The
+       init   Initialize  a  new, empty repository for tracking dotfiles.  The
               repository is stored in $HOME/.yadm/repo.git.  By default, $HOME
-              will be used as the work-tree, but this can be  overridden  with
-              the  -w  option.   yadm  can  be forced to overwrite an existing
+              will  be  used as the work-tree, but this can be overridden with
+              the -w option.  yadm can be  forced  to  overwrite  an  existing
               repository by providing the -f option.
 
        list   Print a list of files managed by yadm.  The -a option will cause
-              all  managed  files to be listed.  Otherwise, the list will only
+              all managed files to be listed.  Otherwise, the list  will  only
               include files from the current directory or below.
 
-       perms  Update permissions as described in the PERMISSIONS section.   It
-              is  usually  unnecessary  to run this command, as yadm automati-
+       perms  Update  permissions as described in the PERMISSIONS section.  It
+              is usually unnecessary to run this command,  as  yadm  automati-
               cally processes permissions by default.  This automatic behavior
-              can  be disabled by setting the configuration yadm.auto-perms to
+              can be disabled by setting the configuration yadm.auto-perms  to
               "false".
 
        version
               Print the version of yadm.
 
 ## CONFIGURATION
-       yadm uses a configuration file  named  $HOME/.yadm/config.   This  file
-       uses  the same format as git-config(1).  Also, you can control the con-
-       tents of the configuration file via  the  yadm  config  command  (which
+       yadm  uses  a  configuration  file named $HOME/.yadm/config.  This file
+       uses the same format as git-config(1).  Also, you can control the  con-
+       tents  of  the  configuration  file  via the yadm config command (which
        works exactly like git-config).  For example, to disable alternates you
        can run the command:
 
@@ -128,14 +129,14 @@
        The following is the full list of supported configurations:
 
        yadm.auto-alt
-              Disable the automatic linking described in  the  section  ALTER-
+              Disable  the  automatic  linking described in the section ALTER-
               NATES.  If disabled, you may still run yadm alt manually to cre-
               ate the alternate links.  This feature is enabled by default.
 
        yadm.auto-perms
-              Disable the automatic permission changes described in  the  sec-
-              tion  PERMISSIONS.   If  disabled,  you may still run yadm perms
-              manually to update permissions.   This  feature  is  enabled  by
+              Disable  the  automatic permission changes described in the sec-
+              tion PERMISSIONS.  If disabled, you may  still  run  yadm  perms
+              manually  to  update  permissions.   This  feature is enabled by
               default.
 
        yadm.ssh-perms
@@ -145,16 +146,16 @@
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
-       a different operation system or simply  for  a  different  host.   yadm
+       a  different  operation  system  or  simply for a different host.  yadm
        implements a feature which will automatically create a symbolic link to
-       the appropriate version of a file, as long as  you  follow  a  specific
+       the  appropriate  version  of  a file, as long as you follow a specific
        naming convention.  yadm can detect files with names ending with:
 
               ##SYSTEM or ##SYSTEM.HOSTNAME
 
-       If  there  are  any files managed by yadm's repository which match this
-       naming convention, symbolic links will be created for the  most  appro-
-       priate  version.   This may best be demonstrated by example. Assume the
+       If there are any files managed by yadm's repository  which  match  this
+       naming  convention,  symbolic links will be created for the most appro-
+       priate version.  This may best be demonstrated by example.  Assume  the
        following files are managed by yadm's repository:
 
          - $HOME/path/example.txt##Darwin
@@ -174,53 +175,53 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##Darwin
 
-       Since the hostname doesn't match any of the  managed  files,  the  more
+       Since  the  hostname  doesn't  match any of the managed files, the more
        generic version is chosen.
 
        If running on a Linux server named "host4" the link will be:
 
        $HOME/path/example.txt -> $HOME/path/example.txt##Linux
 
-       If  running  on a Solaris server, no link will be created because there
+       If running on a Solaris server, no link will be created  because  there
        are no files managed for that SYSTEM.
 
-       SYSTEM is determined by running  uname -s  HOSTNAME  by  running  host-
-       name -s.   yadm  will automatically create these links by default. This
-       can be disabled using the yadm.auto-alt configuration.   Even  if  dis-
+       SYSTEM  is  determined  by  running  uname -s HOSTNAME by running host-
+       name -s.  yadm will automatically create these links by  default.  This
+       can  be  disabled  using the yadm.auto-alt configuration.  Even if dis-
        abled, links can be manually created by running yadm alt.
 
 ## ENCRYPTION
-       It  can  be  useful to manage confidential files, like SSH keys, across
-       multiple systems. However, doing so would put plain text  data  into  a
-       Git  repository,  which  often resides on a public system.  yadm imple-
-       ments a feature which can make it easy to encrypt and decrypt a set  of
+       It can be useful to manage confidential files, like  SSH  keys,  across
+       multiple  systems.  However,  doing so would put plain text data into a
+       Git repository, which often resides on a public  system.   yadm  imple-
+       ments  a feature which can make it easy to encrypt and decrypt a set of
        files so the encrypted version can be maintained in the Git repository.
        This feature will only work if the gpg(1) command is available.
 
-       To use this feature, a list of patterns must be created  and  saved  as
-       $HOME/.yadm/encrypt.   This  list of patterns should be relative to the
+       To  use  this  feature, a list of patterns must be created and saved as
+       $HOME/.yadm/encrypt.  This list of patterns should be relative  to  the
        configured work-tree (usually $HOME).  For example:
 
                .ssh/*.key
 
        The yadm encrypt command will find all files matching the patterns, and
-       prompt  for  a  password.  Once  a password has confirmed, the matching
-       files will be encrypted and saved as $HOME/.yadm/files.gpg.   The  pat-
-       terns  and files.gpg should be added to the yadm repository so they are
+       prompt for a password. Once a  password  has  confirmed,  the  matching
+       files  will  be encrypted and saved as $HOME/.yadm/files.gpg.  The pat-
+       terns and files.gpg should be added to the yadm repository so they  are
        available across multiple systems.
 
        To decrypt these files later, or on another system run yadm decrypt and
-       provide  the  correct password.  After files are decrypted, permissions
+       provide the correct password.  After files are  decrypted,  permissions
        are automatically updated as described in the PERMISSIONS section.
 
 
 ## PERMISSIONS
-       When files are checked out of a Git repository, their  initial  permis-
+       When  files  are checked out of a Git repository, their initial permis-
        sions are dependent upon the user's umask. This can result in confiden-
        tial files with lax permissions.
 
        To prevent this, yadm will automatically update the permissions of con-
-       fidential  files.  The "group" and "others" permissions will be removed
+       fidential files.  The "group" and "others" permissions will be  removed
        from the following files:
 
        - $HOME/.yadm/files.gpg
@@ -230,7 +231,7 @@
        - The SSH directory and files, .ssh/*
 
        yadm will automatically update permissions by default. This can be dis-
-       abled  using the yadm.auto-perms configuration.  Even if disabled, per-
+       abled using the yadm.auto-perms configuration.  Even if disabled,  per-
        missions can be manually updated by running yadm perms.  The SSH direc-
        tory processing can be disabled using the yadm.ssh-perms configuration.
 
