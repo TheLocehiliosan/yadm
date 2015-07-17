@@ -214,14 +214,16 @@
        provide the correct password.  After files are  decrypted,  permissions
        are automatically updated as described in the PERMISSIONS section.
 
+       NOTE:  It  is recommended that you keep confidential files in a private
+       repository, even though they are encrypted.
 
 ## PERMISSIONS
-       When  files  are checked out of a Git repository, their initial permis-
+       When files are checked out of a Git repository, their  initial  permis-
        sions are dependent upon the user's umask. This can result in confiden-
        tial files with lax permissions.
 
        To prevent this, yadm will automatically update the permissions of con-
-       fidential files.  The "group" and "others" permissions will be  removed
+       fidential  files.  The "group" and "others" permissions will be removed
        from the following files:
 
        - $HOME/.yadm/files.gpg
@@ -231,7 +233,7 @@
        - The SSH directory and files, .ssh/*
 
        yadm will automatically update permissions by default. This can be dis-
-       abled using the yadm.auto-perms configuration.  Even if disabled,  per-
+       abled  using the yadm.auto-perms configuration.  Even if disabled, per-
        missions can be manually updated by running yadm perms.  The SSH direc-
        tory processing can be disabled using the yadm.ssh-perms configuration.
 
