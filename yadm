@@ -240,6 +240,18 @@ function encrypt() {
     error_out "Unable to write $YADM_ARCHIVE"
   fi
 
+  #; offer to add YADM_ARCHIVE if untracked
+  archive_status=$(git status --porcelain -uall "$YADM_ARCHIVE" 2>/dev/null)
+  archive_regex="^\?\?"
+  if [[ $archive_status =~ $archive_regex ]] ; then
+    echo "It appears that $YADM_ARCHIVE is not tracked by yadm's repository."
+    echo "Would you like to add it now? (y/n)"
+    read answer
+    if [[ $answer =~ ^[yY]$ ]] ; then
+      git add "$YADM_ARCHIVE"
+    fi
+  fi
+
   CHANGES_POSSIBLE=1
 
 }
