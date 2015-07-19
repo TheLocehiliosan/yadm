@@ -149,15 +149,16 @@
        a  different  operation  system  or  simply for a different host.  yadm
        implements a feature which will automatically create a symbolic link to
        the  appropriate  version  of  a file, as long as you follow a specific
-       naming convention.  yadm can detect files with names ending with:
+       naming convention.  yadm can detect files with names ending in:
 
-              ##SYSTEM or ##SYSTEM.HOSTNAME
+              ##OS.HOSTNAME or ##OS or ##
 
        If there are any files managed by yadm's repository  which  match  this
        naming  convention,  symbolic links will be created for the most appro-
        priate version.  This may best be demonstrated by example.  Assume  the
        following files are managed by yadm's repository:
 
+         - $HOME/path/example.txt##
          - $HOME/path/example.txt##Darwin
          - $HOME/path/example.txt##Darwin.host1
          - $HOME/path/example.txt##Darwin.host2
@@ -178,14 +179,18 @@
        Since  the  hostname  doesn't  match any of the managed files, the more
        generic version is chosen.
 
-       If running on a Linux server named "host4" the link will be:
+       If running on a Linux server named "host4", the link will be:
 
        $HOME/path/example.txt -> $HOME/path/example.txt##Linux
 
-       If running on a Solaris server, no link will be created  because  there
-       are no files managed for that SYSTEM.
+       If running on a Solaris server, the link use the default "##" version:
 
-       SYSTEM  is  determined  by  running  uname -s HOSTNAME by running host-
+       $HOME/path/example.txt -> $HOME/path/example.txt##
+
+       If no "##" version exists and no files match the current  OS  or  HOST-
+       NAME, then no link will be created.
+
+       OS  is  determined  by  running uname -s, and HOSTNAME by running host-
        name -s.  yadm will automatically create these links by  default.  This
        can  be  disabled  using the yadm.auto-alt configuration.  Even if dis-
        abled, links can be manually created by running yadm alt.

@@ -247,10 +247,10 @@ implements a feature which will automatically create a symbolic link to
 the appropriate version of a file, as long as you follow a specific naming
 convention.
 .B yadm
-can detect files with names ending with:
+can detect files with names ending in:
 
 .RS
-.BR ##SYSTEM " or " ##SYSTEM.HOSTNAME
+.BR ##OS.HOSTNAME " or " ##OS " or " ##
 .RE
 
 If there are any files managed by
@@ -261,6 +261,7 @@ This may best be demonstrated by example. Assume the following files are managed
 .BR yadm \'s
 repository:
 
+  - $HOME/path/example.txt##
   - $HOME/path/example.txt##Darwin
   - $HOME/path/example.txt##Darwin.host1
   - $HOME/path/example.txt##Darwin.host2
@@ -282,16 +283,19 @@ will create a symbolic link which looks like this:
 
 Since the hostname doesn't match any of the managed files, the more generic version is chosen.
 
-If running on a Linux server named "host4" the link will be:
+If running on a Linux server named "host4", the link will be:
 
 .IR $HOME/path/example.txt " -> " $HOME/path/example.txt##Linux
 
-If running on a Solaris server, no link will be created because there are no
-files managed for that SYSTEM.
+If running on a Solaris server, the link use the default "##" version:
 
-SYSTEM is determined by running
-.B uname\ -s
-HOSTNAME by running
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##
+
+If no "##" version exists and no files match the current OS or HOSTNAME, then no link will be created.
+
+OS is determined by running
+.BR uname\ -s ,
+and HOSTNAME by running
 .BR hostname\ -s .
 .B yadm
 will automatically create these links by default. This can be disabled using the
