@@ -219,8 +219,8 @@
        provide the correct password.  After files are  decrypted,  permissions
        are automatically updated as described in the PERMISSIONS section.
 
-       NOTE:  It  is recommended that you keep confidential files in a private
-       repository, even though they are encrypted.
+       NOTE:  It is recommended that you use a private repository when keeping
+       confidential files, even though they are encrypted.
 
 ## PERMISSIONS
        When files are checked out of a Git repository, their  initial  permis-
