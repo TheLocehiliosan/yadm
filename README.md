@@ -14,6 +14,15 @@ As so many others, I started out with a repository and a few scripts to symbolic
   - Ability to encrypt and track confidential files
   - Stay out of the way and let Git do what it's good at
 
+## Installation
+_Seek home for rest, for home is best._ --Thomas Tusser
+
+**yadm** can be installed using [Homebrew](https://github.com/Homebrew/homebrew).
+
+    brew tap TheLocehiliosan/yadm && brew install yadm
+
+Otherwise you can simply download the **yadm** script and put it into your `$PATH`.
+
 ## Getting Started
 _I would not change my blest estate for all the world calls good or great._ --Isaac Watts
 
