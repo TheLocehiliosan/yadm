@@ -113,4 +113,40 @@ Of course, you can use **yadm** to manage completely separate files for differen
 
 **yadm** will link the appropriate version for the current host, or use the default `##` version.
 
+## Example of managing SSH configurations
+_We shape our dwellings, and afterwards our dwellings shape us._ --Winston Churchill
+
+Below is an example of how **yadm** can be used to manage SSH configurations. The example demonstrates **yadm** directly managing the `config` file, managing a host-specific `authorized_keys` file, and storing the private SSH key as part of its encrypted files. This example assumes a typical working SSH configuration exists, and walks through the steps to bring it under **yadm**'s management.
+
+    yadm add ~/.ssh/config
+    mv ~/.ssh/authorized_keys ~/.ssh/authorized_keys##Linux.myhost
+    yadm add ~/.ssh/authorized_keys##Linux.myhost
+    echo '.ssh/id_rsa' >> ~/.yadm/encrypt
+    yadm add ~/.yadm/encrypt
+    yadm encrypt
+
+    ------
+
+    yadm status -uno
+
+    Changes to be committed:
+      (use "git rm --cached <file>..." to unstage)
+
+            new file:   .ssh/authorized_keys##Linux.myhost
+            new file:   .ssh/config
+            new file:   .yadm/encrypt
+            new file:   .yadm/files.gpg
+
+    ------
+
+    ls ~/.ssh
+
+    authorized_keys -> ~/.ssh/authorized_keys##Linux.myhost
+    authorized_keys##Linux.myhost
+    config
+    rsa_id
+
+
+First, the `config` file is simply added. This will cause the same `config` file to be used on other **yadm** managed hosts. The `authorized_keys` file needs to be host specific, so rename the file using the OS and hostname. After adding the renamed `authorized_keys##Linux.myhost`, **yadm** will automatically create the symlink for it. Last, the private key should be maintained in **yadm**'s encrypted files. Add a pattern to the `.yadm/encrypt` file which matches the private key. Then instruct **yadm** to encrypt all files matching the patterns found in `.yadm/encrypt`. Notice that the **yadm** repository is not tracking the private key directly, rather it tracks the collection of encrypted files `.yadm/files.gpg`. When these changes are brought onto another host, using the `yadm decrypt` command will extract the files stored.
+
 <!-- vim: set spell lbr : -->
