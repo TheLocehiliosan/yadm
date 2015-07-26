@@ -156,11 +156,14 @@ already uses the
 command to manage its own configurations,
 this command is provided as a way to change configurations of the repository managed by
 .BR yadm .
-One particularly useful case may be to configure the repository so untracked files are hidden from status commands:
+One useful case might be to configure the repository so untracked files are shown in status commands.
+.B yadm
+initially configures its repository so that untracked files are not shown.
+If you wish use the default git behavior (to show untracked files and directories), you can remove this configuration.
 
 .RS
 .RS
-yadm gitconfig status.showUntrackedFiles no
+yadm gitconfig --unset status.showUntrackedFiles
 .RE
 .RE
 .TP

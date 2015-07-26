@@ -127,7 +127,7 @@ Below is an example of how **yadm** can be used to manage SSH configurations. Th
 
     ------
 
-    yadm status -uno
+    yadm status
 
     Changes to be committed:
       (use "git rm --cached <file>..." to unstage)

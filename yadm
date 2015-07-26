@@ -390,6 +390,9 @@ function configure_repo() {
   #; set the worktree for the yadm repo
   git config core.worktree "$YADM_WORK"
 
+  #; by default, do not show untracked files and directories
+  git config status.showUntrackedFiles no
+
   #; possibly used later to ensure we're working on the yadm repo
   git config yadm.managed 'true'
 
