@@ -356,6 +356,11 @@ function perms() {
     GLOBS=("${GLOBS[@]}" ".ssh" ".ssh/*")
   fi
 
+  #; include all gpg files (unless disabled)
+  if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
+    GLOBS=("${GLOBS[@]}" ".gnupg" ".gnupg/*")
+  fi
+
   #; include globs found in YADM_ENCRYPT (if present)
   if [ -f "$YADM_ENCRYPT" ] ; then
     while IFS='' read -r glob || [ -n "$glob" ]; do
