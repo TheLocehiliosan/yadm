@@ -146,19 +146,23 @@
               Disable the permission changes to $HOME/.ssh/*.  This feature is
               enabled by default.
 
+       yadm.gpg-perms
+              Disable the permission changes to $HOME/.gnupg/*.  This  feature
+              is enabled by default.
+
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
-       a different operation system or simply  for  a  different  host.   yadm
+       a  different  operation  system  or  simply for a different host.  yadm
        implements a feature which will automatically create a symbolic link to
-       the appropriate version of a file, as long as  you  follow  a  specific
+       the  appropriate  version  of  a file, as long as you follow a specific
        naming convention.  yadm can detect files with names ending in:
 
               ##OS.HOSTNAME or ##OS or ##
 
-       If  there  are  any files managed by yadm's repository which match this
-       naming convention, symbolic links will be created for the  most  appro-
-       priate  version.   This may best be demonstrated by example. Assume the
+       If there are any files managed by yadm's repository  which  match  this
+       naming  convention,  symbolic links will be created for the most appro-
+       priate version.  This may best be demonstrated by example.  Assume  the
        following files are managed by yadm's repository:
 
          - $HOME/path/example.txt##
@@ -179,7 +183,7 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##Darwin
 
-       Since the hostname doesn't match any of the  managed  files,  the  more
+       Since  the  hostname  doesn't  match any of the managed files, the more
        generic version is chosen.
 
        If running on a Linux server named "host4", the link will be:
@@ -190,27 +194,29 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##
 
-       If  no  "##"  version exists and no files match the current OS or HOST-
+       If no "##" version exists and no files match the current  OS  or  HOST-
        NAME, then no link will be created.
 
-       OS is determined by running uname -s, and  HOSTNAME  by  running  host-
-       name -s.   yadm  will automatically create these links by default. This
-       can be disabled using the yadm.auto-alt configuration.   Even  if  dis-
+       OS  is  determined  by  running uname -s, and HOSTNAME by running host-
+       name -s.  yadm will automatically create these links by  default.  This
+       can  be  disabled  using the yadm.auto-alt configuration.  Even if dis-
        abled, links can be manually created by running yadm alt.
 
 ## ENCRYPTION
-       It  can  be  useful to manage confidential files, like SSH keys, across
-       multiple systems. However, doing so would put plain text  data  into  a
-       Git  repository,  which  often resides on a public system.  yadm imple-
-       ments a feature which can make it easy to encrypt and decrypt a set  of
-       files so the encrypted version can be maintained in the Git repository.
-       This feature will only work if the gpg(1) command is available.
+       It can be useful to manage confidential files, like SSH  or  GPG  keys,
+       across  multiple  systems.  However, doing so would put plain text data
+       into a Git repository, which often resides on a  public  system.   yadm
+       implements  a  feature  which can make it easy to encrypt and decrypt a
+       set of files so the encrypted version can  be  maintained  in  the  Git
+       repository.   This  feature  will  only  work  if the gpg(1) command is
+       available.
 
        To use this feature, a list of patterns must be created  and  saved  as
        $HOME/.yadm/encrypt.   This  list of patterns should be relative to the
        configured work-tree (usually $HOME).  For example:
 
-               .ssh/*.key
+                  .ssh/*.key
+                  .gnupg/*.gpg
 
        The yadm encrypt command will find all files matching the patterns, and
        prompt  for  a  password.  Once  a password has confirmed, the matching
@@ -239,6 +245,8 @@
        - All files matching patterns in $HOME/.yadm/encrypt
 
        - The SSH directory and files, .ssh/*
+
+       - The GPG directory and files, .gnupg/*
 
        yadm will automatically update permissions by default. This can be dis-
        abled using the yadm.auto-perms configuration.  Even if disabled,  per-

@@ -1,3 +1,6 @@
+1.02
+  * Handle permissions for `~/.gnupg/*gpg`
+
 1.01
   * Set `status.showUntrackedFiles` to "no"
 
