@@ -1,12 +1,12 @@
 # yadm - Yet Another Dotfiles Manager
-_A house that does not have one warm, comfy chair in it is soulless._ --May Sarton
+_A house that does not have one warm, comfy chair in it is soulless._—May Sarton
 
 When you live in a command line, configurations are a deeply personal thing. They are often crafted over years of experience, battles lost, lessons learned, advice followed, and ingenuity rewarded. When you are away from your own configurations, you are an orphaned refugee in unfamiliar and hostile surroundings. You feel clumsy and out of sorts. You are filled with a sense of longing to be back in a place you know. A place you built. A place where all the short-cuts have been worn bare by your own travels. A place you proudly call... `$HOME`.
 
 ## Introduction
-_Home is an invention on which no one has yet improved._ --Ann Douglas
+_Home is an invention on which no one has yet improved._—Ann Douglas
 
-As so many others, I started out with a repository and a few scripts to symbolically link them around my home directory. This quickly became inadequate and I looked for solutions elsewhere. I've used two excellent tools; [homeschick](https://github.com/andsens/homeshick), and [vcsh](https://github.com/RichiH/vcsh). These tools are great, and you should check them out to understand their strengths. However, I didn't find all of the features I personally wished for in a single tool. **yadm** was written with the following goals:
+As so many others, I started out with a repository of dotfiles and a few scripts to symbolically link them around my home directory. This quickly became inadequate and I looked for solutions elsewhere. I've used two excellent tools; [homeschick](https://github.com/andsens/homeshick), and [vcsh](https://github.com/RichiH/vcsh). These tools are great, and you should check them out to understand their strengths. However, I didn't find all of the features I personally wished for in a single tool. **yadm** was written with the following goals:
 
   - Use a single repository
   - Few dependencies
@@ -15,7 +15,7 @@ As so many others, I started out with a repository and a few scripts to symbolic
   - Stay out of the way and let Git do what it's good at
 
 ## Installation
-_Seek home for rest, for home is best._ --Thomas Tusser
+_Seek home for rest, for home is best._—Thomas Tusser
 
 **yadm** can be installed using [Homebrew](https://github.com/Homebrew/homebrew).
 
@@ -24,7 +24,7 @@ _Seek home for rest, for home is best._ --Thomas Tusser
 Otherwise you can simply download the **yadm** script and put it into your `$PATH`.
 
 ## Getting Started
-_I would not change my blest estate for all the world calls good or great._ --Isaac Watts
+_I would not change my blest estate for all the world calls good or great._—Isaac Watts
 
 If you know how to use Git, then you already know how to use **yadm**.
 See the [man page](yadm.md) for a comprehensive explanation of commands and options.
@@ -50,7 +50,7 @@ This `clone` will attempt to merge your existing repository, but if it fails, it
     yadm status
 
 ## Strategies for alternate files on different systems
-_To feel at home, stay at home._ --Clifton Fadiman
+_To feel at home, stay at home._—Clifton Fadiman
 
 Where possible, you should try to use the same file on every system. Here are a few examples:
 
@@ -114,7 +114,7 @@ Of course, you can use **yadm** to manage completely separate files for differen
 **yadm** will link the appropriate version for the current host, or use the default `##` version.
 
 ## Example of managing SSH configurations
-_We shape our dwellings, and afterwards our dwellings shape us._ --Winston Churchill
+_We shape our dwellings, and afterwards our dwellings shape us._—Winston Churchill
 
 Below is an example of how **yadm** can be used to manage SSH configurations. The example demonstrates **yadm** directly managing the `config` file, managing a host-specific `authorized_keys` file, and storing the private SSH key as part of its encrypted files. This example assumes a typical working SSH configuration exists, and walks through the steps to bring it under **yadm**'s management.
 
