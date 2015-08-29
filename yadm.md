@@ -9,7 +9,7 @@
 
        yadm git-command-or-alias [options]
 
-       yadm init [-f]
+       yadm init [-f] [-w directory]
 
        yadm clone url [-f] [-w directory]
 
