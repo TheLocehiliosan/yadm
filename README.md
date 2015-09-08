@@ -21,7 +21,9 @@ _Seek home for rest, for home is best._—Thomas Tusser
 
     brew tap TheLocehiliosan/yadm && brew install yadm
 
-Otherwise you can simply download the **yadm** script and put it into your `$PATH`.
+Otherwise you can simply download the **yadm** script and put it into your `$PATH`. Something like this:
+
+    curl -fLo /usr/local/bin/yadm https://github.com/TheLocehiliosan/yadm/raw/master/yadm && chmod a+x /usr/local/bin/yadm
 
 ## Getting Started
 _I would not change my blest estate for all the world calls good or great._—Isaac Watts
