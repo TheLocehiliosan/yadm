@@ -17,11 +17,26 @@ As so many others, I started out with a repository of dotfiles and a few scripts
 ## Installation
 _Seek home for rest, for home is best._—Thomas Tusser
 
+#### OSX
+
 **yadm** can be installed using [Homebrew](https://github.com/Homebrew/homebrew).
 
     brew tap TheLocehiliosan/yadm && brew install yadm
 
-Otherwise you can simply download the **yadm** script and put it into your `$PATH`. Something like this:
+#### Linux YUM/RPM
+
+    wget https://bintray.com/thelocehiliosan/rpm/rpm -O bintray-thelocehiliosan-rpm.repo
+    sudo mv bintray-thelocehiliosan-rpm.repo /etc/yum.repos.d/
+    sudo yum install yadm
+
+Or if not using yum, you can just directly download the RPM
+
+    curl -fLO https://dl.bintray.com/thelocehiliosan/rpm/yadm-1.02-1.noarch.rpm
+    sudo rpm -ivh yadm-1.02-1.noarch.rpm
+
+#### Other
+
+You *can* simply download the **yadm** script and put it into your `$PATH`. Something like this:
 
     curl -fLo /usr/local/bin/yadm https://github.com/TheLocehiliosan/yadm/raw/master/yadm && chmod a+x /usr/local/bin/yadm
 
