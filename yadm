@@ -104,10 +104,11 @@ function alt() {
 
   require_repo
 
-  #; regex for matching "<file>##SYSTEM.HOSTNAME"
+  #; regex for matching "<file>##SYSTEM.HOSTNAME.USER"
   match_system=$(uname -s)
   match_host=$(hostname -s)
-  match="^(.+)##($match_system|$match_system.$match_host|())$"
+  match_user=${USER}
+  match="^(.+)##($match_system|$match_system.$match_host|$match_system.$match_host.$match_user|())$"
 
   #; process relative to YADM_WORK
   YADM_WORK=$(git config core.worktree)
