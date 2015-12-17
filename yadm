@@ -107,7 +107,7 @@ function alt() {
   #; regex for matching "<file>##SYSTEM.HOSTNAME.USER"
   match_system=$(uname -s)
   match_host=$(hostname -s)
-  match_user=${USER}
+  match_user=$(id -u -n)
   match="^(.+)##($match_system|$match_system.$match_host|$match_system.$match_host.$match_user|())$"
 
   #; process relative to YADM_WORK
