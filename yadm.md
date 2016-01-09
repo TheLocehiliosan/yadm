@@ -153,12 +153,12 @@
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
-       a  different  operation  system  or  simply for a different host.  yadm
-       implements a feature which will automatically create a symbolic link to
-       the  appropriate  version  of  a file, as long as you follow a specific
-       naming convention.  yadm can detect files with names ending in:
+       a different operation system, host, or user.  yadm implements a feature
+       which will automatically create a symbolic link to the appropriate ver-
+       sion  of  a  file,  as long as you follow a specific naming convention.
+       yadm can detect files with names ending in:
 
-              ##OS.HOSTNAME or ##OS or ##
+              ## or ##OS or ##OS.HOSTNAME or ##OS.HOSTNAME.USER
 
        If there are any files managed by yadm's repository  which  match  this
        naming  convention,  symbolic links will be created for the most appro-
@@ -194,50 +194,51 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##
 
-       If no "##" version exists and no files match the current  OS  or  HOST-
-       NAME, then no link will be created.
+       If no "##" version exists and  no  files  match  the  current  OS/HOST-
+       NAME/USER, then no link will be created.
 
-       OS  is  determined  by  running uname -s, and HOSTNAME by running host-
-       name -s.  yadm will automatically create these links by  default.  This
-       can  be  disabled  using the yadm.auto-alt configuration.  Even if dis-
-       abled, links can be manually created by running yadm alt.
+       OS  is determined by running uname -s, HOSTNAME by running hostname -s,
+       and USER by running id -u -n.  yadm  will  automatically  create  these
+       links by default. This can be disabled using the yadm.auto-alt configu-
+       ration.  Even if disabled, links can be  manually  created  by  running
+       yadm alt.
 
 ## ENCRYPTION
-       It can be useful to manage confidential files, like SSH  or  GPG  keys,
-       across  multiple  systems.  However, doing so would put plain text data
-       into a Git repository, which often resides on a  public  system.   yadm
-       implements  a  feature  which can make it easy to encrypt and decrypt a
-       set of files so the encrypted version can  be  maintained  in  the  Git
-       repository.   This  feature  will  only  work  if the gpg(1) command is
+       It  can  be  useful to manage confidential files, like SSH or GPG keys,
+       across multiple systems. However, doing so would put  plain  text  data
+       into  a  Git  repository, which often resides on a public system.  yadm
+       implements a feature which can make it easy to encrypt  and  decrypt  a
+       set  of  files  so  the  encrypted version can be maintained in the Git
+       repository.  This feature will only  work  if  the  gpg(1)  command  is
        available.
 
-       To use this feature, a list of patterns must be created  and  saved  as
-       $HOME/.yadm/encrypt.   This  list of patterns should be relative to the
+       To  use  this  feature, a list of patterns must be created and saved as
+       $HOME/.yadm/encrypt.  This list of patterns should be relative  to  the
        configured work-tree (usually $HOME).  For example:
 
                   .ssh/*.key
                   .gnupg/*.gpg
 
        The yadm encrypt command will find all files matching the patterns, and
-       prompt  for  a  password.  Once  a password has confirmed, the matching
-       files will be encrypted and saved as $HOME/.yadm/files.gpg.   The  pat-
-       terns  and files.gpg should be added to the yadm repository so they are
+       prompt for a password. Once a  password  has  confirmed,  the  matching
+       files  will  be encrypted and saved as $HOME/.yadm/files.gpg.  The pat-
+       terns and files.gpg should be added to the yadm repository so they  are
        available across multiple systems.
 
        To decrypt these files later, or on another system run yadm decrypt and
-       provide  the  correct password.  After files are decrypted, permissions
+       provide the correct password.  After files are  decrypted,  permissions
        are automatically updated as described in the PERMISSIONS section.
 
-       NOTE: It is recommended that you use a private repository when  keeping
+       NOTE:  It is recommended that you use a private repository when keeping
        confidential files, even though they are encrypted.
 
 ## PERMISSIONS
-       When  files  are checked out of a Git repository, their initial permis-
+       When files are checked out of a Git repository, their  initial  permis-
        sions are dependent upon the user's umask. This can result in confiden-
        tial files with lax permissions.
 
        To prevent this, yadm will automatically update the permissions of con-
-       fidential files.  The "group" and "others" permissions will be  removed
+       fidential  files.  The "group" and "others" permissions will be removed
        from the following files:
 
        - $HOME/.yadm/files.gpg
@@ -249,7 +250,7 @@
        - The GPG directory and files, .gnupg/*
 
        yadm will automatically update permissions by default. This can be dis-
-       abled using the yadm.auto-perms configuration.  Even if disabled,  per-
+       abled  using the yadm.auto-perms configuration.  Even if disabled, per-
        missions can be manually updated by running yadm perms.  The SSH direc-
        tory processing can be disabled using the yadm.ssh-perms configuration.
 
