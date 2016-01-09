@@ -251,7 +251,7 @@ This feature is enabled by default.
 .SH ALTERNATES
 When managing a set of files across different systems, it can be useful to have
 an automated way of choosing an alternate version of a file for a different
-operation system or simply for a different host.
+operation system, host, or user.
 .B yadm
 implements a feature which will automatically create a symbolic link to
 the appropriate version of a file, as long as you follow a specific naming
@@ -260,7 +260,7 @@ convention.
 can detect files with names ending in:
 
 .RS
-.BR ##OS.HOSTNAME " or " ##OS " or " ##
+.BR ## " or " ##OS " or " ##OS.HOSTNAME " or " ##OS.HOSTNAME.USER
 .RE
 
 If there are any files managed by
@@ -301,12 +301,14 @@ If running on a Solaris server, the link use the default "##" version:
 
 .IR $HOME/path/example.txt " -> " $HOME/path/example.txt##
 
-If no "##" version exists and no files match the current OS or HOSTNAME, then no link will be created.
+If no "##" version exists and no files match the current OS/HOSTNAME/USER, then no link will be created.
 
 OS is determined by running
 .BR uname\ -s ,
-and HOSTNAME by running
-.BR hostname\ -s .
+HOSTNAME by running
+.BR hostname\ -s ,
+and USER by running
+.BR id\ -u\ -n .
 .B yadm
 will automatically create these links by default. This can be disabled using the
 .I yadm.auto-alt
