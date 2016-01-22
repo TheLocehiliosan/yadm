@@ -34,6 +34,12 @@ Or if not using yum, you can just directly download the RPM
     curl -fLO https://dl.bintray.com/thelocehiliosan/rpm/yadm-1.02-1.noarch.rpm
     sudo rpm -ivh yadm-1.02-1.noarch.rpm
 
+#### Arch Linux
+
+**yadm** is available in the Arch User Repos and can be installed with AUR helper or Makepkg
+
+    yaourt -S yadm
+
 #### Other
 
 You *can* simply download the **yadm** script and put it into your `$PATH`. Something like this:
