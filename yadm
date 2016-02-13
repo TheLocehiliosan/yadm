@@ -43,10 +43,6 @@ function main() {
   if [ -z "$*" ] ; then
     #; no argumnts will result in help()
     help
-  elif [ "$1" = "gitconfig" ] ; then
-    #; 'config' is used for yadm, need to use 'gitcofnig' to pass through to git
-    shift
-    git_command config "$@"
   elif [[ "$1" =~ $internal_commands ]] ; then
     #; for internal commands, process all of the arguments
     YADM_COMMAND="$1"
@@ -260,6 +256,11 @@ function encrypt() {
 function git_command() {
 
   require_repo
+
+  #; translate 'gitconfig' to 'config' -- 'config' is reserved for yadm
+  if [ "$1" = "gitconfig" ] ; then
+    set -- "config" "${@:2}"
+  fi
 
   #; pass commands through to git
   git "$@"
