@@ -44,7 +44,7 @@ function main() {
     #; no argumnts will result in help()
     help
   elif [ "$1" = "gitconfig" ] ; then
-    #; 'config' is used for yadm, need to use 'gitcofnig' to pass through to git
+    #; 'config' is used for yadm, need to use 'gitconfig' to pass through to git
     shift
     git_command config "$@"
   elif [[ "$1" =~ $internal_commands ]] ; then
@@ -87,6 +87,8 @@ function main() {
     done
     [ ! -d $YADM_WORK ] && error_out "Work tree does not exist: [$YADM_WORK]"
     $YADM_COMMAND "$YADM_ARGS"
+  elif [[ "$@" = "add ." ]] ; then
+    git_add_all
   else
     #; any other commands are simply passed through to git
     git_command "$@"
@@ -95,6 +97,8 @@ function main() {
   #; process automatic events
   auto_alt
   auto_perms
+
+  exit 0
 
 }
 
@@ -266,6 +270,16 @@ function git_command() {
 
   CHANGES_POSSIBLE=1
 
+}
+
+function git_add_all() {
+
+  require_repo
+
+  #; add all modified files to staging area
+  git add $(git status | grep modified | awk '{print $2}')
+
+  CHANGES_POSSIBLE=1
 }
 
 function help() {
