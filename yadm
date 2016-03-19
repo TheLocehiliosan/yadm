@@ -17,8 +17,8 @@
 
 VERSION=1.03
 
-YADM_WORK="$HOME"
-YADM_DIR="$HOME/.yadm"
+[ -z "$YADM_WORK" ] && YADM_WORK="$HOME"
+[ -z "$YADM_DIR" ] && YADM_DIR="$HOME/.yadm"
 
 YADM_REPO="$YADM_DIR/repo.git"
 YADM_CONFIG="$YADM_DIR/config"
