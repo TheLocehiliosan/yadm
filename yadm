@@ -20,16 +20,13 @@ VERSION=1.03
 YADM_WORK="$HOME"
 YADM_DIR="$HOME/.yadm"
 
-YADM_REPO="$YADM_DIR/repo.git"
-YADM_CONFIG="$YADM_DIR/config"
-YADM_ENCRYPT="$YADM_DIR/encrypt"
-YADM_ARCHIVE="$YADM_DIR/files.gpg"
+YADM_REPO="repo.git"
+YADM_CONFIG="config"
+YADM_ENCRYPT="encrypt"
+YADM_ARCHIVE="files.gpg"
 
 #; flag when something may have changes (which prompts auto actions to be performed)
 CHANGES_POSSIBLE=0
-
-#; use the yadm repo for all git operations
-export GIT_DIR="$YADM_REPO"
 
 function main() {
 
@@ -387,6 +384,42 @@ function version() {
 
 #; ****** Utility Functions ******
 
+function process_global_args() {
+
+  #; global arguments are removed before the main processing is done
+  MAIN_ARGS=()
+  while [[ $# > 0 ]] ; do
+    key="$1"
+    case $key in
+      -Y|--yadm-dir) #; override the standard YADM_DIR
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified yadm directory"
+        fi
+        YADM_DIR="$2"
+        shift
+      ;;
+      *) #; main arguments are kept intact
+        MAIN_ARGS+=("$1")
+      ;;
+    esac
+    shift
+  done
+
+}
+
+function configure_paths() {
+
+  #; change all paths to be relative to YADM_DIR
+  YADM_REPO="$YADM_DIR/$YADM_REPO"
+  YADM_CONFIG="$YADM_DIR/$YADM_CONFIG"
+  YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
+  YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
+
+  #; use the yadm repo for all git operations
+  export GIT_DIR="$YADM_REPO"
+
+}
+
 function configure_repo() {
 
   debug "Configuring new repo"
@@ -464,4 +497,6 @@ function require_repo() {
   [ -d "$YADM_REPO" ] || error_out "Git repo does not exist. did you forget to run 'init' or 'clone'?"
 }
 
-main "$@"
+process_global_args "$@"
+configure_paths
+main "${MAIN_ARGS[@]}"
