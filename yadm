@@ -307,7 +307,7 @@ function init() {
 
   #; safety check, don't attempt to init when the repo is already present
   [ -d "$YADM_REPO" ] && [ -z "$FORCE" ] && \
-    error_out "Git repo already exist. [$YADM_REPO]\nUse '-f' if you want to force it to be overwritten."
+    error_out "Git repo already exists. [$YADM_REPO]\nUse '-f' if you want to force it to be overwritten."
 
   #; remove existing if forcing the init to happen anyway
   [ -d "$YADM_REPO" ] && {
