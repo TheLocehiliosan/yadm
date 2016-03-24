@@ -499,6 +499,10 @@ function require_repo() {
   [ -d "$YADM_REPO" ] || error_out "Git repo does not exist. did you forget to run 'init' or 'clone'?"
 }
 
-process_global_args "$@"
-configure_paths
-main "${MAIN_ARGS[@]}"
+#; ****** Main processing (when not unit testing) ******
+
+if [ "$YADM_TEST" != 1 ] ; then
+  process_global_args "$@"
+  configure_paths
+  main "${MAIN_ARGS[@]}"
+fi
