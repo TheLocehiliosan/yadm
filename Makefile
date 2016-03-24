@@ -13,6 +13,10 @@ pdf:
 	@sleep 1
 	@rm yadm.ps
 
+.PHONY: test
+test:
+	@bats test
+
 man:
 	groff -man -Tascii ./yadm.1 | less
 
