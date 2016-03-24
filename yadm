@@ -89,6 +89,8 @@ function main() {
   auto_alt
   auto_perms
 
+  exit 0
+
 }
 
 #; ****** yadm Commands ******
