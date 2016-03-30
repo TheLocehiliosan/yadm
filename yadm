@@ -148,7 +148,11 @@ function clone() {
 
   #; fetch / merge (and possibly fallback to reset)
   debug "Doing an initial fetch of the origin"
-  git fetch origin
+  git fetch origin || {
+    debug "Removing repo after failed clone"
+    rm -rf "$YADM_REPO"
+    error_out "Unable to fetch origin $1"
+  }
   debug "Doing an initial merge of origin/master"
   git merge origin/master || {
     debug "Merge failed, doing a reset."
