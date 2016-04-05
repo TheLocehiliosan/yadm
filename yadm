@@ -33,7 +33,7 @@ function main() {
   require_git
 
   #; create the YADM_DIR if it doesn't exist yet
-  [ -d "$YADM_DIR" ] || mkdir -p $YADM_DIR
+  [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
 
   #; parse command line arguments
   internal_commands="^(alt|clean|clone|config|decrypt|encrypt|help|init|list|perms|version)$"
@@ -43,10 +43,10 @@ function main() {
   elif [[ "$1" =~ $internal_commands ]] ; then
     #; for internal commands, process all of the arguments
     YADM_COMMAND="$1"
-    YADM_ARGS=""
+    YADM_ARGS=()
     shift
 
-    while [[ $# > 0 ]] ; do
+    while [[ $# -gt 0 ]] ; do
       key="$1"
       case $key in
         -a) #; used by list()
@@ -69,17 +69,13 @@ function main() {
           shift
         ;;
         *) #; any unhandled arguments
-          if [ -z "$YADM_ARGS" ] ; then
-            YADM_ARGS="$1"
-          else
-            YADM_ARGS+=" $1"
-          fi
+          YADM_ARGS+=("$1")
         ;;
       esac
       shift
     done
-    [ ! -d $YADM_WORK ] && error_out "Work tree does not exist: [$YADM_WORK]"
-    $YADM_COMMAND "$YADM_ARGS"
+    [ ! -d "$YADM_WORK" ] && error_out "Work tree does not exist: [$YADM_WORK]"
+    $YADM_COMMAND "${YADM_ARGS[@]}"
   else
     #; any other commands are simply passed through to git
     git_command "$@"
@@ -107,7 +103,10 @@ function alt() {
 
   #; process relative to YADM_WORK
   YADM_WORK=$(git config core.worktree)
-  cd $YADM_WORK
+  cd "$YADM_WORK" || {
+    debug "Alternates not processed, unable to cd to $YADM_WORK"
+    return
+  }
 
   #; only be noisy if the "alt" command was run directly
   [ "$YADM_COMMAND" = "alt" ] && loud="YES"
@@ -185,7 +184,7 @@ function config() {
     echo TODO: Print help about available yadm configurations
   else
     #; operate on the yadm configuration file
-    git config --file="$YADM_CONFIG" $@
+    git config --file="$YADM_CONFIG" "$@"
   fi
 
 }
@@ -222,7 +221,10 @@ function encrypt() {
 
   #; process relative to YADM_WORK
   YADM_WORK=$(git config core.worktree)
-  cd $YADM_WORK
+  cd "$YADM_WORK" || {
+    debug "Encryption not processed, unable to cd to $YADM_WORK"
+    return
+  }
 
   #; build a list of globs from YADM_ENCRYPT
   GLOBS=()
@@ -233,7 +235,7 @@ function encrypt() {
   done < "$YADM_ENCRYPT"
 
   #; encrypt all files which match the globs
-  tar -cv ${GLOBS[@]} | gpg --yes -c --output "$YADM_ARCHIVE"
+  tar -cv "${GLOBS[@]}" | gpg --yes -c --output "$YADM_ARCHIVE"
   if [ $? = 0 ]; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
@@ -246,7 +248,7 @@ function encrypt() {
   if [[ $archive_status =~ $archive_regex ]] ; then
     echo "It appears that $YADM_ARCHIVE is not tracked by yadm's repository."
     echo "Would you like to add it now? (y/n)"
-    read answer
+    read -r answer
     if [[ $answer =~ ^[yY]$ ]] ; then
       git add "$YADM_ARCHIVE"
     fi
@@ -335,7 +337,10 @@ function list() {
   #; process relative to YADM_WORK when --all is specified
   if [ -n "$LIST_ALL" ] ; then
     YADM_WORK=$(git config core.worktree)
-    cd $YADM_WORK
+    cd "$YADM_WORK" || {
+      debug "List not processed, unable to cd to $YADM_WORK"
+      return
+    }
   fi
 
   #; list tracked files
@@ -349,7 +354,10 @@ function perms() {
 
   #; process relative to YADM_WORK
   YADM_WORK=$(git config core.worktree)
-  cd $YADM_WORK
+  cd "$YADM_WORK" || {
+    debug "Perms not processed, unable to cd to $YADM_WORK"
+    return
+  }
 
   GLOBS=()
 
@@ -376,6 +384,8 @@ function perms() {
   fi
 
   #; remove group/other permissions from collected globs
+  #shellcheck disable=SC2068
+  #(SC2068 is disabled because in this case, we desire globbing)
   chmod -f go-rwx ${GLOBS[@]} >/dev/null 2>&1
   #; TODO: detect and report changing permissions in a portable way
 
@@ -394,7 +404,7 @@ function process_global_args() {
 
   #; global arguments are removed before the main processing is done
   MAIN_ARGS=()
-  while [[ $# > 0 ]] ; do
+  while [[ $# -gt 0 ]] ; do
     key="$1"
     case $key in
       -Y|--yadm-dir) #; override the standard YADM_DIR
@@ -446,13 +456,13 @@ function configure_repo() {
 
 function debug() {
 
-  [ -n "$DEBUG" ] && echo -e "DEBUG: $@"
+  [ -n "$DEBUG" ] && echo -e "DEBUG: $*"
 
 }
 
 function error_out() {
 
-  echo -e "ERROR: $@"
+  echo -e "ERROR: $*"
   exit 1
 
 }
