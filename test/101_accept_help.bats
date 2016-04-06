@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;lines=; #; populated by bats run()
 
 @test "Missing command" {
   echo "
@@ -9,8 +10,8 @@ load_fixtures
   "
 
   #; run yadm with no command
-  run $T_YADM
-  
+  run "$T_YADM"
+
   #; validate status and output
   [ $status -eq 1 ]
   [[ "${lines[0]}" =~ ^Usage: ]]
@@ -24,7 +25,7 @@ load_fixtures
   "
 
   #; run yadm with 'help' command
-  run $T_YADM help
+  run "$T_YADM" help
 
   #; validate status and output
   [ $status -eq 1 ]

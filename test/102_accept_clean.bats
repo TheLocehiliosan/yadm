@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;lines=; #; populated by bats run()
 
 @test "Command 'clean'" {
   echo "
@@ -10,7 +11,7 @@ load_fixtures
   "
 
   #; run yadm with 'clean' command
-  run $T_YADM clean
+  run "$T_YADM" clean
 
   #; validate status and output
   [ $status -eq 1 ]

@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;lines=; #; populated by bats run()
 
 IN_REPO=(.bash_profile .hammerspoon/init.lua .vimrc)
 SUBDIR=".hammerspoon"
@@ -19,7 +20,7 @@ function setup() {
   "
 
   #; run list -a
-  run $T_YADM_Y list -a
+  run "${T_YADM_Y[@]}" list -a
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -39,7 +40,7 @@ function setup() {
   "
 
   #; run list
-  run $T_YADM_Y list
+  run "${T_YADM_Y[@]}" list
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -59,7 +60,7 @@ function setup() {
   "
 
   #; run list
-  run bash -c "(cd $T_DIR_WORK; $T_YADM_Y list)"
+  run bash -c "(cd '$T_DIR_WORK'; ${T_YADM_Y[*]} list)"
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -79,7 +80,7 @@ function setup() {
   "
 
   #; run list
-  run bash -c "(cd $T_DIR_WORK/$SUBDIR; $T_YADM_Y list)"
+  run bash -c "(cd '$T_DIR_WORK/$SUBDIR'; ${T_YADM_Y[*]} list)"
 
   #; validate status and output
   [ "$status" -eq 0 ]

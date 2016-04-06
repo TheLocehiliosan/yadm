@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;output=; #; populated by bats run()
 
 @test "Command 'version'" {
   echo "
@@ -9,10 +10,12 @@ load_fixtures
   "
 
   #; run yadm with 'version' command
-  run $T_YADM version
+  run "$T_YADM" version
+
+  # shellcheck source=/dev/null
 
   #; load yadm variables (including VERSION)
-  YADM_TEST=1 source $T_YADM
+  YADM_TEST=1 source "$T_YADM"
 
   #; validate status and output
   [ $status -eq 0 ]

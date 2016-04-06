@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;output=; #; populated by bats run()
 
 IN_REPO=(alt*)
 
@@ -45,7 +46,7 @@ function test_alt() {
 
   #; run yadm (alt or status)
   if [ -z "$auto_alt" ]; then
-    run $T_YADM_Y alt
+    run "${T_YADM_Y[@]}" alt
     #; validate status and output
     if [ "$status" != 0 ] || [[ ! "$output" =~ Linking.+$link_name ]]; then
       echo "ERROR: Could not confirm status and output of alt command"
@@ -53,7 +54,7 @@ function test_alt() {
     fi
   else
     #; running any passed through Git command should trigger auto-alt
-    run $T_YADM_Y status
+    run "${T_YADM_Y[@]}" status
     if [ ! -z "$auto_alt" ] && [[ "$output" =~ Linking.+$link_name ]]; then
       echo "ERROR: Reporting of link should not happen"
       return 1
@@ -69,7 +70,8 @@ function test_alt() {
     fi
   else
     #; correct link should be present
-    local link_content=$(cat "$T_DIR_WORK/$link_name")
+    local link_content
+    link_content=$(cat "$T_DIR_WORK/$link_name")
     if [ "$link_content" != "$link_match" ]; then
       echo "ERROR: Link content is not correct"
       return 1

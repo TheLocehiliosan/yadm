@@ -1,24 +1,29 @@
 
 #; common fixtures
 function load_fixtures() {
-  DEFAULT_YADM_DIR="$HOME/.yadm"
-  DEFAULT_REPO="repo.git"
-  DEFAULT_CONFIG="config"
-  DEFAULT_ENCRYPT="encrypt"
-  DEFAULT_ARCHIVE="files.gpg"
+  export DEFAULT_YADM_DIR="$HOME/.yadm"
+  export DEFAULT_REPO="repo.git"
+  export DEFAULT_CONFIG="config"
+  export DEFAULT_ENCRYPT="encrypt"
+  export DEFAULT_ARCHIVE="files.gpg"
 
-  T_YADM="$PWD/yadm"
-  T_TMP="$BATS_TMPDIR/ytmp"
-  T_DIR_YADM="$T_TMP/.yadm"
-  T_DIR_WORK="$T_TMP/yadm-work"
-  T_DIR_REPO="$T_DIR_YADM/repo.git"
-  T_YADM_CONFIG="$T_DIR_YADM/config"
-  T_YADM_ENCRYPT="$T_DIR_YADM/encrypt"
-  T_YADM_ARCHIVE="$T_DIR_YADM/files.gpg"
-  T_YADM_Y="$T_YADM -Y $T_DIR_YADM"
+  export T_YADM="$PWD/yadm"
+  export T_TMP="$BATS_TMPDIR/ytmp"
+  export T_DIR_YADM="$T_TMP/.yadm"
+  export T_DIR_WORK="$T_TMP/yadm-work"
+  export T_DIR_REPO="$T_DIR_YADM/repo.git"
+  export T_YADM_CONFIG="$T_DIR_YADM/config"
+  export T_YADM_ENCRYPT="$T_DIR_YADM/encrypt"
+  export T_YADM_ARCHIVE="$T_DIR_YADM/files.gpg"
 
+  export T_YADM_Y
+  T_YADM_Y=( "$T_YADM" -Y "$T_DIR_YADM" )
+
+  export T_SYS
   T_SYS=$(uname -s)
+  export T_HOST
   T_HOST=$(hostname -s)
+  export T_USER
   T_USER=$(id -u -n)
 }
 
@@ -27,10 +32,17 @@ function configure_git() {
   (git config user.email || git config --global user.email 'test@test.test') > /dev/null
 }
 
+function make_parents() {
+  local parent_dir
+  parent_dir=$(dirname "$@")
+  mkdir -p "$parent_dir"
+}
+
 function test_perms() {
   local test_path="$1"
   local regex="$2"
-  local ls=$(ls -ld "$test_path")
+  local ls
+  ls=$(ls -ld "$test_path")
   local perms="${ls:0:10}"
   if [[ ! $perms =~ $regex ]]; then
     echo "ERROR: Found permissions $perms for $test_path"
@@ -43,7 +55,8 @@ function test_repo_attribute() {
   local repo_dir="$1"
   local attribute="$2"
   local expected="$3"
-  local actual=$(GIT_DIR="$repo_dir" git config --local "$attribute")
+  local actual
+  actual=$(GIT_DIR="$repo_dir" git config --local "$attribute")
   if [ "$actual" != "$expected" ]; then
     echo "ERROR: repo attribute $attribute set to $actual"
     return 1
@@ -103,7 +116,7 @@ function create_worktree() {
     .vimrc                             \
   ;
   do
-    mkdir -p $(dirname "$DIR_WORKTREE/$f")
+    make_parents "$DIR_WORKTREE/$f"
     echo "$f" > "$DIR_WORKTREE/$f"
   done
 
@@ -114,7 +127,7 @@ function create_worktree() {
 
 #; create a repo in T_DIR_REPO
 function build_repo() {
-  local files_to_add="$@"
+  local files_to_add=( "$@" )
 
   #; create a worktree
   create_worktree "$T_DIR_WORK"
@@ -133,8 +146,8 @@ function build_repo() {
   GIT_DIR="$T_DIR_REPO" git config status.showUntrackedFiles no
   GIT_DIR="$T_DIR_REPO" git config yadm.managed 'true'
 
-  if [ -n "$files_to_add" ]; then
-    for f in $files_to_add; do
+  if [ ${#files_to_add[@]} -ne 0 ]; then
+    for f in "${files_to_add[@]}"; do
       GIT_DIR="$T_DIR_REPO" git add "$T_DIR_WORK/$f" >/dev/null
     done
     GIT_DIR="$T_DIR_REPO" git commit -m 'Create repo template' >/dev/null

@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;output=;lines=; #; populated by bats run()
 
 IN_REPO=(.bash_profile .vimrc)
 
@@ -19,7 +20,7 @@ function setup_environment() {
   setup_environment
 
   #; run bogus
-  run $T_YADM_Y bogus
+  run "${T_YADM_Y[@]}" bogus
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -38,10 +39,10 @@ function setup_environment() {
 
   #; create a testfile
   local testfile="$T_DIR_WORK/testfile"
-  echo "$testfile" > $testfile
+  echo "$testfile" > "$testfile"
 
   #; run add
-  run $T_YADM_Y add -v "$testfile"
+  run "${T_YADM_Y[@]}" add -v "$testfile"
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -56,7 +57,7 @@ function setup_environment() {
   "
 
   #; run status
-  run $T_YADM_Y status
+  run "${T_YADM_Y[@]}" status
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -71,7 +72,7 @@ function setup_environment() {
   "
 
   #; run commit
-  run $T_YADM_Y commit -m 'Add testfile'
+  run "${T_YADM_Y[@]}" commit -m 'Add testfile'
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -87,7 +88,7 @@ function setup_environment() {
   "
 
   #; run log
-  run $T_YADM_Y log --oneline
+  run "${T_YADM_Y[@]}" log --oneline
 
   #; validate status and output
   [ "$status" -eq 0 ]

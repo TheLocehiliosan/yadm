@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;output=; #; populated by bats run()
 
 T_SECTION="test"
 T_ATTRIB="attribute"
@@ -32,7 +33,7 @@ setup() {
   "
 
   #; run config
-  run $T_YADM_Y config $T_KEY
+  run "${T_YADM_Y[@]}" config $T_KEY
 
   #; validate status and output
   [ $status -eq 0 ]
@@ -50,15 +51,17 @@ setup() {
   "
 
   #; run config
-  run $T_YADM_Y config "$T_KEY" "$T_VALUE"
+  run "${T_YADM_Y[@]}" config "$T_KEY" "$T_VALUE"
 
   #; validate status and output
   [ $status -eq 0 ]
   [ "$output" = "" ]
 
   #; validate configuration
-  local config=$(cat $T_YADM_CONFIG)
-  local expected=$(echo -e "$T_EXPECTED")
+  local config
+  config=$(cat "$T_YADM_CONFIG")
+  local expected
+  expected=$(echo -e "$T_EXPECTED")
   if [ "$config" != "$expected" ]; then
     echo "ERROR: Config does not match expected"
     echo "$config"
@@ -76,11 +79,11 @@ setup() {
   "
 
   #; manually load a value into the configuration
-  mkdir -p $(dirname "$T_YADM_CONFIG")
-  echo -e "$T_EXPECTED" > $T_YADM_CONFIG
+  make_parents "$T_YADM_CONFIG"
+  echo -e "$T_EXPECTED" > "$T_YADM_CONFIG"
 
   #; run config
-  run $T_YADM_Y config "$T_KEY"
+  run "${T_YADM_Y[@]}" config "$T_KEY"
 
   #; validate status and output
   [ $status -eq 0 ]
@@ -101,19 +104,21 @@ setup() {
   "
 
   #; manually load a value into the configuration
-  mkdir -p $(dirname "$T_YADM_CONFIG")
-  echo -e "${T_EXPECTED}_with_extra_data" > $T_YADM_CONFIG
+  make_parents "$T_YADM_CONFIG"
+  echo -e "${T_EXPECTED}_with_extra_data" > "$T_YADM_CONFIG"
 
   #; run config
-  run $T_YADM_Y config "$T_KEY" "$T_VALUE"
+  run "${T_YADM_Y[@]}" config "$T_KEY" "$T_VALUE"
 
   #; validate status and output
   [ $status -eq 0 ]
   [ "$output" = "" ]
 
   #; validate configuration
-  local config=$(cat $T_YADM_CONFIG)
-  local expected=$(echo -e "$T_EXPECTED")
+  local config
+  config=$(cat "$T_YADM_CONFIG")
+  local expected
+  expected=$(echo -e "$T_EXPECTED")
   if [ "$config" != "$expected" ]; then
     echo "ERROR: Config does not match expected"
     echo "$config"

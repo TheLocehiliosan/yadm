@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;output=; #; populated by bats run()
 
 setup() {
   destroy_tmp
@@ -13,7 +14,7 @@ function is_restricted() {
 }
 
 function validate_perms() {
-  local perms="$@"
+  local perms="$*"
 
   #; determine which paths should have restricted permissions
   restricted=()
@@ -39,13 +40,14 @@ function validate_perms() {
 
   #; validate permissions of each path in the worktere
   local testpath
-  for testpath in $(find "$T_DIR_WORK"); do
+  while IFS= read -r -d '' testpath; do
     local perm_regex="....rwxrwx"
     if is_restricted "$testpath"; then
       perm_regex="....------"
     fi
     test_perms "$testpath" "$perm_regex" || return 1
-  done
+  done <   <(find "$T_DIR_WORK" -print0)
+
 }
 
 @test "Command 'perms'" {
@@ -57,7 +59,7 @@ function validate_perms() {
   "
 
   #; run perms
-  run $T_YADM_Y perms
+  run "${T_YADM_Y[@]}" perms
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -81,7 +83,7 @@ function validate_perms() {
   echo -e "#.vimrc\n.hammerspoon/*" > "$T_YADM_ENCRYPT"
 
   #; run perms
-  run $T_YADM_Y perms
+  run "${T_YADM_Y[@]}" perms
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -107,7 +109,7 @@ function validate_perms() {
   git config --file="$T_YADM_CONFIG" "yadm.ssh-perms" "false"
 
   #; run perms
-  run $T_YADM_Y perms
+  run "${T_YADM_Y[@]}" perms
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -130,7 +132,7 @@ function validate_perms() {
   git config --file="$T_YADM_CONFIG" "yadm.gpg-perms" "false"
 
   #; run perms
-  run $T_YADM_Y perms
+  run "${T_YADM_Y[@]}" perms
 
   #; validate status and output
   [ "$status" -eq 0 ]
@@ -148,7 +150,7 @@ function validate_perms() {
   "
 
   #; run status
-  run $T_YADM_Y status
+  run "${T_YADM_Y[@]}" status
 
   #; validate status
   [ "$status" -eq 0 ]
@@ -169,7 +171,7 @@ function validate_perms() {
   git config --file="$T_YADM_CONFIG" "yadm.auto-perms" "false"
 
   #; run status
-  run $T_YADM_Y status
+  run "${T_YADM_Y[@]}" status
 
   #; validate status
   [ "$status" -eq 0 ]

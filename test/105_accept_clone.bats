@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;output=; #; populated by bats run()
 
 IN_REPO=(.bash_profile .vimrc)
 T_DIR_REMOTE="$T_TMP/remote"
@@ -26,7 +27,7 @@ setup() {
   rm -rf "$T_DIR_REPO"
 
   #; run clone
-  run $T_YADM_Y clone -w "$T_DIR_WORK" "file:///bogus-repo"
+  run "${T_YADM_Y[@]}" clone -w "$T_DIR_WORK" "file:///bogus-repo"
 
   #; validate status and output
   [ "$status" -eq 1 ]
@@ -56,21 +57,22 @@ setup() {
   rm -rf "$T_DIR_REPO"
 
   #; run clone
-  run $T_YADM_Y clone -w "$T_DIR_WORK" "$REMOTE_URL"
+  run "${T_YADM_Y[@]}" clone -w "$T_DIR_WORK" "$REMOTE_URL"
 
   #; validate status and output
   [ "$status" -eq 0 ]
   [[ "$output" =~ Initialized ]]
 
   #; validate repo attributes
-  test_perms $T_DIR_REPO "drw.--.--."
-  test_repo_attribute $T_DIR_REPO core.bare false
-  test_repo_attribute $T_DIR_REPO core.worktree "$T_DIR_WORK"
-  test_repo_attribute $T_DIR_REPO status.showUntrackedFiles no
-  test_repo_attribute $T_DIR_REPO yadm.managed true
+  test_perms "$T_DIR_REPO" "drw.--.--."
+  test_repo_attribute "$T_DIR_REPO" core.bare false
+  test_repo_attribute "$T_DIR_REPO" core.worktree "$T_DIR_WORK"
+  test_repo_attribute "$T_DIR_REPO" status.showUntrackedFiles no
+  test_repo_attribute "$T_DIR_REPO" yadm.managed true
 
   #; test the remote
-  local remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
+  local remote_output
+  remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
   [ "$remote_output" = "origin" ]
 }
 
@@ -83,7 +85,7 @@ setup() {
   "
 
   #; run clone
-  run $T_YADM_Y clone -w "$T_DIR_WORK" "$REMOTE_URL"
+  run "${T_YADM_Y[@]}" clone -w "$T_DIR_WORK" "$REMOTE_URL"
 
   #; validate status and output
   [ "$status" -eq 1 ]
@@ -111,21 +113,22 @@ setup() {
   mkdir -p "$T_DIR_WORK"
 
   #; run clone
-  run $T_YADM_Y clone -w "$T_DIR_WORK" -f "$REMOTE_URL"
+  run "${T_YADM_Y[@]}" clone -w "$T_DIR_WORK" -f "$REMOTE_URL"
 
   #; validate status and output
   [ "$status" -eq 0 ]
   [[ "$output" =~ Initialized ]]
 
   #; validate repo attributes
-  test_perms $T_DIR_REPO "drw.--.--."
-  test_repo_attribute $T_DIR_REPO core.bare false
-  test_repo_attribute $T_DIR_REPO core.worktree "$T_DIR_WORK"
-  test_repo_attribute $T_DIR_REPO status.showUntrackedFiles no
-  test_repo_attribute $T_DIR_REPO yadm.managed true
+  test_perms "$T_DIR_REPO" "drw.--.--."
+  test_repo_attribute "$T_DIR_REPO" core.bare false
+  test_repo_attribute "$T_DIR_REPO" core.worktree "$T_DIR_WORK"
+  test_repo_attribute "$T_DIR_REPO" status.showUntrackedFiles no
+  test_repo_attribute "$T_DIR_REPO" yadm.managed true
 
   #; test the remote
-  local remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
+  local remote_output
+  remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
   [ "$remote_output" = "origin" ]
 }
 
@@ -152,24 +155,25 @@ setup() {
   echo "conflict" >> "$T_DIR_WORK/.bash_profile"
 
   #; run clone
-  run $T_YADM_Y clone -w "$T_DIR_WORK" "$REMOTE_URL"
+  run "${T_YADM_Y[@]}" clone -w "$T_DIR_WORK" "$REMOTE_URL"
 
   #; validate status and output
   [ "$status" -eq 0 ]
   [[ "$output" =~ Initialized ]]
 
   #; validate merging note
-  [[ "$output" =~ Merging\ origin\/master\ failed ]]
+  [[ "$output" =~ Merging\ origin/master\ failed ]]
   [[ "$output" =~ NOTE ]]
 
   #; validate repo attributes
-  test_perms $T_DIR_REPO "drw.--.--."
-  test_repo_attribute $T_DIR_REPO core.bare false
-  test_repo_attribute $T_DIR_REPO core.worktree "$T_DIR_WORK"
-  test_repo_attribute $T_DIR_REPO status.showUntrackedFiles no
-  test_repo_attribute $T_DIR_REPO yadm.managed true
+  test_perms "$T_DIR_REPO" "drw.--.--."
+  test_repo_attribute "$T_DIR_REPO" core.bare false
+  test_repo_attribute "$T_DIR_REPO" core.worktree "$T_DIR_WORK"
+  test_repo_attribute "$T_DIR_REPO" status.showUntrackedFiles no
+  test_repo_attribute "$T_DIR_REPO" yadm.managed true
 
   #; test the remote
-  local remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
+  local remote_output
+  remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
   [ "$remote_output" = "origin" ]
 }

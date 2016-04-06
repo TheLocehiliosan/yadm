@@ -11,8 +11,10 @@ load_fixtures
            GIT_DIR=$DEFAULT_YADM_DIR/$DEFAULT_REPO
   "
 
+  # shellcheck source=/dev/null
+
   #; load yadm functions
-  YADM_TEST=1 source $T_YADM
+  YADM_TEST=1 source "$T_YADM"
 
   #; configure the paths
   configure_paths
@@ -42,12 +44,14 @@ load_fixtures
            GIT_DIR=$T_DIR_YADM/$DEFAULT_REPO
   "
 
+  # shellcheck source=/dev/null
+
   #; load yadm functions
-  YADM_TEST=1 source $T_YADM
+  YADM_TEST=1 source "$T_YADM"
 
   #; configure the paths
   TEST_ARGS=(-Y $T_DIR_YADM)
-  process_global_args ${TEST_ARGS[*]}
+  process_global_args "${TEST_ARGS[@]}"
   configure_paths
 
   echo "CONFIGURED PATHS:"

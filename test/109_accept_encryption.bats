@@ -1,5 +1,6 @@
 load common
 load_fixtures
+status=;output=; #; populated by bats run()
 
 T_PASSWD="ExamplePassword"
 
@@ -11,16 +12,19 @@ setup() {
   build_repo
 
   #; define a YADM_ENCRYPT
-  mkdir -p $(dirname "$T_YADM_ENCRYPT")
-  echo -e ".ssh/*.key\n.gnupg/*.gpg" > $T_YADM_ENCRYPT
+  make_parents "$T_YADM_ENCRYPT"
+  echo -e ".ssh/*.key\n.gnupg/*.gpg" > "$T_YADM_ENCRYPT"
 
   #; create a YADM_ARCHIVE
   (
-    cd $T_DIR_WORK
-    for f in $(sort "$T_YADM_ENCRYPT"); do
-      tar rf "$T_TMP/build_archive.tar" "$f"
-      echo "$f" >> "$T_TMP/archived_files"
-    done
+    if cd "$T_DIR_WORK"; then
+      # shellcheck disable=2013
+      # (globbing is desired)
+      for f in $(sort "$T_YADM_ENCRYPT"); do
+        tar rf "$T_TMP/build_archive.tar" "$f"
+        echo "$f" >> "$T_TMP/archived_files"
+      done
+    fi
   )
 
   #; encrypt YADM_ARCHIVE
@@ -46,10 +50,13 @@ EOF
 
   #; inventory what is expected in the archive
   (
-    cd $T_DIR_WORK
-    for f in $(cat "$T_YADM_ENCRYPT"); do
-      echo "$f"
-    done | sort > "$T_TMP/expected_list"
+    if cd "$T_DIR_WORK"; then
+      # shellcheck disable=2013
+      # (globbing is desired)
+      for f in $(cat "$T_YADM_ENCRYPT"); do
+        echo "$f"
+      done | sort > "$T_TMP/expected_list"
+    fi
   )
 
   #; compare the archive vs expected
@@ -64,13 +71,14 @@ EOF
 
 function validate_extraction() {
   #; test each file which was archived
-  for f in $(cat "$T_TMP/archived_files"); do
-    local contents=$(cat "$T_DIR_WORK/$f")
+  while IFS= read -r f; do
+    local contents
+    contents=$(cat "$T_DIR_WORK/$f")
     if [ "$contents" != "$f" ]; then
       echo "ERROR: Contents of $T_DIR_WORK/$f is incorrect"
       return 1
     fi
-  done
+  done < "$T_TMP/archived_files"
   return 0
 }
 
@@ -86,7 +94,7 @@ function validate_extraction() {
   rm -f "$T_YADM_ENCRYPT"
 
   #; run encrypt
-  run $T_YADM_Y encrypt
+  run "${T_YADM_Y[@]}" encrypt
 
   #; validate status and output
   [ "$status" -eq 1 ]
@@ -108,7 +116,7 @@ function validate_extraction() {
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y encrypt;
+    spawn ${T_YADM_Y[*]} encrypt;
     expect "passphrase:" {send "ONE\n"}
     expect "passphrase:" {send "TWO\n"}
     expect "$"
@@ -138,7 +146,7 @@ EOF
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y encrypt;
+    spawn ${T_YADM_Y[*]} encrypt;
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "$"
@@ -168,13 +176,14 @@ EOF
   rm -f "$T_YADM_ARCHIVE"
 
   #; add comment to YADM_ARCHIVE
-  local original_encrypt=$(cat "$T_YADM_ENCRYPT")
-  echo -e "#.vimrc" >> $T_YADM_ENCRYPT
+  local original_encrypt
+  original_encrypt=$(cat "$T_YADM_ENCRYPT")
+  echo -e "#.vimrc" >> "$T_YADM_ENCRYPT"
 
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y encrypt;
+    spawn ${T_YADM_Y[*]} encrypt;
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "$"
@@ -210,7 +219,7 @@ EOF
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y encrypt;
+    spawn ${T_YADM_Y[*]} encrypt;
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "$"
@@ -238,7 +247,7 @@ EOF
   rm -f "$T_YADM_ARCHIVE"
 
   #; run encrypt
-  run $T_YADM_Y decrypt
+  run "${T_YADM_Y[@]}" decrypt
 
   #; validate status and output
   [ "$status" -eq 1 ]
@@ -257,7 +266,7 @@ EOF
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y decrypt;
+    spawn ${T_YADM_Y[*]} decrypt;
     expect "passphrase:" {send "WRONG\n"}
     expect "$"
     foreach {pid spawnid os_error_flag value} [wait] break
@@ -283,7 +292,7 @@ EOF
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y decrypt -l;
+    spawn ${T_YADM_Y[*]} decrypt -l;
     expect "passphrase:" {send "WRONG\n"}
     expect "$"
     foreach {pid spawnid os_error_flag value} [wait] break
@@ -312,7 +321,7 @@ EOF
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y decrypt;
+    spawn ${T_YADM_Y[*]} decrypt;
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "$"
     foreach {pid spawnid os_error_flag value} [wait] break
@@ -338,14 +347,14 @@ EOF
   "
 
   #; alter the values of the archived files
-  for f in $(cat "$T_TMP/archived_files"); do
+  while IFS= read -r f; do
     echo "changed" >> "$T_DIR_WORK/$f"
-  done
+  done < "$T_TMP/archived_files"
 
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y decrypt;
+    spawn ${T_YADM_Y[*]} decrypt;
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "$"
     foreach {pid spawnid os_error_flag value} [wait] break
@@ -372,7 +381,7 @@ EOF
   #; run encrypt
   run expect <<EOF
     set timeout 2;
-    spawn $T_YADM_Y decrypt -l;
+    spawn ${T_YADM_Y[*]} decrypt -l;
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "$"
     foreach {pid spawnid os_error_flag value} [wait] break
@@ -383,11 +392,11 @@ EOF
   [ "$status" -eq 0 ]
 
   #; validate every file is listed in output
-  for f in $(cat "$T_TMP/archived_files"); do
+  while IFS= read -r f; do
     if [[ ! "$output" =~ $f ]]; then
       echo "ERROR: Did not find '$f' in output"
       return 1
     fi
-  done
+  done < "$T_TMP/archived_files"
 
 }

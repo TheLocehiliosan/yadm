@@ -7,5 +7,5 @@ load_fixtures
   "
 
   #; check the syntax of yadm
-  bash -n $T_YADM
+  bash -n "$T_YADM"
 }
