@@ -414,6 +414,34 @@ function process_global_args() {
         YADM_DIR="$2"
         shift
       ;;
+      --yadm-repo) #; override the standard YADM_REPO
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified repo path"
+        fi
+        YADM_OVERRIDE_REPO="$2"
+        shift
+      ;;
+      --yadm-config) #; override the standard YADM_CONFIG
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified config path"
+        fi
+        YADM_OVERRIDE_CONFIG="$2"
+        shift
+      ;;
+      --yadm-encrypt) #; override the standard YADM_ENCRYPT
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified encrypt path"
+        fi
+        YADM_OVERRIDE_ENCRYPT="$2"
+        shift
+      ;;
+      --yadm-archive) #; override the standard YADM_ARCHIVE
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified archive path"
+        fi
+        YADM_OVERRIDE_ARCHIVE="$2"
+        shift
+      ;;
       *) #; main arguments are kept intact
         MAIN_ARGS+=("$1")
       ;;
@@ -430,6 +458,20 @@ function configure_paths() {
   YADM_CONFIG="$YADM_DIR/$YADM_CONFIG"
   YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
   YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
+
+  #; independent overrides for paths
+  if [ -n "$YADM_OVERRIDE_REPO" ]; then
+    YADM_REPO="$YADM_OVERRIDE_REPO"
+  fi
+  if [ -n "$YADM_OVERRIDE_CONFIG" ]; then
+    YADM_CONFIG="$YADM_OVERRIDE_CONFIG"
+  fi
+  if [ -n "$YADM_OVERRIDE_ENCRYPT" ]; then
+    YADM_ENCRYPT="$YADM_OVERRIDE_ENCRYPT"
+  fi
+  if [ -n "$YADM_OVERRIDE_ARCHIVE" ]; then
+    YADM_ARCHIVE="$YADM_OVERRIDE_ARCHIVE"
+  fi
 
   #; use the yadm repo for all git operations
   export GIT_DIR="$YADM_REPO"
