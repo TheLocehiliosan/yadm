@@ -55,7 +55,7 @@ function test_alt() {
   else
     #; running any passed through Git command should trigger auto-alt
     run "${T_YADM_Y[@]}" status
-    if [ ! -z "$auto_alt" ] && [[ "$output" =~ Linking.+$link_name ]]; then
+    if [ -n "$auto_alt" ] && [[ "$output" =~ Linking.+$link_name ]]; then
       echo "ERROR: Reporting of link should not happen"
       return 1
     fi
