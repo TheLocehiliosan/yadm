@@ -206,6 +206,50 @@ to "false".
 .B version
 Print the version of
 .BR yadm .
+.SH OPTIONS
+
+.B yadm
+supports a set of universal options that alter the paths it uses.
+The default paths are documented in the FILES section.
+Any path specified by these options must be fully qualified.
+If you always want to override one or more of these paths, it may be useful to create an alias for the
+.B yadm
+command.
+For example, the following alias could be used to override the repository directory.
+
+.RS
+alias yadm='yadm --yadm-repo /alternate/path/to/repo'
+.RE
+
+The following is the full list of universal options.
+Each option should be followed by a fully qualified path.
+.TP
+.B -Y,--yadm-dir
+Override the
+.B yadm
+directory.
+.B yadm
+stores its data relative to this directory.
+.TP
+.B --yadm-repo
+Override the location of the
+.B yadm
+repository.
+.TP
+.B --yadm-config
+Override the location of the
+.B yadm
+configuration file.
+.TP
+.B --yadm-encrypt
+Override the location of the
+.B yadm
+encryption configuration.
+.TP
+.B --yadm-archive
+Override the location of the
+.B yadm
+encrypted files archive.
 .SH CONFIGURATION
 .B yadm
 uses a configuration file named
@@ -386,19 +430,31 @@ The SSH directory processing can be disabled using the
 .I yadm.ssh-perms
 configuration.
 .SH FILES
+The following are the default paths
+.B yadm
+uses for its own data.
+These paths can be altered using universal options.
+See the OPTIONS section for details.
 .TP
-.I $HOME/.yadm/config
+.I $HOME/.yadm
+The
+.B yadm
+directory. By default, all data
+.B yadm
+stores is relative to this directory.
+.TP
+.I $YADM_DIR/config
 Configuration file for
 .BR yadm .
 .TP
-.I $HOME/.yadm/repo.git
+.I $YADM_DIR/repo.git
 Git repository used by
 .BR yadm .
 .TP
-.I $HOME/.yadm/encrypt
+.I $YADM_DIR/encrypt
 List of globs used for encrypt/decrypt
 .TP
-.I $HOME/.yadm/files.gpg
+.I $YADM_DIR/files.gpg
 All files encrypted with
 .B yadm encrypt
 are stored in this file.
