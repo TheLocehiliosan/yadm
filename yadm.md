@@ -150,6 +150,12 @@
               Disable the permission changes to $HOME/.gnupg/*.  This  feature
               is enabled by default.
 
+       yadm.gpg-recipient
+              Asymmetrically encrypt files with a gpg public/private key pair.
+              Provice a key ID to encrypt against that public key.
+              If left blank or not provided, symmetric encryption is used
+              instead. This feature is disabled by deafult.
+
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
