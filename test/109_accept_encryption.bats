@@ -453,7 +453,7 @@ EOF
 
   #; validate status and output
   [ "$status" -eq 1 ]
-  [[ "$output" =~ invalid\ passphrase ]]
+  [[ "$output" =~ public\ key\ not\ found ]]
   [[ "$output" =~ Unable\ to\ write ]]
 }
 
