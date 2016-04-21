@@ -76,7 +76,7 @@ function validate_archive() {
       foreach {pid spawnid os_error_flag value} [wait] break
 EOF
   else
-    gpg -q -d "$T_YADM_ARCHIVE" || echo 1 | tar t | sort > "$T_TMP/archive_list"
+    gpg -q -d "$T_YADM_ARCHIVE" | tar t | sort > "$T_TMP/archive_list"
   fi
 
   #; inventory what is expected in the archive
@@ -534,7 +534,7 @@ EOF
   run expect <<EOF
     set timeout 2;
     spawn ${T_YADM_Y[*]} encrypt;
-    expect "recipient:" {send "$T_KEY_NAME\n\n"}
+    expect "Enter the user ID" {send "$T_KEY_NAME\n\n"}
     expect "$"
     foreach {pid spawnid os_error_flag value} [wait] break
     exit \$value

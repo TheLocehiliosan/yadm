@@ -181,9 +181,12 @@
 
        yadm.gpg-recipient
               Asymmetrically encrypt files with a gpg public/private key pair.
-              Provice a key ID to encrypt against that public key.
-              If left blank or not provided, symmetric encryption is used
-              instead. This feature is disabled by deafult.
+              Provide  a "key ID" to specify which public key to encrypt with.
+              The key must exist in your public keyrings.  If  left  blank  or
+              not  provided,  symmetric encryption is used instead.  If set to
+              "ASK", gpg will  interactively  ask  for  recipients.   See  the
+              ENCRYPTION  section  for more details.  This feature is disabled
+              by default.
 
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
@@ -264,16 +267,19 @@
        provide  the  correct password.  After files are decrypted, permissions
        are automatically updated as described in the PERMISSIONS section.
 
-       NOTE: It is recommended that you use a private repository when  keeping
+       Symmetric encryption is used by default, but asymmetric encryption  may
+       be enabled using the yadm.gpg-recipient configuration.
+
+       NOTE:  It is recommended that you use a private repository when keeping
        confidential files, even though they are encrypted.
 
 ## PERMISSIONS
-       When  files  are checked out of a Git repository, their initial permis-
+       When files are checked out of a Git repository, their  initial  permis-
        sions are dependent upon the user's umask. This can result in confiden-
        tial files with lax permissions.
 
        To prevent this, yadm will automatically update the permissions of con-
-       fidential files.  The "group" and "others" permissions will be  removed
+       fidential  files.  The "group" and "others" permissions will be removed
        from the following files:
 
        - $HOME/.yadm/files.gpg
@@ -285,13 +291,13 @@
        - The GPG directory and files, .gnupg/*
 
        yadm will automatically update permissions by default. This can be dis-
-       abled using the yadm.auto-perms configuration.  Even if disabled,  per-
+       abled  using the yadm.auto-perms configuration.  Even if disabled, per-
        missions can be manually updated by running yadm perms.  The SSH direc-
        tory processing can be disabled using the yadm.ssh-perms configuration.
 
 ## FILES
-       The  following are the default paths yadm uses for its own data.  These
-       paths can be altered using universal options.  See the OPTIONS  section
+       The following are the default paths yadm uses for its own data.   These
+       paths  can be altered using universal options.  See the OPTIONS section
        for details.
 
        $HOME/.yadm

@@ -295,9 +295,12 @@ This feature is enabled by default.
 .TP
 .B yadm.gpg-recipient
 Asymmetrically encrypt files with a gpg public/private key pair.
-Provide a key ID to encrypt against that public key.
+Provide a "key ID" to specify which public key to encrypt with.
+The key must exist in your public keyrings.
 If left blank or not provided, symmetric encryption is used instead.
-This feature is disabled by deafult.
+If set to "ASK", gpg will interactively ask for recipients.
+See the ENCRYPTION section for more details.
+This feature is disabled by default.
 .SH ALTERNATES
 When managing a set of files across different systems, it can be useful to have
 an automated way of choosing an alternate version of a file for a different
@@ -402,6 +405,11 @@ To decrypt these files later, or on another system run
 and provide the correct password.
 After files are decrypted, permissions are automatically updated as described
 in the PERMISSIONS section.
+
+Symmetric encryption is used by default, but asymmetric encryption may be
+enabled using the
+.I yadm.gpg-recipient
+configuration.
 
 .BR NOTE :
 It is recommended that you use a private repository when keeping confidential
