@@ -1,6 +1,6 @@
 Summary: Yet Another Dotfiles Manager
 Name: yadm
-Version: 1.02
+Version: 1.04
 Release: 1
 URL: https://github.com/TheLocehiliosan/yadm
 License: GPL

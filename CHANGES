@@ -1,5 +1,10 @@
+1.04
+  * Support alternate paths for yadm data (#4, #5)
+  * Support asymmetric encryption (#7, #8)
+  * Prevent the mixing of output and gpg prompts
+
 1.03
-  * Add username matching for alternate files (PR #1)
+  * Add username matching for alternate files (#1)
 
 1.02
   * Handle permissions for `~/.gnupg/*gpg`

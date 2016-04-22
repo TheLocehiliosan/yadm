@@ -31,8 +31,8 @@ _Seek home for rest, for home is best._—Thomas Tusser
 
 Or if not using yum, you can just directly download the RPM
 
-    curl -fLO https://dl.bintray.com/thelocehiliosan/rpm/yadm-1.02-1.noarch.rpm
-    sudo rpm -ivh yadm-1.02-1.noarch.rpm
+    curl -fLO https://dl.bintray.com/thelocehiliosan/rpm/yadm-1.04-1.noarch.rpm
+    sudo rpm -ivh yadm-1.04-1.noarch.rpm
 
 #### Arch Linux
 
