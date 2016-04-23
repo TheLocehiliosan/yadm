@@ -40,6 +40,20 @@ Or if not using yum, you can just directly download the RPM
 
     yaourt -S yadm
 
+#### Gentoo Linux
+
+**yadm** is not yet available in the main gentoo portage tree, however an ebuild
+is available for you to use
+
+    mkdir -p /usr/local/portage/app-admin/yadm
+    cp <yadm repository>/gentoo/* /usr/local/portage/app-admin/yadm/
+    emerge -atv app-admin/yadm
+
+If you have not configured portage to use `/usr/local/portage` as your local
+repository, you also need to add this to the portage `make.conf`
+
+    echo 'PORTDIR_OVERLAY="/usr/local/portage"' >> /etc/portage/make.conf
+
 #### Other
 
 You *can* simply download the **yadm** script and put it into your `$PATH`. Something like this:
