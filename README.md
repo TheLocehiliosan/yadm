@@ -46,7 +46,8 @@ Or if not using yum, you can just directly download the RPM
 is available for you to use
 
     mkdir -p /usr/local/portage/app-admin/yadm
-    cp <yadm repository>/gentoo/* /usr/local/portage/app-admin/yadm/
+    cd $_
+    curl -O 'https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/gentoo/yadm-1.04.ebuild' -O 'https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/gentoo/Manifest'
     emerge -atv app-admin/yadm
 
 If you have not configured portage to use `/usr/local/portage` as your local
