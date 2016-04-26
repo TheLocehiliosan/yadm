@@ -3,13 +3,11 @@ Name: yadm
 Version: 1.04
 Release: 1
 URL: https://github.com/TheLocehiliosan/yadm
-License: GPL
+License: GPLv3
 Group: Development/Tools
-Packager: Tim Byrne <sultan@locehilios.com>
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: bash
 Requires: git
-Source0: %{name}-%{version}.tar.gz
+Source: https://github.com/TheLocehiliosan/yadm/archive/%{name}-%{version}.tar.gz
 BuildArch: noarch
 
 %description
@@ -19,21 +17,23 @@ a specific OS or host. Supplies a method of encrypting confidential data so it
 can safely be stored in your repository.
 
 %prep
-%setup
+%setup -q
 
 %build
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
 mkdir -p ${RPM_BUILD_ROOT}%{_bindir}
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man1
 install -m 755 yadm   ${RPM_BUILD_ROOT}%{_bindir}
 install -m 644 yadm.1 ${RPM_BUILD_ROOT}%{_mandir}/man1
 
-%clean
-rm -rf ${RPM_BUILD_ROOT}
-
 %files
 %defattr(-,root,root)
 %attr(755,root,root) %{_bindir}/yadm
 %attr(644,root,root) %{_mandir}/man1/*
+
+%changelog
+* Fri Apr 22 2016 Tim Byrne <sultan@locehilios.com> 1.04-1
+- Support alternate paths for yadm data
+- Support asymmetric encryption
+- Prevent the mixing of output and gpg prompts
