@@ -23,16 +23,9 @@ _Seek home for rest, for home is best._—Thomas Tusser
 
     brew tap TheLocehiliosan/yadm && brew install yadm
 
-#### Linux YUM/RPM
+#### Fedora/Redhat/CentOS YUM/RPM
 
-    wget https://bintray.com/thelocehiliosan/rpm/rpm -O bintray-thelocehiliosan-rpm.repo
-    sudo mv bintray-thelocehiliosan-rpm.repo /etc/yum.repos.d/
-    sudo yum install yadm
-
-Or if not using yum, you can just directly download the RPM
-
-    curl -fLO https://dl.bintray.com/thelocehiliosan/rpm/yadm-1.04-1.noarch.rpm
-    sudo rpm -ivh yadm-1.04-1.noarch.rpm
+Several yum repositories are on Copr. Follow this link for [repositories and installation instructions](https://copr.fedorainfracloud.org/coprs/thelocehiliosan/yadm/).
 
 #### Arch Linux
 
