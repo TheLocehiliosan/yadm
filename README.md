@@ -21,7 +21,7 @@ _Seek home for rest, for home is best._—Thomas Tusser
 
 **yadm** can be installed using [Homebrew](https://github.com/Homebrew/homebrew).
 
-    brew tap TheLocehiliosan/yadm && brew install yadm
+    brew install yadm
 
 #### Fedora/Redhat/CentOS YUM/RPM
 
