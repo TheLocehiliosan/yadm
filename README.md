@@ -35,18 +35,10 @@ Several yum repositories are on Copr. Follow this link for [repositories and ins
 
 #### Gentoo Linux
 
-**yadm** is not yet available in the main gentoo portage tree, however an ebuild
-is available for you to use
+**yadm** available in the main gentoo portage tree, simply use `emerge` to
+install it
 
-    mkdir -p /usr/local/portage/app-admin/yadm
-    cd $_
-    curl -O 'https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/gentoo/yadm-1.04.ebuild' -O 'https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/gentoo/Manifest'
     emerge -atv app-admin/yadm
-
-If you have not configured portage to use `/usr/local/portage` as your local
-repository, you also need to add this to the portage `make.conf`
-
-    echo 'PORTDIR_OVERLAY="/usr/local/portage"' >> /etc/portage/make.conf
 
 #### Other
 
