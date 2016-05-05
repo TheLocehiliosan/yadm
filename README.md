@@ -35,7 +35,7 @@ Several yum repositories are on Copr. Follow this link for [repositories and ins
 
 #### Gentoo Linux
 
-**yadm** available in the main gentoo portage tree, simply use `emerge` to
+**yadm** is available in the main gentoo portage tree, simply use `emerge` to
 install it
 
     emerge -atv app-admin/yadm
