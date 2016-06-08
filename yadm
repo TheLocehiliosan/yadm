@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # yadm - Yet Another Dotfiles Manager
 # Copyright (C) 2015  Tim Byrne
