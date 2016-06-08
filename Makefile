@@ -19,7 +19,7 @@ test: bats shellcheck
 .PHONY: bats
 bats:
 	@echo Running all bats tests
-	@bats test
+	@GPG_AGENT_INFO= bats test
 
 .PHONY: shellcheck
 shellcheck:
