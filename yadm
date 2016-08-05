@@ -117,16 +117,23 @@ function alt() {
 
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
+  last_linked=''
   for tracked_file in $(git ls-files | sort); do
     tracked_file="$YADM_WORK/$tracked_file"
-    if [ -e "$tracked_file" ] ; then
-      if [[ $tracked_file =~ $match ]] ; then
-        new_link="${BASH_REMATCH[1]}"
-        debug "Linking $tracked_file to $new_link"
-        [ -n "$loud" ] && echo "Linking $tracked_file to $new_link"
-        ln -fs "$tracked_file" "$new_link"
+    #; process both the path, and it's parent directory
+    for alt_path in "$tracked_file" "${tracked_file%/*}"; do
+      if [ -e "$alt_path" ] ; then
+        if [[ $alt_path =~ $match ]] ; then
+          if [ "$alt_path" != "$last_linked" ] ; then
+            new_link="${BASH_REMATCH[1]}"
+            debug "Linking $alt_path to $new_link"
+            [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
+            ln -nfs "$alt_path" "$new_link"
+            last_linked="$alt_path"
+          fi
+        fi
       fi
-    fi
+    done
   done
 
 }

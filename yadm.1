@@ -356,6 +356,10 @@ If running on a Solaris server, the link use the default "##" version:
 
 If no "##" version exists and no files match the current OS/HOSTNAME/USER, then no link will be created.
 
+Links are also created for directories named this way, as long as they have at least one
+.B yadm
+managed file within them.
+
 OS is determined by running
 .BR uname\ -s ,
 HOSTNAME by running
