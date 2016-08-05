@@ -104,6 +104,51 @@ function create_worktree() {
     "alt-user##S.H"                    \
     "alt-user##S.H.U"                  \
     "alt-user##$T_SYS.$T_HOST.$T_USER" \
+    "dir1/alt-none##S/file1"                      \
+    "dir1/alt-none##S/file2"                      \
+    "dir1/alt-none##S.H/file1"                    \
+    "dir1/alt-none##S.H/file2"                    \
+    "dir1/alt-none##S.H.U/file1"                  \
+    "dir1/alt-none##S.H.U/file2"                  \
+    "dir1/alt-base##/file1"                       \
+    "dir1/alt-base##/file2"                       \
+    "dir1/alt-base##S/file1"                      \
+    "dir1/alt-base##S/file2"                      \
+    "dir1/alt-base##S.H/file1"                    \
+    "dir1/alt-base##S.H/file2"                    \
+    "dir1/alt-base##S.H.U/file1"                  \
+    "dir1/alt-base##S.H.U/file2"                  \
+    "dir1/alt-system##/file1"                     \
+    "dir1/alt-system##/file2"                     \
+    "dir1/alt-system##S/file1"                    \
+    "dir1/alt-system##S/file2"                    \
+    "dir1/alt-system##S.H/file1"                  \
+    "dir1/alt-system##S.H/file2"                  \
+    "dir1/alt-system##S.H.U/file1"                \
+    "dir1/alt-system##S.H.U/file2"                \
+    "dir1/alt-system##$T_SYS/file1"               \
+    "dir1/alt-system##$T_SYS/file2"               \
+    "dir1/alt-host##/file1"                       \
+    "dir1/alt-host##/file2"                       \
+    "dir1/alt-host##S/file1"                      \
+    "dir1/alt-host##S/file2"                      \
+    "dir1/alt-host##S.H/file1"                    \
+    "dir1/alt-host##S.H/file2"                    \
+    "dir1/alt-host##S.H.U/file1"                  \
+    "dir1/alt-host##S.H.U/file2"                  \
+    "dir1/alt-host##$T_SYS.$T_HOST/file1"         \
+    "dir1/alt-host##$T_SYS.$T_HOST/file2"         \
+    "dir1/alt-user##/file1"                       \
+    "dir1/alt-user##/file2"                       \
+    "dir1/alt-user##S/file1"                      \
+    "dir1/alt-user##S/file2"                      \
+    "dir1/alt-user##S.H/file1"                    \
+    "dir1/alt-user##S.H/file2"                    \
+    "dir1/alt-user##S.H.U/file1"                  \
+    "dir1/alt-user##S.H.U/file2"                  \
+    "dir1/alt-user##$T_SYS.$T_HOST.$T_USER/file1" \
+    "dir1/alt-user##$T_SYS.$T_HOST.$T_USER/file2" \
+    "dir2/file2"                                  \
     .bash_profile                      \
     .gnupg/gpg.conf                    \
     .gnupg/pubring.gpg                 \
