@@ -214,7 +214,7 @@ function decrypt() {
   fi
 
   #; decrypt the archive
-  (gpg -d "$YADM_ARCHIVE" || echo 1) | tar v$tar_option -C "$YADM_WORK"
+  (gpg -d "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"
   if [ $? = 0 ] ; then
     [ ! "$DO_LIST" = "YES" ] && echo "All files decrypted."
   else
@@ -261,7 +261,7 @@ function encrypt() {
   echo
 
   #; encrypt all files which match the globs
-  tar -c "${GLOBS[@]}" | gpg --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"
+  tar -f - -c "${GLOBS[@]}" | gpg --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"
   if [ $? = 0 ]; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
