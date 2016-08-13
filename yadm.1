@@ -301,6 +301,10 @@ If left blank or not provided, symmetric encryption is used instead.
 If set to "ASK", gpg will interactively ask for recipients.
 See the ENCRYPTION section for more details.
 This feature is disabled by default.
+.TP
+.B yadm.gpg-program
+Specify an alternate program to use instead of "gpg".
+By default, the first "gpg" found in $PATH is used.
 .SH ALTERNATES
 When managing a set of files across different systems, it can be useful to have
 an automated way of choosing an alternate version of a file for a different

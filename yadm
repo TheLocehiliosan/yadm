@@ -29,6 +29,8 @@ YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 
+GPG_PROGRAM="gpg"
+
 #; flag when something may have changes (which prompts auto actions to be performed)
 CHANGES_POSSIBLE=0
 
@@ -214,7 +216,7 @@ function decrypt() {
   fi
 
   #; decrypt the archive
-  (gpg -d "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"
+  ($GPG_PROGRAM -d "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"
   if [ $? = 0 ] ; then
     [ ! "$DO_LIST" = "YES" ] && echo "All files decrypted."
   else
@@ -261,7 +263,7 @@ function encrypt() {
   echo
 
   #; encrypt all files which match the globs
-  tar -f - -c "${GLOBS[@]}" | gpg --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"
+  tar -f - -c "${GLOBS[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"
   if [ $? = 0 ]; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
@@ -574,8 +576,18 @@ function require_git() {
     error_out "This functionality requires Git to be installed, but the command git cannot be located."
 }
 function require_gpg() {
-  command -v gpg >/dev/null 2>&1 || \
-    error_out "This functionality requires GPG to be installed, but the command gpg cannot be located."
+  local alt_gpg
+  alt_gpg="$(config yadm.gpg-program)"
+
+  local more_info
+  more_info=""
+
+  if [ "$alt_gpg" != "" ] ; then
+    GPG_PROGRAM="$alt_gpg"
+    more_info="\nThis command has been set via the yadm.gpg-program configuration."
+  fi
+  command -v "$GPG_PROGRAM" >/dev/null 2>&1 || \
+    error_out "This functionality requires GPG to be installed, but the command '$GPG_PROGRAM' cannot be located.$more_info"
 }
 function require_repo() {
   [ -d "$YADM_REPO" ] || error_out "Git repo does not exist. did you forget to run 'init' or 'clone'?"
