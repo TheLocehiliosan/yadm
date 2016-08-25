@@ -30,6 +30,7 @@ YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 
 GPG_PROGRAM="gpg"
+LS_PROGRAM="/bin/ls"
 
 #; flag when something may have changes (which prompts auto actions to be performed)
 CHANGES_POSSIBLE=0
@@ -231,6 +232,7 @@ function encrypt() {
 
   require_gpg
   require_encrypt
+  require_ls
 
   #; process relative to YADM_WORK
   YADM_WORK=$(git config core.worktree)
@@ -253,13 +255,13 @@ function encrypt() {
   GLOBS=()
   while IFS='' read -r glob || [ -n "$glob" ]; do
     if [[ ! $glob =~ ^# ]] ; then
-      GLOBS=("${GLOBS[@]}" $(eval /bin/ls "$glob" 2>/dev/null))
+      GLOBS=("${GLOBS[@]}" $(eval "$LS_PROGRAM" "$glob" 2>/dev/null))
     fi
   done < "$YADM_ENCRYPT"
 
   #; report which files will be encrypted
   echo "Encrypting the following files:"
-  ls -1 "${GLOBS[@]}"
+  "$LS_PROGRAM" -1 "${GLOBS[@]}"
   echo
 
   #; encrypt all files which match the globs
@@ -378,6 +380,8 @@ function list() {
 
 function perms() {
 
+  require_ls
+
   #; TODO: prevent repeats in the files changed
 
   #; process relative to YADM_WORK
@@ -406,7 +410,7 @@ function perms() {
   if [ -f "$YADM_ENCRYPT" ] ; then
     while IFS='' read -r glob || [ -n "$glob" ]; do
       if [[ ! $glob =~ ^# ]] ; then
-        GLOBS=("${GLOBS[@]}" $(eval /bin/ls "$glob" 2>/dev/null))
+        GLOBS=("${GLOBS[@]}" $(eval "$LS_PROGRAM" "$glob" 2>/dev/null))
       fi
     done < "$YADM_ENCRYPT"
   fi
@@ -591,6 +595,13 @@ function require_gpg() {
 }
 function require_repo() {
   [ -d "$YADM_REPO" ] || error_out "Git repo does not exist. did you forget to run 'init' or 'clone'?"
+}
+function require_ls() {
+  if [ ! -f "$LS_PROGRAM" ] ; then
+    command -v ls >/dev/null 2>&1 || \
+      error_out "This functionality requires 'ls' to be installed at '$LS_PROGRAM' or listed in your \$PATH"
+    LS_PROGRAM=ls
+  fi
 }
 
 #; ****** Main processing (when not unit testing) ******
