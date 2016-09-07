@@ -24,8 +24,8 @@ docs:
         url: /docs/install
       - title: "Getting Started"
         url: /docs/getting_started
-      - title: "Common Usage Patterns"
-        url: /docs/common_usage
+      - title: "Common Commands"
+        url: /docs/common_commands
   - title: Advanced Features
     children:
       - title: "Alternate Files"

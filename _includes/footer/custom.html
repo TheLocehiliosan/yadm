@@ -1,3 +1,15 @@
 <!-- start custom footer snippets -->
+<div id="quoteline"></div>
+<script language="JavaScript">
+  var quote = new Array ();
+  quote[0] = ["A house that does not have one warm, comfy chair in it is soulless.", "May Sarton"];
+  quote[1] = ["Home is an invention on which no one has yet improved.", "Ann Douglas"];
+  quote[2] = ["Seek home for rest, for home is best.", "Thomas Tusser"];
+  quote[3] = ["I would not change my blest estate for all the world calls good or great.", "Isaac Watts"];
+  quote[4] = ["To feel at home, stay at home.", "Clifton Fadiman"];
+  quote[5] = ["We shape our dwellings, and afterwards our dwellings shape us.", "Winston Churchill"];
+  var i = Math.floor(quote.length*Math.random());
+  document.getElementById('quoteline').innerHTML = '<i>'+quote[i][0]+'</i>&mdash;'+quote[i][1];
+</script>
 
 <!-- end custom footer snippets -->
