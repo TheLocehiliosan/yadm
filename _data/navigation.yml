@@ -1,7 +1,42 @@
-# main links links
 main:
-  - title: "Sample Navigation Link"
-    url: https://mmistakes.github.io/minimal-mistakes/docs/navigation/
-
-  - title: "Sample Navigation Link 2"
-    url: /
+  - title: '
+<a class="github-button" href="https://github.com/TheLocehiliosan/yadm"
+data-icon="octicon-star" data-style="mega"
+data-count-href="/TheLocehiliosan/yadm/stargazers"
+data-count-api="/repos/TheLocehiliosan/yadm#stargazers_count"
+data-count-aria-label="# stargazers on GitHub" aria-label="Star
+TheLocehiliosan/yadm on GitHub">Star</a>
+'
+  - title: '<div/>'
+  - title: '
+<a class="github-button" href="https://github.com/TheLocehiliosan/yadm/issues"
+data-icon="octicon-issue-opened" data-style="mega"
+data-count-api="/repos/TheLocehiliosan/yadm#open_issues_count"
+data-count-aria-label="# issues on GitHub" aria-label="Issue
+TheLocehiliosan/yadm on GitHub">Issue</a>
+'
+docs:
+  - title: Basics
+    children:
+      - title: "Overview"
+        url: /docs/overview
+      - title: "Installation"
+        url: /docs/install
+      - title: "Getting Started"
+        url: /docs/getting_started
+      - title: "Common Usage Patterns"
+        url: /docs/common_usage
+  - title: Advanced Features
+    children:
+      - title: "Alternate Files"
+        url: /docs/alternates
+      - title: "Encryption"
+        url: /docs/encryption
+  - title: More Help
+    children:
+      - title: "FAQ"
+        url: /docs/faq
+      - title: "Example Dotfiles"
+        url: /docs/examples
+      - title: "Manual"
+        url: "https://github.com/TheLocehiliosan/yadm/blob/master/yadm.md"
