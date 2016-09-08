@@ -11,14 +11,20 @@ T_RECIPIENT_GOOD="[yadm]\n\tgpg-recipient = yadm-test1"
 T_RECIPIENT_BAD="[yadm]\n\tgpg-recipient = invalid"
 T_RECIPIENT_ASK="[yadm]\n\tgpg-recipient = ASK"
 
+#; use gpg1 if it's available
+T_GPG_PROGRAM="gpg"
+if command -v gpg1 >/dev/null 2>&1; then
+  T_GPG_PROGRAM="gpg1"
+fi
+
 function import_keys() {
-  gpg --import "test/test_key" >/dev/null 2>&1 || true
-  gpg --import-ownertrust < "test/ownertrust.txt" >/dev/null 2>&1
+  "$T_GPG_PROGRAM" --import "test/test_key" >/dev/null 2>&1 || true
+  "$T_GPG_PROGRAM" --import-ownertrust < "test/ownertrust.txt" >/dev/null 2>&1
 }
 
 function remove_keys() {
-  gpg --batch --yes --delete-secret-keys "$T_KEY_FINGERPRINT" >/dev/null 2>&1 || true
-  gpg --batch --yes --delete-key "$T_KEY_FINGERPRINT" >/dev/null 2>&1 || true
+  "$T_GPG_PROGRAM" --batch --yes --delete-secret-keys "$T_KEY_FINGERPRINT" >/dev/null 2>&1 || true
+  "$T_GPG_PROGRAM" --batch --yes --delete-key "$T_KEY_FINGERPRINT" >/dev/null 2>&1 || true
 }
 
 setup() {
@@ -50,7 +56,7 @@ setup() {
   #; encrypt YADM_ARCHIVE (symmetric)
   expect <<EOF >/dev/null
     set timeout 2;
-    spawn gpg --yes -c --output "$T_ARCHIVE_SYMMETRIC" "$T_TMP/build_archive.tar"
+    spawn "$T_GPG_PROGRAM" --yes -c --output "$T_ARCHIVE_SYMMETRIC" "$T_TMP/build_archive.tar"
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "passphrase:" {send "$T_PASSWD\n"}
     expect "$"
@@ -58,7 +64,10 @@ setup() {
 EOF
 
   #; encrypt YADM_ARCHIVE (asymmetric)
-  gpg --yes --batch -e -r "$T_KEY_NAME" --output "$T_ARCHIVE_ASYMMETRIC" "$T_TMP/build_archive.tar"
+  "$T_GPG_PROGRAM" --yes --batch -e -r "$T_KEY_NAME" --output "$T_ARCHIVE_ASYMMETRIC" "$T_TMP/build_archive.tar"
+
+  #; configure yadm to use T_GPG_PROGRAM
+  git config --file="$T_YADM_CONFIG" yadm.gpg-program "$T_GPG_PROGRAM"
 }
 
 teardown() {
@@ -70,13 +79,13 @@ function validate_archive() {
   if [ "$1" = "symmetric" ]; then
     expect <<EOF >/dev/null
       set timeout 2;
-      spawn bash -c "(gpg -q -d '$T_YADM_ARCHIVE' || echo 1) | tar t | sort > $T_TMP/archive_list"
+      spawn bash -c "($T_GPG_PROGRAM -q -d '$T_YADM_ARCHIVE' || echo 1) | tar t | sort > $T_TMP/archive_list"
       expect "passphrase:" {send "$T_PASSWD\n"}
       expect "$"
       foreach {pid spawnid os_error_flag value} [wait] break
 EOF
   else
-    gpg -q -d "$T_YADM_ARCHIVE" | tar t | sort > "$T_TMP/archive_list"
+    "$T_GPG_PROGRAM" -q -d "$T_YADM_ARCHIVE" | tar t | sort > "$T_TMP/archive_list"
   fi
 
   #; inventory what is expected in the archive
