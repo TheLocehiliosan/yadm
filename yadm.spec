@@ -1,6 +1,6 @@
 Summary: Yet Another Dotfiles Manager
 Name: yadm
-Version: 1.04
+Version: 1.05
 Release: 1
 URL: https://github.com/TheLocehiliosan/yadm
 License: GPLv3
@@ -33,6 +33,13 @@ install -m 644 yadm.1 ${RPM_BUILD_ROOT}%{_mandir}/man1
 %attr(644,root,root) %{_mandir}/man1/*
 
 %changelog
+* Thu Sep  8 2016 Tim Byrne <sultan@locehilios.com> 1.05-1
+- Improve portability of shebang line
+- Support for symlinked directories
+- Improve portability of tar parameters
+- Support alternate gpg program
+- Fallback to using ls if /bin/ls does not exist
+
 * Fri Apr 22 2016 Tim Byrne <sultan@locehilios.com> 1.04-1
 - Support alternate paths for yadm data
 - Support asymmetric encryption

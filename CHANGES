@@ -1,3 +1,10 @@
+1.05
+  * Improve portability of shebang line (#14)
+  * Support for symlinked directories (#17)
+  * Improve portability of tar parameters (#18)
+  * Support alternate gpg program (#19)
+  * Fallback to using `ls` if `/bin/ls` does not exist (#22)
+
 1.04
   * Support alternate paths for yadm data (#4, #5)
   * Support asymmetric encryption (#7, #8)

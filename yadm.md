@@ -188,19 +188,23 @@
               ENCRYPTION  section  for more details.  This feature is disabled
               by default.
 
+       yadm.gpg-program
+              Specify an alternate  program  to  use  instead  of  "gpg".   By
+              default, the first "gpg" found in $PATH is used.
+
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
        a different operation system, host, or user.  yadm implements a feature
        which will automatically create a symbolic link to the appropriate ver-
-       sion of a file, as long as you follow  a  specific  naming  convention.
+       sion  of  a  file,  as long as you follow a specific naming convention.
        yadm can detect files with names ending in:
 
               ## or ##OS or ##OS.HOSTNAME or ##OS.HOSTNAME.USER
 
-       If  there  are  any files managed by yadm's repository which match this
-       naming convention, symbolic links will be created for the  most  appro-
-       priate  version.   This may best be demonstrated by example. Assume the
+       If there are any files managed by yadm's repository  which  match  this
+       naming  convention,  symbolic links will be created for the most appro-
+       priate version.  This may best be demonstrated by example.  Assume  the
        following files are managed by yadm's repository:
 
          - $HOME/path/example.txt##
@@ -221,7 +225,7 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##Darwin
 
-       Since the hostname doesn't match any of the  managed  files,  the  more
+       Since  the  hostname  doesn't  match any of the managed files, the more
        generic version is chosen.
 
        If running on a Linux server named "host4", the link will be:
@@ -232,8 +236,11 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##
 
-       If  no  "##"  version  exists  and  no files match the current OS/HOST-
+       If no "##" version exists and  no  files  match  the  current  OS/HOST-
        NAME/USER, then no link will be created.
+
+       Links  are also created for directories named this way, as long as they
+       have at least one yadm managed file within them.
 
        OS is determined by running uname -s, HOSTNAME by running  hostname -s,
        and  USER  by  running  id -u -n.  yadm will automatically create these
@@ -338,7 +345,7 @@
 ## REPORTING BUGS
        Report issues or create pull requests at GitHub:
 
-       https://github.com/TheLocehiliosan/yadm
+       https://github.com/TheLocehiliosan/yadm/issues
 
 ## AUTHOR
        Tim Byrne <sultan@locehilios.com>
@@ -346,11 +353,7 @@
 ## SEE ALSO
        git(1), gpg(1)
 
-       Other management tools which inspired the creation of yadm:
-
-       homeshick <https://github.com/andsens/homeshick>
-
-       vcsh <https://github.com/RichiH/vcsh>
+       https://thelocehiliosan.github.io/yadm/
 
 
 
