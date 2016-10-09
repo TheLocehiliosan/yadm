@@ -37,8 +37,6 @@ CHANGES_POSSIBLE=0
 
 function main() {
 
-  require_git
-
   #; create the YADM_DIR if it doesn't exist yet
   [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
 
@@ -109,7 +107,7 @@ function alt() {
   match="^(.+)##($match_system|$match_system.$match_host|$match_system.$match_host.$match_user|())$"
 
   #; process relative to YADM_WORK
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$(to_yadm_dir "$(git config core.worktree)")
   cd "$YADM_WORK" || {
     debug "Alternates not processed, unable to cd to $YADM_WORK"
     return
@@ -198,7 +196,7 @@ function config() {
     echo TODO: Print help about available yadm configurations
   else
     #; operate on the yadm configuration file
-    git config --file="$YADM_CONFIG" "$@"
+    git config --file="$(to_git_dir "$YADM_CONFIG")" "$@"
   fi
 
 }
@@ -208,7 +206,7 @@ function decrypt() {
   require_gpg
   require_archive
 
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$(to_yadm_dir "$(git config core.worktree)")
 
   if [ "$DO_LIST" = "YES" ] ; then
     tar_option="t"
@@ -235,7 +233,7 @@ function encrypt() {
   require_ls
 
   #; process relative to YADM_WORK
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$(to_yadm_dir "$(git config core.worktree)")
   cd "$YADM_WORK" || {
     debug "Encryption not processed, unable to cd to $YADM_WORK"
     return
@@ -273,14 +271,14 @@ function encrypt() {
   fi
 
   #; offer to add YADM_ARCHIVE if untracked
-  archive_status=$(git status --porcelain -uall "$YADM_ARCHIVE" 2>/dev/null)
+  archive_status=$(git status --porcelain -uall "$(to_git_dir "$YADM_ARCHIVE")" 2>/dev/null)
   archive_regex="^\?\?"
   if [[ $archive_status =~ $archive_regex ]] ; then
     echo "It appears that $YADM_ARCHIVE is not tracked by yadm's repository."
     echo "Would you like to add it now? (y/n)"
     read -r answer
     if [[ $answer =~ ^[yY]$ ]] ; then
-      git add "$YADM_ARCHIVE"
+      git add "$(to_git_dir "$YADM_ARCHIVE")"
     fi
   fi
 
@@ -353,7 +351,7 @@ function init() {
 
   #; init a new bare repo
   debug "Init new repo"
-  git init --shared=0600 --bare "$YADM_REPO"
+  git init --shared=0600 --bare "$(to_git_dir "$YADM_REPO")"
   configure_repo
 
   CHANGES_POSSIBLE=1
@@ -366,7 +364,7 @@ function list() {
 
   #; process relative to YADM_WORK when --all is specified
   if [ -n "$LIST_ALL" ] ; then
-    YADM_WORK=$(git config core.worktree)
+    YADM_WORK=$(to_yadm_dir "$(git config core.worktree)")
     cd "$YADM_WORK" || {
       debug "List not processed, unable to cd to $YADM_WORK"
       return
@@ -385,7 +383,7 @@ function perms() {
   #; TODO: prevent repeats in the files changed
 
   #; process relative to YADM_WORK
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$(to_yadm_dir "$(git config core.worktree)")
   cd "$YADM_WORK" || {
     debug "Perms not processed, unable to cd to $YADM_WORK"
     return
@@ -506,7 +504,8 @@ function configure_paths() {
   fi
 
   #; use the yadm repo for all git operations
-  export GIT_DIR="$YADM_REPO"
+  GIT_DIR=$(to_git_dir "$YADM_REPO")
+  export GIT_DIR
 
 }
 
@@ -518,7 +517,7 @@ function configure_repo() {
   git config core.bare 'false'
 
   #; set the worktree for the yadm repo
-  git config core.worktree "$YADM_WORK"
+  git config core.worktree "$(to_git_dir "$YADM_WORK")"
 
   #; by default, do not show untracked files and directories
   git config status.showUntrackedFiles no
@@ -578,6 +577,17 @@ function require_encrypt() {
 function require_git() {
   command -v git >/dev/null 2>&1 || \
     error_out "This functionality requires Git to be installed, but the command git cannot be located."
+
+  case "$(uname -s)" in
+    CYGWIN*)
+      if git --version | grep -q "windows"; then
+	use_cygpath="true"
+      fi
+      ;;
+
+    *)
+      ;;
+  esac
 }
 function require_gpg() {
   local alt_gpg
@@ -604,10 +614,28 @@ function require_ls() {
   fi
 }
 
+#; ****** directory helpers ******
+
+function to_yadm_dir() {
+  if [ -n "$use_cygpath" ] ; then
+    cygpath -u "$1"
+  else
+    echo "$1"
+  fi
+}
+function to_git_dir() {
+  if [ -n "$use_cygpath" ] ; then
+    cygpath -m "$1"
+  else
+    echo "$1"
+  fi
+}
+
 #; ****** Main processing (when not unit testing) ******
 
 if [ "$YADM_TEST" != 1 ] ; then
   process_global_args "$@"
+  require_git
   configure_paths
   main "${MAIN_ARGS[@]}"
 fi
