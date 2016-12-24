@@ -86,13 +86,14 @@ function main() {
   else
     #; any other commands are simply passed through to git
     git_command "$@"
+    local git_retval="$?"
   fi
 
   #; process automatic events
   auto_alt
   auto_perms
 
-  exit 0
+  exit $git_retval
 
 }
 
@@ -299,9 +300,10 @@ function git_command() {
 
   #; pass commands through to git
   git "$@"
+  local git_retval="$?"
 
   CHANGES_POSSIBLE=1
-
+  return $git_retval
 }
 
 function help() {
