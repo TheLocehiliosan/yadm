@@ -55,3 +55,15 @@ You *can* simply download the **yadm** script and put it into your `$PATH`. Some
 ```
 curl -fLo /usr/local/bin/yadm https://github.com/TheLocehiliosan/yadm/raw/master/yadm && chmod a+x /usr/local/bin/yadm
 ```
+
+or this if you don't want to clutter your system files:
+
+```
+curl -fLo ~/bin/yadm https://github.com/TheLocehiliosan/yadm/raw/master/yadm && chmod +x ~/bin/yadm
+```
+
+You can then, if you wish, add the **yadm** repository to your repository as a submodule.
+Doing this is beyond this documentation, but you can get a start by reading the 
+[git-submodule](https://git-scm.com/docs/git-submodule)
+man page;
+or Stack-Overflow has a [useful resource](https://stackoverflow.com/questions/9035895/how-do-i-add-a-submodule-to-a-sub-directory)
