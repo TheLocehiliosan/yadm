@@ -30,6 +30,7 @@ YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 
 GPG_PROGRAM="gpg"
+GIT_PROGRAM="hub"
 LS_PROGRAM="/bin/ls"
 
 #; flag when something may have changes (which prompts auto actions to be performed)
@@ -298,7 +299,7 @@ function git_command() {
   fi
 
   #; pass commands through to git
-  git "$@"
+  "$GIT_PROGRAM" "$@"
 
   CHANGES_POSSIBLE=1
 
