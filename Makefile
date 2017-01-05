@@ -26,11 +26,12 @@ shellcheck:
 	@echo Running shellcheck
 	@shellcheck --version || true
 	@shellcheck -s bash yadm test/*.bash
-	@for bats_file in test/*bats; do \
-		sed 's/^@test.*{/function test() {/' "$$bats_file" > "$$bats_file .bash"; \
-		shellcheck -s bash "$$bats_file .bash"; \
+	@cd test; \
+	for bats_file in *bats; do \
+		sed 's/^@test.*{/function test() {/' "$$bats_file" > "/tmp/$$bats_file.bash"; \
+		shellcheck -s bash "/tmp/$$bats_file.bash"; \
 		test_result="$$?"; \
-		rm -f "$$bats_file .bash"; \
+		rm -f "/tmp/$$bats_file.bash"; \
 		[ "$$test_result" -ne 0 ] && exit 1; \
 	done; true
 
