@@ -120,8 +120,11 @@ function alt() {
 
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
+  BKIFS=$IFS
+  IFS=$'\n'
+  tracked_files=$(git ls-files | sort)
   last_linked=''
-  for tracked_file in $(git ls-files | sort); do
+  for tracked_file in ${tracked_files[@]}; do
     tracked_file="$YADM_WORK/$tracked_file"
     #; process both the path, and it's parent directory
     for alt_path in "$tracked_file" "${tracked_file%/*}"; do
@@ -138,6 +141,7 @@ function alt() {
       fi
     done
   done
+  IFS=$BKIFS
 
 }
 
