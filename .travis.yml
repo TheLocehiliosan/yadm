@@ -1,17 +1,9 @@
 ---
+sudo: required
 language: bash
-# addons:
-#   apt:
-#     sources:
-#     - debian-sid
-#     packages:
-#     - shellcheck
+services:
+  - docker
 before_install:
-  - sudo add-apt-repository ppa:duggan/bats --yes
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq bats
-  - sudo apt-get install -qq gnupg
-  - sudo apt-get install -qq expect
+  - docker pull yadm/testbed:latest
 script:
-  # - make test
-  - make bats
+  - docker run --rm -v "$PWD:/yadm:ro" yadm/testbed
