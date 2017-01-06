@@ -2,7 +2,7 @@ load common
 load_fixtures
 status=;output=; #; populated by bats run()
 
-IN_REPO=(alt* dir1)
+IN_REPO=(alt* "dir one")
 
 setup() {
   destroy_tmp
@@ -33,8 +33,8 @@ function test_alt() {
       link_match="$link_name##$T_SYS.$T_HOST.$T_USER"
     ;;
   esac
-  dir_link_name="dir1/${link_name}"
-  dir_link_match="dir1/${link_match}"
+  dir_link_name="dir one/${link_name}"
+  dir_link_match="dir one/${link_match}"
 
   if [ "$test_overwrite" = "true" ]; then
     #; create incorrect links (to overwrite)
