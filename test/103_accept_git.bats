@@ -13,7 +13,7 @@ function setup_environment() {
   echo "
     When the command 'bogus' is provided
     Report bogus is not a command
-    Exit with 0
+    Exit with 1
   "
 
   #; start fresh
@@ -23,8 +23,29 @@ function setup_environment() {
   run "${T_YADM_Y[@]}" bogus
 
   #; validate status and output
-  [ "$status" -eq 0 ]
+  [ "$status" -eq 1 ]
   [[ "$output" =~ .bogus..is.not.a.git.command ]]
+}
+
+@test "Git command 'add' - badfile" {
+  echo "
+    When the command 'add' is provided
+    And the file specified does not exist
+      Exit with 128
+  "
+
+  #; start fresh
+  setup_environment
+
+  #; define a non existig testfile
+  local testfile="$T_DIR_WORK/does_not_exist"
+
+  #; run add
+  run "${T_YADM_Y[@]}" add -v "$testfile"
+
+  #; validate status and output
+  [ "$status" -eq 128 ]
+  [[ "$output" =~ pathspec.+did.not.match ]]
 }
 
 @test "Git command 'add'" {
