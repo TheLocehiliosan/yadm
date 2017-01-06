@@ -221,8 +221,7 @@ function decrypt() {
   fi
 
   #; decrypt the archive
-  ($GPG_PROGRAM -d "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"
-  if [ $? = 0 ] ; then
+  if ($GPG_PROGRAM -d "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"; then
     [ ! "$DO_LIST" = "YES" ] && echo "All files decrypted."
   else
     error_out "Unable to extract encrypted files."
@@ -269,8 +268,7 @@ function encrypt() {
   echo
 
   #; encrypt all files which match the globs
-  tar -f - -c "${GLOBS[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"
-  if [ $? = 0 ]; then
+  if tar -f - -c "${GLOBS[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
     error_out "Unable to write $YADM_ARCHIVE"
