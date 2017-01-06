@@ -43,6 +43,7 @@ function main() {
   [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
 
   #; parse command line arguments
+  local retval=0
   internal_commands="^(alt|clean|clone|config|decrypt|encrypt|help|init|list|perms|version)$"
   if [ -z "$*" ] ; then
     #; no argumnts will result in help()
@@ -86,13 +87,14 @@ function main() {
   else
     #; any other commands are simply passed through to git
     git_command "$@"
+    retval="$?"
   fi
 
   #; process automatic events
   auto_alt
   auto_perms
 
-  exit 0
+  exit $retval
 
 }
 
@@ -299,11 +301,11 @@ function git_command() {
     set -- "config" "${@:2}"
   fi
 
-  #; pass commands through to git
-  git "$@"
-
   CHANGES_POSSIBLE=1
 
+  #; pass commands through to git
+  git "$@"
+  return "$?"
 }
 
 function help() {
