@@ -110,7 +110,7 @@ function alt() {
   match="^(.+)##($match_system|$match_system.$match_host|$match_system.$match_host.$match_user|())$"
 
   #; process relative to YADM_WORK
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
   cd "$YADM_WORK" || {
     debug "Alternates not processed, unable to cd to $YADM_WORK"
     return
@@ -122,7 +122,7 @@ function alt() {
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
   last_linked=''
-  for tracked_file in $(git ls-files | sort); do
+  for tracked_file in $("$GIT_PROGRAM" ls-files | sort); do
     tracked_file="$YADM_WORK/$tracked_file"
     #; process both the path, and it's parent directory
     for alt_path in "$tracked_file" "${tracked_file%/*}"; do
@@ -144,7 +144,7 @@ function alt() {
 
 function clean() {
 
-  error_out "\"git clean\" has been disabled for safety. You could end up removing all unmanaged files."
+  error_out "\"$GIT_PROGRAM clean\" has been disabled for safety. You could end up removing all unmanaged files."
 
 }
 
@@ -155,22 +155,30 @@ function clone() {
 
   #; add the specified remote, and configure the repo to track origin/master
   debug "Adding remote to new repo"
-  git remote add origin "$1"
+  if [$GIT_PROGRAM = "hub"] ; then
+    "$GIT_PROGRAM" remote add origin "$@"
+  else
+    "$GIT_PROGRAM" remote add origin "$1"
+  fi
   debug "Configuring new repo to track origin/master"
-  git config branch.master.remote origin
-  git config branch.master.merge refs/heads/master
+  "$GIT_PROGRAM" config branch.master.remote origin
+  "$GIT_PROGRAM" config branch.master.merge refs/heads/master
 
   #; fetch / merge (and possibly fallback to reset)
   debug "Doing an initial fetch of the origin"
-  git fetch origin || {
+  "$GIT_PROGRAM" fetch origin || {
     debug "Removing repo after failed clone"
     rm -rf "$YADM_REPO"
-    error_out "Unable to fetch origin $1"
+    if [$GIT_PROGRAM = "hub"] ; then
+      error_out "Unable to fetch origin ${@: -1}"
+    else
+      error_out "Unable to fetch origin $1"
+    fi
   }
   debug "Doing an initial merge of origin/master"
-  git merge origin/master || {
+  "$GIT_PROGRAM" merge origin/master || {
     debug "Merge failed, doing a reset."
-    git reset origin/master
+    "$GIT_PROGRAM" reset origin/master
     cat <<EOF
 **NOTE**
   Merging origin/master failed.
@@ -199,7 +207,7 @@ function config() {
     echo TODO: Print help about available yadm configurations
   else
     #; operate on the yadm configuration file
-    git config --file="$YADM_CONFIG" "$@"
+    "$GIT_PROGRAM" config --file="$YADM_CONFIG" "$@"
   fi
 
 }
@@ -209,7 +217,7 @@ function decrypt() {
   require_gpg
   require_archive
 
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
 
   if [ "$DO_LIST" = "YES" ] ; then
     tar_option="t"
@@ -236,7 +244,7 @@ function encrypt() {
   require_ls
 
   #; process relative to YADM_WORK
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
   cd "$YADM_WORK" || {
     debug "Encryption not processed, unable to cd to $YADM_WORK"
     return
@@ -274,14 +282,14 @@ function encrypt() {
   fi
 
   #; offer to add YADM_ARCHIVE if untracked
-  archive_status=$(git status --porcelain -uall "$YADM_ARCHIVE" 2>/dev/null)
+  archive_status=$("$GIT_PROGRAM" status --porcelain -uall "$YADM_ARCHIVE" 2>/dev/null)
   archive_regex="^\?\?"
   if [[ $archive_status =~ $archive_regex ]] ; then
     echo "It appears that $YADM_ARCHIVE is not tracked by yadm's repository."
     echo "Would you like to add it now? (y/n)"
     read -r answer
     if [[ $answer =~ ^[yY]$ ]] ; then
-      git add "$YADM_ARCHIVE"
+      "$GIT_PROGRAM" add "$YADM_ARCHIVE"
     fi
   fi
 
@@ -354,7 +362,7 @@ function init() {
 
   #; init a new bare repo
   debug "Init new repo"
-  git init --shared=0600 --bare "$YADM_REPO"
+  "$GIT_PROGRAM" init --shared=0600 --bare "$YADM_REPO"
   configure_repo
 
   CHANGES_POSSIBLE=1
@@ -367,7 +375,7 @@ function list() {
 
   #; process relative to YADM_WORK when --all is specified
   if [ -n "$LIST_ALL" ] ; then
-    YADM_WORK=$(git config core.worktree)
+    YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
     cd "$YADM_WORK" || {
       debug "List not processed, unable to cd to $YADM_WORK"
       return
@@ -375,7 +383,7 @@ function list() {
   fi
 
   #; list tracked files
-  git ls-files
+  "$GIT_PROGRAM" ls-files
 
 }
 
@@ -386,7 +394,7 @@ function perms() {
   #; TODO: prevent repeats in the files changed
 
   #; process relative to YADM_WORK
-  YADM_WORK=$(git config core.worktree)
+  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
   cd "$YADM_WORK" || {
     debug "Perms not processed, unable to cd to $YADM_WORK"
     return
@@ -516,16 +524,16 @@ function configure_repo() {
   debug "Configuring new repo"
 
   #; change bare to false (there is a working directory)
-  git config core.bare 'false'
+  "$GIT_PROGRAM" config core.bare 'false'
 
   #; set the worktree for the yadm repo
-  git config core.worktree "$YADM_WORK"
+  "$GIT_PROGRAM" config core.worktree "$YADM_WORK"
 
   #; by default, do not show untracked files and directories
-  git config status.showUntrackedFiles no
+  "$GIT_PROGRAM" config status.showUntrackedFiles no
 
   #; possibly used later to ensure we're working on the yadm repo
-  git config yadm.managed 'true'
+  "$GIT_PROGRAM" config yadm.managed 'true'
 
 }
 
@@ -577,8 +585,8 @@ function require_encrypt() {
   [ -f "$YADM_ENCRYPT" ] || error_out "$YADM_ENCRYPT does not exist. did you forget to create it?"
 }
 function require_git() {
-  command -v git >/dev/null 2>&1 || \
-    error_out "This functionality requires Git to be installed, but the command git cannot be located."
+  command -v "$GIT_PROGRAM" >/dev/null 2>&1 || \
+    error_out "This functionality requires Git to be installed, but the command $GIT_PROGRAM cannot be located."
 }
 function require_gpg() {
   local alt_gpg
