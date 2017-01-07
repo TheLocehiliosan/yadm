@@ -4,9 +4,20 @@ status=;output=; #; populated by bats run()
 
 IN_REPO=(alt* "dir one")
 
+function create_encrypt() {
+  for efile in "encrypted-base##" "encrypted-system##$T_SYS" "encrypted-host##$T_SYS.$T_HOST" "encrypted-user##$T_SYS.$T_HOST.$T_USER"; do
+    echo "$efile" >> "$T_YADM_ENCRYPT"
+    echo "$efile" >> "$T_DIR_WORK/$efile"
+    mkdir -p "$T_DIR_WORK/dir one/$efile"
+    echo "dir one/$efile/file1" >> "$T_YADM_ENCRYPT"
+    echo "dir one/$efile/file1" >> "$T_DIR_WORK/dir one/$efile/file1"
+  done
+}
+
 setup() {
   destroy_tmp
   build_repo "${IN_REPO[@]}"
+  create_encrypt
 }
 
 function test_alt() {
@@ -30,6 +41,22 @@ function test_alt() {
     ;;
     user)
       link_name="alt-user"
+      link_match="$link_name##$T_SYS.$T_HOST.$T_USER"
+    ;;
+    encrypted_base)
+      link_name="encrypted-base"
+      link_match="$link_name##"
+    ;;
+    encrypted_system)
+      link_name="encrypted-system"
+      link_match="$link_name##$T_SYS"
+    ;;
+    encrypted_host)
+      link_name="encrypted-host"
+      link_match="$link_name##$T_SYS.$T_HOST"
+    ;;
+    encrypted_user)
+      link_name="encrypted-user"
       link_match="$link_name##$T_SYS.$T_HOST.$T_USER"
     ;;
   esac
@@ -72,7 +99,7 @@ function test_alt() {
   fi
 
   #; validate link content
-  if [ "$alt_type" = "none" ] || [ "$auto_alt" = "false" ]; then
+  if [[ "$alt_type" =~ none ]] || [ "$auto_alt" = "false" ]; then
     #; no link should be present
     if [ -L "$T_DIR_WORK/$link_name" ] || [ -L "$T_DIR_WORK/$dir_link_name" ]; then
       echo "ERROR: Links should not exist"
@@ -183,4 +210,63 @@ function test_alt() {
   "
 
   test_alt 'base' 'true' ''
+}
+
+@test "Command 'alt' (select encrypted base)" {
+  echo "
+    When the command 'alt' is provided
+    and encrypted file matches only ##
+    Report the linking
+    Verify correct encrypted file is linked
+    Exit with 0
+  "
+
+  test_alt 'encrypted_base' 'false' ''
+}
+
+@test "Command 'alt' (select encrypted system)" {
+  echo "
+    When the command 'alt' is provided
+    and encrypted file matches only ##SYSTEM
+    Report the linking
+    Verify correct encrypted file is linked
+    Exit with 0
+  "
+
+  test_alt 'encrypted_system' 'false' ''
+}
+
+@test "Command 'alt' (select encrypted host)" {
+  echo "
+    When the command 'alt' is provided
+    and encrypted file matches only ##SYSTEM.HOST
+    Report the linking
+    Verify correct encrypted file is linked
+    Exit with 0
+  "
+
+  test_alt 'encrypted_host' 'false' ''
+}
+
+@test "Command 'alt' (select encrypted user)" {
+  echo "
+    When the command 'alt' is provided
+    and encrypted file matches only ##SYSTEM.HOST.USER
+    Report the linking
+    Verify correct encrypted file is linked
+    Exit with 0
+  "
+
+  test_alt 'encrypted_user' 'false' ''
+}
+
+@test "Command 'alt' (select encrypted none)" {
+  echo "
+    When the command 'alt' is provided
+    and no encrypted file matches
+    Verify there is no link
+    Exit with 0
+  "
+
+  test_alt 'encrypted_none' 'false' ''
 }
