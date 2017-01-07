@@ -125,7 +125,7 @@ function alt() {
   #; for every file which matches the above regex, create a symlink
   last_linked=''
   local IFS=$'\n'
-  for tracked_file in $(git ls-files | sort); do
+  for tracked_file in $(git ls-files | sort) $(cat "$YADM_ENCRYPT" 2>/dev/null); do
     tracked_file="$YADM_WORK/$tracked_file"
     #; process both the path, and it's parent directory
     for alt_path in "$tracked_file" "${tracked_file%/*}"; do
