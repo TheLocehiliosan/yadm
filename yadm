@@ -256,7 +256,7 @@ function encrypt() {
   #; build a list of globs from YADM_ENCRYPT
   GLOBS=()
   while IFS='' read -r glob || [ -n "$glob" ]; do
-    if [[ ! $glob =~ ^# ]] ; then
+    if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
       GLOBS=("${GLOBS[@]}" $(eval "$LS_PROGRAM" "$glob" 2>/dev/null))
     fi
   done < "$YADM_ENCRYPT"
