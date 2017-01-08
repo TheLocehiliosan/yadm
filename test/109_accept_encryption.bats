@@ -233,6 +233,43 @@ EOF
   validate_archive symmetric
 }
 
+@test "Command 'encrypt' (empty lines and space lines in YADM_ARCHIVE)" {
+  echo "
+    When 'encrypt' command is provided,
+    and YADM_ENCRYPT is present
+    Create YADM_ARCHIVE
+    Report the archive created
+    Archive should be valid
+    Exit with 0
+  "
+
+  #; add empty lines to YADM_ARCHIVE
+  local original_encrypt
+  original_encrypt=$(cat "$T_YADM_ENCRYPT")
+  echo -e " \n\n \n" >> "$T_YADM_ENCRYPT"
+
+  #; run encrypt
+  run expect <<EOF
+    set timeout 2;
+    spawn ${T_YADM_Y[*]} encrypt;
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "$"
+    foreach {pid spawnid os_error_flag value} [wait] break
+    exit \$value
+EOF
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Wrote\ new\ file:.+$T_YADM_ARCHIVE ]]
+
+  #; restore empty-line-free version before valiation
+  echo "$original_encrypt" > "$T_YADM_ENCRYPT"
+
+  #; validate the archive
+  validate_archive symmetric
+}
+
 @test "Command 'encrypt' (overwrite)" {
   echo "
     When 'encrypt' command is provided,
