@@ -33,6 +33,9 @@ GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
 LS_PROGRAM="/bin/ls"
 
+#; flag causing path translations with cygpath
+USE_CYGPATH=0
+
 #; flag when something may have changes (which prompts auto actions to be performed)
 CHANGES_POSSIBLE=0
 
@@ -113,7 +116,7 @@ function alt() {
   match="^(.+)##($match_system|$match_system.$match_host|$match_system.$match_host.$match_user|())$"
 
   #; process relative to YADM_WORK
-  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
+  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
   cd "$YADM_WORK" || {
     debug "Alternates not processed, unable to cd to $YADM_WORK"
     return
@@ -201,7 +204,7 @@ function config() {
     echo TODO: Print help about available yadm configurations
   else
     #; operate on the yadm configuration file
-    git config --file="$YADM_CONFIG" "$@"
+    git config --file="$(mixed_path "$YADM_CONFIG")" "$@"
   fi
 
 }
@@ -211,7 +214,7 @@ function decrypt() {
   require_gpg
   require_archive
 
-  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
+  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
 
   if [ "$DO_LIST" = "YES" ] ; then
     tar_option="t"
@@ -237,7 +240,7 @@ function encrypt() {
   require_ls
 
   #; process relative to YADM_WORK
-  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
+  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
   cd "$YADM_WORK" || {
     debug "Encryption not processed, unable to cd to $YADM_WORK"
     return
@@ -274,14 +277,14 @@ function encrypt() {
   fi
 
   #; offer to add YADM_ARCHIVE if untracked
-  archive_status=$("$GIT_PROGRAM" status --porcelain -uall "$YADM_ARCHIVE" 2>/dev/null)
+  archive_status=$("$GIT_PROGRAM" status --porcelain -uall "$(mixed_path "$YADM_ARCHIVE")" 2>/dev/null)
   archive_regex="^\?\?"
   if [[ $archive_status =~ $archive_regex ]] ; then
     echo "It appears that $YADM_ARCHIVE is not tracked by yadm's repository."
     echo "Would you like to add it now? (y/n)"
     read -r answer
     if [[ $answer =~ ^[yY]$ ]] ; then
-      "$GIT_PROGRAM" add "$YADM_ARCHIVE"
+      "$GIT_PROGRAM" add "$(mixed_path "$YADM_ARCHIVE")"
     fi
   fi
 
@@ -354,7 +357,7 @@ function init() {
 
   #; init a new bare repo
   debug "Init new repo"
-  "$GIT_PROGRAM" init --shared=0600 --bare "$YADM_REPO" "$@"
+  "$GIT_PROGRAM" init --shared=0600 --bare "$(mixed_path "$YADM_REPO")" "$@"
   configure_repo
 
   CHANGES_POSSIBLE=1
@@ -367,7 +370,7 @@ function list() {
 
   #; process relative to YADM_WORK when --all is specified
   if [ -n "$LIST_ALL" ] ; then
-    YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
+    YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
     cd "$YADM_WORK" || {
       debug "List not processed, unable to cd to $YADM_WORK"
       return
@@ -386,7 +389,7 @@ function perms() {
   #; TODO: prevent repeats in the files changed
 
   #; process relative to YADM_WORK
-  YADM_WORK=$("$GIT_PROGRAM" config core.worktree)
+  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
   cd "$YADM_WORK" || {
     debug "Perms not processed, unable to cd to $YADM_WORK"
     return
@@ -507,7 +510,8 @@ function configure_paths() {
   fi
 
   #; use the yadm repo for all git operations
-  export GIT_DIR="$YADM_REPO"
+  GIT_DIR=$(mixed_path "$YADM_REPO")
+  export GIT_DIR
 
 }
 
@@ -519,7 +523,7 @@ function configure_repo() {
   "$GIT_PROGRAM" config core.bare 'false'
 
   #; set the worktree for the yadm repo
-  "$GIT_PROGRAM" config core.worktree "$YADM_WORK"
+  "$GIT_PROGRAM" config core.worktree "$(mixed_path "$YADM_WORK")"
 
   #; by default, do not show untracked files and directories
   "$GIT_PROGRAM" config status.showUntrackedFiles no
@@ -615,10 +619,42 @@ function require_ls() {
   fi
 }
 
+#; ****** Directory tranlations ******
+
+function test_cygwin() {
+  case "$(uname -s)" in
+    CYGWIN*)
+      git_version=$(git --version 2>/dev/null)
+      if [[ "$git_version" =~ windows ]] ; then
+	      USE_CYGPATH=1
+      fi
+      ;;
+    *)
+      ;;
+  esac
+}
+function unix_path() {
+  #; for paths used by bash/yadm
+  if [ "$USE_CYGPATH" = "1" ] ; then
+    cygpath -u "$1"
+  else
+    echo "$1"
+  fi
+}
+function mixed_path() {
+  #; for paths used by Git
+  if [ "$USE_CYGPATH" = "1" ] ; then
+    cygpath -m "$1"
+  else
+    echo "$1"
+  fi
+}
+
 #; ****** Main processing (when not unit testing) ******
 
 if [ "$YADM_TEST" != 1 ] ; then
   process_global_args "$@"
+  test_cygwin
   configure_paths
   main "${MAIN_ARGS[@]}"
 fi
