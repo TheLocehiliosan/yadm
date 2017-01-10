@@ -16,7 +16,28 @@ brew install yadm
 
 Several yum repositories are on Copr. Follow this link for [repositories and installation instructions](https://copr.fedorainfracloud.org/coprs/thelocehiliosan/yadm/).
 
-## Debian / Ubuntu
+## Ubuntu
+
+Beginning with Ubuntu 16.10 _(yakkety)_, a version of **yadm** is available via
+standard package repositories.
+
+---
+
+If using an older Ubuntu release, or to get a more up-to-date version of **yadm**, a PPA containing **yadm** exists
+[here](https://launchpad.net/~flexiondotorg/+archive/ubuntu/yadm). These
+commands should be sufficient to install:
+
+```
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository -y ppa:flexiondotorg/yadm
+sudo apt-get update
+sudo apt-get -y install yadm
+```
+---
+
+Otherwise, the instructions for Debian below should also work for Ubuntu.
+
+## Debian
 
 **yadm** is currently in the "testing" release of Debian. If you are using the "stable" release, you can still install **yadm** using the following process.
 
