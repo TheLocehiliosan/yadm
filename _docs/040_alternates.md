@@ -10,7 +10,7 @@ features and strategies for dealing with those occasions.
 ## Symlink alternates
 
 It can be useful to have an automated way of choosing an alternate version of a
-file for a different operation system, host, or user. **yadm** implements a
+file for a different operating system, host, or user. **yadm** implements a
 feature which will automatically create a symbolic link to the appropriate
 version of a file, as long as you follow a specific naming convention. yadm can
 detect files with names ending in:
@@ -122,5 +122,5 @@ alternate version using **yadm**. Consider these three files:
 
 Configuring Git this way includes `.gitconfig.local` in the standard
 `.gitconfig`. **yadm** will automatically link the correct version based on the
-operation system. The bulk of your configurations can go in a single file, and
+operating system. The bulk of your configurations can go in a single file, and
 you just put the exceptions in OS-specific files.
