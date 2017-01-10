@@ -30,7 +30,7 @@
 ## DESCRIPTION
        yadm  is a tool for managing a collection of files across multiple com-
        puters, using a shared Git repository.  In addition,  yadm  provides  a
-       feature  to  select  alternate versions of files based on the operation
+       feature  to  select  alternate versions of files based on the operating
        system or host name.  Lastly, yadm supplies the  ability  to  manage  a
        subset of secure files, which are encrypted before they are included in
        the repository.
@@ -195,7 +195,7 @@
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
-       a different operation system, host, or user.  yadm implements a feature
+       a different operating system, host, or user.  yadm implements a feature
        which will automatically create a symbolic link to the appropriate ver-
        sion  of  a  file,  as long as you follow a specific naming convention.
        yadm can detect files with names ending in:
