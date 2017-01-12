@@ -326,7 +326,10 @@ can detect files with names ending in:
 
 If there are any files managed by
 .BR yadm \'s
-repository which match this naming convention,
+repository,
+or listed in 
+.IR $HOME/.yadm/encrypt ,
+which match this naming convention,
 symbolic links will be created for the most appropriate version.
 This may best be demonstrated by example. Assume the following files are managed by
 .BR yadm \'s
