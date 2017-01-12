@@ -20,10 +20,10 @@ detect files with names ending in:
 | `##OS.HOSTNAME`      | Matching OS & Hostname          |
 | `##OS.HOSTNAME.USER` | Matching OS, Hostname, and User |
 
-If there are any files managed by yadm's repository which match this naming
-convention, symbolic links will be created for the most appropriate version.
-This may best be demonstrated by example. Assume the following files are managed
-by yadm's repository:
+If there are any files managed by yadm's repository, or listed in
+`$HOME/.yadm/encrypt`, which match this naming convention, symbolic links will
+be created for the most appropriate version. This may best be demonstrated by
+example. Assume the following files are managed by yadm's repository:
 
     $HOME/path/example.txt##
     $HOME/path/example.txt##Darwin
