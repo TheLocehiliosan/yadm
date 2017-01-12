@@ -1,3 +1,13 @@
+1.06
+  * Improve portability of `hostname` (#23)
+  * Fix incompatibilities between Cygwin and Git for Windows (#26)
+  * Allow Git program to be configured via yadm.git-program (#30)
+  * Support alt-links for encrypted files (#34)
+  * Exit with the same return value as Git (#35)
+  * Support spaces in alt-link paths (#36)
+  * Ignore empty lines in .yadm/encrypt (#40)
+  * Fix typos (#41)
+
 1.05
   * Improve portability of shebang line (#14)
   * Support for symlinked directories (#17)

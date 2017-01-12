@@ -192,20 +192,25 @@
               Specify an alternate  program  to  use  instead  of  "gpg".   By
               default, the first "gpg" found in $PATH is used.
 
+       yadm.git-program
+              Specify  an  alternate  program  to  use  instead  of "git".  By
+              default, the first "git" found in $PATH is used.
+
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
        a different operating system, host, or user.  yadm implements a feature
        which will automatically create a symbolic link to the appropriate ver-
-       sion  of  a  file,  as long as you follow a specific naming convention.
+       sion of a file, as long as you follow  a  specific  naming  convention.
        yadm can detect files with names ending in:
 
               ## or ##OS or ##OS.HOSTNAME or ##OS.HOSTNAME.USER
 
-       If there are any files managed by yadm's repository  which  match  this
-       naming  convention,  symbolic links will be created for the most appro-
-       priate version.  This may best be demonstrated by example.  Assume  the
-       following files are managed by yadm's repository:
+       If  there  are  any  files  managed  by yadm's repository, or listed in
+       $HOME/.yadm/encrypt, which match this naming convention, symbolic links
+       will  be  created  for  the most appropriate version.  This may best be
+       demonstrated by example. Assume the  following  files  are  managed  by
+       yadm's repository:
 
          - $HOME/path/example.txt##
          - $HOME/path/example.txt##Darwin
