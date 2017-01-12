@@ -12,7 +12,7 @@ features and strategies for dealing with those occasions.
 It can be useful to have an automated way of choosing an alternate version of a
 file for a different operating system, host, or user. **yadm** implements a
 feature which will automatically create a symbolic link to the appropriate
-version of a file, as long as you follow a specific naming convention. yadm can
+version of a file, as long as you follow a specific naming convention. **yadm** can
 detect files with names ending in:
 
 | `##`                 | Default file linked             |
@@ -20,10 +20,10 @@ detect files with names ending in:
 | `##OS.HOSTNAME`      | Matching OS & Hostname          |
 | `##OS.HOSTNAME.USER` | Matching OS, Hostname, and User |
 
-If there are any files managed by yadm's repository, or listed in
+If there are any files managed by **yadm**'s repository, or listed in
 `$HOME/.yadm/encrypt`, which match this naming convention, symbolic links will
 be created for the most appropriate version. This may best be demonstrated by
-example. Assume the following files are managed by yadm's repository:
+example. Assume the following files are managed by **yadm**'s repository:
 
     $HOME/path/example.txt##
     $HOME/path/example.txt##Darwin
@@ -33,12 +33,12 @@ example. Assume the following files are managed by yadm's repository:
     $HOME/path/example.txt##Linux.host1
     $HOME/path/example.txt##Linux.host2
 
-If running on a Macbook named `host2`, yadm will create a symbolic link which
+If running on a Macbook named `host2`, **yadm** will create a symbolic link which
 looks like this:
 
 `$HOME/path/example.txt` → `$HOME/path/example.txt##Darwin.host2`
 
-However, on another Macbook named `host3`, yadm will create a symbolic link
+However, on another Macbook named `host3`, **yadm** will create a symbolic link
 which looks like this:
 
 `$HOME/path/example.txt` → `$HOME/path/example.txt##Darwin`
@@ -57,7 +57,10 @@ If running on a Solaris server, the link use the default `##` version:
 If no `##` version exists and no files match the current OS/HOST- NAME/USER,
 then no link will be created.
 
-| OS is determined by running `uname -s`, HOSTNAME by running `hostname -s`, and USER by running `id -u -n`. **yadm** will automatically create these links by default. This can be disabled using the yadm.auto-alt configuration. Even if disabled, links can be manually created by running **yadm** alt.
+| OS is determined by running `uname -s`, HOSTNAME by running `hostname -s`, and
+USER by running `id -u -n`. **yadm** will automatically create these links by
+default. This can be disabled using the `yadm.auto-alt` configuration. Even if
+disabled, links can be manually created by running **yadm** alt.
 
 ## Strategies for alternate files on different systems
 
