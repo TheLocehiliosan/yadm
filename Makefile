@@ -5,7 +5,7 @@ yadm.md: yadm.1
 
 contrib:
 	@echo "CONTRIBUTORS\n" > CONTRIBUTORS
-	@git shortlog -ns | cut -f2 >> CONTRIBUTORS
+	@git shortlog -ns master gh-pages dev dev-pages | cut -f2 >> CONTRIBUTORS
 
 pdf:
 	@groff -man -Tps ./yadm.1 > yadm.ps
