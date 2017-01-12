@@ -12,7 +12,7 @@ permalink: /docs/install
 brew install yadm
 ```
 
-## Fedora/Red Hat/ CentOS (YUM/RPM)
+## Fedora/Red Hat/CentOS (YUM/RPM)
 
 Several yum repositories are on Copr. Follow this link for [repositories and installation instructions](https://copr.fedorainfracloud.org/coprs/thelocehiliosan/yadm/).
 
