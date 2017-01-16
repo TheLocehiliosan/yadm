@@ -99,11 +99,13 @@ function create_worktree() {
     "alt-host##S.H"                    \
     "alt-host##S.H.U"                  \
     "alt-host##$T_SYS.$T_HOST"         \
+    "alt-host##${T_SYS}_${T_HOST}"     \
     "alt-user##"                       \
     "alt-user##S"                      \
     "alt-user##S.H"                    \
     "alt-user##S.H.U"                  \
     "alt-user##$T_SYS.$T_HOST.$T_USER" \
+    "alt-user##${T_SYS}_${T_HOST}_${T_USER}" \
     "dir one/alt-none##S/file1"                      \
     "dir one/alt-none##S/file2"                      \
     "dir one/alt-none##S.H/file1"                    \
@@ -138,6 +140,8 @@ function create_worktree() {
     "dir one/alt-host##S.H.U/file2"                  \
     "dir one/alt-host##$T_SYS.$T_HOST/file1"         \
     "dir one/alt-host##$T_SYS.$T_HOST/file2"         \
+    "dir one/alt-host##${T_SYS}_${T_HOST}/file1"     \
+    "dir one/alt-host##${T_SYS}_${T_HOST}/file2"     \
     "dir one/alt-user##/file1"                       \
     "dir one/alt-user##/file2"                       \
     "dir one/alt-user##S/file1"                      \
@@ -148,6 +152,8 @@ function create_worktree() {
     "dir one/alt-user##S.H.U/file2"                  \
     "dir one/alt-user##$T_SYS.$T_HOST.$T_USER/file1" \
     "dir one/alt-user##$T_SYS.$T_HOST.$T_USER/file2" \
+    "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file1" \
+    "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file2" \
     "dir2/file2"                                  \
     .bash_profile                      \
     .gnupg/gpg.conf                    \
