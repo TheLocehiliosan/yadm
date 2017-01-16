@@ -16,6 +16,10 @@ pdf:
 .PHONY: test
 test: bats shellcheck
 
+.PHONY: parallel
+parallel:
+	ls test/*bats | time parallel -q -P0 -- docker run --rm -v "$$PWD:/yadm:ro" yadm/testbed bash -c 'bats {}'
+
 .PHONY: bats
 bats:
 	@echo Running all bats tests
