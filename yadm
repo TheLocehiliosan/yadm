@@ -113,7 +113,7 @@ function alt() {
   match_host=$(hostname)
   match_host=${match_host%%.*} #; trim any domain from hostname
   match_user=$(id -u -n)
-  match="^(.+)##($match_system|$match_system.$match_host|$match_system.$match_host.$match_user|())$"
+  match="^(.+)##($match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user|())$"
 
   #; process relative to YADM_WORK
   YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
