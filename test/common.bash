@@ -171,6 +171,49 @@ function create_worktree() {
     echo "$f" > "$DIR_WORKTREE/$f"
   done
 
+  #; wildcard test data - yes this is a big mess :(
+  #; none
+  for f in "wild-none##"; do
+    make_parents "$DIR_WORKTREE/$f"
+    echo "$f" > "$DIR_WORKTREE/$f"
+  done
+  #; system
+  for WILD_S in 'local' 'wild' 'other'; do
+    local s_base="wild-system-$WILD_S"
+    case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+    local f="${s_base}##${WILD_S}"
+    make_parents "$DIR_WORKTREE/$f"
+    echo "$f" > "$DIR_WORKTREE/$f"
+  done
+  #; system.host
+  for WILD_S in 'local' 'wild' 'other'; do
+    local s_base="wild-host-$WILD_S"
+    case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+    for WILD_H in 'local' 'wild' 'other'; do
+      local h_base="${s_base}-$WILD_H"
+      case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
+      local f="${h_base}##${WILD_S}.${WILD_H}"
+      make_parents "$DIR_WORKTREE/$f"
+      echo "$f" > "$DIR_WORKTREE/$f"
+    done
+  done
+  #; system.host.user
+  for WILD_S in 'local' 'wild' 'other'; do
+    local s_base="wild-user-$WILD_S"
+    case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+    for WILD_H in 'local' 'wild' 'other'; do
+      local h_base="${s_base}-$WILD_H"
+      case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
+      for WILD_U in 'local' 'wild' 'other'; do
+        local u_base="${h_base}-$WILD_U"
+        case $WILD_U in local) WILD_U="$T_USER";; wild) WILD_U="%";; esac
+        local f="${u_base}##${WILD_S}.${WILD_H}.${WILD_U}"
+        make_parents "$DIR_WORKTREE/$f"
+        echo "$f" > "$DIR_WORKTREE/$f"
+      done
+    done
+  done
+
   #; change all perms (so permission updates can be observed)
   find "$DIR_WORKTREE" -exec chmod 0777 '{}' ';'
 
