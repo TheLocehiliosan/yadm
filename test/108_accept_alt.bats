@@ -59,6 +59,18 @@ function test_alt() {
       link_name="encrypted-user"
       link_match="$link_name##$T_SYS.$T_HOST.$T_USER"
     ;;
+    override_system)
+      link_name="alt-override-system"
+      link_match="$link_name##custom_system"
+    ;;
+    override_host)
+      link_name="alt-override-host"
+      link_match="$link_name##$T_SYS.custom_host"
+    ;;
+    override_user)
+      link_name="alt-override-user"
+      link_match="$link_name##$T_SYS.$T_HOST.custom_user"
+    ;;
   esac
   dir_link_name="dir one/${link_name}"
   dir_link_match="dir one/${link_match}"
@@ -112,6 +124,8 @@ function test_alt() {
     link_content=$(cat "$T_DIR_WORK/$link_name")
     dir_link_content=$(cat "$T_DIR_WORK/$dir_link_name/file1")
     if [ "$link_content" != "$link_match" ] || [ "$dir_link_content" != "$dir_link_match/file1" ]; then
+      echo "link_content: $link_content"
+      echo "dir_link_content: $dir_link_content"
       echo "ERROR: Link content is not correct"
       return 1
     fi
@@ -269,4 +283,46 @@ function test_alt() {
   "
 
   test_alt 'encrypted_none' 'false' ''
+}
+
+@test "Command 'alt' (override-system)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches only ##SYSTEM
+    after setting alt.os
+    Report the linking
+    Verify correct file is linked
+    Exit with 0
+  "
+
+  git config --file="$T_YADM_CONFIG" alt.os custom_system
+  test_alt 'override_system' 'false' ''
+}
+
+@test "Command 'alt' (override-host)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches only ##SYSTEM.HOST
+    after setting alt.host
+    Report the linking
+    Verify correct file is linked
+    Exit with 0
+  "
+
+  git config --file="$T_YADM_CONFIG" alt.host custom_host
+  test_alt 'override_host' 'false' ''
+}
+
+@test "Command 'alt' (override-user)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches only ##SYSTEM.HOST.USER
+    after setting alt.user
+    Report the linking
+    Verify correct file is linked
+    Exit with 0
+  "
+
+  git config --file="$T_YADM_CONFIG" alt.user custom_user
+  test_alt 'override_user' 'false' ''
 }

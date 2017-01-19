@@ -106,6 +106,15 @@ function create_worktree() {
     "alt-user##S.H.U"                  \
     "alt-user##$T_SYS.$T_HOST.$T_USER" \
     "alt-user##${T_SYS}_${T_HOST}_${T_USER}" \
+    "alt-override-system##"                          \
+    "alt-override-system##$T_SYS"                    \
+    "alt-override-system##custom_system"             \
+    "alt-override-host##"                            \
+    "alt-override-host##$T_SYS.$T_HOST"              \
+    "alt-override-host##$T_SYS.custom_host"          \
+    "alt-override-user##"                            \
+    "alt-override-user##S.H.U"                       \
+    "alt-override-user##$T_SYS.$T_HOST.custom_user"  \
     "dir one/alt-none##S/file1"                      \
     "dir one/alt-none##S/file2"                      \
     "dir one/alt-none##S.H/file1"                    \
@@ -154,6 +163,24 @@ function create_worktree() {
     "dir one/alt-user##$T_SYS.$T_HOST.$T_USER/file2" \
     "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file1" \
     "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file2" \
+    "dir one/alt-override-system##/file1"                          \
+    "dir one/alt-override-system##/file2"                          \
+    "dir one/alt-override-system##$T_SYS/file1"                    \
+    "dir one/alt-override-system##$T_SYS/file2"                    \
+    "dir one/alt-override-system##custom_system/file1"             \
+    "dir one/alt-override-system##custom_system/file2"             \
+    "dir one/alt-override-host##/file1"                            \
+    "dir one/alt-override-host##/file2"                            \
+    "dir one/alt-override-host##$T_SYS.$T_HOST/file1"              \
+    "dir one/alt-override-host##$T_SYS.$T_HOST/file2"              \
+    "dir one/alt-override-host##$T_SYS.custom_host/file1"          \
+    "dir one/alt-override-host##$T_SYS.custom_host/file2"          \
+    "dir one/alt-override-user##/file1"                            \
+    "dir one/alt-override-user##/file2"                            \
+    "dir one/alt-override-user##S.H.U/file1"                       \
+    "dir one/alt-override-user##S.H.U/file2"                       \
+    "dir one/alt-override-user##$T_SYS.$T_HOST.custom_user/file1"  \
+    "dir one/alt-override-user##$T_SYS.$T_HOST.custom_user/file2"  \
     "dir2/file2"                                  \
     .bash_profile                      \
     .gnupg/gpg.conf                    \
