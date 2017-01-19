@@ -108,14 +108,26 @@ function alt() {
 
   require_repo
 
-  #; regex for matching "<file>##SYSTEM.HOSTNAME.USER"
-  match_system=$(uname -s)
+  match_system="$(config alt.os)"
+  if [ -z "$match_system" ] ; then
+    match_system=$(uname -s)
+  fi
   match_system="(%|$match_system)"
-  match_host=$(hostname)
-  match_host=${match_host%%.*} #; trim any domain from hostname
+
+  match_host="$(config alt.host)"
+  if [ -z "$match_host" ] ; then
+    match_host=$(hostname)
+    match_host=${match_host%%.*} #; trim any domain from hostname
+  fi
   match_host="(%|$match_host)"
-  match_user=$(id -u -n)
+
+  match_user="$(config alt.user)"
+  if [ -z "$match_user" ] ; then
+    match_user=$(id -u -n)
+  fi
   match_user="(%|$match_user)"
+
+  #; regex for matching "<file>##SYSTEM.HOSTNAME.USER"
   match="^(.+)##($match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user|())$"
 
   #; process relative to YADM_WORK
