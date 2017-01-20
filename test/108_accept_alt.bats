@@ -3,6 +3,7 @@ load_fixtures
 status=;output=; #; populated by bats run()
 
 IN_REPO=(alt* "dir one")
+export TEST_TREE_WITH_ALT=1
 
 function create_encrypt() {
   for efile in "encrypted-base##" "encrypted-system##$T_SYS" "encrypted-host##$T_SYS.$T_HOST" "encrypted-user##$T_SYS.$T_HOST.$T_USER"; do

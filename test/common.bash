@@ -81,107 +81,216 @@ function create_worktree() {
   rm -rf "$DIR_WORKTREE"
 
   #; create some standard files
+  if [ ! -z "$TEST_TREE_WITH_ALT" ] ; then
+    for f in                             \
+      "alt-none##S"                      \
+      "alt-none##S.H"                    \
+      "alt-none##S.H.U"                  \
+      "alt-base##"                       \
+      "alt-base##S"                      \
+      "alt-base##S.H"                    \
+      "alt-base##S.H.U"                  \
+      "alt-system##"                     \
+      "alt-system##S"                    \
+      "alt-system##S.H"                  \
+      "alt-system##S.H.U"                \
+      "alt-system##$T_SYS"               \
+      "alt-host##"                       \
+      "alt-host##S"                      \
+      "alt-host##S.H"                    \
+      "alt-host##S.H.U"                  \
+      "alt-host##$T_SYS.$T_HOST"         \
+      "alt-host##${T_SYS}_${T_HOST}"     \
+      "alt-user##"                       \
+      "alt-user##S"                      \
+      "alt-user##S.H"                    \
+      "alt-user##S.H.U"                  \
+      "alt-user##$T_SYS.$T_HOST.$T_USER" \
+      "alt-user##${T_SYS}_${T_HOST}_${T_USER}" \
+      "alt-override-system##"                          \
+      "alt-override-system##$T_SYS"                    \
+      "alt-override-system##custom_system"             \
+      "alt-override-host##"                            \
+      "alt-override-host##$T_SYS.$T_HOST"              \
+      "alt-override-host##$T_SYS.custom_host"          \
+      "alt-override-user##"                            \
+      "alt-override-user##S.H.U"                       \
+      "alt-override-user##$T_SYS.$T_HOST.custom_user"  \
+      "dir one/alt-none##S/file1"                      \
+      "dir one/alt-none##S/file2"                      \
+      "dir one/alt-none##S.H/file1"                    \
+      "dir one/alt-none##S.H/file2"                    \
+      "dir one/alt-none##S.H.U/file1"                  \
+      "dir one/alt-none##S.H.U/file2"                  \
+      "dir one/alt-base##/file1"                       \
+      "dir one/alt-base##/file2"                       \
+      "dir one/alt-base##S/file1"                      \
+      "dir one/alt-base##S/file2"                      \
+      "dir one/alt-base##S.H/file1"                    \
+      "dir one/alt-base##S.H/file2"                    \
+      "dir one/alt-base##S.H.U/file1"                  \
+      "dir one/alt-base##S.H.U/file2"                  \
+      "dir one/alt-system##/file1"                     \
+      "dir one/alt-system##/file2"                     \
+      "dir one/alt-system##S/file1"                    \
+      "dir one/alt-system##S/file2"                    \
+      "dir one/alt-system##S.H/file1"                  \
+      "dir one/alt-system##S.H/file2"                  \
+      "dir one/alt-system##S.H.U/file1"                \
+      "dir one/alt-system##S.H.U/file2"                \
+      "dir one/alt-system##$T_SYS/file1"               \
+      "dir one/alt-system##$T_SYS/file2"               \
+      "dir one/alt-host##/file1"                       \
+      "dir one/alt-host##/file2"                       \
+      "dir one/alt-host##S/file1"                      \
+      "dir one/alt-host##S/file2"                      \
+      "dir one/alt-host##S.H/file1"                    \
+      "dir one/alt-host##S.H/file2"                    \
+      "dir one/alt-host##S.H.U/file1"                  \
+      "dir one/alt-host##S.H.U/file2"                  \
+      "dir one/alt-host##$T_SYS.$T_HOST/file1"         \
+      "dir one/alt-host##$T_SYS.$T_HOST/file2"         \
+      "dir one/alt-host##${T_SYS}_${T_HOST}/file1"     \
+      "dir one/alt-host##${T_SYS}_${T_HOST}/file2"     \
+      "dir one/alt-user##/file1"                       \
+      "dir one/alt-user##/file2"                       \
+      "dir one/alt-user##S/file1"                      \
+      "dir one/alt-user##S/file2"                      \
+      "dir one/alt-user##S.H/file1"                    \
+      "dir one/alt-user##S.H/file2"                    \
+      "dir one/alt-user##S.H.U/file1"                  \
+      "dir one/alt-user##S.H.U/file2"                  \
+      "dir one/alt-user##$T_SYS.$T_HOST.$T_USER/file1" \
+      "dir one/alt-user##$T_SYS.$T_HOST.$T_USER/file2" \
+      "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file1" \
+      "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file2" \
+      "dir one/alt-override-system##/file1"                          \
+      "dir one/alt-override-system##/file2"                          \
+      "dir one/alt-override-system##$T_SYS/file1"                    \
+      "dir one/alt-override-system##$T_SYS/file2"                    \
+      "dir one/alt-override-system##custom_system/file1"             \
+      "dir one/alt-override-system##custom_system/file2"             \
+      "dir one/alt-override-host##/file1"                            \
+      "dir one/alt-override-host##/file2"                            \
+      "dir one/alt-override-host##$T_SYS.$T_HOST/file1"              \
+      "dir one/alt-override-host##$T_SYS.$T_HOST/file2"              \
+      "dir one/alt-override-host##$T_SYS.custom_host/file1"          \
+      "dir one/alt-override-host##$T_SYS.custom_host/file2"          \
+      "dir one/alt-override-user##/file1"                            \
+      "dir one/alt-override-user##/file2"                            \
+      "dir one/alt-override-user##S.H.U/file1"                       \
+      "dir one/alt-override-user##S.H.U/file2"                       \
+      "dir one/alt-override-user##$T_SYS.$T_HOST.custom_user/file1"  \
+      "dir one/alt-override-user##$T_SYS.$T_HOST.custom_user/file2"  \
+      "dir2/file2"                                                   \
+    ;
+    do
+      make_parents "$DIR_WORKTREE/$f"
+      echo "$f" > "$DIR_WORKTREE/$f"
+    done
+  fi
+
+  if [ ! -z "$TEST_TREE_WITH_WILD" ] ; then
+    #; wildcard test data - yes this is a big mess :(
+    #; none
+    for f in "wild-none##"; do
+      make_parents "$DIR_WORKTREE/$f"
+      echo "$f" > "$DIR_WORKTREE/$f"
+    done
+    #; system
+    for WILD_S in 'local' 'wild' 'other'; do
+      local s_base="wild-system-$WILD_S"
+      case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+      local f="${s_base}##${WILD_S}"
+      make_parents "$DIR_WORKTREE/$f"
+      echo "$f" > "$DIR_WORKTREE/$f"
+    done
+    #; system.host
+    for WILD_S in 'local' 'wild' 'other'; do
+      local s_base="wild-host-$WILD_S"
+      case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+      for WILD_H in 'local' 'wild' 'other'; do
+        local h_base="${s_base}-$WILD_H"
+        case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
+        local f="${h_base}##${WILD_S}.${WILD_H}"
+        make_parents "$DIR_WORKTREE/$f"
+        echo "$f" > "$DIR_WORKTREE/$f"
+      done
+    done
+    #; system.host.user
+    for WILD_S in 'local' 'wild' 'other'; do
+      local s_base="wild-user-$WILD_S"
+      case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+      for WILD_H in 'local' 'wild' 'other'; do
+        local h_base="${s_base}-$WILD_H"
+        case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
+        for WILD_U in 'local' 'wild' 'other'; do
+          local u_base="${h_base}-$WILD_U"
+          case $WILD_U in local) WILD_U="$T_USER";; wild) WILD_U="%";; esac
+          local f="${u_base}##${WILD_S}.${WILD_H}.${WILD_U}"
+          make_parents "$DIR_WORKTREE/$f"
+          echo "$f" > "$DIR_WORKTREE/$f"
+        done
+      done
+    done
+    #; class
+    for WILD_C in 'local' 'wild' 'other'; do
+      local c_base="wild-class-$WILD_C"
+      case $WILD_C in local) WILD_C="set_class";; wild) WILD_C="%";; esac
+      local f="${c_base}##${WILD_C}"
+      make_parents "$DIR_WORKTREE/$f"
+      echo "$f" > "$DIR_WORKTREE/$f"
+    done
+    #; class.system
+    for WILD_C in 'local' 'wild' 'other'; do
+      local c_base="wild-class-system-$WILD_C"
+      case $WILD_C in local) WILD_C="set_class";; wild) WILD_C="%";; esac
+      for WILD_S in 'local' 'wild' 'other'; do
+        local s_base="${c_base}-$WILD_S"
+        case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+        local f="${s_base}##${WILD_C}.${WILD_S}"
+        make_parents "$DIR_WORKTREE/$f"
+        echo "$f" > "$DIR_WORKTREE/$f"
+      done
+    done
+    #; class.system.host
+    for WILD_C in 'local' 'wild' 'other'; do
+      local c_base="wild-class-system-host-$WILD_C"
+      case $WILD_C in local) WILD_C="set_class";; wild) WILD_C="%";; esac
+      for WILD_S in 'local' 'wild' 'other'; do
+        local s_base="${c_base}-$WILD_S"
+        case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+        for WILD_H in 'local' 'wild' 'other'; do
+          local h_base="${s_base}-$WILD_H"
+          case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
+          local f="${h_base}##${WILD_C}.${WILD_S}.${WILD_H}"
+          make_parents "$DIR_WORKTREE/$f"
+          echo "$f" > "$DIR_WORKTREE/$f"
+        done
+      done
+    done
+    #; class.system.host.user
+    for WILD_C in 'local' 'wild' 'other'; do
+      local c_base="wild-class-system-host-user-$WILD_C"
+      case $WILD_C in local) WILD_C="set_class";; wild) WILD_C="%";; esac
+      for WILD_S in 'local' 'wild' 'other'; do
+        local s_base="${c_base}-$WILD_S"
+        case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
+        for WILD_H in 'local' 'wild' 'other'; do
+          local h_base="${s_base}-$WILD_H"
+          case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
+          for WILD_U in 'local' 'wild' 'other'; do
+            local u_base="${h_base}-$WILD_U"
+            case $WILD_U in local) WILD_U="$T_USER";; wild) WILD_U="%";; esac
+            local f="${u_base}##${WILD_C}.${WILD_S}.${WILD_H}.${WILD_U}"
+            make_parents "$DIR_WORKTREE/$f"
+            echo "$f" > "$DIR_WORKTREE/$f"
+          done
+        done
+      done
+    done
+  fi
   for f in                             \
-    "alt-none##S"                      \
-    "alt-none##S.H"                    \
-    "alt-none##S.H.U"                  \
-    "alt-base##"                       \
-    "alt-base##S"                      \
-    "alt-base##S.H"                    \
-    "alt-base##S.H.U"                  \
-    "alt-system##"                     \
-    "alt-system##S"                    \
-    "alt-system##S.H"                  \
-    "alt-system##S.H.U"                \
-    "alt-system##$T_SYS"               \
-    "alt-host##"                       \
-    "alt-host##S"                      \
-    "alt-host##S.H"                    \
-    "alt-host##S.H.U"                  \
-    "alt-host##$T_SYS.$T_HOST"         \
-    "alt-host##${T_SYS}_${T_HOST}"     \
-    "alt-user##"                       \
-    "alt-user##S"                      \
-    "alt-user##S.H"                    \
-    "alt-user##S.H.U"                  \
-    "alt-user##$T_SYS.$T_HOST.$T_USER" \
-    "alt-user##${T_SYS}_${T_HOST}_${T_USER}" \
-    "alt-override-system##"                          \
-    "alt-override-system##$T_SYS"                    \
-    "alt-override-system##custom_system"             \
-    "alt-override-host##"                            \
-    "alt-override-host##$T_SYS.$T_HOST"              \
-    "alt-override-host##$T_SYS.custom_host"          \
-    "alt-override-user##"                            \
-    "alt-override-user##S.H.U"                       \
-    "alt-override-user##$T_SYS.$T_HOST.custom_user"  \
-    "dir one/alt-none##S/file1"                      \
-    "dir one/alt-none##S/file2"                      \
-    "dir one/alt-none##S.H/file1"                    \
-    "dir one/alt-none##S.H/file2"                    \
-    "dir one/alt-none##S.H.U/file1"                  \
-    "dir one/alt-none##S.H.U/file2"                  \
-    "dir one/alt-base##/file1"                       \
-    "dir one/alt-base##/file2"                       \
-    "dir one/alt-base##S/file1"                      \
-    "dir one/alt-base##S/file2"                      \
-    "dir one/alt-base##S.H/file1"                    \
-    "dir one/alt-base##S.H/file2"                    \
-    "dir one/alt-base##S.H.U/file1"                  \
-    "dir one/alt-base##S.H.U/file2"                  \
-    "dir one/alt-system##/file1"                     \
-    "dir one/alt-system##/file2"                     \
-    "dir one/alt-system##S/file1"                    \
-    "dir one/alt-system##S/file2"                    \
-    "dir one/alt-system##S.H/file1"                  \
-    "dir one/alt-system##S.H/file2"                  \
-    "dir one/alt-system##S.H.U/file1"                \
-    "dir one/alt-system##S.H.U/file2"                \
-    "dir one/alt-system##$T_SYS/file1"               \
-    "dir one/alt-system##$T_SYS/file2"               \
-    "dir one/alt-host##/file1"                       \
-    "dir one/alt-host##/file2"                       \
-    "dir one/alt-host##S/file1"                      \
-    "dir one/alt-host##S/file2"                      \
-    "dir one/alt-host##S.H/file1"                    \
-    "dir one/alt-host##S.H/file2"                    \
-    "dir one/alt-host##S.H.U/file1"                  \
-    "dir one/alt-host##S.H.U/file2"                  \
-    "dir one/alt-host##$T_SYS.$T_HOST/file1"         \
-    "dir one/alt-host##$T_SYS.$T_HOST/file2"         \
-    "dir one/alt-host##${T_SYS}_${T_HOST}/file1"     \
-    "dir one/alt-host##${T_SYS}_${T_HOST}/file2"     \
-    "dir one/alt-user##/file1"                       \
-    "dir one/alt-user##/file2"                       \
-    "dir one/alt-user##S/file1"                      \
-    "dir one/alt-user##S/file2"                      \
-    "dir one/alt-user##S.H/file1"                    \
-    "dir one/alt-user##S.H/file2"                    \
-    "dir one/alt-user##S.H.U/file1"                  \
-    "dir one/alt-user##S.H.U/file2"                  \
-    "dir one/alt-user##$T_SYS.$T_HOST.$T_USER/file1" \
-    "dir one/alt-user##$T_SYS.$T_HOST.$T_USER/file2" \
-    "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file1" \
-    "dir one/alt-user##${T_SYS}_${T_HOST}_${T_USER}/file2" \
-    "dir one/alt-override-system##/file1"                          \
-    "dir one/alt-override-system##/file2"                          \
-    "dir one/alt-override-system##$T_SYS/file1"                    \
-    "dir one/alt-override-system##$T_SYS/file2"                    \
-    "dir one/alt-override-system##custom_system/file1"             \
-    "dir one/alt-override-system##custom_system/file2"             \
-    "dir one/alt-override-host##/file1"                            \
-    "dir one/alt-override-host##/file2"                            \
-    "dir one/alt-override-host##$T_SYS.$T_HOST/file1"              \
-    "dir one/alt-override-host##$T_SYS.$T_HOST/file2"              \
-    "dir one/alt-override-host##$T_SYS.custom_host/file1"          \
-    "dir one/alt-override-host##$T_SYS.custom_host/file2"          \
-    "dir one/alt-override-user##/file1"                            \
-    "dir one/alt-override-user##/file2"                            \
-    "dir one/alt-override-user##S.H.U/file1"                       \
-    "dir one/alt-override-user##S.H.U/file2"                       \
-    "dir one/alt-override-user##$T_SYS.$T_HOST.custom_user/file1"  \
-    "dir one/alt-override-user##$T_SYS.$T_HOST.custom_user/file2"  \
-    "dir2/file2"                                  \
     .bash_profile                      \
     .gnupg/gpg.conf                    \
     .gnupg/pubring.gpg                 \
@@ -196,49 +305,6 @@ function create_worktree() {
   do
     make_parents "$DIR_WORKTREE/$f"
     echo "$f" > "$DIR_WORKTREE/$f"
-  done
-
-  #; wildcard test data - yes this is a big mess :(
-  #; none
-  for f in "wild-none##"; do
-    make_parents "$DIR_WORKTREE/$f"
-    echo "$f" > "$DIR_WORKTREE/$f"
-  done
-  #; system
-  for WILD_S in 'local' 'wild' 'other'; do
-    local s_base="wild-system-$WILD_S"
-    case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
-    local f="${s_base}##${WILD_S}"
-    make_parents "$DIR_WORKTREE/$f"
-    echo "$f" > "$DIR_WORKTREE/$f"
-  done
-  #; system.host
-  for WILD_S in 'local' 'wild' 'other'; do
-    local s_base="wild-host-$WILD_S"
-    case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
-    for WILD_H in 'local' 'wild' 'other'; do
-      local h_base="${s_base}-$WILD_H"
-      case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
-      local f="${h_base}##${WILD_S}.${WILD_H}"
-      make_parents "$DIR_WORKTREE/$f"
-      echo "$f" > "$DIR_WORKTREE/$f"
-    done
-  done
-  #; system.host.user
-  for WILD_S in 'local' 'wild' 'other'; do
-    local s_base="wild-user-$WILD_S"
-    case $WILD_S in local) WILD_S="$T_SYS";; wild) WILD_S="%";; esac
-    for WILD_H in 'local' 'wild' 'other'; do
-      local h_base="${s_base}-$WILD_H"
-      case $WILD_H in local) WILD_H="$T_HOST";; wild) WILD_H="%";; esac
-      for WILD_U in 'local' 'wild' 'other'; do
-        local u_base="${h_base}-$WILD_U"
-        case $WILD_U in local) WILD_U="$T_USER";; wild) WILD_U="%";; esac
-        local f="${u_base}##${WILD_S}.${WILD_H}.${WILD_U}"
-        make_parents "$DIR_WORKTREE/$f"
-        echo "$f" > "$DIR_WORKTREE/$f"
-      done
-    done
   done
 
   #; change all perms (so permission updates can be observed)
