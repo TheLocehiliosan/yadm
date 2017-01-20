@@ -108,6 +108,12 @@ function alt() {
 
   require_repo
 
+  match_class="$(config alt.class)"
+  if [ -z "$match_class" ] ; then
+    match_class="()"
+  fi
+  match_class="(%|$match_class)"
+
   match_system="$(config alt.os)"
   if [ -z "$match_system" ] ; then
     match_system=$(uname -s)
@@ -127,8 +133,8 @@ function alt() {
   fi
   match_user="(%|$match_user)"
 
-  #; regex for matching "<file>##SYSTEM.HOSTNAME.USER"
-  match="^(.+)##($match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user|())$"
+  #; regex for matching "<file>##CLASS.SYSTEM.HOSTNAME.USER"
+  match="^(.+)##(()|$match_class|$match_system|$match_class\.$match_system|$match_system\.$match_host|$match_class\.$match_system\.$match_host|$match_system\.$match_host\.$match_user|$match_class\.$match_system\.$match_host\.$match_user)$"
 
   #; process relative to YADM_WORK
   YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
