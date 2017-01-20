@@ -198,20 +198,39 @@ function clone() {
   }
   debug "Doing an initial merge of origin/master"
   "$GIT_PROGRAM" merge origin/master || {
-    debug "Merge failed, doing a reset."
+    debug "Merge failed, doing a reset and stashing conflicts."
     "$GIT_PROGRAM" reset origin/master
-    cat <<EOF
+    if cd "$YADM_WORK"; then # necessary because of a bug in Git
+      "$GIT_PROGRAM" -c user.name='yadm clone' -c user.email='yadm' stash save Conflicts preserved from yadm clone command 2>&1
+      cat <<EOF
+**NOTE**
+  Merging origin/master failed.
+
+  As a result, yadm did 'reset origin/master', and then
+  stashed the conflicting data.
+
+  This likely happened because you had files in \$HOME
+  which conflicted with files tracked by origin/master.
+
+  You can review the stashed conflicts with the command
+  'yadm stash show -p'. If you want to restore the stashed
+  data, you can run 'yadm stash apply' or 'yadm stash pop'
+  and then handle the conflicts in another way.
+EOF
+    else
+      cat <<EOF
 **NOTE**
   Merging origin/master failed.
   yadm did 'reset origin/master' instead.
 
-  This likely happened because you had files in your
-  work-tree, which conflict files tracked by origin/master
+  yadm did not stash these conflicts beacuse it was unable
+  to change to the $YADM_WORK directory.
 
   Please review and resolve any differences appropriately
   If you know what you're doing, and want to overwrite the
   tracked files, consider 'yadm reset --hard origin/master'
 EOF
+    fi
   }
 
   CHANGES_POSSIBLE=1
