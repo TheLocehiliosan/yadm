@@ -176,4 +176,20 @@ setup() {
   local remote_output
   remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
   [ "$remote_output" = "origin" ]
+
+  #; confirm yadm repo is clean
+  cd "$T_DIR_WORK" ||:
+  clean_status=$("${T_YADM_Y[@]}" status -uno --porcelain)
+  echo "clean_status:'$clean_status'"
+  [ -z "$clean_status" ]
+
+  #; confirm conflicts are stashed
+  existing_stash=$("${T_YADM_Y[@]}" stash list)
+  echo "existing_stash:'$existing_stash'"
+  [[ "$existing_stash" =~ Conflicts\ preserved ]]
+
+  stashed_conflicts=$("${T_YADM_Y[@]}" stash show -p)
+  echo "stashed_conflicts:'$stashed_conflicts'"
+  [[ "$stashed_conflicts" =~ \+conflict ]]
+
 }
