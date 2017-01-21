@@ -16,12 +16,13 @@ function configuration_test() {
 
   echo -e "STATUS:$status\nOUTPUT:$output"
   echo "CONFIGURED PATHS:"
-  echo "    YADM_DIR:$YADM_DIR"
-  echo "   YADM_REPO:$YADM_REPO"
-  echo " YADM_CONFIG:$YADM_CONFIG"
-  echo "YADM_ENCRYPT:$YADM_ENCRYPT"
-  echo "YADM_ARCHIVE:$YADM_ARCHIVE"
-  echo "     GIT_DIR:$GIT_DIR"
+  echo "      YADM_DIR:$YADM_DIR"
+  echo "     YADM_REPO:$YADM_REPO"
+  echo "   YADM_CONFIG:$YADM_CONFIG"
+  echo "  YADM_ENCRYPT:$YADM_ENCRYPT"
+  echo "  YADM_ARCHIVE:$YADM_ARCHIVE"
+  echo "YADM_BOOTSTRAP:$YADM_BOOTSTRAP"
+  echo "       GIT_DIR:$GIT_DIR"
 }
 
 @test "Default paths" {
@@ -32,6 +33,7 @@ function configuration_test() {
        YADM_CONFIG=$DEFAULT_YADM_DIR/$DEFAULT_CONFIG
       YADM_ENCRYPT=$DEFAULT_YADM_DIR/$DEFAULT_ENCRYPT
       YADM_ARCHIVE=$DEFAULT_YADM_DIR/$DEFAULT_ARCHIVE
+    YADM_BOOTSTRAP=$DEFAULT_YADM_DIR/$DEFAULT_BOOTSTRAP
            GIT_DIR=$DEFAULT_YADM_DIR/$DEFAULT_REPO
   "
 
@@ -43,6 +45,7 @@ function configuration_test() {
   [ "$YADM_CONFIG" = "$DEFAULT_YADM_DIR/$DEFAULT_CONFIG" ]
   [ "$YADM_ENCRYPT" = "$DEFAULT_YADM_DIR/$DEFAULT_ENCRYPT" ]
   [ "$YADM_ARCHIVE" = "$DEFAULT_YADM_DIR/$DEFAULT_ARCHIVE" ]
+  [ "$YADM_BOOTSTRAP" = "$DEFAULT_YADM_DIR/$DEFAULT_BOOTSTRAP" ]
   [ "$GIT_DIR" = "$DEFAULT_YADM_DIR/$DEFAULT_REPO" ]
 }
 
@@ -61,6 +64,7 @@ function configuration_test() {
   [ "$YADM_CONFIG" = "$T_DIR_YADM/$DEFAULT_CONFIG" ]
   [ "$YADM_ENCRYPT" = "$T_DIR_YADM/$DEFAULT_ENCRYPT" ]
   [ "$YADM_ARCHIVE" = "$T_DIR_YADM/$DEFAULT_ARCHIVE" ]
+  [ "$YADM_BOOTSTRAP" = "$T_DIR_YADM/$DEFAULT_BOOTSTRAP" ]
   [ "$GIT_DIR" = "$T_DIR_YADM/$DEFAULT_REPO" ]
 }
 
@@ -173,6 +177,31 @@ function configuration_test() {
   "
 
   TEST_ARGS=(--yadm-archive relative/archive)
+  configuration_test "${TEST_ARGS[@]}"
+
+  [ "$status" == 1 ]
+  [[ "$output" =~ must\ specify\ a\ fully\ qualified ]]
+}
+
+@test "Override YADM_BOOTSTRAP" {
+  echo "
+    Override YADM_BOOTSTRAP using --yadm-bootstrap /custom/bootstrap
+    YADM_BOOTSTRAP should become /custom/bootstrap
+  "
+
+  TEST_ARGS=(--yadm-bootstrap /custom/bootstrap)
+  configuration_test "${TEST_ARGS[@]}"
+
+  [ "$YADM_BOOTSTRAP" = "/custom/bootstrap" ]
+}
+
+@test "Override YADM_BOOTSTRAP (not fully qualified)" {
+  echo "
+    Override YADM_BOOTSTRAP using --yadm-bootstrap relative/bootstrap
+    yadm should fail, and report the error
+  "
+
+  TEST_ARGS=(--yadm-bootstrap relative/bootstrap)
   configuration_test "${TEST_ARGS[@]}"
 
   [ "$status" == 1 ]

@@ -6,6 +6,7 @@ function load_fixtures() {
   export DEFAULT_CONFIG="config"
   export DEFAULT_ENCRYPT="encrypt"
   export DEFAULT_ARCHIVE="files.gpg"
+  export DEFAULT_BOOTSTRAP="bootstrap"
 
   export T_YADM="$PWD/yadm"
   export T_TMP="$BATS_TMPDIR/ytmp"
@@ -15,6 +16,7 @@ function load_fixtures() {
   export T_YADM_CONFIG="$T_DIR_YADM/config"
   export T_YADM_ENCRYPT="$T_DIR_YADM/encrypt"
   export T_YADM_ARCHIVE="$T_DIR_YADM/files.gpg"
+  export T_YADM_BOOTSTRAP="$T_DIR_YADM/bootstrap"
 
   export T_YADM_Y
   T_YADM_Y=( "$T_YADM" -Y "$T_DIR_YADM" )
