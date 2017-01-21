@@ -245,6 +245,9 @@ function config() {
   else
     #; operate on the yadm configuration file
     git config --file="$(mixed_path "$YADM_CONFIG")" "$@"
+
+    CHANGES_POSSIBLE=1
+
   fi
 
 }
@@ -594,7 +597,7 @@ function auto_alt() {
   if [ "$CHANGES_POSSIBLE" = "1" ] ; then
     auto_alt=$(config --bool yadm.auto-alt)
     if [ "$auto_alt" != "false" ] ; then
-      alt
+      [ -d "$YADM_REPO" ] && alt
     fi
   fi
 
@@ -606,7 +609,7 @@ function auto_perms() {
   if [ "$CHANGES_POSSIBLE" = "1" ] ; then
     auto_perms=$(config --bool yadm.auto-perms)
     if [ "$auto_perms" != "false" ] ; then
-      perms
+      [ -d "$YADM_REPO" ] && perms
     fi
   fi
 
