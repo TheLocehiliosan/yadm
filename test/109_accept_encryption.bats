@@ -499,7 +499,7 @@ EOF
 
   #; validate status and output
   [ "$status" -eq 1 ]
-  [[ "$output" =~ public\ key\ not\ found ]]
+  [[ "$output" =~ public\ key\ not\ found ]] || [[ "$output" =~ No\ public\ key ]]
   [[ "$output" =~ Unable\ to\ write ]]
 }
 
