@@ -40,6 +40,10 @@ USE_CYGPATH=0
 #; flag when something may have changes (which prompts auto actions to be performed)
 CHANGES_POSSIBLE=0
 
+#; flag when a bootstrap should be performed after cloning
+#; 0: skip auto_bootstrap, 1: ask, 2: perform bootstrap, 3: prevent bootstrap
+DO_BOOTSTRAP=0
+
 function main() {
 
   require_git
@@ -98,6 +102,7 @@ function main() {
   #; process automatic events
   auto_alt
   auto_perms
+  auto_bootstrap
 
   exit $retval
 
@@ -188,13 +193,32 @@ function clean() {
 
 function clone() {
 
+  DO_BOOTSTRAP=1
+
+  clone_args=()
+  while [[ $# -gt 0 ]] ; do
+    key="$1"
+    case $key in
+      --bootstrap) #; force bootstrap, without prompt
+        DO_BOOTSTRAP=2
+      ;;
+      --no-bootstrap) #; prevent bootstrap, without prompt
+        DO_BOOTSTRAP=3
+      ;;
+      *) #; main arguments are kept intact
+        clone_args+=("$1")
+      ;;
+    esac
+    shift
+  done
+
   #; clone will begin with a bare repo
   local empty=
   init $empty
 
   #; add the specified remote, and configure the repo to track origin/master
   debug "Adding remote to new repo"
-  "$GIT_PROGRAM" remote add origin "$@"
+  "$GIT_PROGRAM" remote add origin "${clone_args[@]}"
   debug "Configuring new repo to track origin/master"
   "$GIT_PROGRAM" config branch.master.remote origin
   "$GIT_PROGRAM" config branch.master.merge refs/heads/master
@@ -204,7 +228,7 @@ function clone() {
   "$GIT_PROGRAM" fetch origin || {
     debug "Removing repo after failed clone"
     rm -rf "$YADM_REPO"
-    error_out "Unable to fetch origin $1"
+    error_out "Unable to fetch origin ${clone_args[0]}"
   }
   debug "Doing an initial merge of origin/master"
   "$GIT_PROGRAM" merge origin/master || {
@@ -228,6 +252,8 @@ function clone() {
   and then handle the conflicts in another way.
 EOF
     else
+      #; skip auto_bootstrap if conflicts could not be stashed
+      DO_BOOTSTRAP=0
       cat <<EOF
 **NOTE**
   Merging origin/master failed.
@@ -631,6 +657,25 @@ function auto_perms() {
     auto_perms=$(config --bool yadm.auto-perms)
     if [ "$auto_perms" != "false" ] ; then
       [ -d "$YADM_REPO" ] && perms
+    fi
+  fi
+
+}
+
+function auto_bootstrap() {
+
+  bootstrap_available || return
+
+  [ "$DO_BOOTSTRAP" -eq 0 ] && return
+  [ "$DO_BOOTSTRAP" -eq 3 ] && return
+  [ "$DO_BOOTSTRAP" -eq 2 ] && bootstrap
+  if [ "$DO_BOOTSTRAP" -eq 1 ] ; then
+    echo "Found $YADM_BOOTSTRAP"
+    echo "It appears that a bootstrap program exists."
+    echo "Would you like to execute it now? (y/n)"
+    read -r answer
+    if [[ $answer =~ ^[yY]$ ]] ; then
+      bootstrap
     fi
   fi
 
