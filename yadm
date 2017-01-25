@@ -277,7 +277,25 @@ function config() {
 
   if [ -z "$*" ] ; then
     #; with no parameters, provide some helpful documentation
-    echo TODO: Print help about available yadm configurations
+    cat << EOF
+yadm supports the following configurations:
+
+  alt.class
+  alt.host
+  alt.os
+  alt.user
+  yadm.auto-alt
+  yadm.auto-perms
+  yadm.git-program
+  yadm.gpg-perms
+  yadm.gpg-program
+  yadm.gpg-recipient
+  yadm.ssh-perms
+
+Please read the CONFIGURATION section in the man
+page for more details about configurations, and
+how to adjust them.
+EOF
   else
     #; operate on the yadm configuration file
     git config --file="$(mixed_path "$YADM_CONFIG")" "$@"

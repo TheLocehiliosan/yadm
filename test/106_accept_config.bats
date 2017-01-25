@@ -13,14 +13,18 @@ setup() {
 }
 
 @test "Command 'config' (no parameters)" {
-  skip
   echo "
     When 'config' command is provided alone,
     Produce instructions about supported configuration options
     Exit with 1
   "
 
-  #; TODO: This has not been implemented
+  #; run config
+  run "${T_YADM_Y[@]}" config
+
+  #; validate status and output
+  [ $status -eq 0 ]
+  [[ "$output" =~ Please\ read\ the\ CONFIGURATION\ section ]]
 }
 
 @test "Command 'config' (read missing)" {
