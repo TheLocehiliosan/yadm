@@ -74,7 +74,7 @@ function test_alt() {
     Exit with 0
   "
 
-  git config --file="$T_YADM_CONFIG" alt.class set_class
+  GIT_DIR="$T_DIR_REPO" git config local.class set_class
 
   for WILD_C in 'local' 'wild'; do
     local c_base="wild-class-$WILD_C"
@@ -118,7 +118,7 @@ function test_alt() {
     Exit with 0
   "
 
-  git config --file="$T_YADM_CONFIG" alt.class set_class
+  GIT_DIR="$T_DIR_REPO" git config local.class set_class
 
   for WILD_C in 'local' 'wild'; do
     local c_base="wild-class-system-$WILD_C"
@@ -170,7 +170,7 @@ function test_alt() {
     Exit with 0
   "
 
-  git config --file="$T_YADM_CONFIG" alt.class set_class
+  GIT_DIR="$T_DIR_REPO" git config local.class set_class
 
   for WILD_C in 'local' 'wild'; do
     local c_base="wild-class-system-host-$WILD_C"
@@ -199,7 +199,7 @@ function test_alt() {
     Exit with 0
   "
 
-  git config --file="$T_YADM_CONFIG" alt.class set_class
+  GIT_DIR="$T_DIR_REPO" git config local.class set_class
 
   for WILD_C in 'local' 'wild'; do
     local c_base="wild-class-system-host-user-$WILD_C"

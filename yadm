@@ -114,26 +114,26 @@ function alt() {
 
   require_repo
 
-  match_class="$(config alt.class)"
+  match_class="$(config local.class)"
   if [ -z "$match_class" ] ; then
     match_class="()"
   fi
   match_class="(%|$match_class)"
 
-  match_system="$(config alt.os)"
+  match_system="$(config local.os)"
   if [ -z "$match_system" ] ; then
     match_system=$(uname -s)
   fi
   match_system="(%|$match_system)"
 
-  match_host="$(config alt.host)"
+  match_host="$(config local.host)"
   if [ -z "$match_host" ] ; then
     match_host=$(hostname)
     match_host=${match_host%%.*} #; trim any domain from hostname
   fi
   match_host="(%|$match_host)"
 
-  match_user="$(config alt.user)"
+  match_user="$(config local.user)"
   if [ -z "$match_user" ] ; then
     match_user=$(id -u -n)
   fi
@@ -275,15 +275,21 @@ EOF
 
 function config() {
 
+  use_repo_config=0
+  local_options="^local\.(class|os|host|user)$"
+  for option in "$@"; do
+    [[ "$option" =~ $local_options ]] && use_repo_config=1
+  done
+
   if [ -z "$*" ] ; then
     #; with no parameters, provide some helpful documentation
     cat << EOF
 yadm supports the following configurations:
 
-  alt.class
-  alt.host
-  alt.os
-  alt.user
+  local.class
+  local.host
+  local.os
+  local.user
   yadm.auto-alt
   yadm.auto-perms
   yadm.git-program
@@ -296,11 +302,19 @@ Please read the CONFIGURATION section in the man
 page for more details about configurations, and
 how to adjust them.
 EOF
+  elif [ "$use_repo_config" -eq 1 ]; then
+
+    require_repo
+
+    #; operate on the yadm repo's configuration file
+    #; this is always local to the machine
+    git config --local "$@"
+
+    CHANGES_POSSIBLE=1
+
   else
     #; operate on the yadm configuration file
     git config --file="$(mixed_path "$YADM_CONFIG")" "$@"
-
-    CHANGES_POSSIBLE=1
 
   fi
 

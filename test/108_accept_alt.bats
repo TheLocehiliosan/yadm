@@ -290,13 +290,13 @@ function test_alt() {
   echo "
     When the command 'alt' is provided
     and file matches only ##SYSTEM
-    after setting alt.os
+    after setting local.os
     Report the linking
     Verify correct file is linked
     Exit with 0
   "
 
-  git config --file="$T_YADM_CONFIG" alt.os custom_system
+  GIT_DIR="$T_DIR_REPO" git config local.os custom_system
   test_alt 'override_system' 'false' ''
 }
 
@@ -304,13 +304,13 @@ function test_alt() {
   echo "
     When the command 'alt' is provided
     and file matches only ##SYSTEM.HOST
-    after setting alt.host
+    after setting local.host
     Report the linking
     Verify correct file is linked
     Exit with 0
   "
 
-  git config --file="$T_YADM_CONFIG" alt.host custom_host
+  GIT_DIR="$T_DIR_REPO" git config local.host custom_host
   test_alt 'override_host' 'false' ''
 }
 
@@ -318,12 +318,12 @@ function test_alt() {
   echo "
     When the command 'alt' is provided
     and file matches only ##SYSTEM.HOST.USER
-    after setting alt.user
+    after setting local.user
     Report the linking
     Verify correct file is linked
     Exit with 0
   "
 
-  git config --file="$T_YADM_CONFIG" alt.user custom_user
+  GIT_DIR="$T_DIR_REPO" git config local.user custom_user
   test_alt 'override_user' 'false' ''
 }
