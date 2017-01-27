@@ -395,7 +395,7 @@ function encrypt() {
   if [[ $archive_status =~ $archive_regex ]] ; then
     echo "It appears that $YADM_ARCHIVE is not tracked by yadm's repository."
     echo "Would you like to add it now? (y/n)"
-    read -r answer
+    read -r answer < /dev/tty
     if [[ $answer =~ ^[yY]$ ]] ; then
       "$GIT_PROGRAM" add "$(mixed_path "$YADM_ARCHIVE")"
     fi
@@ -707,7 +707,7 @@ function auto_bootstrap() {
     echo "Found $YADM_BOOTSTRAP"
     echo "It appears that a bootstrap program exists."
     echo "Would you like to execute it now? (y/n)"
-    read -r answer
+    read -r answer < /dev/tty
     if [[ $answer =~ ^[yY]$ ]] ; then
       bootstrap
     fi
