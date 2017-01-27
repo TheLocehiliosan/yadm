@@ -246,10 +246,12 @@ function clone() {
   This likely happened because you had files in \$HOME
   which conflicted with files tracked by origin/master.
 
-  You can review the stashed conflicts with the command
-  'yadm stash show -p'. If you want to restore the stashed
-  data, you can run 'yadm stash apply' or 'yadm stash pop'
-  and then handle the conflicts in another way.
+  You can review the stashed conflicts with the
+  command 'yadm stash show -p' from within your
+  \$HOME directory. If you want to restore the
+  stashed data, you can run 'yadm stash apply' or
+  'yadm stash pop' and then handle the conflicts
+  in another way.
 EOF
     else
       #; skip auto_bootstrap if conflicts could not be stashed
