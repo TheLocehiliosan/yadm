@@ -180,6 +180,9 @@ function bootstrap() {
 
   bootstrap_available || error_out "Cannot execute bootstrap\n'$YADM_BOOTSTRAP' is not an executable program."
 
+  # GIT_DIR should not be set for user's bootstrap code
+  unset GIT_DIR
+
   echo "Executing $YADM_BOOTSTRAP"
   exec "$YADM_BOOTSTRAP"
 
