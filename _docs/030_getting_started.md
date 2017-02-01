@@ -23,9 +23,8 @@ Clone your existing repo using **yadm**.
     yadm status
 
 The `clone` command will attempt to `merge` your existing repository, but if it
-fails, it will do a `reset` instead and you'll have to decide best on how
-resolve the differences. See
-[this question](faq#i-just-cloned-my-repository-but-yadm-status-shows-conflicts-why)
+fails, it will `stash` any conflicting data. See
+[this question](faq#i-just-cloned-my-repository-and-conflicting-data-was-overwritten-why)
 in the FAQ if you need help.
 
 ---
