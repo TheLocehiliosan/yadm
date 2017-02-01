@@ -442,6 +442,7 @@ Commands:
   yadm config <name> <value> - Configure a setting
   yadm list [-a]             - List tracked files
   yadm alt                   - Create links for alternates
+  yadm bootstrap             - Execute \$HOME/.yadm/bootstrap
   yadm encrypt               - Encrypt files
   yadm decrypt [-l]          - Decrypt files
   yadm perms                 - Fix perms for private files
