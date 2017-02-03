@@ -55,15 +55,19 @@ function build_url() {
   echo
   echo "  1. GitHub"
   echo "  2. Bitbucket"
-  echo "  3. Other"
+  echo "  3. GitLab"
+  echo "  4. Other"
   echo
-  read -r -p "Where is your repo? (1/2/3) ->" choice < /dev/tty
+  read -r -p "Where is your repo? (1/2/3/4) ->" choice < /dev/tty
   case $choice in
     1)
       REPO_URL="https://github.com/"
       ;;
     2)
       REPO_URL="https://bitbucket.org/"
+      ;;
+    3)
+      REPO_URL="https://gitlab.com/"
       ;;
     *)
       echo
