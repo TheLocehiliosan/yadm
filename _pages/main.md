@@ -69,6 +69,19 @@ feature_row:
         alongside your other configurations.
 
     '
+  - title: "Bootstrap"
+    alt: ""
+    btn_class: "btn--inverse"
+    btn_label: "Explore how"
+    image_path: "tasks-padding.png"
+    url: "/docs/bootstrap"
+    excerpt: '
+
+        Define your own instructions to complete your dotfiles installation.
+        If provided, **yadm** can execute your custom program immediately
+        following a successful clone.
+
+    '
   - title: "FAQ"
     alt: ""
     btn_class: "btn--inverse"

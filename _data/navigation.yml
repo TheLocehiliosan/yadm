@@ -28,6 +28,8 @@ docs:
         url: /docs/common_commands
   - title: Advanced Features
     children:
+      - title: "Bootstrap"
+        url: /docs/bootstrap
       - title: "Alternate Files"
         url: /docs/alternates
       - title: "Encryption"

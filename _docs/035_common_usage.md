@@ -53,6 +53,10 @@ about [encryption](encryption) for more details.
 only list the files (without decrypting them). Read about
 [encryption](encryption) for more details.
 
+<i class="fa fa-fw fa-asterisk" aria-hidden="true"></i> `yadm clone --bootstrap <URL>`
+: Clone the repository from `<URL>`, and automatically run bootstrap if
+successful. Read about [bootstrap](bootstrap) for more details.
+
 <i class="fa fa-fw fa-git-square" aria-hidden="true"></i> `yadm remote -v`
 : Display detailed information about all configured remote repositories.
 
