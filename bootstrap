@@ -1,10 +1,24 @@
 #!/bin/bash
 
-# envoke with:
-# curl -fsSL 'https://tinyurl.com/yadm-bootstrap' | bash [-s -- REPO_URL [YADM_RELEASE]]
-
-# or
-
+#
+# This script can be "curl-piped" into bash to bootstrap a dotfiles repo when
+# yadm is not locally installed. Read below for instructions.
+#
+# DISCLAIMER: In general, I would advise against piping someone's code directly
+#             from the Internet into an interpreter (like Bash). You should
+#             probably review any code like this prior to executing it. I leave
+#             it to you to decide if this is risky behavior or not. The main
+#             reason this script exists is because I find it to be a pragmatic
+#             way to bootstrap my dotfiles, and install yadm in one step
+#             (allowing the yadm project to be a submodule of my dotfiles
+#             repo).
+#
+# Invoke with:
+#
+# curl -fsSL 'https://tinyurl.com/yadm-bootstrap' | bash
+#
+# OR
+#
 # curl -fsSL 'https://github.com/TheLocehiliosan/yadm/raw/master/bootstrap' | bash [-s -- REPO_URL [YADM_RELEASE]]
 
 YADM_REPO="https://github.com/TheLocehiliosan/yadm"
