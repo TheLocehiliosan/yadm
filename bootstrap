@@ -57,7 +57,7 @@ function ask_about_source() {
     echo "If installation is not possible right now, you can temporarily \"source\""
     echo "in a yadm() function which fetches yadm remotely each time it is called."
     echo
-    echo "    source <<< curl -fsSL '$YADM_REPO/raw/$YADM_RELEASE/bootstrap'"
+    echo "    source <(curl -fsSL '$YADM_REPO/raw/$YADM_RELEASE/bootstrap')"
     echo
   fi
 }
