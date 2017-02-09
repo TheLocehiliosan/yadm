@@ -94,7 +94,7 @@ function build_url() {
 
   echo
   echo "Provide your user and repo separated by '/'"
-  echo "For example: TheLocehiliosan/dotfiles"
+  echo "For example: UserName/dotfiles"
   echo
   read -r -p "User/Repo ->" choice < /dev/tty
   [[ "$choice" =~ ^[^[:space:]]+/[^[:space:]]+$ ]] || {
