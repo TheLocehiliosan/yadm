@@ -1,3 +1,13 @@
+1.07
+  * Add `CLASS` to supported alt-link patterns (#21)
+  * Add bootstrap command (#42)
+  * Support wildcards for alt-links (#43)
+  * Stash conflicting data during clone (#44)
+  * Offer bootstrap after successful clone (#45)
+  * Display supported configs for `yadm config` (#46)
+  * Add "curl-pipe" program to clone without installation (#48)
+  * Fix bug in alt-link regular expressions (#49)
+
 1.06
   * Improve portability of `hostname` (#23)
   * Fix incompatibilities between Cygwin and Git for Windows (#26)

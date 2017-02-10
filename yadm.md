@@ -11,13 +11,15 @@
 
        yadm init [-f] [-w directory]
 
-       yadm clone url [-f] [-w directory]
+       yadm clone url [-f] [-w directory] [--bootstrap] [--no-bootstrap]
 
        yadm config name [value]
 
        yadm config [-e]
 
        yadm list [-a]
+
+       yadm bootstrap
 
        yadm encrypt
 
@@ -54,22 +56,36 @@
               alternates by default.  This automatic behavior can be  disabled
               by setting the configuration yadm.auto-alt to "false".
 
+       bootstrap
+              Execute $HOME/.yadm/bootstrap if it exists.
+
        clone url
               Clone a remote repository for tracking dotfiles.  After the con-
               tents of the remote repository have been fetched, a  "merge"  of
               origin/master  is  attempted.   If  there  are conflicting files
               already present in the  work-tree,  this  merge  will  fail  and
-              instead  a  "reset"  of origin/master will be done.  It is up to
-              the user to resolve these conflicts, but if the  desired  action
-              is to have the contents in the repository overwrite the existing
-              files, then a "hard reset" should accomplish that:
+              instead  a  "reset" of origin/master will be done, followed by a
+              "stash". This "stash" operation will preserve the original data.
 
-                     yadm reset --hard origin/master
+              You can review the stashed conflicts by running the command
+
+                     yadm stash show -p
+
+              from  within  your  $HOME  directory. If you want to restore the
+              stashed data, you can run
+
+                     yadm stash apply
+              or
+                     yadm stash pop
 
               The repository is stored in $HOME/.yadm/repo.git.   By  default,
               $HOME  will be used as the work-tree, but this can be overridden
               with the -w option.  yadm can be forced to overwrite an existing
-              repository by providing the -f option.
+              repository by providing the -f option.  By default yadm will ask
+              the user if the bootstrap program should be run (if it  exists).
+              The  options --bootstrap or --no-bootstrap will either force the
+              bootstrap to be run, or  prevent  it  from  being  run,  without
+              prompting the user.
 
        config This  command  manages  configurations  for  yadm.  This command
               works exactly they way git-config(1) does.  See  the  CONFIGURA-
@@ -149,6 +165,9 @@
        --yadm-archive
               Override the location of the yadm encrypted files archive.
 
+       --yadm-bootstrap
+              Override the location of the yadm bootstrap program.
+
 ## CONFIGURATION
        yadm  uses  a  configuration  file named $HOME/.yadm/config.  This file
        uses the same format as git-config(1).  Also, you can control the  con-
@@ -196,15 +215,40 @@
               Specify  an  alternate  program  to  use  instead  of "git".  By
               default, the first "git" found in $PATH is used.
 
+       These  last  four  "local"  configurations  are  not  stored   in   the
+       $HOME/.yadm/config, they are stored in the local repository.
+
+
+       local.class
+              Specify  a  CLASS for the purpose of symlinking alternate files.
+              By default, no CLASS will be matched.
+
+       local.os
+              Override the OS for the purpose of symlinking alternate files.
+
+       local.hostname
+              Override the HOSTNAME for the purpose  of  symlinking  alternate
+              files.
+
+       local.user
+              Override the USER for the purpose of symlinking alternate files.
+
 ## ALTERNATES
        When managing a set of files across different systems, it can be useful
        to have an automated way of choosing an alternate version of a file for
        a different operating system, host, or user.  yadm implements a feature
        which will automatically create a symbolic link to the appropriate ver-
        sion of a file, as long as you follow  a  specific  naming  convention.
-       yadm can detect files with names ending in:
+       yadm can detect files with names ending in any of the following:
 
-              ## or ##OS or ##OS.HOSTNAME or ##OS.HOSTNAME.USER
+         ##
+         ##CLASS
+         ##CLASS.OS
+         ##CLASS.OS.HOSTNAME
+         ##CLASS.OS.HOSTNAME.USER
+         ##OS
+         ##OS.HOSTNAME
+         ##OS.HOSTNAME.USER
 
        If  there  are  any  files  managed  by yadm's repository, or listed in
        $HOME/.yadm/encrypt, which match this naming convention, symbolic links
@@ -213,6 +257,7 @@
        yadm's repository:
 
          - $HOME/path/example.txt##
+         - $HOME/path/example.txt##Work
          - $HOME/path/example.txt##Darwin
          - $HOME/path/example.txt##Darwin.host1
          - $HOME/path/example.txt##Darwin.host2
@@ -241,17 +286,40 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##
 
-       If no "##" version exists and  no  files  match  the  current  OS/HOST-
+       If running on a system, with CLASS set to "Work", the link will be:
+
+       $HOME/path/example.txt -> $HOME/path/example.txt##WORK
+
+       If no "##" version exists and no files match the current CLASS/OS/HOST-
        NAME/USER, then no link will be created.
 
        Links  are also created for directories named this way, as long as they
        have at least one yadm managed file within them.
 
-       OS is determined by running uname -s, HOSTNAME by running  hostname -s,
-       and  USER  by  running  id -u -n.  yadm will automatically create these
-       links by default. This can be disabled using the yadm.auto-alt configu-
-       ration.   Even  if  disabled,  links can be manually created by running
-       yadm alt.
+       CLASS must be manually set using  yadm config local.class <class>.   OS
+       is  determined  by  running uname -s, HOSTNAME by running hostname, and
+       USER by running id -u -n.  yadm will automatically create  these  links
+       by default. This can be disabled using the yadm.auto-alt configuration.
+       Even if disabled, links can be manually created by running yadm alt.
+
+       It is possible to use "%" as a "wildcard" in place of CLASS, OS,  HOST-
+       NAME,  or USER. For example, The following file could be linked for any
+       host when the user is "harvey".
+
+       $HOME/path/example.txt##%.%.harvey
+
+       CLASS is a special value which is stored locally on each  host  (inside
+       the  local repository). To use alternate symlinks using CLASS, you must
+       set the value of class using the configuration  local.class.   This  is
+       set like any other yadm configuration with the yadm config command. The
+       following sets the CLASS to be "Work".
+
+         yadm config local.class Work
+
+       Similarly, the values of OS, HOSTNAME, and USER can be  manually  over-
+       ridden  using  the  configuration options local.os, local.hostname, and
+       local.user.
+
 
 ## ENCRYPTION
        It can be useful to manage confidential files, like SSH  or  GPG  keys,
