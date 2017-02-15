@@ -58,7 +58,7 @@ If you are using the "unstable" or "testing" release of Debian, you should be ab
 **yadm** is available in the Arch User Repos and can be installed with AUR helper or Makepkg
 
 ```
-yaourt -S yadm
+yaourt -S yadm-git
 ```
 
 ## Gentoo Linux
