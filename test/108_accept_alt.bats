@@ -10,7 +10,7 @@ function create_encrypt() {
     echo "$efile" >> "$T_YADM_ENCRYPT"
     echo "$efile" >> "$T_DIR_WORK/$efile"
     mkdir -p "$T_DIR_WORK/dir one/$efile"
-    echo "dir one/$efile/file1" >> "$T_YADM_ENCRYPT"
+    echo "'dir one'/$efile/file1" >> "$T_YADM_ENCRYPT"
     echo "dir one/$efile/file1" >> "$T_DIR_WORK/dir one/$efile/file1"
   done
 }
@@ -97,8 +97,11 @@ function test_alt() {
   if [ -z "$auto_alt" ]; then
     run "${T_YADM_Y[@]}" alt
     #; validate status and output
+    echo "TEST:Link Name:$link_name"
+    echo "TEST:DIR Link Name:$dir_link_name"
     if [ "$status" != 0 ] || [[ ! "$output" =~ Linking.+$link_name ]] || [[ ! "$output" =~ Linking.+$dir_link_name ]]; then
       echo "OUTPUT:$output"
+      echo "STATUS:$status"
       echo "ERROR: Could not confirm status and output of alt command"
       return 1;
     fi

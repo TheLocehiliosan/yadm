@@ -303,6 +303,8 @@ function create_worktree() {
     .ssh/secret.pub                    \
     .tmux.conf                         \
     .vimrc                             \
+    "space test/file one"              \
+    "space test/file two"              \
   ;
   do
     make_parents "$DIR_WORKTREE/$f"
