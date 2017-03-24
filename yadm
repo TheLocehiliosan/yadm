@@ -152,11 +152,27 @@ function alt() {
   #; only be noisy if the "alt" command was run directly
   [ "$YADM_COMMAND" = "alt" ] && loud="YES"
 
+  #; build a list of files from YADM_ENCRYPT
+  ENC_FILES=()
+  index=0
+  if [ -f "$YADM_ENCRYPT" ] ; then
+    while IFS='' read -r glob || [ -n "$glob" ]; do
+      if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
+        # echo "working on ->$glob<-"
+        local IFS=$'\n'
+        for matching_file in $(eval "$LS_PROGRAM" "$glob" 2>/dev/null); do
+          ENC_FILES[$index]="$matching_file"
+          ((index++))
+        done
+      fi
+    done < "$YADM_ENCRYPT"
+  fi
+
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
   last_linked=''
   local IFS=$'\n'
-  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) $(cat "$YADM_ENCRYPT" 2>/dev/null); do
+  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENC_FILES[@]}"; do
     tracked_file="$YADM_WORK/$tracked_file"
     #; process both the path, and it's parent directory
     for alt_path in "$tracked_file" "${tracked_file%/*}"; do
@@ -372,21 +388,26 @@ function encrypt() {
     GPG_OPTS=("-c")
   fi
 
-  #; build a list of globs from YADM_ENCRYPT
-  GLOBS=()
+  #; build a list of files from YADM_ENCRYPT
+  ENC_FILES=()
+  index=0
   while IFS='' read -r glob || [ -n "$glob" ]; do
     if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
-      GLOBS=("${GLOBS[@]}" $(eval "$LS_PROGRAM" "$glob" 2>/dev/null))
+      local IFS=$'\n'
+      for matching_file in $(eval "$LS_PROGRAM" "$glob" 2>/dev/null); do
+        ENC_FILES[$index]="$matching_file"
+        ((index++))
+      done
     fi
   done < "$YADM_ENCRYPT"
 
   #; report which files will be encrypted
   echo "Encrypting the following files:"
-  "$LS_PROGRAM" -1 "${GLOBS[@]}"
+  "$LS_PROGRAM" -1 "${ENC_FILES[@]}"
   echo
 
   #; encrypt all files which match the globs
-  if tar -f - -c "${GLOBS[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
+  if tar -f - -c "${ENC_FILES[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
     error_out "Unable to write $YADM_ARCHIVE"
