@@ -116,7 +116,7 @@ function alt() {
 
   match_class="$(config local.class)"
   if [ -z "$match_class" ] ; then
-    match_class="()"
+    match_class="%"
   fi
   match_class="(%|$match_class)"
 
@@ -140,7 +140,8 @@ function alt() {
   match_user="(%|$match_user)"
 
   #; regex for matching "<file>##CLASS.SYSTEM.HOSTNAME.USER"
-  match="^(.+)##(()|$match_class|$match_system|$match_class\.$match_system|$match_system\.$match_host|$match_class\.$match_system\.$match_host|$match_system\.$match_host\.$match_user|$match_class\.$match_system\.$match_host\.$match_user)$"
+  match1="^(.+)##(()|$match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user)$"
+  match2="^(.+)##($match_class|$match_class\.$match_system|$match_class\.$match_system\.$match_host|$match_class\.$match_system\.$match_host\.$match_user)$"
 
   #; process relative to YADM_WORK
   YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
@@ -170,23 +171,25 @@ function alt() {
 
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
-  last_linked=''
-  local IFS=$'\n'
-  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENC_FILES[@]}"; do
-    tracked_file="$YADM_WORK/$tracked_file"
-    #; process both the path, and it's parent directory
-    for alt_path in "$tracked_file" "${tracked_file%/*}"; do
-      if [ -e "$alt_path" ] ; then
-        if [[ $alt_path =~ $match ]] ; then
-          if [ "$alt_path" != "$last_linked" ] ; then
-            new_link="${BASH_REMATCH[1]}"
-            debug "Linking $alt_path to $new_link"
-            [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
-            ln -nfs "$alt_path" "$new_link"
-            last_linked="$alt_path"
+  for match in $match1 $match2; do
+    last_linked=''
+    local IFS=$'\n'
+    for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENC_FILES[@]}"; do
+      tracked_file="$YADM_WORK/$tracked_file"
+      #; process both the path, and it's parent directory
+      for alt_path in "$tracked_file" "${tracked_file%/*}"; do
+        if [ -e "$alt_path" ] ; then
+          if [[ $alt_path =~ $match ]] ; then
+            if [ "$alt_path" != "$last_linked" ] ; then
+              new_link="${BASH_REMATCH[1]}"
+              debug "Linking $alt_path to $new_link"
+              [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
+              ln -nfs "$alt_path" "$new_link"
+              last_linked="$alt_path"
+            fi
           fi
         fi
-      fi
+      done
     done
   done
 
