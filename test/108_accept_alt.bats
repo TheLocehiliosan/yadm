@@ -72,6 +72,22 @@ function test_alt() {
       link_name="alt-override-user"
       link_match="$link_name##$T_SYS.$T_HOST.custom_user"
     ;;
+    class_aaa)
+      link_name="alt-system"
+      link_match="$link_name##aaa"
+    ;;
+    class_zzz)
+      link_name="alt-system"
+      link_match="$link_name##zzz"
+    ;;
+    class_AAA)
+      link_name="alt-system"
+      link_match="$link_name##AAA"
+    ;;
+    class_ZZZ)
+      link_name="alt-system"
+      link_match="$link_name##ZZZ"
+    ;;
   esac
   dir_link_name="dir one/${link_name}"
   dir_link_match="dir one/${link_match}"
@@ -193,6 +209,62 @@ function test_alt() {
   "
 
   test_alt 'none' 'false' ''
+}
+
+@test "Command 'alt' (select class - aaa)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches only ##CLASS - aaa
+    Report the linking
+    Verify correct file is linked
+    Exit with 0
+  "
+
+  GIT_DIR="$T_DIR_REPO" git config local.class aaa
+
+  test_alt 'class_aaa' 'false' ''
+}
+
+@test "Command 'alt' (select class - zzz)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches only ##CLASS - zzz
+    Report the linking
+    Verify correct file is linked
+    Exit with 0
+  "
+
+  GIT_DIR="$T_DIR_REPO" git config local.class zzz
+
+  test_alt 'class_zzz' 'false' ''
+}
+
+@test "Command 'alt' (select class - AAA)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches only ##CLASS - AAA
+    Report the linking
+    Verify correct file is linked
+    Exit with 0
+  "
+
+  GIT_DIR="$T_DIR_REPO" git config local.class AAA
+
+  test_alt 'class_AAA' 'false' ''
+}
+
+@test "Command 'alt' (select class - ZZZ)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches only ##CLASS - ZZZ
+    Report the linking
+    Verify correct file is linked
+    Exit with 0
+  "
+
+  GIT_DIR="$T_DIR_REPO" git config local.class ZZZ
+
+  test_alt 'class_ZZZ' 'false' ''
 }
 
 @test "Command 'auto-alt' (enabled)" {

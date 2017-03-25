@@ -97,6 +97,10 @@ function create_worktree() {
       "alt-system##S.H"                  \
       "alt-system##S.H.U"                \
       "alt-system##$T_SYS"               \
+      "alt-system##AAA"                  \
+      "alt-system##ZZZ"                  \
+      "alt-system##aaa"                  \
+      "alt-system##zzz"                  \
       "alt-host##"                       \
       "alt-host##S"                      \
       "alt-host##S.H"                    \
@@ -142,6 +146,14 @@ function create_worktree() {
       "dir one/alt-system##S.H.U/file2"                \
       "dir one/alt-system##$T_SYS/file1"               \
       "dir one/alt-system##$T_SYS/file2"               \
+      "dir one/alt-system##AAA/file1"                  \
+      "dir one/alt-system##AAA/file2"                  \
+      "dir one/alt-system##ZZZ/file1"                  \
+      "dir one/alt-system##ZZZ/file2"                  \
+      "dir one/alt-system##aaa/file1"                  \
+      "dir one/alt-system##aaa/file2"                  \
+      "dir one/alt-system##zzz/file1"                  \
+      "dir one/alt-system##zzz/file2"                  \
       "dir one/alt-host##/file1"                       \
       "dir one/alt-host##/file2"                       \
       "dir one/alt-host##S/file1"                      \
