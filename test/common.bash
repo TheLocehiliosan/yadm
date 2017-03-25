@@ -202,7 +202,9 @@ function create_worktree() {
       make_parents "$DIR_WORKTREE/$f"
       echo "$f" > "$DIR_WORKTREE/$f"
     done
+    echo "{{ YADM_CLASS }}-{{ YADM_OS }}-{{ YADM_HOSTNAME }}-{{ YADM_USER }}" > "$DIR_WORKTREE/alt-jinja##yadm_tmpl"
   fi
+
 
   if [ ! -z "$TEST_TREE_WITH_WILD" ] ; then
     #; wildcard test data - yes this is a big mess :(

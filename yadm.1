@@ -89,7 +89,8 @@ Instead use the
 command (see below).
 .TP
 .B alt
-Create symbolic links for any managed files matching the naming rules describe in the ALTERNATES section.
+Create symbolic links and process jinja templates for any managed files matching the naming rules describe 
+in the ALTERNATES section. 
 It is usually unnecessary to run this command, as
 .B yadm
 automatically processes alternates by default.
@@ -472,6 +473,43 @@ using the configuration options
 .BR local.hostname ,
 and
 .BR local.user .
+
+If 
+.BR envtpl
+(
+.BR pip\ install\ envtpl
+) is available, you can also create 
+.B jinja
+templates (http://jinja.pocoo.org/) which will transformed into real files. 
+.B yadm
+will treat files ending in 
+
+ ##yadm_tmpl
+
+as jinja templates. During processing, the following variables are 
+set according to the above rules:
+
+ YADM_CLASS
+ YADM_OS
+ YADM_HOSTNAME
+ YADM_USER
+
+E.g. a file 'whatever##yadm_tmpl' with the following content
+
+ {% if YADM_USER == 'harvey' -%}
+ config={{YADM_CLASS}}-{{ YADM_OS }}
+ {% else -%}
+ config=dev-whatever
+ {% endif -%}
+
+would output a file with the follwing content, if the username would be 'harvey'
+
+ config=work-Linux
+
+and the following otherwise:
+
+ config=dev-whatever
+
 
 .SH ENCRYPTION
 It can be useful to manage confidential files, like SSH or GPG keys, across
