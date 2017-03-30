@@ -179,18 +179,17 @@ Encrypt all files matching the patterns found in
 See the ENCRYPTION section for more details.
 .TP
 .B enter
-Run a subshell with all git variables set. This can be used to easily
-interact with your git repository. This is also useful if you are using
-Emacs Tramp and magit to manage your directory. You can add this
-configuration in your emacs configuration:
-
+Run a sub-shell with all Git variables set. This can be used to easily interact
+with your Git repository. This is also useful if you are using Emacs Tramp and
+Magit to manage your directory. You can add this configuration in your Emacs
+configuration:
 .RS
     (add-to-list 'tramp-methods
-  	     '("yadm"
-  	       (tramp-login-program "yadm")
-  	       (tramp-login-args (("enter")))
-  	       (tramp-remote-shell "/bin/sh")
-  	       (tramp-remote-shell-args ("-c"))))
+         '("yadm"
+           (tramp-login-program "yadm")
+           (tramp-login-args (("enter")))
+           (tramp-remote-shell "/bin/sh")
+           (tramp-remote-shell-args ("-c"))))
 .RE
 .TP
 .B gitconfig
