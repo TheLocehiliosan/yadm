@@ -433,10 +433,25 @@ function encrypt() {
 }
 
 function enter() {
-    require_repo
-    echo "Entering repo"
-    $SHELL
-    echo "Leaving repo"
+  require_shell
+  require_repo
+
+  shell_opts=""
+  shell_path=""
+  if [[ "$SHELL" =~ bash$ ]]; then
+    shell_opts="--norc"
+    shell_path="\w"
+  elif [[ "$SHELL" =~ [cz]sh$ ]]; then
+    shell_opts="-f"
+    shell_path="%~"
+  fi
+
+  echo "Entering yadm repo"
+
+  yadm_prompt="yadm shell ($YADM_REPO) $shell_path > "
+  PROMPT="$yadm_prompt" PS1="$yadm_prompt" "$SHELL" $shell_opts
+
+  echo "Leaving yadm repo"
 }
 
 function git_command() {
@@ -795,6 +810,9 @@ function require_ls() {
       error_out "This functionality requires 'ls' to be installed at '$LS_PROGRAM' or listed in your \$PATH"
     LS_PROGRAM=ls
   fi
+}
+function require_shell() {
+  [ -x "$SHELL" ] || error_out "\$SHELL does not refer to an executable."
 }
 function bootstrap_available() {
   [ -f "$YADM_BOOTSTRAP" ] && [ -x "$YADM_BOOTSTRAP" ] && return
