@@ -53,7 +53,7 @@ function main() {
 
   #; parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|help|init|list|perms|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|init|list|perms|version)$"
   if [ -z "$*" ] ; then
     #; no argumnts will result in help()
     help
@@ -430,6 +430,13 @@ function encrypt() {
 
   CHANGES_POSSIBLE=1
 
+}
+
+function enter() {
+    require_repo
+    echo "Entering repo"
+    $SHELL
+    echo "Leaving repo"
 }
 
 function git_command() {
