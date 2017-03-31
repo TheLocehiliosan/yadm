@@ -197,9 +197,9 @@ function alt() {
   done
 
   #; loop over all "tracked" files
-  #; for every file which is a *##yadm_tmpl create a real file
+  #; for every file which is a *##yadm.j2 create a real file
   local IFS=$'\n'
-  local match="^(.+)##yadm_tmpl$"
+  local match="^(.+)##yadm\\.j2$"
   for tracked_file in $("$GIT_PROGRAM" ls-files | sort) $(cat "$YADM_ENCRYPT" 2>/dev/null); do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then

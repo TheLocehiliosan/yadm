@@ -502,7 +502,7 @@ templates will also be processed to create or overwrite real files.
 .B yadm
 will treat files ending in
 
-  ##yadm_tmpl
+  ##yadm.j2
 
 as Jinja templates. During processing, the following variables are set
 according to the rules explained in the ALTERNATES section:
@@ -513,7 +513,7 @@ according to the rules explained in the ALTERNATES section:
   YADM_USER
 
 For example, a file named
-.I whatever##yadm_tmpl
+.I whatever##yadm.j2
 with the following content
 
   {% if YADM_USER == 'harvey' -%}

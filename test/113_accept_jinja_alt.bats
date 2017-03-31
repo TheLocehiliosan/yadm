@@ -86,7 +86,7 @@ function test_alt() {
 @test "Command 'alt' (envtpl missing)" {
   echo "
     When the command 'alt' is provided
-    and file matches ##yadm_tmpl
+    and file matches ##yadm.j2
     Report jinja template as unprocessed
     Exit with 0
   "
@@ -110,7 +110,7 @@ function test_alt() {
 @test "Command 'alt' (select jinja)" {
   echo "
     When the command 'alt' is provided
-    and file matches ##yadm_tmpl
+    and file matches ##yadm.j2
     Report jinja template processing
     Verify that the correct content is written
     Exit with 0
@@ -123,7 +123,7 @@ function test_alt() {
   echo "
     When a command possibly changes the repo
     and auto-alt is configured true
-    and file matches ##yadm_tmpl
+    and file matches ##yadm.j2
     automatically process alternates
     report no linking (not loud)
     Verify that the correct content is written
@@ -136,7 +136,7 @@ function test_alt() {
   echo "
     When a command possibly changes the repo
     and auto-alt is configured false
-    and file matches ##yadm_tmpl
+    and file matches ##yadm.j2
     Report no jinja template processing
     Verify no content
   "
@@ -147,7 +147,7 @@ function test_alt() {
 @test "Command 'alt' (overwrite existing content)" {
   echo "
     When the command 'alt' is provided
-    and file matches ##yadm_tmpl
+    and file matches ##yadm.j2
     and the real file exists, and is wrong
     Report jinja template processing
     Verify that the correct content is written
@@ -160,7 +160,7 @@ function test_alt() {
 @test "Command 'alt' (overwritten settings)" {
   echo "
     When the command 'alt' is provided
-    and file matches ##yadm_tmpl
+    and file matches ##yadm.j2
     after setting local.*
     Report jinja template processing
     Verify that the correct content is written
