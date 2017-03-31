@@ -180,10 +180,13 @@ Encrypt all files matching the patterns found in
 See the ENCRYPTION section for more details.
 .TP
 .B enter
-Run a sub-shell with all Git variables set. This can be used to easily interact
-with your Git repository. This is also useful if you are using Emacs Tramp and
-Magit to manage your directory. You can add this configuration in your Emacs
-configuration:
+Run a sub-shell with all Git variables set. Exit the sub-shell the same way you
+leave your normal shell (usually with the "exit" command). This sub-shell can
+be used to easily interact with your
+.B yadm
+repository using "git" commands. This could be useful if you are using a tool
+which uses Git directly. For example, Emacs Tramp and Magit can manage files by
+using this configuration:
 .RS
     (add-to-list 'tramp-methods
          '("yadm"
