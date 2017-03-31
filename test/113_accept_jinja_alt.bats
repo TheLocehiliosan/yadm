@@ -83,6 +83,30 @@ function test_alt() {
   fi
 }
 
+@test "Command 'alt' (envtpl missing)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches ##yadm_tmpl
+    Report jinja template as unprocessed
+    Exit with 0
+  "
+
+  # shellcheck source=/dev/null
+  YADM_TEST=1 source "$T_YADM"
+  process_global_args -Y "$T_DIR_YADM"
+  test_cygwin
+  configure_paths
+
+  status=0
+  output=$( ENVTPL_PROGRAM='envtpl_missing' main alt ) || {
+    status=$?
+    true
+  }
+
+  [ $status -eq 0 ]
+  [[ "$output" =~ envtpl.not.available ]]
+}
+
 @test "Command 'alt' (select jinja)" {
   echo "
     When the command 'alt' is provided
