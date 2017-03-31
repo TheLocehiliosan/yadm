@@ -33,6 +33,7 @@ YADM_BOOTSTRAP="bootstrap"
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
 LS_PROGRAM="/bin/ls"
+ENVTPL_PROGRAM="envtpl"
 
 #; flag causing path translations with cygpath
 USE_CYGPATH=0
@@ -198,22 +199,23 @@ function alt() {
   #; loop over all "tracked" files
   #; for every file which is a *##yadm_tmpl create a real file
   local IFS=$'\n'
-  local match="^(.+)##yadm_tmpl"
-  local envtpl_bin=$(which envtpl)
+  local match="^(.+)##yadm_tmpl$"
   for tracked_file in $("$GIT_PROGRAM" ls-files | sort) $(cat "$YADM_ENCRYPT" 2>/dev/null); do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
-        if [[ -z "$envtpl_bin" ]]; then
-          debug "'envtpl' (pip install envtpl) not available, not creating $real_file from template $tracked_file"
-          [ -n "$loud" ] && echo "'envtpl' (pip install envtpl) not available, not creating $real_file from template $tracked_file"
-        else
-          real_file="${BASH_REMATCH[1]}"
+        real_file="${BASH_REMATCH[1]}"
+        if envtpl_available; then
           debug "Creating $real_file from template $tracked_file"
           [ -n "$loud" ] && echo "Creating $real_file from template $tracked_file"
-          YADM_CLASS="$local_class" YADM_OS="$local_system" \
-          YADM_HOSTNAME="$local_host" YADM_USER="$local_user" \
-          $envtpl_bin < $tracked_file > $real_file
+          YADM_CLASS="$local_class" \
+          YADM_OS="$local_system" \
+          YADM_HOSTNAME="$local_host" \
+          YADM_USER="$local_user" \
+          "$ENVTPL_PROGRAM" < "$tracked_file" > "$real_file"
+        else
+          debug "envtpl not available, not creating $real_file from template $tracked_file"
+          [ -n "$loud" ] && echo "envtpl not available, not creating $real_file from template $tracked_file"
         fi
       fi
     fi
@@ -842,6 +844,10 @@ function require_shell() {
 }
 function bootstrap_available() {
   [ -f "$YADM_BOOTSTRAP" ] && [ -x "$YADM_BOOTSTRAP" ] && return
+  return 1
+}
+function envtpl_available() {
+  command -v "$ENVTPL_PROGRAM" >/dev/null 2>&1 && return
   return 1
 }
 
