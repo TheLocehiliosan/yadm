@@ -97,6 +97,41 @@ Similarly, the values of `OS`, `HOSTNAME`, and `USER` can be manually
 overridden using the configuration options `local.os`, `local.hostname`, and
 `local.user`.
 
+## Jinja templates
+
+If the `envtpl` command is available, Jinja templates will also be processed to
+create or overwrite real files. **yadm** will treat files ending in `##yadm.j2`
+as Jinja templates. During processing, the following variables are set according
+to the rules explained in the [Alternates section](alternates#symlink-alternates):
+
+* `YADM_CLASS`
+* `YADM_OS`
+* `YADM_HOSTNAME`
+* `YADM_USER`
+
+For example, a file named `whatever##yadm.j2` with the following content
+
+    {% raw %}
+    {% if YADM_USER == 'harvey' -%}
+    config={{YADM_CLASS}}-{{ YADM_OS }}
+    {% else -%}
+    config=dev-whatever
+    {% endif -%}
+    {% endraw %}
+
+would write a file named `whatever` with the following content if the user is
+"harvey":
+
+    config=work-Linux
+
+and the following otherwise:
+
+    config=dev-whatever
+
+See [andreasjansson/envtpl](https://github.com/andreasjansson/envtpl) for more information about
+`envtpl`, and see [jinja.pocoo.org](http://jinja.pocoo.org/) for an overview of
+Jinja.
+
 ## Strategies for alternate files on different systems
 
 Where possible, you should try to use the same file on every system. Here are a few examples:
