@@ -129,7 +129,7 @@ function alt() {
   fi
   match_system="(%|$local_system)"
 
-  local_host="$(config local.host)"
+  local_host="$(config local.hostname)"
   if [ -z "$local_host" ] ; then
     local_host=$(hostname)
     local_host=${local_host%%.*} #; trim any domain from hostname
@@ -328,7 +328,7 @@ EOF
 function config() {
 
   use_repo_config=0
-  local_options="^local\.(class|os|host|user)$"
+  local_options="^local\.(class|os|hostname|user)$"
   for option in "$@"; do
     [[ "$option" =~ $local_options ]] && use_repo_config=1
   done
@@ -339,7 +339,7 @@ function config() {
 yadm supports the following configurations:
 
   local.class
-  local.host
+  local.hostname
   local.os
   local.user
   yadm.auto-alt
