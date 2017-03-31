@@ -379,13 +379,13 @@ function test_alt() {
   echo "
     When the command 'alt' is provided
     and file matches only ##SYSTEM.HOST
-    after setting local.host
+    after setting local.hostname
     Report the linking
     Verify correct file is linked
     Exit with 0
   "
 
-  GIT_DIR="$T_DIR_REPO" git config local.host custom_host
+  GIT_DIR="$T_DIR_REPO" git config local.hostname custom_host
   test_alt 'override_host' 'false' ''
 }
 

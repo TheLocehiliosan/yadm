@@ -143,12 +143,12 @@ setup() {
 
   #; write local attributes
   build_repo
-  for loption in class os host user; do
+  for loption in class os hostname user; do
     GIT_DIR="$T_DIR_REPO" git config "local.$loption" "custom_$loption"
   done
 
   #; run config
-  for loption in class os host user; do
+  for loption in class os hostname user; do
     run "${T_YADM_Y[@]}" config "local.$loption"
     #; validate status and output
     [ $status -eq 0 ]
@@ -176,7 +176,7 @@ setup() {
   local linecount
   expected="[local]\n"
   linecount=1
-  for loption in class os host user; do
+  for loption in class os hostname user; do
     #; update expected
     expected="$expected\t$loption = custom_$loption\n"
     ((linecount+=1))

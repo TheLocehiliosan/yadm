@@ -169,7 +169,7 @@ function test_alt() {
 
   GIT_DIR="$T_DIR_REPO" git config local.os custom_system
   GIT_DIR="$T_DIR_REPO" git config local.user custom_user
-  GIT_DIR="$T_DIR_REPO" git config local.host custom_host
+  GIT_DIR="$T_DIR_REPO" git config local.hostname custom_host
   GIT_DIR="$T_DIR_REPO" git config local.class custom_class
   test_alt 'override_all' 'false' ''
 }
