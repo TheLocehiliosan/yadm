@@ -101,7 +101,7 @@ function test_alt() {
     and auto-alt is configured true
     and file matches ##yadm_tmpl
     automatically process alternates
-    report no linking (not loud)    
+    report no linking (not loud)
     Verify that the correct content is written
   "
 

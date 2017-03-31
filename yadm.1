@@ -91,8 +91,8 @@ Instead use the
 command (see below).
 .TP
 .B alt
-Create symbolic links and process jinja templates for any managed files matching the naming rules describe 
-in the ALTERNATES section. 
+Create symbolic links and process jinja templates for any managed files matching the naming rules describe
+in the ALTERNATES section.
 It is usually unnecessary to run this command, as
 .B yadm
 automatically processes alternates by default.
@@ -401,7 +401,7 @@ can detect files with names ending in any of the following:
 If there are any files managed by
 .BR yadm \'s
 repository,
-or listed in 
+or listed in
 .IR $HOME/.yadm/encrypt ,
 which match this naming convention,
 symbolic links will be created for the most appropriate version.
@@ -490,19 +490,19 @@ using the configuration options
 and
 .BR local.user .
 
-If 
+If
 .BR envtpl
 (
 .BR pip\ install\ envtpl
-) is available, you can also create 
+) is available, you can also create
 .B jinja
-templates (http://jinja.pocoo.org/) which will transformed into real files. 
+templates (http://jinja.pocoo.org/) which will transformed into real files.
 .B yadm
-will treat files ending in 
+will treat files ending in
 
  ##yadm_tmpl
 
-as jinja templates. During processing, the following variables are 
+as jinja templates. During processing, the following variables are
 set according to the above rules:
 
  YADM_CLASS

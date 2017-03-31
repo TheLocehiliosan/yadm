@@ -199,7 +199,7 @@ function alt() {
   #; for every file which is a *##yadm_tmpl create a real file
   local IFS=$'\n'
   local match="^(.+)##yadm_tmpl"
-  local envtpl_bin=$(which envtpl) 
+  local envtpl_bin=$(which envtpl)
   for tracked_file in $("$GIT_PROGRAM" ls-files | sort) $(cat "$YADM_ENCRYPT" 2>/dev/null); do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
