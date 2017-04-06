@@ -49,6 +49,9 @@ list
 .BR yadm " alt
 
 .BR yadm " perms
+
+.BR yadm " introspect
+.I category
 .SH DESCRIPTION
 .B yadm
 is a tool for managing a collection of files across multiple computers,
@@ -241,6 +244,17 @@ Print a list of files managed by
 .RB The " -a
 option will cause all managed files to be listed.
 Otherwise, the list will only include files from the current directory or below.
+.TP
+.BI introspect " category
+Report internal
+.B yadm
+data. Supported categories are
+.IR commands ,
+.IR configs ,
+.IR repo,
+and
+.IR switches .
+The purpose of introspection is to support command line completion.
 .TP
 .B perms
 Update permissions as described in the PERMISSIONS section.

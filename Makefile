@@ -29,7 +29,7 @@ bats:
 shellcheck:
 	@echo Running shellcheck
 	@shellcheck --version || true
-	@shellcheck -s bash yadm bootstrap test/*.bash
+	@shellcheck -s bash yadm bootstrap test/*.bash completion/yadm.bash_completion
 	@cd test; \
 	for bats_file in *bats; do \
 		sed 's/^@test.*{/function test() {/' "$$bats_file" > "/tmp/$$bats_file.bash"; \

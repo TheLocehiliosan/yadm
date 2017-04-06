@@ -57,7 +57,7 @@ function main() {
 
   #; parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|init|list|perms|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|init|introspect|list|perms|version)$"
   if [ -z "$*" ] ; then
     #; no argumnts will result in help()
     help
@@ -338,21 +338,13 @@ function config() {
 
   if [ -z "$*" ] ; then
     #; with no parameters, provide some helpful documentation
+    echo "yadm supports the following configurations:"
+    echo
+    for supported_config in $(introspect_configs); do
+      echo "  ${supported_config}"
+    done
+    echo
     cat << EOF
-yadm supports the following configurations:
-
-  local.class
-  local.hostname
-  local.os
-  local.user
-  yadm.auto-alt
-  yadm.auto-perms
-  yadm.git-program
-  yadm.gpg-perms
-  yadm.gpg-program
-  yadm.gpg-recipient
-  yadm.ssh-perms
-
 Please read the CONFIGURATION section in the man
 page for more details about configurations, and
 how to adjust them.
@@ -556,6 +548,66 @@ function init() {
 
   CHANGES_POSSIBLE=1
 
+}
+
+function introspect() {
+  case "$1" in
+    commands|configs|repo|switches)
+      "introspect_$1"
+    ;;
+  esac
+}
+
+function introspect_commands() {
+  cat <<-EOF
+alt
+bootstrap
+clean
+clone
+config
+decrypt
+encrypt
+enter
+gitconfig
+help
+init
+introspect
+list
+perms
+version
+EOF
+}
+
+function introspect_configs() {
+  cat << EOF
+local.class
+local.hostname
+local.os
+local.user
+yadm.auto-alt
+yadm.auto-perms
+yadm.git-program
+yadm.gpg-perms
+yadm.gpg-program
+yadm.gpg-recipient
+yadm.ssh-perms
+EOF
+}
+
+function introspect_repo() {
+  echo "$YADM_REPO"
+}
+
+function introspect_switches() {
+  cat <<-EOF
+--yadm-archive
+--yadm-bootstrap
+--yadm-config
+--yadm-dir
+--yadm-encrypt
+--yadm-repo
+-Y
+EOF
 }
 
 function list() {
