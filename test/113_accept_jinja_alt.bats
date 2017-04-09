@@ -94,7 +94,7 @@ function test_alt() {
   # shellcheck source=/dev/null
   YADM_TEST=1 source "$T_YADM"
   process_global_args -Y "$T_DIR_YADM"
-  test_cygwin
+  set_operating_system
   configure_paths
 
   status=0

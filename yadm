@@ -35,6 +35,9 @@ GIT_PROGRAM="git"
 LS_PROGRAM="/bin/ls"
 ENVTPL_PROGRAM="envtpl"
 
+PROC_VERSION="/proc/version"
+OPERATING_SYSTEM="Unknown"
+
 #; flag causing path translations with cygpath
 USE_CYGPATH=0
 
@@ -125,7 +128,7 @@ function alt() {
 
   local_system="$(config local.os)"
   if [ -z "$local_system" ] ; then
-    local_system=$(uname -s)
+    local_system="$OPERATING_SYSTEM"
   fi
   match_system="(%|$local_system)"
 
@@ -735,6 +738,30 @@ function configure_repo() {
 
 }
 
+function set_operating_system() {
+
+  #; special detection of WSL (windows subsystem for linux)
+  local proc_version
+  proc_version=$(cat "$PROC_VERSION" 2>/dev/null)
+  if [[ "$proc_version" =~ Microsoft ]]; then
+    OPERATING_SYSTEM="WSL"
+  else
+    OPERATING_SYSTEM=$(uname -s)
+  fi
+
+  case "$OPERATING_SYSTEM" in
+    CYGWIN*)
+      git_version=$(git --version 2>/dev/null)
+      if [[ "$git_version" =~ windows ]] ; then
+	      USE_CYGPATH=1
+      fi
+      ;;
+    *)
+      ;;
+  esac
+
+}
+
 function debug() {
 
   [ -n "$DEBUG" ] && echo -e "DEBUG: $*"
@@ -853,18 +880,6 @@ function envtpl_available() {
 
 #; ****** Directory tranlations ******
 
-function test_cygwin() {
-  case "$(uname -s)" in
-    CYGWIN*)
-      git_version=$(git --version 2>/dev/null)
-      if [[ "$git_version" =~ windows ]] ; then
-	      USE_CYGPATH=1
-      fi
-      ;;
-    *)
-      ;;
-  esac
-}
 function unix_path() {
   #; for paths used by bash/yadm
   if [ "$USE_CYGPATH" = "1" ] ; then
@@ -886,7 +901,7 @@ function mixed_path() {
 
 if [ "$YADM_TEST" != 1 ] ; then
   process_global_args "$@"
-  test_cygwin
+  set_operating_system
   configure_paths
   main "${MAIN_ARGS[@]}"
 fi
