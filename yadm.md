@@ -31,6 +31,8 @@
 
        yadm perms
 
+       yadm introspect category
+
 ## DESCRIPTION
        yadm  is a tool for managing a collection of files across multiple com-
        puters, using a shared Git repository.  In addition,  yadm  provides  a
@@ -143,6 +145,11 @@
        list   Print a list of files managed by yadm.  The -a option will cause
               all managed files to be listed.  Otherwise, the list  will  only
               include files from the current directory or below.
+
+       introspect category
+              Report  internal  yadm  data. Supported categories are commands,
+              configs, repo, and switches.  The purpose of introspection is to
+              support command line completion.
 
        perms  Update  permissions as described in the PERMISSIONS section.  It
               is usually unnecessary to run this command,  as  yadm  automati-

@@ -1,6 +1,6 @@
 Summary: Yet Another Dotfiles Manager
 Name: yadm
-Version: 1.08
+Version: 1.09
 Release: 1%{?dist}
 URL: https://github.com/TheLocehiliosan/yadm
 License: GPLv3
@@ -34,9 +34,13 @@ install -m 644 yadm.1 ${RPM_BUILD_ROOT}%{_mandir}/man1
 %attr(755,root,root) %{_bindir}/yadm
 %attr(644,root,root) %{_mandir}/man1/*
 %license LICENSE
-%doc CHANGES CONTRIBUTORS README.md
+%doc CHANGES CONTRIBUTORS README.md completion/yadm.bash_completion
 
 %changelog
+* Thu May  4 2017 Tim Byrne <sultan@locehilios.com> - 1.09-1
+- Bump version to 1.09
+- Add yadm.bash_completion
+
 * Mon Apr  3 2017 Tim Byrne <sultan@locehilios.com> - 1.08-1
 - Bump version to 1.08
 

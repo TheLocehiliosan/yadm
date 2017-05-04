@@ -1,3 +1,8 @@
+1.09
+  * Add Bash completion script (#60)
+  * Support WSL detection (#61)
+  * Add introspect command (used by completion)
+
 1.08
   * Fix bug alternates based on `CLASS` (#51)
   * Support globs and paths with space in .yadm/encrypt (#53, #54)
