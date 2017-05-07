@@ -9,8 +9,14 @@ if declare -F _git > /dev/null; then
   _yadm() {
 
     local current=${COMP_WORDS[COMP_CWORD]}
-    local penultimate=${COMP_WORDS[COMP_CWORD-1]}
-    local antepenultimate=${COMP_WORDS[COMP_CWORD-2]}
+    local penultimate
+    if (($COMP_WORDS > 0)); then
+      penultimate=${COMP_WORDS[COMP_CWORD-1]}
+    fi
+    local antepenultimate
+    if (($COMP_WORDS > 1)); then
+      antepenultimate=${COMP_WORDS[COMP_CWORD-2]}
+    fi
 
     local GIT_DIR
     # shellcheck disable=SC2034
