@@ -1,3 +1,7 @@
+1.10.0
+  * Fix `COMP_WORDS bad array subscript` bug (#64)
+  * Transition to semantic versioning
+
 1.09
   * Add Bash completion script (#60)
   * Support WSL detection (#61)
