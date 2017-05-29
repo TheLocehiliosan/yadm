@@ -175,6 +175,14 @@ function alt() {
     done < "$YADM_ENCRYPT"
   fi
 
+  #; decide if a copy should be done instead of a symbolic link
+  local do_copy=0
+  if [[ $OPERATING_SYSTEM == CYGWIN* ]] ; then
+    if [[ $(config --bool yadm.cygwin-copy) == "true" ]] ; then
+      do_copy=1
+    fi
+  fi
+
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
   for match in $match1 $match2; do
@@ -190,7 +198,11 @@ function alt() {
               new_link="${BASH_REMATCH[1]}"
               debug "Linking $alt_path to $new_link"
               [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
-              ln -nfs "$alt_path" "$new_link"
+              if [ "$do_copy" -eq 1 ]; then
+                cp -f "$alt_path" "$new_link"
+              else
+                ln -nfs "$alt_path" "$new_link"
+              fi
               last_linked="$alt_path"
             fi
           fi
@@ -586,6 +598,7 @@ local.os
 local.user
 yadm.auto-alt
 yadm.auto-perms
+yadm.cygwin-copy
 yadm.git-program
 yadm.gpg-perms
 yadm.gpg-program

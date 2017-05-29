@@ -376,6 +376,11 @@ By default, the first "gpg" found in $PATH is used.
 .B yadm.git-program
 Specify an alternate program to use instead of "git".
 By default, the first "git" found in $PATH is used.
+.TP
+.B yadm.cygwin-copy
+If set to "true", for Cygwin hosts, alternate files will be copies instead of
+symbolic links. This might be desirable, because non-Cygwin software may not
+properly interpret Cygwin symlinks.
 
 .RE
 These last four "local" configurations are not stored in the
