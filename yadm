@@ -199,6 +199,9 @@ function alt() {
               debug "Linking $alt_path to $new_link"
               [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
               if [ "$do_copy" -eq 1 ]; then
+                if [ -L "$new_link" ]; then
+                  rm -f "$new_link"
+                fi
                 cp -f "$alt_path" "$new_link"
               else
                 ln -nfs "$alt_path" "$new_link"
