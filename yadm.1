@@ -395,6 +395,21 @@ Override the HOSTNAME for the purpose of symlinking alternate files.
 .TP
 .B local.user
 Override the USER for the purpose of symlinking alternate files.
+.SH HOOKS
+.B yadm
+has the capability to execute scripts before or after any operation that
+.B yadm
+can perform. To utilize this functionality, create a directory to store the hook
+scripts at
+.BR $HOME/.yadm/hooks.
+Then, create scripts inside this directory for whatever operation you want to
+hook into. For instance, if you'd like a script to run after
+.B yadm pull,
+your hook script should be executable and located at
+.BR $HOME/.yadm/hooks/post_pull.sh.
+Any of the
+.B yadm
+subcommands can utilize this functionality.
 .SH ALTERNATES
 When managing a set of files across different systems, it can be useful to have
 an automated way of choosing an alternate version of a file for a different
