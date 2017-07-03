@@ -27,6 +27,8 @@ function load_fixtures() {
   T_HOST=$(hostname -s)
   export T_USER
   T_USER=$(id -u -n)
+  export T_DISTRO
+  T_DISTRO=$(lsb_release -si 2>/dev/null || true)
 }
 
 function configure_git() {
@@ -202,7 +204,7 @@ function create_worktree() {
       make_parents "$DIR_WORKTREE/$f"
       echo "$f" > "$DIR_WORKTREE/$f"
     done
-    echo "{{ YADM_CLASS }}-{{ YADM_OS }}-{{ YADM_HOSTNAME }}-{{ YADM_USER }}" > "$DIR_WORKTREE/alt-jinja##yadm.j2"
+    echo "{{ YADM_CLASS }}-{{ YADM_OS }}-{{ YADM_HOSTNAME }}-{{ YADM_USER }}-{{ YADM_DISTRO }}" > "$DIR_WORKTREE/alt-jinja##yadm.j2"
   fi
 
   #; for some cygwin tests

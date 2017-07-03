@@ -34,6 +34,7 @@ GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
 LS_PROGRAM="/bin/ls"
 ENVTPL_PROGRAM="envtpl"
+LSB_RELEASE_PROGRAM="lsb_release"
 
 PROC_VERSION="/proc/version"
 OPERATING_SYSTEM="Unknown"
@@ -230,6 +231,7 @@ function alt() {
           YADM_OS="$local_system" \
           YADM_HOSTNAME="$local_host" \
           YADM_USER="$local_user" \
+          YADM_DISTRO=$(query_distro) \
           "$ENVTPL_PROGRAM" < "$tracked_file" > "$real_file"
         else
           debug "envtpl not available, not creating $real_file from template $tracked_file"
@@ -697,6 +699,14 @@ function version() {
 }
 
 #; ****** Utility Functions ******
+
+function query_distro() {
+  distro=""
+  if command -v "$LSB_RELEASE_PROGRAM" >/dev/null 2>&1; then
+    distro=$($LSB_RELEASE_PROGRAM -si 2>/dev/null)
+  fi
+  echo "$distro"
+}
 
 function process_global_args() {
 
