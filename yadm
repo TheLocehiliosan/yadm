@@ -30,6 +30,8 @@ YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
 
+HOOK_COMMAND=""
+
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
 LS_PROGRAM="/bin/ls"
@@ -97,14 +99,14 @@ function main() {
       shift
     done
     [ ! -d "$YADM_WORK" ] && error_out "Work tree does not exist: [$YADM_WORK]"
-    invoke_hook "pre_$YADM_COMMAND"
+    HOOK_COMMAND="$YADM_COMMAND"
+    invoke_hook "pre"
     $YADM_COMMAND "${YADM_ARGS[@]}"
-    invoke_hook "post_$YADM_COMMAND"
   else
     #; any other commands are simply passed through to git
-    invoke_hook "pre_$1"
+    HOOK_COMMAND="$1"
+    invoke_hook "pre"
     git_command "$@"
-    invoke_hook "post_$1"
     retval="$?"
   fi
 
@@ -113,7 +115,7 @@ function main() {
   auto_perms
   auto_bootstrap
 
-  exit $retval
+  exit_with_hook $retval
 
 }
 
@@ -546,7 +548,7 @@ Files:
 Use "man yadm" for complete documentation.
 EOF
 
-  exit 1
+  exit_with_hook 1
 
 }
 
@@ -698,7 +700,7 @@ function perms() {
 function version() {
 
   echo "yadm $VERSION"
-  exit 0
+  exit_with_hook 0
 
 }
 
@@ -853,17 +855,25 @@ function debug() {
 function error_out() {
 
   echo -e "ERROR: $*"
-  exit 1
+  exit_with_hook 1
+
+}
+
+function exit_with_hook() {
+
+  invoke_hook "post"
+  exit "$1"
 
 }
 
 function invoke_hook() {
 
-  hook_name="$1"
+  mode="$1"
+  hook_command="$YADM_DIR/hooks/${mode}_$HOOK_COMMAND"
 
-  if [ -x "$YADM_DIR/hooks/$hook_name" ] ; then
-    debug "Invoking hook: $hook_name"
-    "$YADM_DIR/hooks/$hook_name"
+  if [ -x "$hook_command" ] ; then
+    debug "Invoking hook: $hook_command"
+    "$hook_command"
   fi
 
 }
