@@ -97,10 +97,14 @@ function main() {
       shift
     done
     [ ! -d "$YADM_WORK" ] && error_out "Work tree does not exist: [$YADM_WORK]"
+    invoke_hook "pre_$YADM_COMMAND"
     $YADM_COMMAND "${YADM_ARGS[@]}"
+    invoke_hook "post_$YADM_COMMAND"
   else
     #; any other commands are simply passed through to git
+    invoke_hook "pre_$1"
     git_command "$@"
+    invoke_hook "post_$1"
     retval="$?"
   fi
 
@@ -851,6 +855,16 @@ function error_out() {
   echo -e "ERROR: $*"
   exit 1
 
+}
+
+#: ******  Hook handler  ******S
+function invoke_hook() {
+  hook_name=$1
+
+  if [[ -x "$YADM_DIR/hooks/$hook_name.sh" ]] ; then
+    debug "invoking hook: $hook_name"
+    $YADM_DIR/hooks/$hook_name.sh
+  fi
 }
 
 #; ****** Auto Functions ******
