@@ -857,14 +857,15 @@ function error_out() {
 
 }
 
-#: ******  Hook handler  ******S
 function invoke_hook() {
-  hook_name=$1
 
-  if [[ -x "$YADM_DIR/hooks/$hook_name.sh" ]] ; then
-    debug "invoking hook: $hook_name"
-    $YADM_DIR/hooks/$hook_name.sh
+  hook_name="$1"
+
+  if [ -x "$YADM_DIR/hooks/$hook_name" ] ; then
+    debug "Invoking hook: $hook_name"
+    "$YADM_DIR/hooks/$hook_name"
   fi
+
 }
 
 #; ****** Auto Functions ******
