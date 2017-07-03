@@ -2,7 +2,7 @@ FROM ubuntu:yakkety
 MAINTAINER Tim Byrne <sultan@locehilios.com>
 
 # Install prerequisites
-RUN apt-get update && apt-get install -y git gnupg1 make shellcheck bats expect curl python-pip
+RUN apt-get update && apt-get install -y git gnupg1 make shellcheck bats expect curl python-pip lsb-release
 RUN pip install envtpl
 
 # Force GNUPG version 1 at path /usr/bin/gpg
