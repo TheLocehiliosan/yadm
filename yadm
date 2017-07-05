@@ -31,6 +31,7 @@ YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
 
 HOOK_COMMAND=""
+FULL_COMMAND=""
 
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
@@ -54,6 +55,9 @@ DO_BOOTSTRAP=0
 function main() {
 
   require_git
+
+  #; capture full command, for passing to hooks
+  FULL_COMMAND="$*"
 
   #; create the YADM_DIR if it doesn't exist yet
   [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
@@ -861,7 +865,7 @@ function error_out() {
 
 function exit_with_hook() {
 
-  invoke_hook "post"
+  invoke_hook "post" "$1"
   exit "$1"
 
 }
@@ -869,10 +873,24 @@ function exit_with_hook() {
 function invoke_hook() {
 
   mode="$1"
+  exit_status="$2"
   hook_command="$YADM_DIR/hooks/${mode}_$HOOK_COMMAND"
 
   if [ -x "$hook_command" ] ; then
     debug "Invoking hook: $hook_command"
+
+    #; expose some internal data to all hooks
+    YADM_HOOK_COMMAND=$HOOK_COMMAND
+    YADM_HOOK_EXIT=$exit_status
+    YADM_HOOK_FULL_COMMAND=$FULL_COMMAND
+    YADM_HOOK_REPO=$YADM_REPO
+    YADM_HOOK_WORK=$YADM_WORK
+    export YADM_HOOK_COMMAND
+    export YADM_HOOK_EXIT
+    export YADM_HOOK_FULL_COMMAND
+    export YADM_HOOK_REPO
+    export YADM_HOOK_WORK
+
     "$hook_command"
   fi
 
