@@ -880,11 +880,12 @@ function invoke_hook() {
     debug "Invoking hook: $hook_command"
 
     #; expose some internal data to all hooks
+    work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
     YADM_HOOK_COMMAND=$HOOK_COMMAND
     YADM_HOOK_EXIT=$exit_status
     YADM_HOOK_FULL_COMMAND=$FULL_COMMAND
     YADM_HOOK_REPO=$YADM_REPO
-    YADM_HOOK_WORK=$YADM_WORK
+    YADM_HOOK_WORK=$work
     export YADM_HOOK_COMMAND
     export YADM_HOOK_EXIT
     export YADM_HOOK_FULL_COMMAND
