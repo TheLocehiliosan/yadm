@@ -892,6 +892,15 @@ function invoke_hook() {
     export YADM_HOOK_WORK
 
     "$hook_command"
+    hook_status=$?
+
+    #; failing "pre" hooks will prevent commands from being run
+    if [ "$mode" = "pre" ] && [ "$hook_status" -ne 0 ]; then
+      echo "Hook $hook_command was not successful"
+      echo "$HOOK_COMMAND will not be run"
+      exit "$hook_status"
+    fi
+
   fi
 
 }
