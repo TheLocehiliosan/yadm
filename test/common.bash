@@ -13,6 +13,7 @@ function load_fixtures() {
   export T_DIR_YADM="$T_TMP/.yadm"
   export T_DIR_WORK="$T_TMP/yadm-work"
   export T_DIR_REPO="$T_DIR_YADM/repo.git"
+  export T_DIR_HOOKS="$T_DIR_YADM/hooks"
   export T_YADM_CONFIG="$T_DIR_YADM/config"
   export T_YADM_ENCRYPT="$T_DIR_YADM/encrypt"
   export T_YADM_ARCHIVE="$T_DIR_YADM/files.gpg"
