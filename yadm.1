@@ -531,6 +531,12 @@ according to the rules explained in the ALTERNATES section:
   YADM_HOSTNAME
   YADM_USER
 
+In addition YADM_DISTRO is exposed as the value of
+.I lsb_release -si
+if
+.B lsb_release
+is locally available.
+
 For example, a file named
 .I whatever##yadm.j2
 with the following content
