@@ -109,6 +109,9 @@ to the rules explained in the [Alternates section](alternates#symlink-alternates
 * `YADM_HOSTNAME`
 * `YADM_USER`
 
+In addition `YADM_DISTRO` is exposed as the value of `lsb_release -si` if
+**lsb_release** is locally available.
+
 For example, a file named `whatever##yadm.j2` with the following content
 
     {% raw %}
