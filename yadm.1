@@ -400,21 +400,6 @@ Override the HOSTNAME for the purpose of symlinking alternate files.
 .TP
 .B local.user
 Override the USER for the purpose of symlinking alternate files.
-.SH HOOKS
-.B yadm
-has the capability to execute scripts before or after any operation that
-.B yadm
-can perform. To utilize this functionality, create a directory to store the hook
-scripts at
-.BR $HOME/.yadm/hooks.
-Then, create scripts inside this directory for whatever operation you want to
-hook into. For instance, if you'd like a script to run after
-.B yadm pull,
-your hook script should be executable and located at
-.BR $HOME/.yadm/hooks/post_pull.sh.
-Any of the
-.B yadm
-subcommands can utilize this functionality.
 .SH ALTERNATES
 When managing a set of files across different systems, it can be useful to have
 an automated way of choosing an alternate version of a file for a different
@@ -644,6 +629,62 @@ Even if disabled, permissions can be manually updated by running
 The SSH directory processing can be disabled using the
 .I yadm.ssh-perms
 configuration.
+.SH HOOKS
+For every command
+.B yadm
+supports, a program can be provided to run before or after that command. These
+are referred to as "hooks".
+.B yadm
+looks for
+hooks in the directory
+.IR $HOME/.yadm/hooks .
+Each hook is named using a prefix of
+.I pre_
+or
+.IR post_ ,
+followed by the command which should trigger the hook. For
+example, to create a hook which is run after every
+.I yadm pull
+command, create a hook named
+.IR post_pull.
+Hooks must have the executable file permission set.
+
+If a
+.I pre_
+hook is defined, and the hook terminates with a non-zero exit status,
+.B yadm
+will refuse to run the
+.B yadm
+command. For example, if a
+.I pre_commit
+hook is defined, but that command ends with a non-zero exit status, the
+.I yadm commit
+will never be run. This allows one to "short-circuit" any operation using a
+.I pre_
+hook.
+
+Hooks have the following environment variables available to them at runtime:
+.TP
+.B YADM_HOOK_COMMAND
+The command which triggered the hook
+.TP
+.B YADM_HOOK_EXIT
+The exit status of the
+.B yadm
+command
+.TP
+.B YADM_HOOK_FULL_COMMAND
+The
+.B yadm
+command with all command line arguments
+.TP
+.B YADM_HOOK_REPO
+The path to the
+.B yadm
+repository
+.TP
+.B YADM_HOOK_WORK
+The path to the work-tree
 .SH FILES
 The following are the default paths
 .B yadm
