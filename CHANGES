@@ -1,3 +1,8 @@
+1.11.0
+  * Option for Cygwin to copy files instead of symlink (#62)
+  * Support `YADM_DISTRO` in Jinja templates (#68)
+  * Support pre/post hooks for every command (#70)
+
 1.10.0
   * Fix `COMP_WORDS bad array subscript` bug (#64)
   * Transition to semantic versioning
