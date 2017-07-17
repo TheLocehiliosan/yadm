@@ -292,6 +292,8 @@ function clone() {
     shift
   done
 
+  [ -n "$DEBUG" ] && display_private_perms "initial"
+
   #; clone will begin with a bare repo
   local empty=
   init $empty
@@ -310,6 +312,15 @@ function clone() {
     rm -rf "$YADM_REPO"
     error_out "Unable to fetch origin ${clone_args[0]}"
   }
+  debug "Determining if repo tracks private directories"
+  for private_dir in .ssh/ .gnupg/; do
+    found_log=$("$GIT_PROGRAM" log -n 1 origin/master -- "$private_dir" 2>/dev/null)
+    if [ -n "$found_log" ]; then
+      debug "Private directory $private_dir is tracked by repo"
+      assert_private_dirs "$private_dir"
+    fi
+  done
+  [ -n "$DEBUG" ] && display_private_perms "pre-merge"
   debug "Doing an initial merge of origin/master"
   "$GIT_PROGRAM" merge origin/master || {
     debug "Merge failed, doing a reset and stashing conflicts."
@@ -350,6 +361,8 @@ EOF
 EOF
     fi
   }
+
+  [ -n "$DEBUG" ] && display_private_perms "post-merge"
 
   CHANGES_POSSIBLE=1
 
@@ -513,9 +526,18 @@ function git_command() {
     set -- "config" "${@:2}"
   fi
 
+  #; ensure private .ssh and .gnupg directories exist first
+  #; TODO: consider restricting this to only commands which modify the work-tree
+
+  auto_private_dirs=$(config --bool yadm.auto-private-dirs)
+  if [ "$auto_private_dirs" != "false" ] ; then
+    assert_private_dirs .gnupg/ .ssh/
+  fi
+
   CHANGES_POSSIBLE=1
 
   #; pass commands through to git
+  debug "Running git command $GIT_PROGRAM $*"
   "$GIT_PROGRAM" "$@"
   return "$?"
 }
@@ -613,6 +635,7 @@ local.os
 local.user
 yadm.auto-alt
 yadm.auto-perms
+yadm.auto-private-dirs
 yadm.cygwin-copy
 yadm.git-program
 yadm.gpg-perms
@@ -904,6 +927,27 @@ function invoke_hook() {
 
   fi
 
+}
+
+function assert_private_dirs() {
+  work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+  for private_dir in "$@"; do
+    if [ ! -d "$work/$private_dir" ]; then
+      debug "Creating $work/$private_dir"
+      #shellcheck disable=SC2174
+      mkdir -m 0700 -p "$work/$private_dir" >/dev/null 2>&1
+    fi
+  done
+}
+
+function display_private_perms() {
+  when="$1"
+  for private_dir in .ssh .gnupg; do
+    if [ -d "$YADM_WORK/$private_dir" ]; then
+      private_perms=$(ls -ld "$YADM_WORK/$private_dir")
+      debug "$when" private dir perms "$private_perms"
+    fi
+  done
 }
 
 #; ****** Auto Functions ******
