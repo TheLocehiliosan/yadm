@@ -21,11 +21,11 @@ function test_alt() {
   case $alt_type in
     base)
       real_name="alt-jinja"
-      file_content_match="-${T_SYS}-${T_HOST}-${T_USER}"
+      file_content_match="-${T_SYS}-${T_HOST}-${T_USER}-${T_DISTRO}"
     ;;
     override_all)
       real_name="alt-jinja"
-      file_content_match="custom_class-custom_system-custom_host-custom_user"
+      file_content_match="custom_class-custom_system-custom_host-custom_user-${T_DISTRO}"
     ;;
   esac
 

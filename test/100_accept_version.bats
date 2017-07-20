@@ -5,7 +5,7 @@ status=;output=; #; populated by bats run()
 @test "Command 'version'" {
   echo "
     When 'version' command is provided,
-      Print the current version with format 'yadm x.xx'
+      Print the current version with format 'yadm x.x.x'
       Exit with 0
   "
 
@@ -20,6 +20,6 @@ status=;output=; #; populated by bats run()
   #; validate status and output
   [ $status -eq 0 ]
   [ "$output" = "yadm $VERSION" ]
-  version_regex="^yadm [[:digit:]\.]+$"
+  version_regex="^yadm [[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$"
   [[ "$output" =~ $version_regex ]]
 }

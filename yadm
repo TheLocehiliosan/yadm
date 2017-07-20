@@ -19,7 +19,7 @@ if [ -z "$BASH_VERSION" ]; then
   [ "$YADM_TEST" != 1 ] && exec bash "$0" "$@"
 fi
 
-VERSION=1.09
+VERSION=1.11.0
 
 YADM_WORK="$HOME"
 YADM_DIR="$HOME/.yadm"
@@ -30,10 +30,14 @@ YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
 
+HOOK_COMMAND=""
+FULL_COMMAND=""
+
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
 LS_PROGRAM="/bin/ls"
 ENVTPL_PROGRAM="envtpl"
+LSB_RELEASE_PROGRAM="lsb_release"
 
 PROC_VERSION="/proc/version"
 OPERATING_SYSTEM="Unknown"
@@ -51,6 +55,9 @@ DO_BOOTSTRAP=0
 function main() {
 
   require_git
+
+  #; capture full command, for passing to hooks
+  FULL_COMMAND="$*"
 
   #; create the YADM_DIR if it doesn't exist yet
   [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
@@ -96,9 +103,13 @@ function main() {
       shift
     done
     [ ! -d "$YADM_WORK" ] && error_out "Work tree does not exist: [$YADM_WORK]"
+    HOOK_COMMAND="$YADM_COMMAND"
+    invoke_hook "pre"
     $YADM_COMMAND "${YADM_ARGS[@]}"
   else
     #; any other commands are simply passed through to git
+    HOOK_COMMAND="$1"
+    invoke_hook "pre"
     git_command "$@"
     retval="$?"
   fi
@@ -108,7 +119,7 @@ function main() {
   auto_perms
   auto_bootstrap
 
-  exit $retval
+  exit_with_hook $retval
 
 }
 
@@ -175,6 +186,14 @@ function alt() {
     done < "$YADM_ENCRYPT"
   fi
 
+  #; decide if a copy should be done instead of a symbolic link
+  local do_copy=0
+  if [[ $OPERATING_SYSTEM == CYGWIN* ]] ; then
+    if [[ $(config --bool yadm.cygwin-copy) == "true" ]] ; then
+      do_copy=1
+    fi
+  fi
+
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
   for match in $match1 $match2; do
@@ -190,7 +209,14 @@ function alt() {
               new_link="${BASH_REMATCH[1]}"
               debug "Linking $alt_path to $new_link"
               [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
-              ln -nfs "$alt_path" "$new_link"
+              if [ "$do_copy" -eq 1 ]; then
+                if [ -L "$new_link" ]; then
+                  rm -f "$new_link"
+                fi
+                cp -f "$alt_path" "$new_link"
+              else
+                ln -nfs "$alt_path" "$new_link"
+              fi
               last_linked="$alt_path"
             fi
           fi
@@ -215,6 +241,7 @@ function alt() {
           YADM_OS="$local_system" \
           YADM_HOSTNAME="$local_host" \
           YADM_USER="$local_user" \
+          YADM_DISTRO=$(query_distro) \
           "$ENVTPL_PROGRAM" < "$tracked_file" > "$real_file"
         else
           debug "envtpl not available, not creating $real_file from template $tracked_file"
@@ -525,7 +552,7 @@ Files:
 Use "man yadm" for complete documentation.
 EOF
 
-  exit 1
+  exit_with_hook 1
 
 }
 
@@ -586,6 +613,7 @@ local.os
 local.user
 yadm.auto-alt
 yadm.auto-perms
+yadm.cygwin-copy
 yadm.git-program
 yadm.gpg-perms
 yadm.gpg-program
@@ -676,11 +704,19 @@ function perms() {
 function version() {
 
   echo "yadm $VERSION"
-  exit 0
+  exit_with_hook 0
 
 }
 
 #; ****** Utility Functions ******
+
+function query_distro() {
+  distro=""
+  if command -v "$LSB_RELEASE_PROGRAM" >/dev/null 2>&1; then
+    distro=$($LSB_RELEASE_PROGRAM -si 2>/dev/null)
+  fi
+  echo "$distro"
+}
 
 function process_global_args() {
 
@@ -823,7 +859,50 @@ function debug() {
 function error_out() {
 
   echo -e "ERROR: $*"
-  exit 1
+  exit_with_hook 1
+
+}
+
+function exit_with_hook() {
+
+  invoke_hook "post" "$1"
+  exit "$1"
+
+}
+
+function invoke_hook() {
+
+  mode="$1"
+  exit_status="$2"
+  hook_command="$YADM_DIR/hooks/${mode}_$HOOK_COMMAND"
+
+  if [ -x "$hook_command" ] ; then
+    debug "Invoking hook: $hook_command"
+
+    #; expose some internal data to all hooks
+    work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+    YADM_HOOK_COMMAND=$HOOK_COMMAND
+    YADM_HOOK_EXIT=$exit_status
+    YADM_HOOK_FULL_COMMAND=$FULL_COMMAND
+    YADM_HOOK_REPO=$YADM_REPO
+    YADM_HOOK_WORK=$work
+    export YADM_HOOK_COMMAND
+    export YADM_HOOK_EXIT
+    export YADM_HOOK_FULL_COMMAND
+    export YADM_HOOK_REPO
+    export YADM_HOOK_WORK
+
+    "$hook_command"
+    hook_status=$?
+
+    #; failing "pre" hooks will prevent commands from being run
+    if [ "$mode" = "pre" ] && [ "$hook_status" -ne 0 ]; then
+      echo "Hook $hook_command was not successful"
+      echo "$HOOK_COMMAND will not be run"
+      exit "$hook_status"
+    fi
+
+  fi
 
 }
 

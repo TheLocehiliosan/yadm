@@ -1,5 +1,5 @@
 ." vim: set spell so=8:
-.TH yadm 1 "4 May 2017" "1.09"
+.TH yadm 1 "10 July 2017" "1.11.0"
 .SH NAME
 yadm \- Yet Another Dotfiles Manager
 .SH SYNOPSIS
@@ -376,6 +376,11 @@ By default, the first "gpg" found in $PATH is used.
 .B yadm.git-program
 Specify an alternate program to use instead of "git".
 By default, the first "git" found in $PATH is used.
+.TP
+.B yadm.cygwin-copy
+If set to "true", for Cygwin hosts, alternate files will be copies instead of
+symbolic links. This might be desirable, because non-Cygwin software may not
+properly interpret Cygwin symlinks.
 
 .RE
 These last four "local" configurations are not stored in the
@@ -526,6 +531,12 @@ according to the rules explained in the ALTERNATES section:
   YADM_HOSTNAME
   YADM_USER
 
+In addition YADM_DISTRO is exposed as the value of
+.I lsb_release -si
+if
+.B lsb_release
+is locally available.
+
 For example, a file named
 .I whatever##yadm.j2
 with the following content
@@ -624,6 +635,62 @@ Even if disabled, permissions can be manually updated by running
 The SSH directory processing can be disabled using the
 .I yadm.ssh-perms
 configuration.
+.SH HOOKS
+For every command
+.B yadm
+supports, a program can be provided to run before or after that command. These
+are referred to as "hooks".
+.B yadm
+looks for
+hooks in the directory
+.IR $HOME/.yadm/hooks .
+Each hook is named using a prefix of
+.I pre_
+or
+.IR post_ ,
+followed by the command which should trigger the hook. For
+example, to create a hook which is run after every
+.I yadm pull
+command, create a hook named
+.IR post_pull.
+Hooks must have the executable file permission set.
+
+If a
+.I pre_
+hook is defined, and the hook terminates with a non-zero exit status,
+.B yadm
+will refuse to run the
+.B yadm
+command. For example, if a
+.I pre_commit
+hook is defined, but that command ends with a non-zero exit status, the
+.I yadm commit
+will never be run. This allows one to "short-circuit" any operation using a
+.I pre_
+hook.
+
+Hooks have the following environment variables available to them at runtime:
+.TP
+.B YADM_HOOK_COMMAND
+The command which triggered the hook
+.TP
+.B YADM_HOOK_EXIT
+The exit status of the
+.B yadm
+command
+.TP
+.B YADM_HOOK_FULL_COMMAND
+The
+.B yadm
+command with all command line arguments
+.TP
+.B YADM_HOOK_REPO
+The path to the
+.B yadm
+repository
+.TP
+.B YADM_HOOK_WORK
+The path to the work-tree
 .SH FILES
 The following are the default paths
 .B yadm

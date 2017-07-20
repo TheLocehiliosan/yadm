@@ -13,6 +13,7 @@ function load_fixtures() {
   export T_DIR_YADM="$T_TMP/.yadm"
   export T_DIR_WORK="$T_TMP/yadm-work"
   export T_DIR_REPO="$T_DIR_YADM/repo.git"
+  export T_DIR_HOOKS="$T_DIR_YADM/hooks"
   export T_YADM_CONFIG="$T_DIR_YADM/config"
   export T_YADM_ENCRYPT="$T_DIR_YADM/encrypt"
   export T_YADM_ARCHIVE="$T_DIR_YADM/files.gpg"
@@ -27,6 +28,8 @@ function load_fixtures() {
   T_HOST=$(hostname -s)
   export T_USER
   T_USER=$(id -u -n)
+  export T_DISTRO
+  T_DISTRO=$(lsb_release -si 2>/dev/null || true)
 }
 
 function configure_git() {
@@ -202,9 +205,21 @@ function create_worktree() {
       make_parents "$DIR_WORKTREE/$f"
       echo "$f" > "$DIR_WORKTREE/$f"
     done
-    echo "{{ YADM_CLASS }}-{{ YADM_OS }}-{{ YADM_HOSTNAME }}-{{ YADM_USER }}" > "$DIR_WORKTREE/alt-jinja##yadm.j2"
+    echo "{{ YADM_CLASS }}-{{ YADM_OS }}-{{ YADM_HOSTNAME }}-{{ YADM_USER }}-{{ YADM_DISTRO }}" > "$DIR_WORKTREE/alt-jinja##yadm.j2"
   fi
 
+  #; for some cygwin tests
+  if [ ! -z "$TEST_TREE_WITH_CYGWIN" ] ; then
+    for f in                        \
+      "alt-test##"                  \
+      "alt-test##$T_SYS"            \
+      "alt-test##$SIMULATED_CYGWIN" \
+    ;
+    do
+      make_parents "$DIR_WORKTREE/$f"
+      echo "$f" > "$DIR_WORKTREE/$f"
+    done
+  fi
 
   if [ ! -z "$TEST_TREE_WITH_WILD" ] ; then
     #; wildcard test data - yes this is a big mess :(
