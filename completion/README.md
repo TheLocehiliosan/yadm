@@ -22,14 +22,14 @@ Copy the completion script locally, and add this to you bashrc:
 
 ### Manual installation
 
-Copy the completion script `_yadm` locally, and add this to you zshrc:
+Copy the completion script `_yadm` locally, and add the containing folder to `$fpath` in `.zshrc`:
 ```shell
-fpath=(/path/to/folder/containing/_yadm $fpath)
+fpath=(/path/to/folder/containing_yadm $fpath)
 ```
 ### Installation using [zplug](https://github.com/b4b4r07/zplug)
-Load `_yadm` as a plugin in your `.zshrc`
+Load `_yadm` as a plugin in your `.zshrc`:
 
 ```shell
-zplug "TheLocehiliosan/yadm/completion/_yadm", defer:2
+zplug "TheLocehiliosan/yadm", use:"completion/_yadm", as:command, defer:2
 
 ```
