@@ -1,3 +1,6 @@
+1.11.1
+  * Create private dirs prior to merge (#74)
+
 1.11.0
   * Option for Cygwin to copy files instead of symlink (#62)
   * Support `YADM_DISTRO` in Jinja templates (#68)
