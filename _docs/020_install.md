@@ -39,19 +39,7 @@ Otherwise, the instructions for Debian below should also work for Ubuntu.
 
 ## Debian
 
-**yadm** is currently in the "testing" release of Debian. If you are using the "stable" release, you can still install **yadm** using the following process.
-
-* First, add the following to `/etc/apt/sources.list`
-
-```
-deb http://ftp.debian.org/debian testing main contrib non-free
-```
-
-* Next, run `apt-get update -y`
-
-* Last, run `apt-get -t testing install yadm`
-
-If you are using the "unstable" or "testing" release of Debian, you should be able to install **yadm** as you normally install software with `apt-get`.
+**yadm** is available in the stable release of Debian. It may be installed with `apt-get`.
 
 ## Arch Linux
 
