@@ -39,6 +39,15 @@ shellcheck:
 		[ "$$test_result" -ne 0 ] && exit 1; \
 	done; true
 
+.PHONY: testhost
+testhost:
+	@target=HEAD
+	@rm -rf /tmp/testhost
+	@git show $(target):yadm > /tmp/testhost
+	@chmod a+x /tmp/testhost
+	@echo Starting testhost target=\"$$target\"
+	@docker run -w /root --hostname testhost --rm -it -v "/tmp/testhost:/bin/yadm:ro" yadm/testbed:latest bash
+
 man:
 	groff -man -Tascii ./yadm.1 | less
 
