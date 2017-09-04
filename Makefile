@@ -1,12 +1,15 @@
+.PHONY: all
 all: yadm.md contrib
 
 yadm.md: yadm.1
 	@groff -man -Tascii ./yadm.1 | col -bx | sed 's/^[A-Z]/## &/g' | sed '/yadm(1)/d' > yadm.md
 
-contrib:
-	@echo "CONTRIBUTORS\n" > CONTRIBUTORS
+CONTRIBUTORS:
 	@git shortlog -ns master gh-pages dev dev-pages | cut -f2 >> CONTRIBUTORS
 
+contrib: CONTRIBUTORS
+
+.PHONY: pdf
 pdf:
 	@groff -man -Tps ./yadm.1 > yadm.ps
 	@open yadm.ps
@@ -48,8 +51,10 @@ testhost:
 	@echo Starting testhost target=\"$$target\"
 	@docker run -w /root --hostname testhost --rm -it -v "/tmp/testhost:/bin/yadm:ro" yadm/testbed:latest bash
 
+.PHONY: man
 man:
 	groff -man -Tascii ./yadm.1 | less
 
+.PHONY: wide
 wide:
 	man ./yadm.1
