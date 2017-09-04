@@ -96,8 +96,15 @@ EOF
       while IFS='' read -r glob || [ -n "$glob" ]; do
         if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
           local IFS=$'\n'
-          for matching_file in $(eval ls "$glob" 2>/dev/null); do
-            echo "$matching_file"
+          for matching_file in $(eval ls -d "$glob" 2>/dev/null); do
+            if [ -d "$matching_file" ]; then
+                echo "$matching_file/"
+              for subfile in "$matching_file"/*; do
+                echo "$subfile"
+              done
+            else
+              echo "$matching_file"
+            fi
           done
         fi
       done < "$T_YADM_ENCRYPT" | sort > "$T_TMP/expected_list"
@@ -291,6 +298,40 @@ EOF
   local original_encrypt
   original_encrypt=$(cat "$T_YADM_ENCRYPT")
   echo -e "'space test'/file*" >> "$T_YADM_ENCRYPT"
+
+  #; run encrypt
+  run expect <<EOF
+    set timeout 2;
+    spawn ${T_YADM_Y[*]} encrypt;
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "$"
+    foreach {pid spawnid os_error_flag value} [wait] break
+    exit \$value
+EOF
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Wrote\ new\ file:.+$T_YADM_ARCHIVE ]]
+
+  #; validate the archive
+  validate_archive symmetric
+}
+
+@test "Command 'encrypt' (directories in YADM_ENCRYPT)" {
+  echo "
+    When 'encrypt' command is provided,
+    and YADM_ENCRYPT is present
+    Create YADM_ARCHIVE
+    Report the archive created
+    Archive should be valid
+    Exit with 0
+  "
+
+  #; add directory paths to YADM_ARCHIVE
+  local original_encrypt
+  original_encrypt=$(cat "$T_YADM_ENCRYPT")
+  echo -e "'space test'" >> "$T_YADM_ENCRYPT"
 
   #; run encrypt
   run expect <<EOF
