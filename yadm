@@ -875,13 +875,13 @@ function set_operating_system() {
 
 function debug() {
 
-  [ -n "$DEBUG" ] && echo -e "DEBUG: $*"
+  [ -n "$DEBUG" ] && echo_e "DEBUG: $*"
 
 }
 
 function error_out() {
 
-  echo -e "ERROR: $*"
+  echo_e "ERROR: $*"
   exit_with_hook 1
 
 }
@@ -1070,6 +1070,20 @@ function mixed_path() {
   else
     echo "$1"
   fi
+}
+
+#; ****** echo replacements ******
+function echo() {
+  IFS=' '
+  printf '%s\n' "$*"
+}
+function echo_n() {
+  IFS=' '
+  printf '%s' "$*"
+}
+function echo_e() {
+  IFS=' '
+  printf '%b\n' "$*"
 }
 
 #; ****** Main processing (when not unit testing) ******
