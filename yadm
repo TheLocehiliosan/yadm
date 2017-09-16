@@ -35,7 +35,6 @@ FULL_COMMAND=""
 
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
-LS_PROGRAM="/bin/ls"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
 
@@ -437,7 +436,6 @@ function encrypt() {
 
   require_gpg
   require_encrypt
-  require_ls
 
   #; process relative to YADM_WORK
   YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
@@ -473,7 +471,7 @@ function encrypt() {
 
   #; report which files will be encrypted
   echo "Encrypting the following files:"
-  "$LS_PROGRAM" -1 -d "${ENC_FILES[@]}"
+  printf '%s\n' "${ENC_FILES[@]}"
   echo
 
   #; encrypt all files which match the globs
@@ -684,8 +682,6 @@ function list() {
 }
 
 function perms() {
-
-  require_ls
 
   #; TODO: prevent repeats in the files changed
 
@@ -1040,13 +1036,6 @@ function require_gpg() {
 }
 function require_repo() {
   [ -d "$YADM_REPO" ] || error_out "Git repo does not exist. did you forget to run 'init' or 'clone'?"
-}
-function require_ls() {
-  if [ ! -f "$LS_PROGRAM" ] ; then
-    command -v ls >/dev/null 2>&1 || \
-      error_out "This functionality requires 'ls' to be installed at '$LS_PROGRAM' or listed in your \$PATH"
-    LS_PROGRAM=ls
-  fi
 }
 function require_shell() {
   [ -x "$SHELL" ] || error_out "\$SHELL does not refer to an executable."
