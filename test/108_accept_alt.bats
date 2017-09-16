@@ -10,7 +10,7 @@ function create_encrypt() {
     echo "$efile" >> "$T_YADM_ENCRYPT"
     echo "$efile" >> "$T_DIR_WORK/$efile"
     mkdir -p "$T_DIR_WORK/dir one/$efile"
-    echo "'dir one'/$efile/file1" >> "$T_YADM_ENCRYPT"
+    echo "dir one/$efile/file1" >> "$T_YADM_ENCRYPT"
     echo "dir one/$efile/file1" >> "$T_DIR_WORK/dir one/$efile/file1"
   done
 }

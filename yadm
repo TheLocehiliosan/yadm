@@ -178,9 +178,11 @@ function alt() {
       if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
         # echo "working on ->$glob<-"
         local IFS=$'\n'
-        for matching_file in $(eval "$LS_PROGRAM" -d "$glob" 2>/dev/null); do
-          ENC_FILES[$index]="$matching_file"
-          ((index++))
+        for matching_file in $glob; do
+          if [ -e "$matching_file" ]; then
+            ENC_FILES[$index]="$matching_file"
+            ((index++))
+          fi
         done
       fi
     done < "$YADM_ENCRYPT"
@@ -460,9 +462,11 @@ function encrypt() {
   while IFS='' read -r glob || [ -n "$glob" ]; do
     if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
       local IFS=$'\n'
-      for matching_file in $(eval "$LS_PROGRAM" -d "$glob" 2>/dev/null); do
-        ENC_FILES[$index]="$matching_file"
-        ((index++))
+      for matching_file in $glob; do
+        if [ -e "$matching_file" ]; then
+          ENC_FILES[$index]="$matching_file"
+          ((index++))
+        fi
       done
     fi
   done < "$YADM_ENCRYPT"
@@ -710,8 +714,11 @@ function perms() {
   #; include globs found in YADM_ENCRYPT (if present)
   if [ -f "$YADM_ENCRYPT" ] ; then
     while IFS='' read -r glob || [ -n "$glob" ]; do
-      if [[ ! $glob =~ ^# ]] ; then
-        GLOBS=("${GLOBS[@]}" $(eval "$LS_PROGRAM" -d "$glob" 2>/dev/null))
+      if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
+        local IFS=$'\n'
+        for matching_file in $glob; do
+          GLOBS=("${GLOBS[@]}" "$matching_file")
+        done
       fi
     done < "$YADM_ENCRYPT"
   fi

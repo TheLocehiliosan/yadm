@@ -96,14 +96,16 @@ EOF
       while IFS='' read -r glob || [ -n "$glob" ]; do
         if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
           local IFS=$'\n'
-          for matching_file in $(eval ls -d "$glob" 2>/dev/null); do
-            if [ -d "$matching_file" ]; then
-                echo "$matching_file/"
-              for subfile in "$matching_file"/*; do
-                echo "$subfile"
-              done
-            else
-              echo "$matching_file"
+          for matching_file in $glob; do
+            if [ -e "$matching_file" ]; then
+              if [ -d "$matching_file" ]; then
+                  echo "$matching_file/"
+                for subfile in "$matching_file"/*; do
+                  echo "$subfile"
+                done
+              else
+                echo "$matching_file"
+              fi
             fi
           done
         fi
@@ -297,7 +299,7 @@ EOF
   #; add paths with spaces to YADM_ARCHIVE
   local original_encrypt
   original_encrypt=$(cat "$T_YADM_ENCRYPT")
-  echo -e "'space test'/file*" >> "$T_YADM_ENCRYPT"
+  echo -e "space test/file*" >> "$T_YADM_ENCRYPT"
 
   #; run encrypt
   run expect <<EOF
@@ -331,7 +333,7 @@ EOF
   #; add directory paths to YADM_ARCHIVE
   local original_encrypt
   original_encrypt=$(cat "$T_YADM_ENCRYPT")
-  echo -e "'space test'" >> "$T_YADM_ENCRYPT"
+  echo -e "space test" >> "$T_YADM_ENCRYPT"
 
   #; run encrypt
   run expect <<EOF
