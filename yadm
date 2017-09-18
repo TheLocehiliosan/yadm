@@ -162,12 +162,7 @@ function alt() {
   match1="^(.+)##(()|$match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user)$"
   match2="^(.+)##($match_class|$match_class\.$match_system|$match_class\.$match_system\.$match_host|$match_class\.$match_system\.$match_host\.$match_user)$"
 
-  #; process relative to YADM_WORK
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-  cd "$YADM_WORK" || {
-    debug "Alternates not processed, unable to cd to $YADM_WORK"
-    return
-  }
+  cd_work "Alternates" || return
 
   #; only be noisy if the "alt" command was run directly
   [ "$YADM_COMMAND" = "alt" ] && loud="YES"
@@ -423,12 +418,7 @@ function encrypt() {
   require_encrypt
   parse_encrypt
 
-  #; process relative to YADM_WORK
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-  cd "$YADM_WORK" || {
-    debug "Encryption not processed, unable to cd to $YADM_WORK"
-    return
-  }
+  cd_work "Encryption" || return
 
   #; Build gpg options for gpg
   GPG_KEY="$(config yadm.gpg-recipient)"
@@ -640,11 +630,7 @@ function list() {
 
   #; process relative to YADM_WORK when --all is specified
   if [ -n "$LIST_ALL" ] ; then
-    YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-    cd "$YADM_WORK" || {
-      debug "List not processed, unable to cd to $YADM_WORK"
-      return
-    }
+    cd_work "List" || return
   fi
 
   #; list tracked files
@@ -658,12 +644,7 @@ function perms() {
 
   #; TODO: prevent repeats in the files changed
 
-  #; process relative to YADM_WORK
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-  cd "$YADM_WORK" || {
-    debug "Perms not processed, unable to cd to $YADM_WORK"
-    return
-  }
+  cd_work "Perms" || return
 
   GLOBS=()
 
@@ -917,6 +898,15 @@ function display_private_perms() {
   done
 }
 
+function cd_work() {
+  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+  cd "$YADM_WORK" || {
+    debug "$1 not processed, unable to cd to $YADM_WORK"
+    return 1
+  }
+  return 0
+}
+
 function parse_encrypt() {
   if [ "$ENCRYPT_INCLUDE_FILES" != "unparsed" ]; then
     #shellcheck disable=SC2034
@@ -927,11 +917,7 @@ function parse_encrypt() {
   ENCRYPT_INCLUDE_FILES=()
   ENCRYPT_EXCLUDE_FILES=()
 
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-  cd "$YADM_WORK" || {
-    debug "Parsing encrypt not processed, unable to cd to $YADM_WORK"
-    return
-  }
+  cd_work "Parsing encrypt" || return
 
   exclude_pattern="^!(.+)"
   if [ -f "$YADM_ENCRYPT" ] ; then
