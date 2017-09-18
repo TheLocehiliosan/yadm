@@ -9,6 +9,11 @@ export TEST_TREE_WITH_ALT=1
 setup() {
   destroy_tmp
   build_repo "${IN_REPO[@]}"
+  echo "excluded-encrypt##yadm.j2"  > "$T_YADM_ENCRYPT"
+  echo "included-encrypt##yadm.j2" >> "$T_YADM_ENCRYPT"
+  echo "!excluded-encrypt*"        >> "$T_YADM_ENCRYPT"
+  echo "included-encrypt"           > "$T_DIR_WORK/included-encrypt##yadm.j2"
+  echo "excluded-encrypt"           > "$T_DIR_WORK/excluded-encrypt##yadm.j2"
 }
 
 
@@ -26,6 +31,11 @@ function test_alt() {
     override_all)
       real_name="alt-jinja"
       file_content_match="custom_class-custom_system-custom_host-custom_user-${T_DISTRO}"
+    ;;
+    encrypt)
+      real_name="included-encrypt"
+      file_content_match="included-encrypt"
+      missing_name="excluded-encrypt"
     ;;
   esac
 
@@ -61,6 +71,11 @@ function test_alt() {
       echo "ERROR: Reporting of jinja processing should not happen"
       return 1
     fi
+  fi
+
+  if [ -n "$missing_name" ] && [ -f "$T_DIR_WORK/$missing_name" ]; then
+      echo "ERROR: File should not have been created '$missing_name'"
+      return 1
   fi
 
   #; validate link content
@@ -172,4 +187,17 @@ function test_alt() {
   GIT_DIR="$T_DIR_REPO" git config local.hostname custom_host
   GIT_DIR="$T_DIR_REPO" git config local.class custom_class
   test_alt 'override_all' 'false' ''
+}
+
+@test "Command 'alt' (select jinja within .yadm/encrypt)" {
+  echo "
+    When the command 'alt' is provided
+    and file matches ##yadm.j2 within .yadm/encrypt
+    and file excluded within .yadm/encrypt
+    Report jinja template processing
+    Verify that the correct content is written
+    Exit with 0
+  "
+
+  test_alt 'encrypt' 'false' ''
 }

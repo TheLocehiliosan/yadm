@@ -27,13 +27,8 @@ function validate_perms() {
       gpg)
         restricted=("${restricted[@]}" $T_DIR_WORK/.gnupg $T_DIR_WORK/.gnupg/*)
       ;;
-      encrypt)
-        local glob
-        while IFS='' read -r glob || [ -n "$glob" ]; do
-          if [[ ! $glob =~ ^# ]] ; then
-            restricted=("${restricted[@]}" $T_DIR_WORK/$glob)
-          fi
-        done < "$T_YADM_ENCRYPT"
+      *)
+        restricted=("${restricted[@]}" $T_DIR_WORK/$p)
       ;;
     esac
   done
@@ -80,7 +75,7 @@ function validate_perms() {
   "
 
   #; this version has a comment in it
-  echo -e "#.vimrc\n.hammerspoon/*" > "$T_YADM_ENCRYPT"
+  echo -e "#.vimrc\n.tmux.conf\n.hammerspoon/*\n!.tmux.conf" > "$T_YADM_ENCRYPT"
 
   #; run perms
   run "${T_YADM_Y[@]}" perms
@@ -89,11 +84,8 @@ function validate_perms() {
   [ "$status" -eq 0 ]
   [ "$output" = "" ]
 
-  #; this version has no comments in it
-  echo -e ".hammerspoon/*" > "$T_YADM_ENCRYPT"
-
   #; validate permissions
-  validate_perms ssh gpg encrypt
+  validate_perms ssh gpg ".hammerspoon/*"
 }
 
 @test "Command 'perms' (ssh-perms=false)" {
