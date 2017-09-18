@@ -41,6 +41,8 @@ LSB_RELEASE_PROGRAM="lsb_release"
 PROC_VERSION="/proc/version"
 OPERATING_SYSTEM="Unknown"
 
+ENCRYPT_INCLUDE_FILES="unparsed"
+
 #; flag causing path translations with cygpath
 USE_CYGPATH=0
 
@@ -127,6 +129,7 @@ function main() {
 function alt() {
 
   require_repo
+  parse_encrypt
 
   local_class="$(config local.class)"
   if [ -z "$local_class" ] ; then
@@ -169,24 +172,6 @@ function alt() {
   #; only be noisy if the "alt" command was run directly
   [ "$YADM_COMMAND" = "alt" ] && loud="YES"
 
-  #; build a list of files from YADM_ENCRYPT
-  ENC_FILES=()
-  index=0
-  if [ -f "$YADM_ENCRYPT" ] ; then
-    while IFS='' read -r glob || [ -n "$glob" ]; do
-      if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
-        # echo "working on ->$glob<-"
-        local IFS=$'\n'
-        for matching_file in $glob; do
-          if [ -e "$matching_file" ]; then
-            ENC_FILES[$index]="$matching_file"
-            ((index++))
-          fi
-        done
-      fi
-    done < "$YADM_ENCRYPT"
-  fi
-
   #; decide if a copy should be done instead of a symbolic link
   local do_copy=0
   if [[ $OPERATING_SYSTEM == CYGWIN* ]] ; then
@@ -200,7 +185,7 @@ function alt() {
   for match in $match1 $match2; do
     last_linked=''
     local IFS=$'\n'
-    for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENC_FILES[@]}"; do
+    for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
       tracked_file="$YADM_WORK/$tracked_file"
       #; process both the path, and it's parent directory
       for alt_path in "$tracked_file" "${tracked_file%/*}"; do
@@ -230,7 +215,7 @@ function alt() {
   #; for every file which is a *##yadm.j2 create a real file
   local IFS=$'\n'
   local match="^(.+)##yadm\\.j2$"
-  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) $(cat "$YADM_ENCRYPT" 2>/dev/null); do
+  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
@@ -436,6 +421,7 @@ function encrypt() {
 
   require_gpg
   require_encrypt
+  parse_encrypt
 
   #; process relative to YADM_WORK
   YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
@@ -454,28 +440,13 @@ function encrypt() {
     GPG_OPTS=("-c")
   fi
 
-  #; build a list of files from YADM_ENCRYPT
-  ENC_FILES=()
-  index=0
-  while IFS='' read -r glob || [ -n "$glob" ]; do
-    if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
-      local IFS=$'\n'
-      for matching_file in $glob; do
-        if [ -e "$matching_file" ]; then
-          ENC_FILES[$index]="$matching_file"
-          ((index++))
-        fi
-      done
-    fi
-  done < "$YADM_ENCRYPT"
-
   #; report which files will be encrypted
   echo "Encrypting the following files:"
-  printf '%s\n' "${ENC_FILES[@]}"
+  printf '%s\n' "${ENCRYPT_INCLUDE_FILES[@]}"
   echo
 
   #; encrypt all files which match the globs
-  if tar -f - -c "${ENC_FILES[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
+  if tar -f - -c "${ENCRYPT_INCLUDE_FILES[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
     error_out "Unable to write $YADM_ARCHIVE"
@@ -683,6 +654,8 @@ function list() {
 
 function perms() {
 
+  parse_encrypt
+
   #; TODO: prevent repeats in the files changed
 
   #; process relative to YADM_WORK
@@ -695,29 +668,20 @@ function perms() {
   GLOBS=()
 
   #; include the archive created by "encrypt"
-  [ -f "$YADM_ARCHIVE" ] && GLOBS=("${GLOBS[@]}" "$YADM_ARCHIVE")
+  [ -f "$YADM_ARCHIVE" ] && GLOBS+=("$YADM_ARCHIVE")
 
   #; include all .ssh files (unless disabled)
   if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
-    GLOBS=("${GLOBS[@]}" ".ssh" ".ssh/*")
+    GLOBS+=(".ssh" ".ssh/*")
   fi
 
   #; include all gpg files (unless disabled)
   if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
-    GLOBS=("${GLOBS[@]}" ".gnupg" ".gnupg/*")
+    GLOBS+=(".gnupg" ".gnupg/*")
   fi
 
-  #; include globs found in YADM_ENCRYPT (if present)
-  if [ -f "$YADM_ENCRYPT" ] ; then
-    while IFS='' read -r glob || [ -n "$glob" ]; do
-      if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
-        local IFS=$'\n'
-        for matching_file in $glob; do
-          GLOBS=("${GLOBS[@]}" "$matching_file")
-        done
-      fi
-    done < "$YADM_ENCRYPT"
-  fi
+  #; include any files we encrypt
+  GLOBS+=("${ENCRYPT_INCLUDE_FILES[@]}")
 
   #; remove group/other permissions from collected globs
   #shellcheck disable=SC2068
@@ -951,6 +915,63 @@ function display_private_perms() {
       debug "$when" private dir perms "$private_perms"
     fi
   done
+}
+
+function parse_encrypt() {
+  if [ "$ENCRYPT_INCLUDE_FILES" != "unparsed" ]; then
+    #shellcheck disable=SC2034
+    PARSE_ENCRYPT_SHORT="parse_encrypt() not reprocessed"
+    return
+  fi
+
+  ENCRYPT_INCLUDE_FILES=()
+  ENCRYPT_EXCLUDE_FILES=()
+
+  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+  cd "$YADM_WORK" || {
+    debug "Parsing encrypt not processed, unable to cd to $YADM_WORK"
+    return
+  }
+
+  exclude_pattern="^!(.+)"
+  if [ -f "$YADM_ENCRYPT" ] ; then
+    #; parse both included/excluded
+    while IFS='' read -r line || [ -n "$line" ]; do
+      if [[ ! $line =~ ^# && ! $line =~ ^[[:space:]]*$ ]] ; then
+        local IFS=$'\n'
+        for pattern in $line; do
+          if [[ "$pattern" =~ $exclude_pattern ]]; then
+            for ex_file in ${BASH_REMATCH[1]}; do
+              if [ -e "$ex_file" ]; then
+                ENCRYPT_EXCLUDE_FILES+=("$ex_file")
+              fi
+            done
+          else
+            for in_file in $pattern; do
+              if [ -e "$in_file" ]; then
+                ENCRYPT_INCLUDE_FILES+=("$in_file")
+              fi
+            done
+          fi
+        done
+      fi
+    done < "$YADM_ENCRYPT"
+
+    #; remove excludes from the includes
+    #(SC2068 is disabled because in this case, we desire globbing)
+    FINAL_INCLUDE=()
+    #shellcheck disable=SC2068
+    for included in "${ENCRYPT_INCLUDE_FILES[@]}"; do
+      skip=
+      #shellcheck disable=SC2068
+      for ex_file in ${ENCRYPT_EXCLUDE_FILES[@]}; do
+        [ "$included" == "$ex_file" ] && { skip=1; break; }
+      done
+      [ -n "$skip" ] || FINAL_INCLUDE+=("$included")
+    done
+    ENCRYPT_INCLUDE_FILES=("${FINAL_INCLUDE[@]}")
+  fi
+
 }
 
 #; ****** Auto Functions ******
