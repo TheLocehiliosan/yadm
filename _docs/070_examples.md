@@ -6,6 +6,8 @@ Need some inspiration? Here are some public dotfiles repositories managed by
 **yadm**. Drop me a line if you have a dotfiles repo you'd like added to this
 list.
 
+* [Search github for repos tagged with `yadm`](https://github.com/search?q=topic%3Ayadm&type=Repositories)
+
 * [DoomHammer/dotfiles](https://github.com/DoomHammer/dotfiles)
 * [SShrike/dotfiles](https://github.com/SShrike/dotfiles)
 * [TheLocehiliosan/dotfiles](https://github.com/TheLocehiliosan/dotfiles)
