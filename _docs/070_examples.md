@@ -13,7 +13,6 @@ list.
 * [akupila/dotfiles](https://github.com/akupila/dotfiles)
 * [bjartek/dotfiles](https://github.com/bjartek/dotfiles)
 * [cschooley/dotfiles](https://github.com/cschooley/dotfiles)
-* [czchen/dotfiles](https://github.com/czchen/dotfiles)
 * [esphen/dotfiles](https://github.com/esphen/dotfiles)
 * [gverilla/dotfiles](https://github.com/gverilla/dotfiles)
 * [mago0/dotfiles](https://github.com/mago0/dotfiles)
