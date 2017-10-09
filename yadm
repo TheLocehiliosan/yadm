@@ -24,6 +24,7 @@ VERSION=1.11.1
 YADM_WORK="$HOME"
 YADM_DIR="$HOME/.yadm"
 
+YADM_ALT="alt"
 YADM_REPO="repo.git"
 YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
@@ -131,6 +132,19 @@ function alt() {
   require_repo
   parse_encrypt
 
+  if [ -n "$YADM_OVERRIDE_ALT" ]; then
+    yadm_alt="$YADM_ALT"
+  else
+    yadm_alt_config=$(config yadm.alt)
+
+    if [ -n "$yadm_alt_config" ]; then
+        yadm_alt="$YADM_WORK/$yadm_alt_config"
+    else
+        yadm_alt="$YADM_ALT"
+    fi
+  fi
+  yadm_alt="${yadm_alt%/}/"
+
   local_class="$(config local.class)"
   if [ -z "$local_class" ] ; then
     match_class="%"
@@ -175,6 +189,12 @@ function alt() {
     fi
   fi
 
+  if [[ $OPERATING_SYSTEM == CYGWIN* ]] ; then
+    if [[ $(config --bool yadm.cygwin-copy) == "true" ]] ; then
+      do_copy=1
+    fi
+  fi
+
   #; loop over all "tracked" files
   #; for every file which matches the above regex, create a symlink
   for match in $match1 $match2; do
@@ -187,9 +207,22 @@ function alt() {
         if [ -e "$alt_path" ] ; then
           if [[ $alt_path =~ $match ]] ; then
             if [ "$alt_path" != "$last_linked" ] ; then
+              local dir=""
+
               new_link="${BASH_REMATCH[1]}"
+
+              if [[ $new_link == $yadm_alt* ]]; then
+                new_link="$YADM_WORK/${new_link#$yadm_alt}"
+                dir="${new_link%/*}"
+              fi
+
               debug "Linking $alt_path to $new_link"
               [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
+
+              if [ -n "$dir" ] && [ ! -e "$dir" ]; then
+                mkdir -p "$dir"
+              fi
+
               if [ "$do_copy" -eq 1 ]; then
                 if [ -L "$new_link" ]; then
                   rm -f "$new_link"
@@ -214,10 +247,23 @@ function alt() {
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
+        local dir=""
+
         real_file="${BASH_REMATCH[1]}"
+
+        if [[ $real_file == $yadm_alt* ]]; then
+          real_file="$YADM_WORK/${real_file#$yadm_alt}"
+          dir="${real_file%/*}"
+        fi
+
         if envtpl_available; then
           debug "Creating $real_file from template $tracked_file"
           [ -n "$loud" ] && echo "Creating $real_file from template $tracked_file"
+
+          if [ -n "$dir" ] && [ ! -e "$dir" ]; then
+            mkdir -p "$dir"
+          fi
+
           YADM_CLASS="$local_class" \
           YADM_OS="$local_system" \
           YADM_HOSTNAME="$local_host" \
@@ -529,6 +575,7 @@ Commands:
   yadm perms                 - Fix perms for private files
 
 Files:
+  \$HOME/.yadm/alt       - yadm's additional alternate files
   \$HOME/.yadm/config    - yadm's configuration file
   \$HOME/.yadm/repo.git  - yadm's Git repository
   \$HOME/.yadm/encrypt   - List of globs used for encrypt/decrypt
@@ -596,6 +643,7 @@ local.class
 local.hostname
 local.os
 local.user
+yadm.alt
 yadm.auto-alt
 yadm.auto-perms
 yadm.auto-private-dirs
@@ -614,6 +662,7 @@ function introspect_repo() {
 
 function introspect_switches() {
   cat <<-EOF
+--yadm-alt
 --yadm-archive
 --yadm-bootstrap
 --yadm-config
@@ -703,6 +752,13 @@ function process_global_args() {
         YADM_DIR="$2"
         shift
       ;;
+      --yadm-alt) #; override the standard YADM_ALT
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified alt path"
+        fi
+        YADM_OVERRIDE_ALT="$2"
+        shift
+      ;;
       --yadm-repo) #; override the standard YADM_REPO
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified repo path"
@@ -750,6 +806,7 @@ function process_global_args() {
 function configure_paths() {
 
   #; change all paths to be relative to YADM_DIR
+  YADM_ALT="$YADM_DIR/$YADM_ALT"
   YADM_REPO="$YADM_DIR/$YADM_REPO"
   YADM_CONFIG="$YADM_DIR/$YADM_CONFIG"
   YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
@@ -757,6 +814,9 @@ function configure_paths() {
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
 
   #; independent overrides for paths
+  if [ -n "$YADM_OVERRIDE_ALT" ]; then
+    YADM_ALT="$YADM_OVERRIDE_ALT"
+  fi
   if [ -n "$YADM_OVERRIDE_REPO" ]; then
     YADM_REPO="$YADM_OVERRIDE_REPO"
   fi
