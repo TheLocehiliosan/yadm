@@ -812,7 +812,7 @@ function set_operating_system() {
     CYGWIN*)
       git_version=$(git --version 2>/dev/null)
       if [[ "$git_version" =~ windows ]] ; then
-	      USE_CYGPATH=1
+          USE_CYGPATH=1
       fi
       ;;
     *)
