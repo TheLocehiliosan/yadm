@@ -1,6 +1,6 @@
 # Installation
 
-## bash completions
+## Bash completions
 ### Prerequisites
 **yadm** completion only works if Git completions are also enabled.
 
@@ -16,7 +16,7 @@ Copy the completion script locally, and add this to you bashrc:
 [ -f /full/path/to/yadm.bash_completion ] && source /full/path/to/yadm.bash_completion
 ```
 
-## zsh completions
+## Zsh completions
 ### Homebrew
 If using `homebrew` to install **yadm**, completions should handled automatically.
 
