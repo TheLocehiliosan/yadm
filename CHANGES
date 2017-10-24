@@ -1,3 +1,10 @@
+1.12.0
+  * Add basic Zsh completion (#71, #79)
+  * Support directories in `.yadm/encrypt` (#81, #82)
+  * Support exclusions in `.yadm/encrypt` (#86)
+  * Improve portability with printf (#87)
+  * Eliminate usage of `eval` and `ls`
+
 1.11.1
   * Create private dirs prior to merge (#74)
 

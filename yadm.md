@@ -409,6 +409,12 @@
                   .ssh/*.key
                   .gnupg/*.gpg
 
+       Standard filename expansions (*,  ?,  [)  are  supported.  Other  shell
+       expansions  like brace and tilde are not supported. Spaces in paths are
+       supported, and should not be quoted. If a directory is  specified,  its
+       contents  will be included, but not recursively. Paths beginning with a
+       "!" will be excluded.
+
        The yadm encrypt command will find all files matching the patterns, and
        prompt  for  a  password.  Once  a password has confirmed, the matching
        files will be encrypted and saved as $HOME/.yadm/files.gpg.   The  pat-
