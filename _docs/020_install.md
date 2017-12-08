@@ -57,6 +57,14 @@ yaourt -S yadm-git
 emerge -atv app-admin/yadm
 ```
 
+## Void Linux
+
+**yadm** is available in the official repository, simply use `xbps-install` to install it.
+
+```
+xbps-install yadm
+```
+
 ## Download
 
 You *can* simply download the **yadm** script and put it into your `$PATH`. Something like this:
