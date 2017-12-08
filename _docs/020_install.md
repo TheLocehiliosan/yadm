@@ -43,7 +43,7 @@ Otherwise, the instructions for Debian below should also work for Ubuntu.
 
 ## Arch Linux
 
-**yadm** is available in the Arch User Repos and can be installed with AUR helper or Makepkg
+**yadm** is available in the Arch User Repos and can be installed with AUR helper or Makepkg.
 
 ```
 yaourt -S yadm-git
@@ -51,7 +51,7 @@ yaourt -S yadm-git
 
 ## Gentoo Linux
 
-**yadm** is available in the main gentoo portage tree, simply use `emerge` to install it
+**yadm** is available in the main gentoo portage tree, simply use `emerge` to install it.
 
 ```
 emerge -atv app-admin/yadm
