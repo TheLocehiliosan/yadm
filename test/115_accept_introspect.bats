@@ -73,7 +73,7 @@ function count_introspect() {
         Exit with 0
   "
 
-  count_introspect "configs" 0 12 'yadm\.auto-alt'
+  count_introspect "configs" 0 13 'yadm\.auto-alt'
 }
 
 @test "Command 'introspect' (repo)" {

@@ -88,6 +88,8 @@ EOF
     "$T_GPG_PROGRAM" -q -d "$T_YADM_ARCHIVE" | tar t | sort > "$T_TMP/archive_list"
   fi
 
+  excluded="$2"
+
   #; inventory what is expected in the archive
   (
     if cd "$T_DIR_WORK"; then
@@ -95,10 +97,23 @@ EOF
       # (globbing is desired)
       while IFS='' read -r glob || [ -n "$glob" ]; do
         if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
-          local IFS=$'\n'
-          for matching_file in $(eval ls "$glob" 2>/dev/null); do
-            echo "$matching_file"
-          done
+          if [[ ! $glob =~ ^!(.+) ]] ; then
+            local IFS=$'\n'
+            for matching_file in $glob; do
+              if [ -e "$matching_file" ]; then
+                if [ "$matching_file" != "$excluded" ]; then
+                  if [ -d "$matching_file" ]; then
+                      echo "$matching_file/"
+                    for subfile in "$matching_file"/*; do
+                      echo "$subfile"
+                    done
+                  else
+                    echo "$matching_file"
+                  fi
+                fi
+              fi
+            done
+          fi
         fi
       done < "$T_YADM_ENCRYPT" | sort > "$T_TMP/expected_list"
     fi
@@ -290,7 +305,77 @@ EOF
   #; add paths with spaces to YADM_ARCHIVE
   local original_encrypt
   original_encrypt=$(cat "$T_YADM_ENCRYPT")
-  echo -e "'space test'/file*" >> "$T_YADM_ENCRYPT"
+  echo -e "space test/file*" >> "$T_YADM_ENCRYPT"
+
+  #; run encrypt
+  run expect <<EOF
+    set timeout 2;
+    spawn ${T_YADM_Y[*]} encrypt;
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "$"
+    foreach {pid spawnid os_error_flag value} [wait] break
+    exit \$value
+EOF
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Wrote\ new\ file:.+$T_YADM_ARCHIVE ]]
+
+  #; validate the archive
+  validate_archive symmetric
+}
+
+@test "Command 'encrypt' (exclusions in YADM_ENCRYPT)" {
+  echo "
+    When 'encrypt' command is provided,
+    and YADM_ENCRYPT is present
+    Create YADM_ARCHIVE
+    Report the archive created
+    Archive should be valid
+    Exit with 0
+  "
+
+  #; add paths with spaces to YADM_ARCHIVE
+  local original_encrypt
+  original_encrypt=$(cat "$T_YADM_ENCRYPT")
+  echo -e ".ssh/*" >> "$T_YADM_ENCRYPT"
+  echo -e "!.ssh/sec*.pub" >> "$T_YADM_ENCRYPT"
+
+  #; run encrypt
+  run expect <<EOF
+    set timeout 2;
+    spawn ${T_YADM_Y[*]} encrypt;
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "passphrase:" {send "$T_PASSWD\n"}
+    expect "$"
+    foreach {pid spawnid os_error_flag value} [wait] break
+    exit \$value
+EOF
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Wrote\ new\ file:.+$T_YADM_ARCHIVE ]]
+  [[ ! "$output" =~ \.ssh/secret.pub ]]
+
+  #; validate the archive
+  validate_archive symmetric ".ssh/secret.pub"
+}
+
+@test "Command 'encrypt' (directories in YADM_ENCRYPT)" {
+  echo "
+    When 'encrypt' command is provided,
+    and YADM_ENCRYPT is present
+    Create YADM_ARCHIVE
+    Report the archive created
+    Archive should be valid
+    Exit with 0
+  "
+
+  #; add directory paths to YADM_ARCHIVE
+  local original_encrypt
+  original_encrypt=$(cat "$T_YADM_ENCRYPT")
+  echo -e "space test" >> "$T_YADM_ENCRYPT"
 
   #; run encrypt
   run expect <<EOF

@@ -440,3 +440,140 @@ EOF
   remote_output=$(GIT_DIR="$T_DIR_REPO" git remote show)
   [ "$remote_output" = "origin" ]
 }
+
+@test "Command 'clone' (local insecure .ssh and .gnupg data, no related data in repo)" {
+  echo "
+    Local .ssh/.gnupg data exists and is insecure
+    but yadm repo contains no .ssh/.gnupg data
+      local insecure data should remain accessible
+      (yadm is hands-off)
+  "
+  #; setup scenario
+  rm -rf "$T_DIR_WORK" "$T_DIR_REPO"
+  mkdir -p "$T_DIR_WORK/.ssh"
+  mkdir -p "$T_DIR_WORK/.gnupg"
+  touch "$T_DIR_WORK/.ssh/testfile"
+  touch "$T_DIR_WORK/.gnupg/testfile"
+  find "$T_DIR_WORK" -exec chmod a+rw '{}' ';'
+
+  #; run clone (with debug on)
+  run "${T_YADM_Y[@]}" clone -d -w "$T_DIR_WORK" "$REMOTE_URL"
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Initialized ]]
+  [[ "$output" =~ initial\ private\ dir\ perms\ drwxrwxrwx.+\.ssh ]]
+  [[ "$output" =~ initial\ private\ dir\ perms\ drwxrwxrwx.+\.gnupg ]]
+  [[ "$output" =~ pre-merge\ private\ dir\ perms\ drwxrwxrwx.+\.ssh ]]
+  [[ "$output" =~ pre-merge\ private\ dir\ perms\ drwxrwxrwx.+\.gnupg ]]
+  [[ "$output" =~ post-merge\ private\ dir\ perms\ drwxrwxrwx.+\.ssh ]]
+  [[ "$output" =~ post-merge\ private\ dir\ perms\ drwxrwxrwx.+\.gnupg ]]
+  # standard perms still apply afterwards unless disabled with auto.perms
+  test_perms "$T_DIR_WORK/.gnupg" "drwx------"
+  test_perms "$T_DIR_WORK/.ssh" "drwx------"
+
+}
+
+@test "Command 'clone' (local insecure .gnupg data, related data in repo)" {
+  echo "
+    Local .gnupg data exists and is insecure
+    and yadm repo contains .gnupg data
+      .gnupg dir should be secured post merge
+  "
+  #; setup scenario
+  IN_REPO=(.bash_profile .vimrc .gnupg/gpg.conf)
+  setup
+  rm -rf "$T_DIR_WORK" "$T_DIR_REPO"
+  mkdir -p "$T_DIR_WORK/.gnupg"
+  touch "$T_DIR_WORK/.gnupg/testfile"
+  find "$T_DIR_WORK" -exec chmod a+rw '{}' ';'
+
+  #; run clone (with debug on)
+  run "${T_YADM_Y[@]}" clone -d -w "$T_DIR_WORK" "$REMOTE_URL"
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Initialized ]]
+  [[ "$output" =~ initial\ private\ dir\ perms\ drwxrwxrwx.+\.gnupg ]]
+  [[ "$output" =~ pre-merge\ private\ dir\ perms\ drwxrwxrwx.+\.gnupg ]]
+  [[ "$output" =~ post-merge\ private\ dir\ perms\ drwxrwxrwx.+\.gnupg ]]
+  test_perms "$T_DIR_WORK/.gnupg" "drwx------"
+}
+
+@test "Command 'clone' (local insecure .ssh data, related data in repo)" {
+  echo "
+    Local .ssh data exists and is insecure
+    and yadm repo contains .ssh data
+      .ssh dir should be secured post merge
+  "
+  #; setup scenario
+  IN_REPO=(.bash_profile .vimrc .ssh/config)
+  setup
+  rm -rf "$T_DIR_WORK" "$T_DIR_REPO"
+  mkdir -p "$T_DIR_WORK/.ssh"
+  touch "$T_DIR_WORK/.ssh/testfile"
+  find "$T_DIR_WORK" -exec chmod a+rw '{}' ';'
+
+  #; run clone (with debug on)
+  run "${T_YADM_Y[@]}" clone -d -w "$T_DIR_WORK" "$REMOTE_URL"
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Initialized ]]
+  [[ "$output" =~ initial\ private\ dir\ perms\ drwxrwxrwx.+\.ssh ]]
+  [[ "$output" =~ pre-merge\ private\ dir\ perms\ drwxrwxrwx.+\.ssh ]]
+  [[ "$output" =~ post-merge\ private\ dir\ perms\ drwxrwxrwx.+\.ssh ]]
+  test_perms "$T_DIR_WORK/.ssh" "drwx------"
+}
+
+@test "Command 'clone' (no existing .gnupg, .gnupg data tracked in repo)" {
+  echo "
+    Local .gnupg does not exist
+    and yadm repo contains .gnupg data
+      .gnupg dir should be created and secured prior to merge
+      tracked .gnupg data should be user accessible only
+  "
+  #; setup scenario
+  IN_REPO=(.bash_profile .vimrc .gnupg/gpg.conf)
+  setup
+  rm -rf "$T_DIR_WORK"
+  mkdir -p "$T_DIR_WORK"
+  rm -rf "$T_DIR_REPO"
+
+  #; run clone (with debug on)
+  run "${T_YADM_Y[@]}" clone -d -w "$T_DIR_WORK" "$REMOTE_URL"
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Initialized ]]
+  [[ ! "$output" =~ initial\ private\ dir\ perms ]]
+  [[ "$output" =~ pre-merge\ private\ dir\ perms\ drwx------.+\.gnupg ]]
+  [[ "$output" =~ post-merge\ private\ dir\ perms\ drwx------.+\.gnupg ]]
+  test_perms "$T_DIR_WORK/.gnupg" "drwx------"
+}
+
+@test "Command 'clone' (no existing .ssh, .ssh data tracked in repo)" {
+  echo "
+    Local .ssh does not exist
+    and yadm repo contains .ssh data
+      .ssh dir should be created and secured prior to merge
+      tracked .ssh data should be user accessible only
+  "
+  #; setup scenario
+  IN_REPO=(.bash_profile .vimrc .ssh/config)
+  setup
+  rm -rf "$T_DIR_WORK"
+  mkdir -p "$T_DIR_WORK"
+  rm -rf "$T_DIR_REPO"
+
+  #; run clone (with debug on)
+  run "${T_YADM_Y[@]}" clone -d -w "$T_DIR_WORK" "$REMOTE_URL"
+
+  #; validate status and output
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ Initialized ]]
+  [[ ! "$output" =~ initial\ private\ dir\ perms ]]
+  [[ "$output" =~ pre-merge\ private\ dir\ perms\ drwx------.+\.ssh ]]
+  [[ "$output" =~ post-merge\ private\ dir\ perms\ drwx------.+\.ssh ]]
+  test_perms "$T_DIR_WORK/.ssh" "drwx------"
+}

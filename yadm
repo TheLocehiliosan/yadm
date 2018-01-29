@@ -19,7 +19,7 @@ if [ -z "$BASH_VERSION" ]; then
   [ "$YADM_TEST" != 1 ] && exec bash "$0" "$@"
 fi
 
-VERSION=1.11.0
+VERSION=1.12.0
 
 YADM_WORK="$HOME"
 YADM_DIR="$HOME/.yadm"
@@ -35,12 +35,13 @@ FULL_COMMAND=""
 
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
-LS_PROGRAM="/bin/ls"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
 
 PROC_VERSION="/proc/version"
 OPERATING_SYSTEM="Unknown"
+
+ENCRYPT_INCLUDE_FILES="unparsed"
 
 #; flag causing path translations with cygpath
 USE_CYGPATH=0
@@ -128,6 +129,7 @@ function main() {
 function alt() {
 
   require_repo
+  parse_encrypt
 
   local_class="$(config local.class)"
   if [ -z "$local_class" ] ; then
@@ -160,31 +162,10 @@ function alt() {
   match1="^(.+)##(()|$match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user)$"
   match2="^(.+)##($match_class|$match_class\.$match_system|$match_class\.$match_system\.$match_host|$match_class\.$match_system\.$match_host\.$match_user)$"
 
-  #; process relative to YADM_WORK
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-  cd "$YADM_WORK" || {
-    debug "Alternates not processed, unable to cd to $YADM_WORK"
-    return
-  }
+  cd_work "Alternates" || return
 
   #; only be noisy if the "alt" command was run directly
   [ "$YADM_COMMAND" = "alt" ] && loud="YES"
-
-  #; build a list of files from YADM_ENCRYPT
-  ENC_FILES=()
-  index=0
-  if [ -f "$YADM_ENCRYPT" ] ; then
-    while IFS='' read -r glob || [ -n "$glob" ]; do
-      if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
-        # echo "working on ->$glob<-"
-        local IFS=$'\n'
-        for matching_file in $(eval "$LS_PROGRAM" "$glob" 2>/dev/null); do
-          ENC_FILES[$index]="$matching_file"
-          ((index++))
-        done
-      fi
-    done < "$YADM_ENCRYPT"
-  fi
 
   #; decide if a copy should be done instead of a symbolic link
   local do_copy=0
@@ -199,7 +180,7 @@ function alt() {
   for match in $match1 $match2; do
     last_linked=''
     local IFS=$'\n'
-    for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENC_FILES[@]}"; do
+    for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
       tracked_file="$YADM_WORK/$tracked_file"
       #; process both the path, and it's parent directory
       for alt_path in "$tracked_file" "${tracked_file%/*}"; do
@@ -229,7 +210,7 @@ function alt() {
   #; for every file which is a *##yadm.j2 create a real file
   local IFS=$'\n'
   local match="^(.+)##yadm\\.j2$"
-  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) $(cat "$YADM_ENCRYPT" 2>/dev/null); do
+  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
@@ -292,6 +273,8 @@ function clone() {
     shift
   done
 
+  [ -n "$DEBUG" ] && display_private_perms "initial"
+
   #; clone will begin with a bare repo
   local empty=
   init $empty
@@ -310,6 +293,15 @@ function clone() {
     rm -rf "$YADM_REPO"
     error_out "Unable to fetch origin ${clone_args[0]}"
   }
+  debug "Determining if repo tracks private directories"
+  for private_dir in .ssh/ .gnupg/; do
+    found_log=$("$GIT_PROGRAM" log -n 1 origin/master -- "$private_dir" 2>/dev/null)
+    if [ -n "$found_log" ]; then
+      debug "Private directory $private_dir is tracked by repo"
+      assert_private_dirs "$private_dir"
+    fi
+  done
+  [ -n "$DEBUG" ] && display_private_perms "pre-merge"
   debug "Doing an initial merge of origin/master"
   "$GIT_PROGRAM" merge origin/master || {
     debug "Merge failed, doing a reset and stashing conflicts."
@@ -350,6 +342,8 @@ EOF
 EOF
     fi
   }
+
+  [ -n "$DEBUG" ] && display_private_perms "post-merge"
 
   CHANGES_POSSIBLE=1
 
@@ -422,14 +416,9 @@ function encrypt() {
 
   require_gpg
   require_encrypt
-  require_ls
+  parse_encrypt
 
-  #; process relative to YADM_WORK
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-  cd "$YADM_WORK" || {
-    debug "Encryption not processed, unable to cd to $YADM_WORK"
-    return
-  }
+  cd_work "Encryption" || return
 
   #; Build gpg options for gpg
   GPG_KEY="$(config yadm.gpg-recipient)"
@@ -441,26 +430,13 @@ function encrypt() {
     GPG_OPTS=("-c")
   fi
 
-  #; build a list of files from YADM_ENCRYPT
-  ENC_FILES=()
-  index=0
-  while IFS='' read -r glob || [ -n "$glob" ]; do
-    if [[ ! $glob =~ ^# && ! $glob =~ ^[[:space:]]*$ ]] ; then
-      local IFS=$'\n'
-      for matching_file in $(eval "$LS_PROGRAM" "$glob" 2>/dev/null); do
-        ENC_FILES[$index]="$matching_file"
-        ((index++))
-      done
-    fi
-  done < "$YADM_ENCRYPT"
-
   #; report which files will be encrypted
   echo "Encrypting the following files:"
-  "$LS_PROGRAM" -1 "${ENC_FILES[@]}"
+  printf '%s\n' "${ENCRYPT_INCLUDE_FILES[@]}"
   echo
 
   #; encrypt all files which match the globs
-  if tar -f - -c "${ENC_FILES[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
+  if tar -f - -c "${ENCRYPT_INCLUDE_FILES[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
     error_out "Unable to write $YADM_ARCHIVE"
@@ -513,9 +489,18 @@ function git_command() {
     set -- "config" "${@:2}"
   fi
 
+  #; ensure private .ssh and .gnupg directories exist first
+  #; TODO: consider restricting this to only commands which modify the work-tree
+
+  auto_private_dirs=$(config --bool yadm.auto-private-dirs)
+  if [ "$auto_private_dirs" != "false" ] ; then
+    assert_private_dirs .gnupg/ .ssh/
+  fi
+
   CHANGES_POSSIBLE=1
 
   #; pass commands through to git
+  debug "Running git command $GIT_PROGRAM $*"
   "$GIT_PROGRAM" "$@"
   return "$?"
 }
@@ -613,6 +598,7 @@ local.os
 local.user
 yadm.auto-alt
 yadm.auto-perms
+yadm.auto-private-dirs
 yadm.cygwin-copy
 yadm.git-program
 yadm.gpg-perms
@@ -644,11 +630,7 @@ function list() {
 
   #; process relative to YADM_WORK when --all is specified
   if [ -n "$LIST_ALL" ] ; then
-    YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-    cd "$YADM_WORK" || {
-      debug "List not processed, unable to cd to $YADM_WORK"
-      return
-    }
+    cd_work "List" || return
   fi
 
   #; list tracked files
@@ -658,40 +640,29 @@ function list() {
 
 function perms() {
 
-  require_ls
+  parse_encrypt
 
   #; TODO: prevent repeats in the files changed
 
-  #; process relative to YADM_WORK
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-  cd "$YADM_WORK" || {
-    debug "Perms not processed, unable to cd to $YADM_WORK"
-    return
-  }
+  cd_work "Perms" || return
 
   GLOBS=()
 
   #; include the archive created by "encrypt"
-  [ -f "$YADM_ARCHIVE" ] && GLOBS=("${GLOBS[@]}" "$YADM_ARCHIVE")
+  [ -f "$YADM_ARCHIVE" ] && GLOBS+=("$YADM_ARCHIVE")
 
   #; include all .ssh files (unless disabled)
   if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
-    GLOBS=("${GLOBS[@]}" ".ssh" ".ssh/*")
+    GLOBS+=(".ssh" ".ssh/*")
   fi
 
   #; include all gpg files (unless disabled)
   if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
-    GLOBS=("${GLOBS[@]}" ".gnupg" ".gnupg/*")
+    GLOBS+=(".gnupg" ".gnupg/*")
   fi
 
-  #; include globs found in YADM_ENCRYPT (if present)
-  if [ -f "$YADM_ENCRYPT" ] ; then
-    while IFS='' read -r glob || [ -n "$glob" ]; do
-      if [[ ! $glob =~ ^# ]] ; then
-        GLOBS=("${GLOBS[@]}" $(eval "$LS_PROGRAM" "$glob" 2>/dev/null))
-      fi
-    done < "$YADM_ENCRYPT"
-  fi
+  #; include any files we encrypt
+  GLOBS+=("${ENCRYPT_INCLUDE_FILES[@]}")
 
   #; remove group/other permissions from collected globs
   #shellcheck disable=SC2068
@@ -841,7 +812,7 @@ function set_operating_system() {
     CYGWIN*)
       git_version=$(git --version 2>/dev/null)
       if [[ "$git_version" =~ windows ]] ; then
-	      USE_CYGPATH=1
+          USE_CYGPATH=1
       fi
       ;;
     *)
@@ -852,13 +823,13 @@ function set_operating_system() {
 
 function debug() {
 
-  [ -n "$DEBUG" ] && echo -e "DEBUG: $*"
+  [ -n "$DEBUG" ] && echo_e "DEBUG: $*"
 
 }
 
 function error_out() {
 
-  echo -e "ERROR: $*"
+  echo_e "ERROR: $*"
   exit_with_hook 1
 
 }
@@ -902,6 +873,89 @@ function invoke_hook() {
       exit "$hook_status"
     fi
 
+  fi
+
+}
+
+function assert_private_dirs() {
+  work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+  for private_dir in "$@"; do
+    if [ ! -d "$work/$private_dir" ]; then
+      debug "Creating $work/$private_dir"
+      #shellcheck disable=SC2174
+      mkdir -m 0700 -p "$work/$private_dir" >/dev/null 2>&1
+    fi
+  done
+}
+
+function display_private_perms() {
+  when="$1"
+  for private_dir in .ssh .gnupg; do
+    if [ -d "$YADM_WORK/$private_dir" ]; then
+      private_perms=$(ls -ld "$YADM_WORK/$private_dir")
+      debug "$when" private dir perms "$private_perms"
+    fi
+  done
+}
+
+function cd_work() {
+  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+  cd "$YADM_WORK" || {
+    debug "$1 not processed, unable to cd to $YADM_WORK"
+    return 1
+  }
+  return 0
+}
+
+function parse_encrypt() {
+  if [ "$ENCRYPT_INCLUDE_FILES" != "unparsed" ]; then
+    #shellcheck disable=SC2034
+    PARSE_ENCRYPT_SHORT="parse_encrypt() not reprocessed"
+    return
+  fi
+
+  ENCRYPT_INCLUDE_FILES=()
+  ENCRYPT_EXCLUDE_FILES=()
+
+  cd_work "Parsing encrypt" || return
+
+  exclude_pattern="^!(.+)"
+  if [ -f "$YADM_ENCRYPT" ] ; then
+    #; parse both included/excluded
+    while IFS='' read -r line || [ -n "$line" ]; do
+      if [[ ! $line =~ ^# && ! $line =~ ^[[:space:]]*$ ]] ; then
+        local IFS=$'\n'
+        for pattern in $line; do
+          if [[ "$pattern" =~ $exclude_pattern ]]; then
+            for ex_file in ${BASH_REMATCH[1]}; do
+              if [ -e "$ex_file" ]; then
+                ENCRYPT_EXCLUDE_FILES+=("$ex_file")
+              fi
+            done
+          else
+            for in_file in $pattern; do
+              if [ -e "$in_file" ]; then
+                ENCRYPT_INCLUDE_FILES+=("$in_file")
+              fi
+            done
+          fi
+        done
+      fi
+    done < "$YADM_ENCRYPT"
+
+    #; remove excludes from the includes
+    #(SC2068 is disabled because in this case, we desire globbing)
+    FINAL_INCLUDE=()
+    #shellcheck disable=SC2068
+    for included in "${ENCRYPT_INCLUDE_FILES[@]}"; do
+      skip=
+      #shellcheck disable=SC2068
+      for ex_file in ${ENCRYPT_EXCLUDE_FILES[@]}; do
+        [ "$included" == "$ex_file" ] && { skip=1; break; }
+      done
+      [ -n "$skip" ] || FINAL_INCLUDE+=("$included")
+    done
+    ENCRYPT_INCLUDE_FILES=("${FINAL_INCLUDE[@]}")
   fi
 
 }
@@ -990,13 +1044,6 @@ function require_gpg() {
 function require_repo() {
   [ -d "$YADM_REPO" ] || error_out "Git repo does not exist. did you forget to run 'init' or 'clone'?"
 }
-function require_ls() {
-  if [ ! -f "$LS_PROGRAM" ] ; then
-    command -v ls >/dev/null 2>&1 || \
-      error_out "This functionality requires 'ls' to be installed at '$LS_PROGRAM' or listed in your \$PATH"
-    LS_PROGRAM=ls
-  fi
-}
 function require_shell() {
   [ -x "$SHELL" ] || error_out "\$SHELL does not refer to an executable."
 }
@@ -1026,6 +1073,20 @@ function mixed_path() {
   else
     echo "$1"
   fi
+}
+
+#; ****** echo replacements ******
+function echo() {
+  IFS=' '
+  printf '%s\n' "$*"
+}
+function echo_n() {
+  IFS=' '
+  printf '%s' "$*"
+}
+function echo_e() {
+  IFS=' '
+  printf '%b\n' "$*"
 }
 
 #; ****** Main processing (when not unit testing) ******

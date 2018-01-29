@@ -1,5 +1,5 @@
 ." vim: set spell so=8:
-.TH yadm 1 "10 July 2017" "1.11.0"
+.TH yadm 1 "25 October 2017" "1.12.0"
 .SH NAME
 yadm \- Yet Another Dotfiles Manager
 .SH SYNOPSIS
@@ -350,6 +350,9 @@ If disabled, you may still run
 manually to update permissions.
 This feature is enabled by default.
 .TP
+.B yadm.auto-private-dirs
+Disable the automatic creating of private directories described in the section PERMISSIONS.
+.TP
 .B yadm.ssh-perms
 Disable the permission changes to
 .IR $HOME/.ssh/* .
@@ -583,6 +586,11 @@ For example:
     .gnupg/*.gpg
 .RE
 
+Standard filename expansions (*, ?, [) are supported. Other shell expansions
+like brace and tilde are not supported. Spaces in paths are supported, and
+should not be quoted. If a directory is specified, its contents will be
+included, but not recursively. Paths beginning with a "!" will be excluded.
+
 The
 .B yadm encrypt
 command will find all files matching the patterns, and prompt for a password. Once a
@@ -608,12 +616,10 @@ It is recommended that you use a private repository when keeping confidential
 files, even though they are encrypted.
 .SH PERMISSIONS
 When files are checked out of a Git repository, their initial permissions are
-dependent upon the user's umask. This can result in confidential files with lax permissions.
-
-To prevent this,
+dependent upon the user's umask. Because of this,
 .B yadm
-will automatically update the permissions of confidential files.
-The "group" and "others" permissions will be removed from the following files:
+will automatically update the permissions of some file paths. The "group" and
+"others" permissions will be removed from the following files:
 
 .RI - " $HOME/.yadm/files.gpg
 
@@ -629,11 +635,32 @@ The "group" and "others" permissions will be removed from the following files:
 .B yadm
 will automatically update permissions by default. This can be disabled using the
 .I yadm.auto-perms
-configuration.
-Even if disabled, permissions can be manually updated by running
+configuration. Even if disabled, permissions can be manually updated by running
 .BR yadm\ perms .
-The SSH directory processing can be disabled using the
+The
+.I .ssh
+directory processing can be disabled using the
 .I yadm.ssh-perms
+configuration. The
+.I .gnupg
+directory processing can be disabled using the
+.I yadm.gpg-perms
+configuration.
+
+When cloning a repo which includes data in a
+.IR .ssh " or " .gnupg
+directory, if those directories do not exist at the time of cloning,
+.B yadm
+will create the directories with mask 0700 prior to merging the fetched data
+into the work-tree.
+
+When running a Git command and
+.IR .ssh " or " .gnupg
+directories do not exist,
+.B yadm
+will create those directories with mask 0700 prior to running the Git command.
+This can be disabled using the
+.I yadm.auto-private-dirs
 configuration.
 .SH HOOKS
 For every command

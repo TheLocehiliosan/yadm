@@ -4,15 +4,20 @@ status=;output=; #; populated by bats run()
 
 IN_REPO=(alt* "dir one")
 export TEST_TREE_WITH_ALT=1
+EXCLUDED_NAME="excluded-base"
 
 function create_encrypt() {
   for efile in "encrypted-base##" "encrypted-system##$T_SYS" "encrypted-host##$T_SYS.$T_HOST" "encrypted-user##$T_SYS.$T_HOST.$T_USER"; do
     echo "$efile" >> "$T_YADM_ENCRYPT"
     echo "$efile" >> "$T_DIR_WORK/$efile"
     mkdir -p "$T_DIR_WORK/dir one/$efile"
-    echo "'dir one'/$efile/file1" >> "$T_YADM_ENCRYPT"
+    echo "dir one/$efile/file1" >> "$T_YADM_ENCRYPT"
     echo "dir one/$efile/file1" >> "$T_DIR_WORK/dir one/$efile/file1"
   done
+
+  echo "$EXCLUDED_NAME##"  >> "$T_YADM_ENCRYPT"
+  echo "!$EXCLUDED_NAME##" >> "$T_YADM_ENCRYPT"
+  echo "$EXCLUDED_NAME##"  >> "$T_DIR_WORK/$EXCLUDED_NAME##"
 }
 
 setup() {
@@ -128,6 +133,12 @@ function test_alt() {
       echo "ERROR: Reporting of link should not happen"
       return 1
     fi
+  fi
+
+  if [ -L "$T_DIR_WORK/$EXCLUDED_NAME" ] ; then
+    echo "ERROR: Found link: $T_DIR_WORK/$EXCLUDED_NAME"
+    echo "ERROR: Excluded files should not be linked"
+    return 1
   fi
 
   #; validate link content
