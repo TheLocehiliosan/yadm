@@ -809,11 +809,12 @@ function set_operating_system() {
   fi
 
   case "$OPERATING_SYSTEM" in
-    CYGWIN*)
+    CYGWIN*|MINGW*|MSYS*)
       git_version=$(git --version 2>/dev/null)
       if [[ "$git_version" =~ windows ]] ; then
           USE_CYGPATH=1
       fi
+      OPERATING_SYSTEM=$(uname -o)
       ;;
     *)
       ;;
