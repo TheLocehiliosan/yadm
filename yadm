@@ -196,7 +196,7 @@ function alt() {
                 fi
                 cp -f "$alt_path" "$new_link"
               else
-                ln -nfs "$alt_path" "$new_link"
+                alt_ln "$alt_path" "$new_link"
               fi
               last_linked="$alt_path"
             fi
@@ -232,6 +232,20 @@ function alt() {
     fi
   done
 
+}
+
+function alt_ln() {
+  local alt_dir alt_base new_base
+
+  alt_dir="$(dirname "$1")"
+  alt_base="$(basename "$1")"
+  new_base="$(basename "$2")"
+  if pushd "$alt_dir" >/dev/null ; then
+    ln -nfs "$alt_base" "$new_base"
+    popd &>/dev/null
+  else
+    ln -nfs "$1" "$2"
+  fi
 }
 
 function bootstrap() {
