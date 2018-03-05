@@ -169,7 +169,7 @@ function alt() {
 
   #; decide if a copy should be done instead of a symbolic link
   local do_copy=0
-  if [[ $OPERATING_SYSTEM =~ (Cygwin|Msys) ]] ; then
+  if [[ $OPERATING_SYSTEM =~ ^(CYGWIN|MSYS) ]] ; then
     if [[ $(config --bool yadm.cygwin-copy) == "true" ]] ; then
       do_copy=1
     fi
