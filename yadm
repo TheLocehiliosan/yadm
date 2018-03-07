@@ -936,6 +936,9 @@ function parse_encrypt() {
 
   exclude_pattern="^!(.+)"
   if [ -f "$YADM_ENCRYPT" ] ; then
+    shopt_dotglob="$(shopt -p dotglob)"
+    shopt -s dotglob
+
     #; parse both included/excluded
     while IFS='' read -r line || [ -n "$line" ]; do
       if [[ ! $line =~ ^# && ! $line =~ ^[[:space:]]*$ ]] ; then
@@ -957,6 +960,8 @@ function parse_encrypt() {
         done
       fi
     done < "$YADM_ENCRYPT"
+
+    eval "$shopt_dotglob"
 
     #; remove excludes from the includes
     #(SC2068 is disabled because in this case, we desire globbing)
