@@ -418,6 +418,11 @@ function encrypt() {
   require_encrypt
   parse_encrypt
 
+  if [ "${#ENCRYPT_INCLUDE_FILES[@]}" -eq 0 ]; then
+    error_out "No files were found to encrypt"
+    return
+  fi
+
   cd_work "Encryption" || return
 
   #; Build gpg options for gpg
