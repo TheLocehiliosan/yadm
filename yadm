@@ -1072,17 +1072,9 @@ function parse_encrypt() {
         local IFS=$'\n'
         for pattern in $line; do
           if [[ "$pattern" =~ $exclude_pattern ]]; then
-            for ex_file in ${BASH_REMATCH[1]}; do
-              if [ -e "$ex_file" ]; then
-                ENCRYPT_EXCLUDE_FILES+=("$ex_file")
-              fi
-            done
+            eval "parse_encrypt_exclude ${BASH_REMATCH[1]}"
           else
-            for in_file in $pattern; do
-              if [ -e "$in_file" ]; then
-                ENCRYPT_INCLUDE_FILES+=("$in_file")
-              fi
-            done
+            eval "parse_encrypt_include $pattern"
           fi
         done
       fi
@@ -1105,6 +1097,22 @@ function parse_encrypt() {
     ENCRYPT_INCLUDE_FILES=("${FINAL_INCLUDE[@]}")
   fi
 
+}
+
+function parse_encrypt_exclude() {
+  for ex_file in "$@"; do
+    if [ -e "$ex_file" ]; then
+      ENCRYPT_EXCLUDE_FILES+=("$ex_file")
+    fi
+  done
+}
+
+function parse_encrypt_include() {
+  for in_file in "$@"; do
+    if [ -e "$in_file" ]; then
+      ENCRYPT_INCLUDE_FILES+=("$in_file")
+    fi
+  done
 }
 
 function parse_ignore() {
