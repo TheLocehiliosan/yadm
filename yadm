@@ -29,6 +29,7 @@ YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
+YADM_GITIGNORE=".gitignore"
 
 HOOK_COMMAND=""
 FULL_COMMAND=""
@@ -42,6 +43,7 @@ PROC_VERSION="/proc/version"
 OPERATING_SYSTEM="Unknown"
 
 ENCRYPT_INCLUDE_FILES="unparsed"
+IGNORE_LINES="unparsed"
 
 #; flag causing path translations with cygpath
 USE_CYGPATH=0
@@ -65,7 +67,7 @@ function main() {
 
   #; parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|init|introspect|list|perms|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|ignore|init|introspect|list|perms|version)$"
   if [ -z "$*" ] ; then
     #; no argumnts will result in help()
     help
@@ -527,6 +529,7 @@ Commands:
   yadm encrypt               - Encrypt files
   yadm decrypt [-l]          - Decrypt files
   yadm perms                 - Fix perms for private files
+  yadm ignore                - Add ~/.yadm/encrypt entries to ~/.gitignore
 
 Files:
   \$HOME/.yadm/config    - yadm's configuration file
@@ -538,6 +541,112 @@ Use "man yadm" for complete documentation.
 EOF
 
   exit_with_hook 1
+
+}
+
+function ignore() {
+
+  require_repo
+  require_encrypt
+  parse_encrypt
+  parse_ignore
+
+  if [[ "${#ENCRYPT_INCLUDE_FILES[@]}" -eq 0 ]]; then
+    error_out "No files were found to encrypt"
+    return
+  fi
+
+  local loud
+  [[ "$YADM_COMMAND" = "ignore" ]] && loud="YES"
+
+  cd_work "Ignore" || return
+
+  local new_ignores
+  new_ignores=()
+
+  # ignore specifications listed in ~/.yadm/encrypt
+  local line eline iline found
+  local IFS
+  while IFS='' read -r line || [ -n "$line" ]; do
+    # trim leading and trailing whitespace
+    line="$(sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' <<<"$line")"
+    if [[ -z "$line" || "$line" =~ ^# ]]; then
+      continue
+    fi
+    # don't ignore non-encrypted files
+    if [[ "$line" =~ ^! ]]; then
+      continue
+    fi
+    eline="$line"
+    if [[ "$eline" =~ ^/ ]]; then
+      eline="${eline:1}"
+    fi
+    found=0
+    for iline in "${IGNORE_LINES[@]}"; do
+      if [[ "$iline" = "$line" ]]; then
+        found=1
+        break
+      fi
+      if [[ "$iline" =~ ^/ ]]; then
+        iline="${iline:1}"
+        if [[ "$iline" = "$eline" ]]; then
+          found=1
+          break
+        fi
+      fi
+    done
+    # skip files that have already been ignored
+    if [[ "$found" -eq 1 ]]; then
+      continue
+    fi
+    debug "Adding /$eline to $YADM_GITIGNORE"
+    [[ -n "$loud" ]] && echo "Adding /$eline to $YADM_GITIGNORE"
+    # add a / to anchor the search in the home directory.
+    new_ignores+=("/$eline")
+    IGNORE_LINES+=("/$eline")
+  done < "$YADM_ENCRYPT"
+
+  # ignore template files used to generate the files listed in ~/.yadm/encrypt
+  # this will match ##yadm.j2 files as well.
+  local match="^(.+)##"
+  local file
+  for file in "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    if [[ ! "$file" =~ $match ]]; then
+      continue
+    fi
+    file="${BASH_REMATCH[1]}"
+    found=0
+    for iline in "${IGNORE_LINES[@]}"; do
+      if [[ "$iline" = "$file" ]]; then
+        found=1
+        break
+      fi
+      if [[ "${iline:0:1}" = "/" ]]; then
+        iline="${iline:1}"
+        if [[ "$iline" = "$file" ]]; then
+          found=1
+          break
+        fi
+      fi
+    done
+    # skip files that have already been ignored
+    if [[ "$found" -eq 1 ]]; then
+      continue
+    fi
+    debug "Adding /$file to $YADM_GITIGNORE."
+    [[ -n "$loud" ]] && echo "Adding /$file to $YADM_GITIGNORE."
+    # add a / to anchor the search in the home directory.
+    new_ignores+=("/$file")
+    IGNORE_LINES+=("/$file")
+  done
+
+  if [[ "${#new_ignores[@]}" -eq 0 ]]; then
+    echo_e "$YADM_GITIGNORE already has all the entries from $YADM_ENCRYPT"
+    return 0
+  fi
+
+  printf "\n# Added by 'yadm ignore' on %s:\n" "$(date)" >> "$YADM_GITIGNORE"
+  printf "%s\n" "${new_ignores[@]}" >> "$YADM_GITIGNORE"
 
 }
 
@@ -582,6 +691,7 @@ encrypt
 enter
 gitconfig
 help
+ignore
 init
 introspect
 list
@@ -619,6 +729,7 @@ function introspect_switches() {
 --yadm-config
 --yadm-dir
 --yadm-encrypt
+--yadm-ignore
 --yadm-repo
 -Y
 EOF
@@ -738,6 +849,13 @@ function process_global_args() {
         YADM_OVERRIDE_BOOTSTRAP="$2"
         shift
       ;;
+      --yadm-gitignore) #; override the standard YADM_GITIGNORE
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified encrypt path"
+        fi
+        YADM_OVERRIDE_GITIGNORE="$2"
+        shift
+      ;;
       *) #; main arguments are kept intact
         MAIN_ARGS+=("$1")
       ;;
@@ -755,6 +873,7 @@ function configure_paths() {
   YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
   YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
+  YADM_GITIGNORE="$YADM_WORK/$YADM_GITIGNORE"
 
   #; independent overrides for paths
   if [ -n "$YADM_OVERRIDE_REPO" ]; then
@@ -771,6 +890,9 @@ function configure_paths() {
   fi
   if [ -n "$YADM_OVERRIDE_BOOTSTRAP" ]; then
     YADM_BOOTSTRAP="$YADM_OVERRIDE_BOOTSTRAP"
+  fi
+  if [ -n "$YADM_OVERRIDE_GITIGNORE" ]; then
+    YADM_GITIGNORE="$YADM_OVERRIDE_GITIGNORE"
   fi
 
   #; use the yadm repo for all git operations
@@ -957,6 +1079,34 @@ function parse_encrypt() {
     done
     ENCRYPT_INCLUDE_FILES=("${FINAL_INCLUDE[@]}")
   fi
+
+}
+
+function parse_ignore() {
+
+  IGNORE_LINES=()
+
+  if [ ! -e "$YADM_GITIGNORE" ]; then
+    return 0
+  fi
+
+  cd_work "Parsing $YADM_GITIGNORE" || return
+
+  #; parse both included/excluded
+  local IFS
+  local line
+  local match="^!(.+)"
+  while IFS=$'\n' read -r line; do
+    # trim leading and trailing whitespace
+    line="$(sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' <<<"$line")"
+    if [[ -z "$line" || "$line" =~ ^# ]]; then
+      continue
+    fi
+    if [[ "$line" =~ $match ]]; then
+      line="${BASH_REMATCH[1]}"
+    fi
+    IGNORE_LINES+=("$line")
+  done < "$YADM_GITIGNORE"
 
 }
 
