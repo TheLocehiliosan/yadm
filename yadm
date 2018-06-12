@@ -223,7 +223,7 @@ function alt() {
           YADM_HOSTNAME="$local_host" \
           YADM_USER="$local_user" \
           YADM_DISTRO=$(query_distro) \
-          "$ENVTPL_PROGRAM" < "$tracked_file" > "$real_file"
+          "$ENVTPL_PROGRAM" --keep-template "$tracked_file" -o "$real_file"
         else
           debug "envtpl not available, not creating $real_file from template $tracked_file"
           [ -n "$loud" ] && echo "envtpl not available, not creating $real_file from template $tracked_file"
