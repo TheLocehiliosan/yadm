@@ -23,6 +23,11 @@ test: bats shellcheck
 parallel:
 	ls test/*bats | time parallel -q -P0 -- docker run --rm -v "$$PWD:/yadm:ro" yadm/testbed bash -c 'bats {}'
 
+.PHONY: pytest
+pytest:
+	@echo Running all pytest tests
+	@pytest -v
+
 .PHONY: bats
 bats:
 	@echo Running all bats tests
@@ -58,3 +63,13 @@ man:
 .PHONY: wide
 wide:
 	man ./yadm.1
+
+.PHONY: sync-clock
+sync-clock:
+	docker run --rm --privileged alpine hwclock -s
+
+.PHONY: .env
+.env:
+	virtualenv --python=python3 .env
+	.env/bin/pip3 install --upgrade pip setuptools
+	.env/bin/pip3 install --upgrade pytest pylint==1.9.2 flake8==3.5.0
