@@ -376,13 +376,13 @@ EOF
 
     #; operate on the yadm repo's configuration file
     #; this is always local to the machine
-    git config --local "$@"
+    $GIT_PROGRAM config --local "$@"
 
     CHANGES_POSSIBLE=1
 
   else
     #; operate on the yadm configuration file
-    git config --file="$(mixed_path "$YADM_CONFIG")" "$@"
+    $GIT_PROGRAM config --file="$(mixed_path "$YADM_CONFIG")" "$@"
 
   fi
 
