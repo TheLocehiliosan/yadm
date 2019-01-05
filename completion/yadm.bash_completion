@@ -60,15 +60,17 @@ if declare -F _git > /dev/null; then
 		  ;;
     esac
 
+    local yadm_switches=( $(yadm introspect switches 2>/dev/null) )
+
     # this condition is so files are completed properly for --yadm-xxx options
-    if [[ ! "$penultimate" =~ ^- ]]; then
+    if [[ " ${yadm_switches[*]} " != *" $penultimate "* ]]; then
       # TODO: somehow solve the problem with [--yadm-xxx option] being
       #       incompatible with what git expects, namely [--arg=option]
       _git
     fi
     if [[ "$current" =~ ^- ]]; then
       local matching
-      matching=$(compgen -W "$(yadm introspect switches 2>/dev/null)" -- "$current")
+      matching=$(compgen -W "${yadm_switches[*]}" -- "$current")
       __gitcompappend "$matching"
     fi
 
