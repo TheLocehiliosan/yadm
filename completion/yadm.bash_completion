@@ -74,7 +74,19 @@ if declare -F _git > /dev/null; then
       __gitcompappend "$matching"
     fi
 
-    if [ "$COMP_CWORD" == 1 ] || [[ "$antepenultimate" =~ ^- ]] ; then
+    # Find the index of where the sub-command argument should go.
+    local command_idx
+    for (( command_idx=1 ; command_idx < ${#COMP_WORDS[@]} ; command_idx++ )); do
+      local command_idx_arg="${COMP_WORDS[$command_idx]}"
+      if [[ " ${yadm_switches[*]} " = *" $command_idx_arg "* ]]; then
+        let command_idx++
+      elif [[ "$command_idx_arg" = -* ]]; then
+        :
+      else
+        break
+      fi
+    done
+    if [[ "$COMP_CWORD" = "$command_idx" ]]; then
       local matching
       matching=$(compgen -W "$(yadm introspect commands 2>/dev/null)" -- "$current")
       __gitcompappend "$matching"
