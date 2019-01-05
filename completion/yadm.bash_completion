@@ -18,7 +18,7 @@ if declare -F _git > /dev/null; then
       antepenultimate=${COMP_WORDS[COMP_CWORD-2]}
     fi
 
-    local GIT_DIR
+    local -x GIT_DIR
     # shellcheck disable=SC2034
     GIT_DIR="$(yadm introspect repo 2>/dev/null)"
 
