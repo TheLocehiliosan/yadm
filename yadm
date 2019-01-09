@@ -389,6 +389,15 @@ EOF
 
 }
 
+function _get_openssl_ciphername() {
+    OPENSSL_CIPHERNAME="$(config yadm.openssl-ciphername)"
+    if [ -z "$OPENSSL_CIPHERNAME" ]; then
+      OPENSSL_CIPHERNAME="aes-256-cbc"
+    fi
+
+    echo "$OPENSSL_CIPHERNAME"
+}
+
 function _decrypt_from() {
 
   local output_archive
@@ -410,7 +419,8 @@ function _decrypt_from() {
     openssl)
       require_openssl
 
-      $OPENSSL_PROGRAM enc -d -aes256 -in "$output_archive"
+      OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
+      $OPENSSL_PROGRAM enc -d -$OPENSSL_CIPHERNAME -salt -in "$output_archive"
       ;;
 
     *)
@@ -452,13 +462,8 @@ function _encrypt_to() {
     openssl)
       require_openssl
 
-      #; Build openssl options for openssl
-      OPENSSL_CIPHERNAME="$(config yadm.openssl-ciphername)"
-      if [ -z "$OPENSSL_CIPHERNAME" ]; then
-        OPENSSL_CIPHERNAME="aes256"
-      fi
-
-      $OPENSSL_PROGRAM enc -"$OPENSSL_CIPHERNAME" -e -out "$output_archive"
+      OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
+      $OPENSSL_PROGRAM enc -e -$OPENSSL_CIPHERNAME -salt -out "$output_archive"
       ;;
 
     *)
