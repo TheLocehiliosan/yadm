@@ -797,7 +797,7 @@ function perms() {
   #; remove group/other permissions from collected globs
   #shellcheck disable=SC2068
   #(SC2068 is disabled because in this case, we desire globbing)
-  chmod -f go-rwx ${GLOBS[@]} >/dev/null 2>&1
+  chmod -R -f go-rwx ${GLOBS[@]} >/dev/null 2>&1
   #; TODO: detect and report changing permissions in a portable way
 
 }
