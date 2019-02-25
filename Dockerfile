@@ -19,6 +19,9 @@ RUN pip3 install envtpl pytest==3.6.4 pylint==1.9.2 flake8==3.5.0
 # Force GNUPG version 1 at path /usr/bin/gpg
 RUN ln -fs /usr/bin/gpg1 /usr/bin/gpg
 
+# Create a flag to identify when running inside the yadm testbed
+RUN touch /.yadmtestbed
+
 # /yadm will be the work directory for all tests
 # docker commands should mount the local yadm project as /yadm
 WORKDIR /yadm
