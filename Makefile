@@ -27,6 +27,13 @@ usage:
 	@echo '      The targeted "version" will be retrieved from the repo, and'
 	@echo '      linked into the container as a local volume.'
 	@echo
+	@echo '  make scripthost [version=VERSION]'
+	@echo '    - Create an ephemeral container for demonstrating a bug. After'
+	@echo '      exiting the shell, a log of the commands used to illustrate the'
+	@echo '      problem will be written to the file "script.txt". This file can'
+	@echo '      be useful to developers to make a repeatable test for the'
+	@echo '      problem.'
+	@echo
 	@echo 'LINTING'
 	@echo
 	@echo '  make testenv'
@@ -87,17 +94,39 @@ test:
 	fi
 
 .PHONY: testhost
-testhost:
-	@if ! command -v "docker" >/dev/null 2>&1; then \
-		echo "Sorry, this make target requires docker to be installed."; \
-		false; \
-	fi
+testhost: require-docker
 	@version=HEAD
 	@rm -rf /tmp/testhost
 	@git show $(version):yadm > /tmp/testhost
 	@chmod a+x /tmp/testhost
 	@echo Starting testhost version=\"$$version\"
-	@docker run -w /root --hostname testhost --rm -it -v "/tmp/testhost:/bin/yadm:ro" yadm/testbed:latest bash -l
+	@docker run \
+		-w /root \
+		--hostname testhost \
+		--rm -it \
+		-v "/tmp/testhost:/bin/yadm:ro" \
+		yadm/testbed:latest \
+		bash -l
+
+.PHONY: scripthost
+scripthost: require-docker
+	@version=HEAD
+	@rm -rf /tmp/testhost
+	@git show $(version):yadm > /tmp/testhost
+	@chmod a+x /tmp/testhost
+	@echo Starting scripthost version=\"$$version\" \(recording script\)
+	@printf '' > script.gz
+	@docker run \
+		-w /root \
+		--hostname scripthost \
+		--rm -it \
+		-v "$$PWD/script.gz:/script.gz:rw" \
+		-v "/tmp/testhost:/bin/yadm:ro" \
+		yadm/testbed:latest \
+		bash -c "script /tmp/script -q -c 'bash -l'; gzip < /tmp/script > /script.gz"
+	@echo
+	@echo "Script saved to $$PWD/script.gz"
+
 
 .PHONY: testenv
 testenv:
@@ -133,3 +162,10 @@ contrib:
 .PHONY: sync-clock
 sync-clock:
 	docker run --rm --privileged alpine hwclock -s
+
+.PHONY: require-docker
+require-docker:
+	@if ! command -v "docker" >/dev/null 2>&1; then \
+		echo "Sorry, this make target requires docker to be installed."; \
+		false; \
+	fi
