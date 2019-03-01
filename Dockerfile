@@ -13,8 +13,24 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN echo 'set -o vi' >> /root/.bashrc
 
 # Install prerequisites
-RUN apt-get update && apt-get install -y git gnupg1 make shellcheck=0.4.6-1 bats expect curl python3-pip lsb-release
-RUN pip3 install envtpl pytest==3.6.4 pylint==1.9.2 flake8==3.5.0
+RUN \
+  apt-get update && \
+  apt-get install -y \
+    curl \
+    expect \
+    git \
+    gnupg1 \
+    lsb-release \
+    make \
+    python3-pip \
+    shellcheck=0.4.6-1 \
+  ;
+RUN pip3 install \
+      envtpl \
+      pytest==3.6.4 \
+      pylint==1.9.2 \
+      flake8==3.5.0 \
+    ;
 
 # Force GNUPG version 1 at path /usr/bin/gpg
 RUN ln -fs /usr/bin/gpg1 /usr/bin/gpg
