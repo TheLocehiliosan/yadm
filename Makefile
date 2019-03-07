@@ -37,27 +37,29 @@ usage:
 	@echo 'LINTING'
 	@echo
 	@echo '  make testenv'
-	@echo '    - Create a python virtual environment with the dependencies used'
-	@echo "      by yadm's testbed environment. Creating and activating this"
-	@echo '      environment might be useful if your editor does real time'
+	@echo '    - Create a python virtual environment with the same dependencies'
+	@echo "      used by yadm's testbed environment. Creating and activating"
+	@echo '      this environment might be useful if your editor does real time'
 	@echo '      linting of python files. After creating the virtual environment,'
-	@echo '      you can activate it by typing'
+	@echo '      you can activate it by typing:'
+	@echo
+	@echo '          source testenv/bin/activate'
 	@echo
 	@echo 'MANPAGES'
 	@echo
 	@echo '  make man'
-	@echo '    - View yadm.1 as a standard manpage.'
+	@echo '    - View yadm.1 as a standard man page.'
 	@echo
 	@echo '  make man-wide'
-	@echo '    - View yadm.1 as a manpage, using all columns of your display.'
+	@echo '    - View yadm.1 as a man page, using all columns of your display.'
 	@echo
 	@echo '  make man-ps'
-	@echo '    - Create a postscript version of the manpage.'
+	@echo '    - Create a postscript version of the man page.'
 	@echo
 	@echo 'FILE GENERATION'
 	@echo
 	@echo '  make yadm.md'
-	@echo '    - Generate the markdown version of the manpage (for viewing on'
+	@echo '    - Generate the markdown version of the man page (for viewing on'
 	@echo '      the web).'
 	@echo
 	@echo '  make contrib'
