@@ -22,3 +22,7 @@ list.
 * [pendowski/dotfiles](https://github.com/pendowski/dotfiles)
 * [tonipes/dotfiles](https://github.com/tonipes/dotfiles)
 * [zamaterian/dotfiles](https://github.com/zamaterian/dotfiles)
+* [thingfox/dotfiles](https://github.com/thingfox/dotfiles) A documentation dotfile repository with a few examples:
+  - Jinja [bootstrap](https://yadm.io/docs/bootstrap) for specific classes, Workstation, Router, Virtual Machine
+  - Building dotfiles using Jinja with [`envtpl`](https://github.com/andreasjansson/envtpl) from private json files that are to be [encrypted](https://yadm.io/docs/encryption)
+  - [Alternate files](https://yadm.io/docs/alternates) file examples
