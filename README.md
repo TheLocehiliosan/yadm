@@ -3,6 +3,7 @@
 [![Latest Version][releases-badge]][releases-link]
 [![Homebrew Version][homebrew-badge]][homebrew-link]
 [![Copr Version][copr-badge]][copr-link]
+[![Arch Version][aur-badge]][aur-link]
 [![License][license-badge]][license-link]<br />
 [![Master Update][master-date]][master-commits]
 [![Develop Update][develop-date]][develop-commits]
@@ -24,6 +25,8 @@ Features, usage, examples and installation instructions can be found on the
 
 [Git]: https://git-scm.com/
 [GnuPG]: https://gnupg.org/
+[aur-badge]: https://img.shields.io/aur/version/yadm-git.svg
+[aur-link]: https://aur.archlinux.org/packages/yadm-git
 [copr-badge]: https://img.shields.io/badge/dynamic/json.svg?label=copr&prefix=v&query=%24..version&url=https%3A%2F%2Fcopr.fedorainfracloud.org%2Fapi_2%2Fbuilds%3Fproject_id%3D7041%26limit%3D1
 [copr-link]: https://copr.fedorainfracloud.org/coprs/thelocehiliosan/yadm/
 [develop-badge]: https://img.shields.io/travis/TheLocehiliosan/yadm/develop.svg?label=develop
