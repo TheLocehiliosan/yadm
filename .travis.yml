@@ -1,5 +1,5 @@
 ---
-language: bash
+language: minimal
 services:
   - docker
 before_install:
