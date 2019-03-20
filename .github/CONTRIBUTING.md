@@ -66,8 +66,8 @@ Include the version numbers of your operating system, of **yadm**, and of Git.
 ### Attaching a script.gz
 
 Consider trying to reproduce the bug inside a docker container using the
-[yadm/testbed][testbed] docker image. Doing so will greatly increase the
-likelihood of the problem being fixed.
+[yadm/testbed][] docker image. Doing so will greatly increase the likelihood of
+the problem being fixed.
 
 The easiest way to start this container, is to clone the [TheLocehiliosan/yadm
 repo][yadm-repo], and use the `scripthost` make target. _(You will need `make`
@@ -239,21 +239,22 @@ these principles when making changes.
 
 When updating the yadm code, please follow these guidelines:
 
-* ShellCheck
-    * Bash code should pass the scrutiny of [ShellCheck][shellcheck]. The
-      simplest way to quickly test this is to run:
-        * `make test testargs='-k shellcheck'`
+* Code linting
+    * Bash code should pass the scrutiny of [ShellCheck][shellcheck].
+    * Python code must pass the scrutiny of [pylint][] and [flake8][].
+    * Any YAML must pass the scrutiny of [yamllint][].
+    * Running `make test_syntax.py` is an easy way to run all linters.
 * Interface changes
     * Any changes to **yadm**'s interface should include a commit that updates
       the `yadm.1` man page.
 
 ### Test conventions
 
-The test system is written in Python 3 using [pytest][pytest]. Tests should be
-written for all bugs fixed and features added. To make testing portable and
-uniform, tests should be performed via the [yadm/testbed][testbed] docker image.
-The `Makefile` has several "make targets" for testing. Running `make` by itself
-will produce a help page.
+The test system is written in Python 3 using [pytest][]. Tests should be written
+for all bugs fixed and features added. To make testing portable and uniform,
+tests should be performed via the [yadm/testbed][] docker image. The `Makefile`
+has several "make targets" for testing. Running `make` by itself will produce a
+help page.
 
 Please follow these guidelines while writing tests:
 
@@ -268,10 +269,6 @@ Please follow these guidelines while writing tests:
     * Care should be taken to make tests run as efficiently as possible.
     * Scope large, unchanging, fixtures appropriately so they do not have to be
       recreated multiple times.
-* Linting
-    * Python code must pass the scrutiny of [pylint][pylint] and
-      [flake8][flake8]. The simplest way to quickly test this is to run:
-        * `make test testargs='-k pylint\ or\ flake8'`
 
 ### Commit conventions
 
@@ -311,10 +308,24 @@ That file is only updated during software releases.
 
 ### Website changes
 
-**NOTE:** A [website refactoring][refactor] is being performed soon, and it is
-unlikely that website changes will be accepted until this task is completed.
-Better instructions for testing and submitting website changes will be written
-during that refactor.
+The yadm.io website is generated using [Jekyll][jekyll]. The bulk of the
+documentation is created as an ordered collection within `_docs`. To make
+website testing easy and portable, use the [yadm/jekyll][] docker image. The
+`Makefile` has several "make targets" for testing. Running `make` by itself will
+produce a help page.
+
+* `make test`:
+    Perform tests done by continuous integration.
+* `make up`:
+    Start a container to locally test the website. The test website will be
+    hosted at http://localhost:4000/
+* `make clean`:
+    Remove previously built data any any Jekyll containers.
+
+When making website changes, be sure to adhere to [code](#code-conventions) and
+[commit](#commit-conventions) conventions. Use the same [GitHub
+workflow](#github-workflow) when creating a pull request. However use the
+`dev-pages` branch as a base instead of `develop`.
 
 # Maintaining packages
 
@@ -348,6 +359,8 @@ see if you can help.
 [flake8]: https://pypi.org/project/flake8/
 [groff-man]: https://www.gnu.org/software/groff/manual/html_node/man.html
 [hooks-help]: https://github.com/TheLocehiliosan/yadm/blob/master/yadm.md#hooks
+[html-proofer]: https://github.com/gjtorikian/html-proofer
+[jekyll]: https://jekyllrb.com
 [new-bug]: https://github.com/TheLocehiliosan/yadm/issues/new?template=BUG_REPORT.md
 [new-feature]: https://github.com/TheLocehiliosan/yadm/issues/new?template=FEATURE_REQUEST.md
 [open-issues]: https://github.com/TheLocehiliosan/yadm/issues
@@ -358,7 +371,9 @@ see if you can help.
 [refactor]: https://github.com/TheLocehiliosan/yadm/issues/146
 [shellcheck]: https://www.shellcheck.net
 [signing-commits]: https://help.github.com/en/articles/signing-commits
-[testbed]: https://hub.docker.com/r/yadm/testbed
 [tpope-style]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [yadm-man]: https://github.com/TheLocehiliosan/yadm/blob/master/yadm.md
 [yadm-repo]: https://github.com/TheLocehiliosan/yadm
+[yadm/jekyll]: https://hub.docker.com/r/yadm/jekyll
+[yadm/testbed]: https://hub.docker.com/r/yadm/testbed
+[yamllint]: https://github.com/adrienverge/yamllint
