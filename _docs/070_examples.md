@@ -2,6 +2,7 @@
 title: "Example Dotfiles"
 permalink: /docs/examples
 ---
+<a name=""></a><!-- Anchor "#" used at the ends of pagination -->
 Need some inspiration? Here are some public dotfiles repositories managed by
 **yadm**. Drop me a line if you have a dotfiles repo you'd like added to this
 list.

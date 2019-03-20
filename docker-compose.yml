@@ -1,0 +1,10 @@
+---
+version: '3'
+services:
+  website:
+    image: jekyll/jekyll:3.8.5
+    ports:
+      - 4000:4000
+    volumes:
+      - .:/srv/jekyll
+    command: jekyll serve --config _config.yml,_dev.yml -t --watch --incremental

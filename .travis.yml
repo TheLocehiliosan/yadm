@@ -1,0 +1,16 @@
+---
+env:
+  - IMAGE="jekyll/jekyll:3.8.5"
+language: minimal
+services:
+  - docker
+before_install:
+  - docker pull $IMAGE
+  - docker create -t --name yadm-website --entrypoint test/travis-ci $IMAGE
+  - docker cp ./ yadm-website:/srv/jekyll
+script:
+  - docker start yadm-website -a
+branches:  # necessary to force builds of gh-pages:
+  only:
+    - gh-pages
+    - "/.*/"

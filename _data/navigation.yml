@@ -1,19 +1,18 @@
+---
 main:
   - title: '
-<a class="github-button" href="https://github.com/TheLocehiliosan/yadm"
-data-icon="octicon-star" data-style="mega"
-data-count-href="/TheLocehiliosan/yadm/stargazers"
-data-count-api="/repos/TheLocehiliosan/yadm#stargazers_count"
-data-count-aria-label="# stargazers on GitHub" aria-label="Star
-TheLocehiliosan/yadm on GitHub">Star</a>
+<a href="https://github.com/TheLocehiliosan/yadm/stargazers">
+<img
+src="https://img.shields.io/github/stars/TheLocehiliosan/yadm.svg?style=social"
+alt="Stars">
+</a>
 '
-  - title: '<div/>'
   - title: '
-<a class="github-button" href="https://github.com/TheLocehiliosan/yadm/issues"
-data-icon="octicon-issue-opened" data-style="mega"
-data-count-api="/repos/TheLocehiliosan/yadm#open_issues_count"
-data-count-aria-label="# issues on GitHub" aria-label="Issue
-TheLocehiliosan/yadm on GitHub">Issue</a>
+<a href="https://github.com/TheLocehiliosan/yadm/watchers">
+<img
+src="https://img.shields.io/github/watchers/TheLocehiliosan/yadm.svg?style=social"
+alt="Watchers">
+</a>
 '
 docs:
   - title: Basics

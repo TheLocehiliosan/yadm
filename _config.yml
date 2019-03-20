@@ -1,147 +1,68 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your entire site, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# `jekyll serve`. If you change this file, please restart the server process.
+---
+# Theme
+remote_theme: mmistakes/minimal-mistakes@4.15.2
+minimal_mistakes_skin: default
 
 # Site Settings
-locale                   : "en-US"
-title                    : "yadm"
-title_separator          : "-"
-name                     : "yadm"
-description              : "Yet Another Dotfiles Manager"
-url                      : "https://yadm.io"
-baseurl                  : ""
-repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
-teaser                   : # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
-# breadcrumbs            : false # true, false (default)
-words_per_minute         : 200
-comments:
-  provider               : # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "custom"
-  disqus:
-    shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
-  discourse:
-    server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
-  facebook:
-    # https://developers.facebook.com/docs/plugins/comments
-    appid                :
-    num_posts            : # 5 (default)
-    colorscheme          : # "light" (default), "dark"
-staticman:
-  allowedFields          : ['name', 'email', 'url', 'message']
-  branch                 : # "master", "gh-pages"
-  commitMessage          : "New comment."
-  filename               : comment-{@timestamp}
-  format                 : "yml"
-  moderation             : true
-  path                   : "_data/comments/{options.slug}"
-  requiredFields         : ['name', 'email', 'message']
-  transforms:
-    email                : "md5"
-  generatedFields:
-    date:
-      type               : "date"
-      options:
-        format           : "iso8601" # "iso8601" (default), "timestamp-seconds", "timestamp-milliseconds"
-atom_feed:
-  path                   : # blank (default) uses feed.xml
-
-# SEO Related
-google_site_verification :
-bing_site_verification   :
-alexa_site_verification  :
-yandex_site_verification :
+locale: en-US
+title: yadm
+title_separator: "-"
+name: Tim Byrne
+description: Yet Another Dotfiles Manager
+url: https://yadm.io
+repository: TheLocehiliosan/yadm
 
 # Social Sharing
 twitter:
-  username               : "TheLocehiliosan"
-facebook:
-  username               :
-  app_id                 :
-  publisher              :
-og_image                 : # Open Graph/Twitter default site image
-# For specifying social profiles
-# - https://developers.google.com/structured-data/customize/social-profiles
-social:
-  type                   : # Person or Organization (defaults to Person)
-  name                   : # If the user or organization name differs from the site's name
-  links: # An array of links to social media profiles
+  username: TheLocehiliosan
+
+footer:
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: https://github.com/TheLocehiliosan
+    - label: "Twitter"
+      icon: "fab fa-fw fa-twitter-square"
+      url: https://twitter.com/TheLocehiliosan
+
+atom_feed: false
+# path: false
 
 # Analytics
 analytics:
-  provider               : "google-universal"
+  provider: google-universal
   google:
-    tracking_id          : "UA-83783540-1"
-
+    tracking_id: UA-83783540-1
 
 # Site Author
 author:
-  name             : "Tim Byrne"
-  avatar           : "bio-photo.jpg"
-  bio              : ""
-  location         :
-  email            : "sultan@locehilios.com"
-  uri              :
-  bitbucket        :
-  codepen          :
-  dribbble         :
-  flickr           :
-  facebook         :
-  foursquare       :
-  github           : "TheLocehiliosan/yadm"
-  google_plus      :
-  keybase          :
-  instagram        :
-  lastfm           :
-  linkedin         :
-  pinterest        :
-  soundcloud       :
-  stackoverflow    : # http://stackoverflow.com/users/123456/username
-  steam            :
-  tumblr           :
-  twitter          : "TheLocehiliosan"
-  vine             :
-  weibo            :
-  xing             :
-  youtube          :
-
+  name: Tim Byrne
+  email: sultan@locehilios.com
+  links:
+    - label: Email
+      icon: fas fa-fw fa-envelope-square
+      url: mailto:sultan@locehilios.com
+    - label: Twitter
+      icon: fab fa-fw fa-twitter-square
+      url: https://twitter.com/TheLocehiliosan
+    - label: GitHub
+      icon: fab fa-fw fa-github
+      url: https://github.com/TheLocehiliosan
 
 # Reading Files
 include:
-  - .htaccess
+  - _docs
   - _pages
 exclude:
+  - CNAME
+  - Gemfile*
   - Makefile
-  - "*.sublime-project"
-  - "*.sublime-workspace"
-  - vendor
-  - .asset-cache
-  - .bundle
-  - .jekyll-assets-cache
-  - .sass-cache
-  - assets/js/plugins
-  - assets/js/_main.js
-  - assets/js/vendor
-  - Capfile
-  - CHANGELOG
-  - config
-  - Gemfile
-  - Gruntfile.js
-  - gulpfile.js
-  - LICENSE
-  - log
-  - node_modules
-  - package.json
-  - Rakefile
-  - README
-  - tmp
+  - docker-compose.yml
+  - test*
 keep_files:
   - .git
-  - .svn
-encoding: "utf-8"
-markdown_ext: "markdown,mkdown,mkdn,mkd,md"
-
+encoding: utf-8
+markdown_ext: markdown,mkdown,mkdn,mkd,md
 
 # Conversion
 markdown: kramdown
@@ -149,7 +70,6 @@ highlighter: rouge
 lsi: false
 excerpt_separator: "\n\n"
 incremental: false
-
 
 # Markdown Processing
 kramdown:
@@ -168,42 +88,24 @@ collections:
     output: true
     permalink: /:collection/:path/
 
-# Defaults
-defaults:
-  # _docs
-  - scope:
-      path: ""
-      type: docs
-    values:
-      layout: single
-      read_time: false
-      author_profile: false
-      share: false
-      comments: false
-      sidebar:
-        nav: "docs"
-
-
 # Sass/SCSS
 sass:
   sass_dir: _sass
-  style: compressed # http://sass-lang.com/documentation/file.SASS_REFERENCE.html#output_style
-
+  style: compressed
 
 # Outputting
 permalink: /:categories/:title/
-#paginate: 5 # amount of posts to show
-#paginate_path: /page:num/
-timezone: # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+# paginate: 5
+# paginate_path: /page:num/
 
-
-# Plugins
-gems:
+# Plugins (previously gems:)
+plugins:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-gist
   - jekyll-feed
   - jemoji
+  - jekyll-include-cache
 
 # mimic GitHub Pages with --safe
 whitelist:
@@ -212,11 +114,12 @@ whitelist:
   - jekyll-gist
   - jekyll-feed
   - jemoji
-
+  - jekyll-include-cache
 
 # Archives
 #  Type
-#  - GitHub Pages compatible archive pages built with Liquid ~> type: liquid (default)
+#  - GitHub Pages compatible archive pages built with Liquid ~> type: liquid
+#  (default)
 #  - Jekyll Archives plugin archive pages ~> type: jekyll-archives
 #  Path (examples)
 #  - Archive page should exist at path when using Liquid method or you can
@@ -242,10 +145,23 @@ tag_archive:
 #     category: /categories/:name/
 #     tag: /tags/:name/
 
-
 # HTML Compression
 # - http://jch.penibelst.de/
 compress_html:
   clippings: all
   ignore:
     envs: development
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: docs
+    values:
+      layout: single
+      read_time: false
+      author_profile: false
+      share: false
+      comments: false
+      sidebar:
+        nav: docs

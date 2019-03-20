@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+msg() {
+  echo -e "\e[1;32m$*\e[0m"
+}
+
+gem install html-proofer
+msg Success: Installed html-proofer
+
+jekyll build -t --config _config.yml,_dev.yml
+msg Success: Built jekyll site
+
+jekyll serve --skip-initial-build --detach
+msg Success: Serving jekyll site locally
+
+/usr/gem/bin/htmlproofer \
+  --assume-extension \
+  --log-level=debug \
+  --http-status-ignore 429 \
+  _site
+msg Success: Validated site with html-proofer

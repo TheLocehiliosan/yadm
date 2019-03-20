@@ -2,6 +2,7 @@
 title: "Overview"
 permalink: /docs/overview
 ---
+<a name=""></a><!-- Anchor "#" used at the ends of pagination -->
 > You've spent time tweaking your computing environment. Everything operates the
   way you want. That's fantastic! Then your hard drive fails, and the computer
   needs to be rebuilt. **yadm** can restore you configurations.
