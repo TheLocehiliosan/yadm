@@ -10,6 +10,8 @@
 [![Website Update][website-date]][website-commits]<br />
 [![Master Status][master-badge]][travis-ci]
 [![Develop Status][develop-badge]][travis-ci]
+[![GH Pages Status][gh-pages-badge]][travis-ci]
+[![Dev Pages Status][dev-pages-badge]][travis-ci]
 
 [https://yadm.io/][website-link]
 
@@ -29,10 +31,12 @@ Features, usage, examples and installation instructions can be found on the
 [aur-link]: https://aur.archlinux.org/packages/yadm-git
 [copr-badge]: https://img.shields.io/badge/dynamic/json.svg?label=copr&prefix=v&query=%24..version&url=https%3A%2F%2Fcopr.fedorainfracloud.org%2Fapi_2%2Fbuilds%3Fproject_id%3D7041%26limit%3D1
 [copr-link]: https://copr.fedorainfracloud.org/coprs/thelocehiliosan/yadm/
+[dev-pages-badge]: https://img.shields.io/travis/TheLocehiliosan/yadm/dev-pages.svg?label=dev-pages
 [develop-badge]: https://img.shields.io/travis/TheLocehiliosan/yadm/develop.svg?label=develop
 [develop-commits]: https://github.com/TheLocehiliosan/yadm/commits/develop
 [develop-date]: https://img.shields.io/github/last-commit/TheLocehiliosan/yadm/develop.svg?label=develop
 [dotfiles]: https://en.wikipedia.org/wiki/Hidden_file_and_hidden_directory
+[gh-pages-badge]: https://img.shields.io/travis/TheLocehiliosan/yadm/gh-pages.svg?label=gh-pages
 [homebrew-badge]: https://img.shields.io/homebrew/v/yadm.svg
 [homebrew-link]: https://formulae.brew.sh/formula/yadm
 [license-badge]: https://img.shields.io/github/license/TheLocehiliosan/yadm.svg
