@@ -29,6 +29,12 @@ def flake8_version():
 
 
 @pytest.fixture(scope='session')
+def yamllint_version():
+    """Version of yamllint supported"""
+    return '1.15.0'
+
+
+@pytest.fixture(scope='session')
 def tst_user():
     """Test session's user id"""
     return pwd.getpwuid(os.getuid()).pw_name

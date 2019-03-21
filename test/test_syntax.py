@@ -39,3 +39,14 @@ def test_flake8(runner, flake8_version):
         pytest.skip('Unsupported flake8 version')
     run = runner(command=['flake8', 'test'])
     assert run.success
+
+
+def test_yamllint(runner, yamllint_version):
+    """Passes yamllint"""
+    run = runner(command=['yamllint', '--version'], report=False)
+    if not run.out.strip().endswith(yamllint_version):
+        pytest.skip('Unsupported yamllint version')
+    run = runner(
+        command=['yamllint', '-s', '$(find . -name \\*.yml)'],
+        shell=True)
+    assert run.success
