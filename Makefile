@@ -136,7 +136,12 @@ testenv:
 	@echo
 	virtualenv --python=python3 testenv
 	testenv/bin/pip3 install --upgrade pip setuptools
-	testenv/bin/pip3 install --upgrade pytest pylint==1.9.2 flake8==3.5.0
+	testenv/bin/pip3 install --upgrade \
+		flake8==3.5.0 \
+		pylint==1.9.2 \
+		pytest \
+		yamllint==1.15.0 \
+	;
 	@echo
 	@echo 'To activate this test environment type:'
 	@echo '  source testenv/bin/activate'
