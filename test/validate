@@ -5,8 +5,8 @@ msg() {
   echo -e "\e[1;32m$*\e[0m"
 }
 
-gem install html-proofer
-msg Success: Installed html-proofer
+find . -name \*.yml -print0 | xargs -0 yamllint -s
+msg Success: yamllint passed
 
 jekyll build -t --config _config.yml,_dev.yml
 msg Success: Built jekyll site
