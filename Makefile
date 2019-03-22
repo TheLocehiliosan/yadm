@@ -13,7 +13,7 @@ usage:
 	@echo 'TESTING'
 	@echo
 	@echo '  make test'
-	@echo '    - Perform tests done by travis-ci.'
+	@echo '    - Perform tests done by continuous integration.'
 	@echo '      This target will:'
 	@echo '        - Remove previously built data'
 	@echo '        - Build the site'
@@ -40,7 +40,7 @@ usage:
 
 .PHONY: test
 test: require-docker-compose clean
-	docker-compose run --rm website test/travis-ci
+	docker-compose run --rm website test/validate
 
 .PHONY: up
 up: require-docker-compose

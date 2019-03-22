@@ -2,7 +2,7 @@
 version: '3'
 services:
   website:
-    image: jekyll/jekyll:3.8.5
+    image: yadm/jekyll:latest
     ports:
       - 4000:4000
     volumes:
