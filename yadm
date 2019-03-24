@@ -956,7 +956,11 @@ function parse_encrypt() {
       done
       [ -n "$skip" ] || FINAL_INCLUDE+=("$included")
     done
-    ENCRYPT_INCLUDE_FILES=("${FINAL_INCLUDE[@]}")
+
+    #; sort the encrypted files
+    #shellcheck disable=SC2207
+    IFS=$'\n' ENCRYPT_INCLUDE_FILES=($(sort <<<"${FINAL_INCLUDE[*]}"))
+    unset IFS
   fi
 
 }

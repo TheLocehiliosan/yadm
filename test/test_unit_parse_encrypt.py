@@ -140,6 +140,10 @@ def test_file_parse_encrypt(runner, paths):
     for expected_file in expected:
         assert f'EIF:{expected_file}\n' in run.out
 
+    sorted_expectations = '\n'.join(
+        [f'EIF:{exp}' for exp in sorted(expected)])
+    assert sorted_expectations in run.out
+
 
 def run_parse_encrypt(
         runner, paths,
@@ -162,6 +166,7 @@ def run_parse_encrypt(
         export YADM_ENCRYPT
         GIT_DIR={paths.repo}
         export GIT_DIR
+        LC_ALL=C
         {parse_cmd}
         export ENCRYPT_INCLUDE_FILES
         export PARSE_ENCRYPT_SHORT
