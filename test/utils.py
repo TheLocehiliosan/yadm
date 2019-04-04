@@ -7,6 +7,11 @@ import os
 
 ALT_FILE1 = 'test_alt'
 ALT_FILE2 = 'test alt/test alt'
+ALT_DIR = 'test alt/test alt dir'
+
+# Directory based alternates must have a tracked contained file.
+# This will be the test contained file name
+CONTAINED = 'contained_file'
 
 
 def set_local(paths, variable, value):
@@ -29,31 +34,37 @@ def create_alt_files(paths, suffix,
     """
 
     if not preserve:
-        if paths.work.join(ALT_FILE1).exists():
-            paths.work.join(ALT_FILE1).remove(rec=1, ignore_errors=True)
-            assert not paths.work.join(ALT_FILE1).exists()
-        if paths.work.join(ALT_FILE2).exists():
-            paths.work.join(ALT_FILE2).remove(rec=1, ignore_errors=True)
-            assert not paths.work.join(ALT_FILE2).exists()
+        for remove_path in (ALT_FILE1, ALT_FILE2, ALT_DIR):
+            if paths.work.join(remove_path).exists():
+                paths.work.join(remove_path).remove(rec=1, ignore_errors=True)
+                assert not paths.work.join(remove_path).exists()
 
     new_file1 = paths.work.join(ALT_FILE1 + suffix)
     new_file1.write(ALT_FILE1 + suffix, ensure=True)
     new_file2 = paths.work.join(ALT_FILE2 + suffix)
     new_file2.write(ALT_FILE2 + suffix, ensure=True)
-    if content:
-        new_file1.write('\n' + content, mode='a', ensure=True)
-        new_file2.write('\n' + content, mode='a', ensure=True)
-    assert new_file1.exists()
-    assert new_file2.exists()
+    new_dir = paths.work.join(ALT_DIR + suffix).join(CONTAINED)
+    new_dir.write(ALT_DIR + suffix, ensure=True)
+
+    # Do not test directory support for jinja alternates
+    test_paths = [new_file1, new_file2]
+    test_names = [ALT_FILE1, ALT_FILE2]
+    if suffix != '##yadm.j2':
+        test_paths += [new_dir]
+        test_names += [ALT_DIR]
+
+    for test_path in test_paths:
+        if content:
+            test_path.write('\n' + content, mode='a', ensure=True)
+        assert test_path.exists()
 
     if tracked:
-        for path in (new_file1, new_file2):
-            os.system(f'GIT_DIR={str(paths.repo)} git add "{path}"')
+        for track_path in test_paths:
+            os.system(f'GIT_DIR={str(paths.repo)} git add "{track_path}"')
         os.system(f'GIT_DIR={str(paths.repo)} git commit -m "Add test files"')
 
     if encrypt:
-        paths.encrypt.write(f'{ALT_FILE1 + suffix}\n', mode='a')
-        paths.encrypt.write(f'{ALT_FILE2 + suffix}\n', mode='a')
-        if exclude:
-            paths.encrypt.write(f'!{ALT_FILE1 + suffix}\n', mode='a')
-            paths.encrypt.write(f'!{ALT_FILE2 + suffix}\n', mode='a')
+        for encrypt_name in test_names:
+            paths.encrypt.write(f'{encrypt_name + suffix}\n', mode='a')
+            if exclude:
+                paths.encrypt.write(f'!{encrypt_name + suffix}\n', mode='a')

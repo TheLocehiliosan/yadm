@@ -3,6 +3,7 @@
 import os
 import re
 import string
+import py
 import pytest
 import utils
 
@@ -32,6 +33,8 @@ WILD_TEMPLATES = [
     '##$tst_class.$tst_sys.$tst_host',
     '##$tst_class.$tst_sys.$tst_host.$tst_user',
     ]
+
+TEST_PATHS = [utils.ALT_FILE1, utils.ALT_FILE2, utils.ALT_DIR]
 
 WILD_TESTED = set()
 
@@ -90,12 +93,18 @@ def test_alt(runner, yadm_y, paths,
     linked = linked_list(run.out)
 
     # assert the proper linking has occurred
-    for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
+    for file_path in TEST_PATHS:
         source_file = file_path + precedence[precedence_index]
         if tracked or (encrypt and not exclude):
             assert paths.work.join(file_path).islink()
-            assert paths.work.join(file_path).read() == source_file
-            assert str(paths.work.join(source_file)) in linked
+            target = py.path.local(paths.work.join(file_path).readlink())
+            if target.isfile():
+                assert paths.work.join(file_path).read() == source_file
+                assert str(paths.work.join(source_file)) in linked
+            else:
+                assert paths.work.join(file_path).join(
+                    utils.CONTAINED).read() == source_file
+                assert str(paths.work.join(source_file)) in linked
         else:
             assert not paths.work.join(file_path).exists()
             assert str(paths.work.join(source_file)) not in linked
@@ -169,8 +178,7 @@ def test_wild(request, runner, yadm_y, paths,
     test_key = f'{tracked}{encrypt}{wild_suffix}{std_suffix}'
     if test_key in WILD_TESTED:
         return
-    else:
-        WILD_TESTED.add(test_key)
+    WILD_TESTED.add(test_key)
 
     # set the class
     utils.set_local(paths, 'class', tst_class)
@@ -186,11 +194,17 @@ def test_wild(request, runner, yadm_y, paths,
     linked = linked_list(run.out)
 
     # assert the proper linking has occurred
-    for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
+    for file_path in TEST_PATHS:
         source_file = file_path + wild_suffix
         assert paths.work.join(file_path).islink()
-        assert paths.work.join(file_path).read() == source_file
-        assert str(paths.work.join(source_file)) in linked
+        target = py.path.local(paths.work.join(file_path).readlink())
+        if target.isfile():
+            assert paths.work.join(file_path).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
+        else:
+            assert paths.work.join(file_path).join(
+                utils.CONTAINED).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
 
     # create files using the standard suffix
     utils.create_alt_files(paths, std_suffix, tracked=tracked,
@@ -203,11 +217,17 @@ def test_wild(request, runner, yadm_y, paths,
     linked = linked_list(run.out)
 
     # assert the proper linking has occurred
-    for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
+    for file_path in TEST_PATHS:
         source_file = file_path + std_suffix
         assert paths.work.join(file_path).islink()
-        assert paths.work.join(file_path).read() == source_file
-        assert str(paths.work.join(source_file)) in linked
+        target = py.path.local(paths.work.join(file_path).readlink())
+        if target.isfile():
+            assert paths.work.join(file_path).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
+        else:
+            assert paths.work.join(file_path).join(
+                utils.CONTAINED).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
 
 
 @pytest.mark.usefixtures('ds1_copy')
@@ -235,11 +255,17 @@ def test_local_override(runner, yadm_y, paths,
     linked = linked_list(run.out)
 
     # assert the proper linking has occurred
-    for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
+    for file_path in TEST_PATHS:
         source_file = file_path + '##or-class.or-os.or-hostname.or-user'
         assert paths.work.join(file_path).islink()
-        assert paths.work.join(file_path).read() == source_file
-        assert str(paths.work.join(source_file)) in linked
+        target = py.path.local(paths.work.join(file_path).readlink())
+        if target.isfile():
+            assert paths.work.join(file_path).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
+        else:
+            assert paths.work.join(file_path).join(
+                utils.CONTAINED).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
 
 
 @pytest.mark.parametrize('suffix', ['AAA', 'ZZZ', 'aaa', 'zzz'])
@@ -267,11 +293,17 @@ def test_class_case(runner, yadm_y, paths, tst_sys, suffix):
     linked = linked_list(run.out)
 
     # assert the proper linking has occurred
-    for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
+    for file_path in TEST_PATHS:
         source_file = file_path + f'##{suffix}'
         assert paths.work.join(file_path).islink()
-        assert paths.work.join(file_path).read() == source_file
-        assert str(paths.work.join(source_file)) in linked
+        target = py.path.local(paths.work.join(file_path).readlink())
+        if target.isfile():
+            assert paths.work.join(file_path).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
+        else:
+            assert paths.work.join(file_path).join(
+                utils.CONTAINED).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
 
 
 @pytest.mark.parametrize('autoalt', [None, 'true', 'false'])
@@ -294,15 +326,22 @@ def test_auto_alt(runner, yadm_y, paths, autoalt):
     linked = linked_list(run.out)
 
     # assert the proper linking has occurred
-    for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
+    for file_path in TEST_PATHS:
         source_file = file_path + suffix
         if autoalt == 'false':
             assert not paths.work.join(file_path).exists()
         else:
             assert paths.work.join(file_path).islink()
-            assert paths.work.join(file_path).read() == source_file
-            # no linking output when run via auto-alt
-            assert str(paths.work.join(source_file)) not in linked
+            target = py.path.local(paths.work.join(file_path).readlink())
+            if target.isfile():
+                assert paths.work.join(file_path).read() == source_file
+                # no linking output when run via auto-alt
+                assert str(paths.work.join(source_file)) not in linked
+            else:
+                assert paths.work.join(file_path).join(
+                    utils.CONTAINED).read() == source_file
+                # no linking output when run via auto-alt
+                assert str(paths.work.join(source_file)) not in linked
 
 
 @pytest.mark.parametrize('delimiter', ['.', '_'])
@@ -324,12 +363,18 @@ def test_delimiter(runner, yadm_y, paths,
 
     # assert the proper linking has occurred
     # only a delimiter of '.' is valid
-    for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
+    for file_path in TEST_PATHS:
         source_file = file_path + suffix
         if delimiter == '.':
             assert paths.work.join(file_path).islink()
-            assert paths.work.join(file_path).read() == source_file
-            assert str(paths.work.join(source_file)) in linked
+            target = py.path.local(paths.work.join(file_path).readlink())
+            if target.isfile():
+                assert paths.work.join(file_path).read() == source_file
+                assert str(paths.work.join(source_file)) in linked
+            else:
+                assert paths.work.join(file_path).join(
+                    utils.CONTAINED).read() == source_file
+                assert str(paths.work.join(source_file)) in linked
         else:
             assert not paths.work.join(file_path).exists()
             assert str(paths.work.join(source_file)) not in linked
