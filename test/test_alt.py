@@ -380,6 +380,56 @@ def test_delimiter(runner, yadm_y, paths,
             assert str(paths.work.join(source_file)) not in linked
 
 
+@pytest.mark.usefixtures('ds1_copy')
+def test_invalid_links_removed(runner, yadm_y, paths):
+    """Links to invalid alternative files are removed
+
+    This test ensures that when an already linked alternative becomes invalid
+    due to a change in class, the alternate link is removed.
+    """
+
+    # set the class
+    tst_class = 'testclass'
+    utils.set_local(paths, 'class', tst_class)
+
+    # create files which match the test class
+    utils.create_alt_files(paths, f'##{tst_class}')
+
+    # run alt to trigger linking
+    run = runner(yadm_y('alt'))
+    assert run.success
+    assert run.err == ''
+    linked = linked_list(run.out)
+
+    # assert the proper linking has occurred
+    for file_path in TEST_PATHS:
+        source_file = file_path + '##' + tst_class
+        assert paths.work.join(file_path).islink()
+        target = py.path.local(paths.work.join(file_path).readlink())
+        if target.isfile():
+            assert paths.work.join(file_path).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
+        else:
+            assert paths.work.join(file_path).join(
+                utils.CONTAINED).read() == source_file
+            assert str(paths.work.join(source_file)) in linked
+
+    # change the class so there are no valid alternates
+    utils.set_local(paths, 'class', 'changedclass')
+
+    # run alt to trigger linking
+    run = runner(yadm_y('alt'))
+    assert run.success
+    assert run.err == ''
+    linked = linked_list(run.out)
+
+    # assert the linking is removed
+    for file_path in TEST_PATHS:
+        source_file = file_path + '##' + tst_class
+        assert not paths.work.join(file_path).exists()
+        assert str(paths.work.join(source_file)) not in linked
+
+
 def linked_list(output):
     """Parse output, and return list of linked files"""
     linked = dict()
