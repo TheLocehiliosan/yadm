@@ -181,29 +181,27 @@ function alt() {
   for match in $match1 $match2; do
     last_linked=''
     local IFS=$'\n'
-    for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
-      tracked_file="$YADM_WORK/$tracked_file"
-      # process both the path, and it's parent directory
-      for alt_path in "$tracked_file" "${tracked_file%/*}"; do
-        if [ -e "$alt_path" ] ; then
-          if [[ $alt_path =~ $match ]] ; then
-            if [ "$alt_path" != "$last_linked" ] ; then
-              new_link="${BASH_REMATCH[1]}"
-              debug "Linking $alt_path to $new_link"
-              [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
-              if [ "$do_copy" -eq 1 ]; then
-                if [ -L "$new_link" ]; then
-                  rm -f "$new_link"
-                fi
-                cp -f "$alt_path" "$new_link"
-              else
-                ln -nfs "$alt_path" "$new_link"
+    # the alt_paths looped over here are a unique sorted list of both files and their immediate parent directory
+    for alt_path in $(for tracked in $("$GIT_PROGRAM" ls-files); do printf "%s\n" "$tracked" "${tracked%/*}"; done | sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+      alt_path="$YADM_WORK/$alt_path"
+      if [ -e "$alt_path" ] ; then
+        if [[ $alt_path =~ $match ]] ; then
+          if [ "$alt_path" != "$last_linked" ] ; then
+            new_link="${BASH_REMATCH[1]}"
+            debug "Linking $alt_path to $new_link"
+            [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
+            if [ "$do_copy" -eq 1 ]; then
+              if [ -L "$new_link" ]; then
+                rm -f "$new_link"
               fi
-              last_linked="$alt_path"
+              cp -f "$alt_path" "$new_link"
+            else
+              ln -nfs "$alt_path" "$new_link"
             fi
+            last_linked="$alt_path"
           fi
         fi
-      done
+      fi
     done
   done
 
