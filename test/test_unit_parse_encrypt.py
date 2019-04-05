@@ -166,7 +166,6 @@ def run_parse_encrypt(
         export YADM_ENCRYPT
         GIT_DIR={paths.repo}
         export GIT_DIR
-        LC_ALL=C
         {parse_cmd}
         export ENCRYPT_INCLUDE_FILES
         export PARSE_ENCRYPT_SHORT

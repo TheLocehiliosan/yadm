@@ -182,7 +182,7 @@ function alt() {
     last_linked=''
     local IFS=$'\n'
     # the alt_paths looped over here are a unique sorted list of both files and their immediate parent directory
-    for alt_path in $(for tracked in $("$GIT_PROGRAM" ls-files); do printf "%s\n" "$tracked" "${tracked%/*}"; done | sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    for alt_path in $(for tracked in $("$GIT_PROGRAM" ls-files); do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
       alt_path="$YADM_WORK/$alt_path"
       if [ -e "$alt_path" ] ; then
         if [[ $alt_path =~ $match ]] ; then
@@ -209,7 +209,7 @@ function alt() {
   # for every file which is a *##yadm.j2 create a real file
   local IFS=$'\n'
   local match="^(.+)##yadm\\.j2$"
-  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+  for tracked_file in $("$GIT_PROGRAM" ls-files | LC_ALL=C sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
@@ -957,7 +957,7 @@ function parse_encrypt() {
 
     # sort the encrypted files
     #shellcheck disable=SC2207
-    IFS=$'\n' ENCRYPT_INCLUDE_FILES=($(sort <<<"${FINAL_INCLUDE[*]}"))
+    IFS=$'\n' ENCRYPT_INCLUDE_FILES=($(LC_ALL=C sort <<<"${FINAL_INCLUDE[*]}"))
     unset IFS
   fi
 
