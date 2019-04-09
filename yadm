@@ -176,13 +176,20 @@ function alt() {
     fi
   fi
 
+  # process the files tracked by yadm once, this info is used multiple times
+  tracked_files=()
+  local IFS=$'\n'
+  for tracked_file in $("$GIT_PROGRAM" ls-files | LC_ALL=C sort); do
+    tracked_files+=("$tracked_file")
+  done
+
   # loop over all "tracked" files
   # for every file which matches the above regex, create a symlink
   for match in $match1 $match2; do
     last_linked=''
     local IFS=$'\n'
     # the alt_paths looped over here are a unique sorted list of both files and their immediate parent directory
-    for alt_path in $(for tracked in $("$GIT_PROGRAM" ls-files); do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
       alt_path="$YADM_WORK/$alt_path"
       if [ -e "$alt_path" ] ; then
         if [[ $alt_path =~ $match ]] ; then
@@ -207,9 +214,8 @@ function alt() {
 
   # loop over all "tracked" files
   # for every file which is a *##yadm.j2 create a real file
-  local IFS=$'\n'
   local match="^(.+)##yadm\\.j2$"
-  for tracked_file in $("$GIT_PROGRAM" ls-files | LC_ALL=C sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+  for tracked_file in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
