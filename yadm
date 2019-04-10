@@ -183,6 +183,16 @@ function alt() {
     tracked_files+=("$tracked_file")
   done
 
+  # generate a list of possible alt files
+  possible_alts=()
+  local IFS=$'\n'
+  for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    if [[ $possible_alt =~ .\#\#. ]]; then
+      possible_alts+=("$YADM_WORK/${possible_alt%##*}")
+    fi
+  done
+  alt_linked=()
+
   # loop over all "tracked" files
   # for every file which matches the above regex, create a symlink
   for match in $match1 $match2; do
@@ -204,6 +214,7 @@ function alt() {
               cp -f "$alt_path" "$new_link"
             else
               ln -nfs "$alt_path" "$new_link"
+              alt_linked+=("$alt_path")
             fi
             last_linked="$alt_path"
           fi
@@ -211,6 +222,24 @@ function alt() {
       fi
     done
   done
+
+  # review alternate candidates for stale links
+  # if a possible alt IS linked, but it's target is not part of alt_linked,
+  # remove it.
+  if readlink_available; then
+    for stale_candidate in "${possible_alts[@]}"; do
+      if [ -L "$stale_candidate" ]; then
+        link_target=$(readlink "$stale_candidate" 2>/dev/null)
+        if [ -n "$link_target" ]; then
+          removal=yes
+          for review_link in "${alt_linked[@]}"; do
+            [ "$link_target" = "$review_link" ] && removal=no
+          done
+          [ "$removal" = "yes" ] && rm -f "$stale_candidate"
+        fi
+      fi
+    done
+  fi
 
   # loop over all "tracked" files
   # for every file which is a *##yadm.j2 create a real file
@@ -1062,6 +1091,10 @@ function bootstrap_available() {
 }
 function envtpl_available() {
   command -v "$ENVTPL_PROGRAM" >/dev/null 2>&1 && return
+  return 1
+}
+function readlink_available() {
+  command -v "readlink" >/dev/null 2>&1 && return
   return 1
 }
 
