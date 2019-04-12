@@ -64,24 +64,29 @@ def create_alt_files(paths, suffix,
             test_path.write('\n' + content, mode='a', ensure=True)
         assert test_path.exists()
 
-    create_includefiles(includefile, paths, test_paths)
-
-    if tracked:
-        for track_path in test_paths:
-            os.system(f'GIT_DIR={str(paths.repo)} git add "{track_path}"')
-        os.system(f'GIT_DIR={str(paths.repo)} git commit -m "Add test files"')
-
-    if encrypt:
-        for encrypt_name in test_names:
-            paths.encrypt.write(f'{encrypt_name + suffix}\n', mode='a')
-            if exclude:
-                paths.encrypt.write(f'!{encrypt_name + suffix}\n', mode='a')
+    _create_includefiles(includefile, paths, test_paths)
+    _create_tracked(tracked, test_paths, paths)
+    _create_encrypt(encrypt, test_names, suffix, paths, exclude)
 
 
-def create_includefiles(includefile, paths, test_paths):
-    """Generate files for testing jinja includes"""
+def _create_includefiles(includefile, paths, test_paths):
     if includefile:
         for dpath in INCLUDE_DIRS:
             incfile = paths.work.join(dpath + '/' + INCLUDE_FILE)
             incfile.write(INCLUDE_CONTENT, ensure=True)
             test_paths += [incfile]
+
+
+def _create_tracked(tracked, test_paths, paths):
+    if tracked:
+        for track_path in test_paths:
+            os.system(f'GIT_DIR={str(paths.repo)} git add "{track_path}"')
+        os.system(f'GIT_DIR={str(paths.repo)} git commit -m "Add test files"')
+
+
+def _create_encrypt(encrypt, test_names, suffix, paths, exclude):
+    if encrypt:
+        for encrypt_name in test_names:
+            paths.encrypt.write(f'{encrypt_name + suffix}\n', mode='a')
+            if exclude:
+                paths.encrypt.write(f'!{encrypt_name + suffix}\n', mode='a')
