@@ -13,6 +13,12 @@ ALT_DIR = 'test alt/test alt dir'
 # This will be the test contained file name
 CONTAINED = 'contained_file'
 
+# These variables are used for making include files which will be processed
+# within jinja templates
+INCLUDE_FILE = 'inc_file'
+INCLUDE_DIRS = ['', 'test alt']
+INCLUDE_CONTENT = '8780846c02e34c930d0afd127906668f'
+
 
 def set_local(paths, variable, value):
     """Set local override"""
@@ -25,7 +31,7 @@ def set_local(paths, variable, value):
 def create_alt_files(paths, suffix,
                      preserve=False, tracked=True,
                      encrypt=False, exclude=False,
-                     content=None):
+                     content=None, includefile=False):
     """Create new files, and add to the repo
 
     This is used for testing alternate files. In each case, a suffix is
@@ -58,6 +64,8 @@ def create_alt_files(paths, suffix,
             test_path.write('\n' + content, mode='a', ensure=True)
         assert test_path.exists()
 
+    create_includefiles(includefile, paths, test_paths)
+
     if tracked:
         for track_path in test_paths:
             os.system(f'GIT_DIR={str(paths.repo)} git add "{track_path}"')
@@ -68,3 +76,12 @@ def create_alt_files(paths, suffix,
             paths.encrypt.write(f'{encrypt_name + suffix}\n', mode='a')
             if exclude:
                 paths.encrypt.write(f'!{encrypt_name + suffix}\n', mode='a')
+
+
+def create_includefiles(includefile, paths, test_paths):
+    """Generate files for testing jinja includes"""
+    if includefile:
+        for dpath in INCLUDE_DIRS:
+            incfile = paths.work.join(dpath + '/' + INCLUDE_FILE)
+            incfile.write(INCLUDE_CONTENT, ensure=True)
+            test_paths += [incfile]

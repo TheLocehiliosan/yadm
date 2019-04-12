@@ -13,7 +13,7 @@ def envtpl_present(runner):
         run = runner(command=['envtpl', '-h'])
         if run.success:
             return True
-    except BaseException:
+    except OSError:
         pass
     return False
 
@@ -35,11 +35,20 @@ def test_local_override(runner, yadm_y, paths,
         'j2-{{ YADM_CLASS }}-'
         '{{ YADM_OS }}-{{ YADM_HOSTNAME }}-'
         '{{ YADM_USER }}-{{ YADM_DISTRO }}'
+        '-{%- '
+        f"include '{utils.INCLUDE_FILE}'"
+        ' -%}'
     )
-    expected = f'j2-or-class-or-os-or-hostname-or-user-{tst_distro}'
+    expected = (
+        f'j2-or-class-or-os-or-hostname-or-user-{tst_distro}'
+        f'-{utils.INCLUDE_CONTENT}'
+    )
 
-    utils.create_alt_files(paths, '##yadm.j2', content=template)
+    utils.create_alt_files(paths, '##yadm.j2', content=template,
+                           includefile=True)
 
+    # os.system(f'find {paths.work}' + ' -name *j2 -ls -exec cat \'{}\' ";"')
+    # os.system(f'find {paths.work}')
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
     assert run.success
@@ -145,15 +154,20 @@ def test_jinja(runner, yadm_y, paths,
         'j2-{{ YADM_CLASS }}-'
         '{{ YADM_OS }}-{{ YADM_HOSTNAME }}-'
         '{{ YADM_USER }}-{{ YADM_DISTRO }}'
+        '-{%- '
+        f"include '{utils.INCLUDE_FILE}'"
+        ' -%}'
     )
     expected = (
         f'j2-{tst_class}-'
         f'{tst_sys}-{tst_host}-'
         f'{tst_user}-{tst_distro}'
+        f'-{utils.INCLUDE_CONTENT}'
     )
 
     utils.create_alt_files(paths, jinja_suffix, content=template,
-                           tracked=tracked, encrypt=encrypt, exclude=exclude)
+                           tracked=tracked, encrypt=encrypt, exclude=exclude,
+                           includefile=True)
 
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
