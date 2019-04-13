@@ -1,4 +1,6 @@
 .DS_Store
 .jekyll-metadata
+.pytest_cache
 .sass-cache
 _site
+testenv
