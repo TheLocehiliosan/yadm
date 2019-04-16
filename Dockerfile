@@ -24,6 +24,7 @@ RUN \
     make \
     python3-pip \
     shellcheck=0.4.6-1 \
+    vim \
   ;
 RUN pip3 install \
       envtpl \
