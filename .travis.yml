@@ -1,9 +1,8 @@
 ---
-sudo: required
-language: bash
+language: minimal
 services:
   - docker
 before_install:
   - docker pull yadm/testbed:latest
 script:
-  - docker run --rm -v "$PWD:/yadm:ro" yadm/testbed
+  - docker run -t --rm -v "$PWD:/yadm:ro" yadm/testbed
