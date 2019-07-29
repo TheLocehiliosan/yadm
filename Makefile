@@ -35,7 +35,7 @@ usage:
 	@echo '    - Shutdown and remove the jekyll container.'
 	@echo
 	@echo '  make clean'
-	@echo '    - Remove previously built data any any jekyll containers.'
+	@echo '    - Remove previously built data and any jekyll containers.'
 	@echo
 
 .PHONY: test
