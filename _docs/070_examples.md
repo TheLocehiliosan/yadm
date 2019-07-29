@@ -22,4 +22,3 @@ list.
 * [mes5k/dotfiles](https://github.com/mes5k/dotfiles)
 * [pendowski/dotfiles](https://github.com/pendowski/dotfiles)
 * [tonipes/dotfiles](https://github.com/tonipes/dotfiles)
-* [zamaterian/dotfiles](https://github.com/zamaterian/dotfiles)
