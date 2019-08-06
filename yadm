@@ -30,6 +30,7 @@ YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
+YADM_HOOKS="hooks"
 
 HOOK_COMMAND=""
 FULL_COMMAND=""
@@ -789,6 +790,7 @@ function configure_paths() {
   YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
   YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
+  YADM_HOOKS="$YADM_DIR/$YADM_HOOKS"
 
   # independent overrides for paths
   if [ -n "$YADM_OVERRIDE_REPO" ]; then
@@ -879,7 +881,7 @@ function invoke_hook() {
 
   mode="$1"
   exit_status="$2"
-  hook_command="$YADM_DIR/hooks/${mode}_$HOOK_COMMAND"
+  hook_command="${YADM_HOOKS}/${mode}_$HOOK_COMMAND"
 
   if [ -x "$hook_command" ] ; then
     debug "Invoking hook: $hook_command"
