@@ -8,7 +8,7 @@ CONFIG = 'config'
 ENCRYPT = 'encrypt'
 HOME = '/testhome'
 REPO = 'repo.git'
-YDIR = '.yadm'
+YDIR = '.config/yadm'
 
 
 @pytest.mark.parametrize(
@@ -70,6 +70,7 @@ def run_test(runner, paths, args, expected_matches, expected_code=0):
     script = f"""
         YADM_TEST=1 HOME="{HOME}" source {paths.pgm}
         process_global_args {argstring}
+        HOME="{HOME}" set_yadm_dir
         configure_paths
         declare -p | grep -E '(YADM|GIT)_'
     """

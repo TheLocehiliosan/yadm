@@ -23,8 +23,10 @@ fi
 VERSION=1.12.0
 
 YADM_WORK="$HOME"
-YADM_DIR="$HOME/.yadm"
+YADM_DIR=
+YADM_LEGACY_DIR="${HOME}/.yadm"
 
+# these are the default paths relative to YADM_DIR
 YADM_REPO="repo.git"
 YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
@@ -558,16 +560,16 @@ Commands:
   yadm config <name> <value> - Configure a setting
   yadm list [-a]             - List tracked files
   yadm alt                   - Create links for alternates
-  yadm bootstrap             - Execute \$HOME/.yadm/bootstrap
+  yadm bootstrap             - Execute \$HOME/.config/yadm/bootstrap
   yadm encrypt               - Encrypt files
   yadm decrypt [-l]          - Decrypt files
   yadm perms                 - Fix perms for private files
 
 Files:
-  \$HOME/.yadm/config    - yadm's configuration file
-  \$HOME/.yadm/repo.git  - yadm's Git repository
-  \$HOME/.yadm/encrypt   - List of globs used for encrypt/decrypt
-  \$HOME/.yadm/files.gpg - Encrypted data stored here
+  \$HOME/.config/yadm/config    - yadm's configuration file
+  \$HOME/.config/yadm/repo.git  - yadm's Git repository
+  \$HOME/.config/yadm/encrypt   - List of globs used for encrypt/decrypt
+  \$HOME/.config/yadm/files.gpg - Encrypted data stored here
 
 Use "man yadm" for complete documentation.
 EOF
@@ -779,6 +781,86 @@ function process_global_args() {
     esac
     shift
   done
+
+}
+
+function set_yadm_dir() {
+
+  # only resolve YADM_DIR if it hasn't been provided already
+  [ -n "$YADM_DIR" ] && return
+
+  # compatibility with major version 1 ignores XDG_CONFIG_HOME
+  if [ "$YADM_COMPATIBILITY" = "1" ]; then
+    YADM_DIR="$YADM_LEGACY_DIR"
+    return
+  fi
+
+  local base_yadm_dir
+  base_yadm_dir="$XDG_CONFIG_HOME"
+  if [[ ! "$base_yadm_dir" =~ ^/ ]] ; then
+    base_yadm_dir="${HOME}/.config"
+  fi
+  YADM_DIR="${base_yadm_dir}/yadm"
+
+  issue_legacy_path_warning
+
+}
+
+function issue_legacy_path_warning() {
+
+  # no warnings if YADM_DIR is resolved as the leacy path
+  [ "$YADM_DIR" = "$YADM_LEGACY_DIR" ] && return
+
+  # no warnings if the legacy directory doesn't exist
+  [ ! -d "$YADM_LEGACY_DIR" ] && return
+
+  # test for legacy paths
+  local legacy_found
+  legacy_found=()
+  # this is ordered by importance
+  for legacy_path in                   \
+    "$YADM_LEGACY_DIR/$YADM_REPO"      \
+    "$YADM_LEGACY_DIR/$YADM_CONFIG"    \
+    "$YADM_LEGACY_DIR/$YADM_ENCRYPT"   \
+    "$YADM_LEGACY_DIR/$YADM_ARCHIVE"   \
+    "$YADM_LEGACY_DIR/$YADM_BOOTSTRAP" \
+    "$YADM_LEGACY_DIR/$YADM_HOOKS"     \
+  ;                                    \
+  do
+    [ -e "$legacy_path" ] && legacy_found+=("$legacy_path")
+  done
+
+  [ ${#legacy_found[@]} -eq 0 ] && return
+
+  local path_list
+  for legacy_path in "${legacy_found[@]}"; do
+    path_list="$path_list    * $legacy_path"$'\n'
+  done
+
+  cat <<EOF
+
+**WARNING**
+  Legacy configuration paths have been detected.
+
+  Beginning with version 2.0.0, yadm uses the XDG Base Directory Specification
+  to find its configurations. Read more about this change here:
+
+    https://yadm.io/docs/xdg_config_home
+
+  In your environment, the configuration directory has been resolved to:
+
+    $YADM_DIR
+
+  To remove this warning do one of the following:
+    * Move yadm configurations to the directory listed above. (RECOMMENDED)
+    * Specify your preferred yadm directory with -Y each execution.
+    * Define an environment variable "YADM_COMPATIBILITY=1" to run in version 1
+      compatibility mode. (DEPRECATED)
+
+  Legacy paths detected:
+${path_list}
+***********
+EOF
 
 }
 
@@ -1138,6 +1220,7 @@ function echo_e() {
 if [ "$YADM_TEST" != 1 ] ; then
   process_global_args "$@"
   set_operating_system
+  set_yadm_dir
   configure_paths
   main "${MAIN_ARGS[@]}"
 fi
