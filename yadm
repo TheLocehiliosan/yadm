@@ -581,7 +581,7 @@ EOF
 function init() {
 
   # safety check, don't attempt to init when the repo is already present
-  [ -d "$YADM_REPO" ] && [ -z "$FORCE" ] && \
+  [ -d "$YADM_REPO" ] && [ -z "$FORCE" ] &&
     error_out "Git repo already exists. [$YADM_REPO]\nUse '-f' if you want to force it to be overwritten."
 
   # remove existing if forcing the init to happen anyway
@@ -1146,7 +1146,7 @@ function require_git() {
     GIT_PROGRAM="$alt_git"
     more_info="\nThis command has been set via the yadm.git-program configuration."
   fi
-  command -v "$GIT_PROGRAM" >/dev/null 2>&1 || \
+  command -v "$GIT_PROGRAM" >/dev/null 2>&1 ||
     error_out "This functionality requires Git to be installed, but the command '$GIT_PROGRAM' cannot be located.$more_info"
 }
 function require_gpg() {
@@ -1160,7 +1160,7 @@ function require_gpg() {
     GPG_PROGRAM="$alt_gpg"
     more_info="\nThis command has been set via the yadm.gpg-program configuration."
   fi
-  command -v "$GPG_PROGRAM" >/dev/null 2>&1 || \
+  command -v "$GPG_PROGRAM" >/dev/null 2>&1 ||
     error_out "This functionality requires GPG to be installed, but the command '$GPG_PROGRAM' cannot be located.$more_info"
 }
 function require_repo() {
