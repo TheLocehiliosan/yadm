@@ -135,31 +135,51 @@ function alt() {
   require_repo
   parse_encrypt
 
+  local local_class
   local_class="$(config local.class)"
+
+  local local_system
+  local_system="$(config local.os)"
+  if [ -z "$local_system" ] ; then
+    local_system="$OPERATING_SYSTEM"
+  fi
+
+  local local_host
+  local_host="$(config local.hostname)"
+  if [ -z "$local_host" ] ; then
+    local_host=$(hostname)
+    local_host=${local_host%%.*} # trim any domain from hostname
+  fi
+
+  local local_user
+  local_user="$(config local.user)"
+  if [ -z "$local_user" ] ; then
+    local_user=$(id -u -n)
+  fi
+
+  if [ "$YADM_COMPATIBILITY" = "1" ]; then
+    alt_past
+  else
+    alt_future
+  fi
+
+}
+
+function alt_future() {
+  # Future alternate processing, not implemented yet
+  return
+}
+
+function alt_past() {
+
   if [ -z "$local_class" ] ; then
     match_class="%"
   else
     match_class="$local_class"
   fi
   match_class="(%|$match_class)"
-
-  local_system="$(config local.os)"
-  if [ -z "$local_system" ] ; then
-    local_system="$OPERATING_SYSTEM"
-  fi
   match_system="(%|$local_system)"
-
-  local_host="$(config local.hostname)"
-  if [ -z "$local_host" ] ; then
-    local_host=$(hostname)
-    local_host=${local_host%%.*} # trim any domain from hostname
-  fi
   match_host="(%|$local_host)"
-
-  local_user="$(config local.user)"
-  if [ -z "$local_user" ] ; then
-    local_user=$(id -u -n)
-  fi
   match_user="(%|$local_user)"
 
   # regex for matching "<file>##CLASS.SYSTEM.HOSTNAME.USER"

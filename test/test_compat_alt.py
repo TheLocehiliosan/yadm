@@ -87,7 +87,9 @@ def test_alt(runner, yadm_y, paths,
                                encrypt=encrypt, exclude=exclude)
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -188,7 +190,9 @@ def test_wild(request, runner, yadm_y, paths,
                            encrypt=encrypt, exclude=False)
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -211,7 +215,9 @@ def test_wild(request, runner, yadm_y, paths,
                            encrypt=encrypt, exclude=False)
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -249,7 +255,9 @@ def test_local_override(runner, yadm_y, paths,
         paths, '##or-class.or-os.or-hostname.or-user')
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -287,7 +295,9 @@ def test_class_case(runner, yadm_y, paths, tst_sys, suffix):
         utils.create_alt_files(paths, f'##{ending}')
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -320,7 +330,9 @@ def test_auto_alt(runner, yadm_y, paths, autoalt):
     utils.create_alt_files(paths, suffix)
 
     # run status to possibly trigger linking
-    run = runner(yadm_y('status'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('status'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -356,7 +368,9 @@ def test_delimiter(runner, yadm_y, paths,
     utils.create_alt_files(paths, suffix)
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -396,7 +410,9 @@ def test_invalid_links_removed(runner, yadm_y, paths):
     utils.create_alt_files(paths, f'##{tst_class}')
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -418,7 +434,9 @@ def test_invalid_links_removed(runner, yadm_y, paths):
     utils.set_local(paths, 'class', 'changedclass')
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)

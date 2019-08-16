@@ -5,6 +5,8 @@ import pytest
 
 
 @pytest.mark.parametrize(
+    'compatibility', [True, False], ids=['compat', 'no-compat'])
+@pytest.mark.parametrize(
     'setting, is_cygwin, expect_link, pre_existing', [
         (None, False, True, None),
         (True, False, True, None),
@@ -28,7 +30,8 @@ import pytest
 @pytest.mark.usefixtures('ds1_copy')
 def test_cygwin_copy(
         runner, yadm_y, paths, cygwin_sys, tst_sys,
-        setting, is_cygwin, expect_link, pre_existing):
+        setting, is_cygwin, expect_link, pre_existing,
+        compatibility):
     """Test yadm.cygwin_copy"""
 
     if setting is not None:
@@ -49,6 +52,10 @@ def test_cygwin_copy(
         expected_content = f'test_cygwin_copy##{cygwin_sys}'
     env = os.environ.copy()
     env['PATH'] = ':'.join([str(uname_path), env['PATH']])
+    if compatibility:
+        env['YADM_COMPATIBILITY'] = '1'
+    else:
+        pytest.xfail('Alternates 2.0.0 has not been implemented.')
 
     run = runner(yadm_y('alt'), env=env)
     assert run.success

@@ -50,7 +50,9 @@ def test_local_override(runner, yadm_y, paths,
     # os.system(f'find {paths.work}' + ' -name *j2 -ls -exec cat \'{}\' ";"')
     # os.system(f'find {paths.work}')
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     created = created_list(run.out)
@@ -83,7 +85,9 @@ def test_auto_alt(runner, yadm_y, paths, autoalt, tst_sys,
     utils.create_alt_files(paths, jinja_suffix, content='{{ YADM_OS }}')
 
     # run status to possibly trigger linking
-    run = runner(yadm_y('status'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('status'), env=env)
     assert run.success
     assert run.err == ''
     created = created_list(run.out)
@@ -111,6 +115,7 @@ def test_jinja_envtpl_missing(runner, paths):
         process_global_args -Y "{paths.yadm}"
         set_operating_system
         configure_paths
+        YADM_COMPATIBILITY=1
         ENVTPL_PROGRAM='envtpl_missing' main alt
     """
 
@@ -170,7 +175,9 @@ def test_jinja(runner, yadm_y, paths,
                            includefile=True)
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    env = os.environ.copy()
+    env['YADM_COMPATIBILITY'] = '1'
+    run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
     created = created_list(run.out)
