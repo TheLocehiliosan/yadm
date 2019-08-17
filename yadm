@@ -135,32 +135,39 @@ function alt() {
   require_repo
   parse_encrypt
 
+  # gather values for processing alternates
   local local_class
+  local local_system
+  local local_host
+  local local_user
+  set_local_alt_values
+
+  if [ "$YADM_COMPATIBILITY" = "1" ]; then
+    alt_past
+  else
+    alt_future
+  fi
+
+}
+
+function set_local_alt_values() {
+
   local_class="$(config local.class)"
 
-  local local_system
   local_system="$(config local.os)"
   if [ -z "$local_system" ] ; then
     local_system="$OPERATING_SYSTEM"
   fi
 
-  local local_host
   local_host="$(config local.hostname)"
   if [ -z "$local_host" ] ; then
     local_host=$(hostname)
     local_host=${local_host%%.*} # trim any domain from hostname
   fi
 
-  local local_user
   local_user="$(config local.user)"
   if [ -z "$local_user" ] ; then
     local_user=$(id -u -n)
-  fi
-
-  if [ "$YADM_COMPATIBILITY" = "1" ]; then
-    alt_past
-  else
-    alt_future
   fi
 
 }
