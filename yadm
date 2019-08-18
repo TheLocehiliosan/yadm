@@ -142,10 +142,60 @@ function alt() {
   local local_user
   set_local_alt_values
 
+  # only be noisy if the "alt" command was run directly
+  local loud=
+  [ "$YADM_COMMAND" = "alt" ] && loud="YES"
+
+  # decide if a copy should be done instead of a symbolic link
+  local do_copy=0
+  [[ $OPERATING_SYSTEM == CYGWIN* ]] &&
+    [ "$(config --bool yadm.cygwin-copy)" == "true" ] &&
+      do_copy=1
+
+  cd_work "Alternates" || return
+
+  # determine all tracked files
+  local tracked_files
+  tracked_files=()
+  local IFS=$'\n'
+  for tracked_file in $("$GIT_PROGRAM" ls-files | LC_ALL=C sort); do
+    tracked_files+=("$tracked_file")
+  done
+
+  # generate data for removing stale links
+  local possible_alts
+  possible_alts=()
+  local IFS=$'\n'
+  for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    if [[ $possible_alt =~ .\#\#. ]]; then
+      possible_alts+=("$YADM_WORK/${possible_alt%##*}")
+    fi
+  done
+  local alt_linked
+  alt_linked=()
+
   if [ "$YADM_COMPATIBILITY" = "1" ]; then
-    alt_past
+    alt_past_linking
   else
-    alt_future
+    alt_future_linking
+  fi
+
+  # review alternate candidates for stale links
+  # if a possible alt IS linked, but it's target is not part of alt_linked,
+  # remove it.
+  if readlink_available; then
+    for stale_candidate in "${possible_alts[@]}"; do
+      if [ -L "$stale_candidate" ]; then
+        link_target=$(readlink "$stale_candidate" 2>/dev/null)
+        if [ -n "$link_target" ]; then
+          removal=yes
+          for review_link in "${alt_linked[@]}"; do
+            [ "$link_target" = "$review_link" ] && removal=no
+          done
+          [ "$removal" = "yes" ] && rm -f "$stale_candidate"
+        fi
+      fi
+    done
   fi
 
 }
@@ -172,12 +222,14 @@ function set_local_alt_values() {
 
 }
 
-function alt_future() {
-  # Future alternate processing, not implemented yet
+function alt_future_linking() {
+
+
   return
+
 }
 
-function alt_past() {
+function alt_past_linking() {
 
   if [ -z "$local_class" ] ; then
     match_class="%"
@@ -192,36 +244,6 @@ function alt_past() {
   # regex for matching "<file>##CLASS.SYSTEM.HOSTNAME.USER"
   match1="^(.+)##(()|$match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user)$"
   match2="^(.+)##($match_class|$match_class\.$match_system|$match_class\.$match_system\.$match_host|$match_class\.$match_system\.$match_host\.$match_user)$"
-
-  cd_work "Alternates" || return
-
-  # only be noisy if the "alt" command was run directly
-  [ "$YADM_COMMAND" = "alt" ] && loud="YES"
-
-  # decide if a copy should be done instead of a symbolic link
-  local do_copy=0
-  if [[ $OPERATING_SYSTEM == CYGWIN* ]] ; then
-    if [[ $(config --bool yadm.cygwin-copy) == "true" ]] ; then
-      do_copy=1
-    fi
-  fi
-
-  # process the files tracked by yadm once, this info is used multiple times
-  tracked_files=()
-  local IFS=$'\n'
-  for tracked_file in $("$GIT_PROGRAM" ls-files | LC_ALL=C sort); do
-    tracked_files+=("$tracked_file")
-  done
-
-  # generate a list of possible alt files
-  possible_alts=()
-  local IFS=$'\n'
-  for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
-    if [[ $possible_alt =~ .\#\#. ]]; then
-      possible_alts+=("$YADM_WORK/${possible_alt%##*}")
-    fi
-  done
-  alt_linked=()
 
   # loop over all "tracked" files
   # for every file which matches the above regex, create a symlink
@@ -252,24 +274,6 @@ function alt_past() {
       fi
     done
   done
-
-  # review alternate candidates for stale links
-  # if a possible alt IS linked, but it's target is not part of alt_linked,
-  # remove it.
-  if readlink_available; then
-    for stale_candidate in "${possible_alts[@]}"; do
-      if [ -L "$stale_candidate" ]; then
-        link_target=$(readlink "$stale_candidate" 2>/dev/null)
-        if [ -n "$link_target" ]; then
-          removal=yes
-          for review_link in "${alt_linked[@]}"; do
-            [ "$link_target" = "$review_link" ] && removal=no
-          done
-          [ "$removal" = "yes" ] && rm -f "$stale_candidate"
-        fi
-      fi
-    done
-  fi
 
   # loop over all "tracked" files
   # for every file which is a *##yadm.j2 create a real file
