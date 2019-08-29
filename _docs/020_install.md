@@ -44,6 +44,14 @@ emerge -atv app-admin/yadm
 xbps-install yadm
 ```
 
+## FreeBSD
+
+**yadm** is available in the FreeBSD ports. Use `pkg` to install it from a prebuilt binary package:
+
+```
+pkg install yadm
+```
+
 ## Download
 
 You *can* simply download the **yadm** script and put it into your `$PATH`. Something like this:
