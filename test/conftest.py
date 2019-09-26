@@ -1,6 +1,7 @@
 """Global tests configuration and fixtures"""
 
 import collections
+import contextlib
 import copy
 import distutils.dir_util  # pylint: disable=no-name-in-module,import-error
 import os
@@ -50,11 +51,9 @@ def tst_host():
 def tst_distro(runner):
     """Test session's distro"""
     distro = ''
-    try:
+    with contextlib.suppress(Exception):
         run = runner(command=['lsb_release', '-si'], report=False)
         distro = run.out.strip()
-    except BaseException:
-        pass
     return distro
 
 
@@ -141,7 +140,7 @@ def supported_local_configs(supported_configs):
     return [c for c in supported_configs if c.startswith('local.')]
 
 
-class Runner(object):
+class Runner():
     """Class for running commands
 
     Within yadm tests, this object should be used when running commands that
@@ -238,7 +237,6 @@ def config_git():
     os.system(
         'git config user.email || '
         'git config --global user.email "test@test.test"')
-    return None
 
 
 @pytest.fixture()
@@ -316,7 +314,7 @@ def yadm_y(paths):
     return command_list
 
 
-class DataFile(object):
+class DataFile():
     """Datafile object"""
 
     def __init__(self, path, tracked=True, private=False):
@@ -350,10 +348,9 @@ class DataFile(object):
     def relative_to(self, parent):
         """Update all relative paths to this py.path"""
         self.__parent = parent
-        return
 
 
-class DataSet(object):
+class DataSet():
     """Dataset object"""
 
     def __init__(self):
@@ -444,7 +441,6 @@ class DataSet(object):
         self.__relpath = relpath
         for datafile in self.files:
             datafile.relative_to(self.__relpath)
-        return
 
 
 @pytest.fixture(scope='session')
@@ -526,7 +522,6 @@ def ds1_work_copy(ds1_data, paths):
     """Function scoped copy of ds1_data.work"""
     distutils.dir_util.copy_tree(  # pylint: disable=no-member
         str(ds1_data.work), str(paths.work))
-    return None
 
 
 @pytest.fixture()
@@ -540,7 +535,6 @@ def ds1_repo_copy(runner, ds1_data, paths):
         command=['git', 'config', 'core.worktree', str(paths.work)],
         env=env,
         report=False)
-    return None
 
 
 @pytest.fixture()

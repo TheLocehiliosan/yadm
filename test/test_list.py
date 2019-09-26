@@ -27,7 +27,7 @@ def test_list(runner, yadm_y, paths, ds1, location):
         assert run.success
         assert run.err == ''
         returned_files = set(run.out.splitlines())
-        expected_files = set([e.path for e in ds1 if e.tracked])
+        expected_files = {e.path for e in ds1 if e.tracked}
         assert returned_files == expected_files
         # test without '-a'
         # should get all tracked files, relative to the work path unless in a
@@ -41,7 +41,8 @@ def test_list(runner, yadm_y, paths, ds1, location):
             basepath = os.path.basename(os.getcwd())
             # only expect files within the subdir
             # names should be relative to subdir
-            expected_files = set(
-                [e.path[len(basepath)+1:] for e in ds1
-                 if e.tracked and e.path.startswith(basepath)])
+            expected_files = {
+                e.path[len(basepath)+1:]
+                for e in ds1 if e.tracked and e.path.startswith(basepath)
+            }
         assert returned_files == expected_files

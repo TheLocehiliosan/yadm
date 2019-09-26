@@ -271,4 +271,3 @@ def remote(paths, ds1_repo_copy):
     # cannot be applied to another fixture.
     paths.remote.remove()
     paths.repo.move(paths.remote)
-    return None
