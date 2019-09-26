@@ -107,7 +107,7 @@ testhost: require-docker
 		--hostname testhost \
 		--rm -it \
 		-v "/tmp/testhost:/bin/yadm:ro" \
-		yadm/testbed:latest \
+		yadm/testbed:2019-09-25 \
 		bash -l
 
 .PHONY: scripthost
@@ -124,7 +124,7 @@ scripthost: require-docker
 		--rm -it \
 		-v "$$PWD/script.gz:/script.gz:rw" \
 		-v "/tmp/testhost:/bin/yadm:ro" \
-		yadm/testbed:latest \
+		yadm/testbed:2019-09-25 \
 		bash -c "script /tmp/script -q -c 'bash -l'; gzip < /tmp/script > /script.gz"
 	@echo
 	@echo "Script saved to $$PWD/script.gz"
@@ -137,10 +137,10 @@ testenv:
 	virtualenv --python=python3 testenv
 	testenv/bin/pip3 install --upgrade pip setuptools
 	testenv/bin/pip3 install --upgrade \
-		flake8==3.5.0 \
-		pylint==1.9.2 \
-		pytest \
-		yamllint==1.15.0 \
+		flake8==3.7.8 \
+		pylint==2.4.1 \
+		pytest==5.1.3 \
+		yamllint==1.17.0 \
 	;
 	@echo
 	@echo 'To activate this test environment type:'

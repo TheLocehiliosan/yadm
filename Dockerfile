@@ -28,10 +28,11 @@ RUN \
   ;
 RUN pip3 install \
       envtpl \
-      flake8==3.5.0 \
-      pylint==1.9.2 \
-      pytest==3.6.4 \
-      yamllint==1.15.0 \
+      j2cli \
+      flake8==3.7.8 \
+      pylint==2.4.1 \
+      pytest==5.1.3 \
+      yamllint==1.17.0 \
     ;
 
 # Force GNUPG version 1 at path /usr/bin/gpg

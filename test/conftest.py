@@ -19,19 +19,19 @@ def shellcheck_version():
 @pytest.fixture(scope='session')
 def pylint_version():
     """Version of pylint supported"""
-    return '1.9.2'
+    return '2.4.1'
 
 
 @pytest.fixture(scope='session')
 def flake8_version():
     """Version of flake8 supported"""
-    return '3.5.0'
+    return '3.7.8'
 
 
 @pytest.fixture(scope='session')
 def yamllint_version():
     """Version of yamllint supported"""
-    return '1.15.0'
+    return '1.17.0'
 
 
 @pytest.fixture(scope='session')
