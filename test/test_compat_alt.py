@@ -6,6 +6,9 @@ import py
 import pytest
 import utils
 
+# These tests are for the alternate processing in YADM_COMPATIBILITY=1 mode
+pytestmark = pytest.mark.deprecated
+
 # These test IDs are broken. During the writing of these tests, problems have
 # been discovered in the way yadm orders matching files.
 BROKEN_TEST_IDS = [

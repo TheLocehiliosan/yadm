@@ -4,6 +4,9 @@ import os
 import pytest
 import utils
 
+# These tests are for the template processing in YADM_COMPATIBILITY=1 mode
+pytestmark = pytest.mark.deprecated
+
 
 @pytest.fixture(scope='module')
 def envtpl_present(runner):
