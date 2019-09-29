@@ -459,6 +459,8 @@ def ds1_dset(tst_sys, cygwin_sys):
     dset.add_file(f'test alt/test alt##C.S.H.U')
     dset.add_file(f'test_cygwin_copy##{tst_sys}')
     dset.add_file(f'test_cygwin_copy##{cygwin_sys}')
+    dset.add_file(f'test_cygwin_copy##os.{tst_sys}')
+    dset.add_file(f'test_cygwin_copy##os.{cygwin_sys}')
     dset.add_file('u1', tracked=False)
     dset.add_file('d2/u2', tracked=False)
     dset.add_file('.ssh/p1', tracked=False, private=True)

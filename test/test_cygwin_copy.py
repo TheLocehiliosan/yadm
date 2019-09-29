@@ -37,7 +37,11 @@ def test_cygwin_copy(
     if setting is not None:
         os.system(' '.join(yadm_y('config', 'yadm.cygwin-copy', str(setting))))
 
-    expected_content = f'test_cygwin_copy##{tst_sys}'
+    if compatibility:
+        expected_content = f'test_cygwin_copy##{tst_sys}'
+    else:
+        expected_content = f'test_cygwin_copy##os.{tst_sys}'
+
     alt_path = paths.work.join('test_cygwin_copy')
     if pre_existing == 'symlink':
         alt_path.mklinkto(expected_content)
@@ -49,13 +53,14 @@ def test_cygwin_copy(
         uname = uname_path.join('uname')
         uname.write(f'#!/bin/sh\necho "{cygwin_sys}"\n')
         uname.chmod(0o777)
-        expected_content = f'test_cygwin_copy##{cygwin_sys}'
+        if compatibility:
+            expected_content = f'test_cygwin_copy##{cygwin_sys}'
+        else:
+            expected_content = f'test_cygwin_copy##os.{cygwin_sys}'
     env = os.environ.copy()
     env['PATH'] = ':'.join([str(uname_path), env['PATH']])
     if compatibility:
         env['YADM_COMPATIBILITY'] = '1'
-    else:
-        pytest.xfail('Alternates 2.0.0 has not been implemented.')
 
     run = runner(yadm_y('alt'), env=env)
     assert run.success
