@@ -402,6 +402,11 @@ function alt() {
     alt_future_linking
   fi
 
+  remove_stale_links
+
+}
+
+function remove_stale_links() {
   # review alternate candidates for stale links
   # if a possible alt IS linked, but it's target is not part of alt_linked,
   # remove it.
@@ -419,7 +424,6 @@ function alt() {
       fi
     done
   fi
-
 }
 
 function set_local_alt_values() {
