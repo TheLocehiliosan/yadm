@@ -390,7 +390,7 @@ function alt() {
   local IFS=$'\n'
   for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
     if [[ $possible_alt =~ .\#\#. ]]; then
-      possible_alts+=("$YADM_WORK/${possible_alt%##*}")
+      possible_alts+=("$YADM_WORK/${possible_alt%%##*}")
     fi
   done
   local alt_linked
