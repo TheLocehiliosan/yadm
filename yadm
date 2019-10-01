@@ -279,35 +279,38 @@ function template_builtin() {
   input="$1"
   output="$2"
 
+  # the explicit "space + tab" character class used below is used because not
+  # all versions of awk seem to support the POSIX character classes [[:blank:]]
   awk_pgm=$(cat << "EOF"
 # built-in template processor
 BEGIN {
-  c["CLASS"]    = class
-  c["OS"]       = os
-  c["HOSTNAME"] = host
-  c["USER"]     = user
-  c["DISTRO"]   = distro
+  blank         = "[ 	]"
+  c["class"]    = class
+  c["os"]       = os
+  c["hostname"] = host
+  c["user"]     = user
+  c["distro"]   = distro
   valid         = conditions()
-  end           = "^YADM_END$"
-  skip          = "^YADM_(IF|END$)"
+  end           = "^{%" blank "*endif" blank "*%}$"
+  skip          = "^{%" blank "*(if|endif)"
 }
 { replace_vars() } # variable replacements
 $0 ~ valid, $0 ~ end { if ($0 ~ skip) next } # valid conditional blocks
-/^YADM_IF/, $0 ~ end { next } # invalid conditional blocks
+$0 ~ ("^{%" blank "*if"), $0 ~ end { next } # invalid conditional blocks
 { print }
 
 function replace_vars() {
   for (label in c) {
-    gsub(("YADM_" label), c[label])
+    gsub(("{{" blank "*yadm\\." label blank "*}}"), c[label])
   }
 }
 
 function conditions() {
-  pattern = "^("
+  pattern = "^{%" blank "*if" blank "*("
   for (label in c) {
     value = c[label]
     gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
-    pattern = sprintf("%sYADM_IF +%s *= *\"%s\"|", pattern, label, value)
+    pattern = sprintf("%syadm\\.%s" blank "*==" blank "*\"%s\"|", pattern, label, value)
   }
   sub(/\|$/,")",pattern)
   return pattern

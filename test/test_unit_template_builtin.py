@@ -8,56 +8,56 @@ LOCAL_USER = "builtin_Test+@-!^User"
 LOCAL_DISTRO = "builtin_Test+@-!^Distro"
 TEMPLATE = f'''
 start of template
-builtin class  = >YADM_CLASS<
-builtin os     = >YADM_OS<
-builtin host   = >YADM_HOSTNAME<
-builtin user   = >YADM_USER<
-builtin distro = >YADM_DISTRO<
-YADM_IF CLASS="wrongclass1"
+builtin class  = >{{{{yadm.class}}}}<
+builtin os     = >{{{{yadm.os}}}}<
+builtin host   = >{{{{yadm.hostname}}}}<
+builtin user   = >{{{{yadm.user}}}}<
+builtin distro = >{{{{yadm.distro}}}}<
+{{% if yadm.class == "wrongclass1" %}}
 wrong class 1
-YADM_END
-YADM_IF CLASS="{LOCAL_CLASS}"
-Included section for class = YADM_CLASS (YADM_CLASS repeated)
-YADM_END
-YADM_IF CLASS="wrongclass2"
+{{% endif %}}
+{{% if yadm.class == "{LOCAL_CLASS}" %}}
+Included section for class = {{{{yadm.class}}}} ({{{{yadm.class}}}} repeated)
+{{% endif %}}
+{{% if yadm.class == "wrongclass2" %}}
 wrong class 2
-YADM_END
-YADM_IF OS="wrongos1"
+{{% endif %}}
+{{% if yadm.os == "wrongos1" %}}
 wrong os 1
-YADM_END
-YADM_IF OS="{LOCAL_SYSTEM}"
-Included section for os = YADM_OS (YADM_OS repeated)
-YADM_END
-YADM_IF OS="wrongos2"
+{{% endif %}}
+{{% if yadm.os == "{LOCAL_SYSTEM}" %}}
+Included section for os = {{{{yadm.os}}}} ({{{{yadm.os}}}} repeated)
+{{% endif %}}
+{{% if yadm.os == "wrongos2" %}}
 wrong os 2
-YADM_END
-YADM_IF HOSTNAME="wronghost1"
+{{% endif %}}
+{{% if yadm.hostname == "wronghost1" %}}
 wrong host 1
-YADM_END
-YADM_IF HOSTNAME="{LOCAL_HOST}"
-Included section for host = YADM_HOSTNAME (YADM_HOSTNAME repeated)
-YADM_END
-YADM_IF HOSTNAME="wronghost2"
+{{% endif %}}
+{{% if yadm.hostname == "{LOCAL_HOST}" %}}
+Included section for host = {{{{yadm.hostname}}}} ({{{{yadm.hostname}}}} again)
+{{% endif %}}
+{{% if yadm.hostname == "wronghost2" %}}
 wrong host 2
-YADM_END
-YADM_IF USER="wronguser1"
+{{% endif %}}
+{{% if yadm.user == "wronguser1" %}}
 wrong user 1
-YADM_END
-YADM_IF USER="{LOCAL_USER}"
-Included section for user = YADM_USER (YADM_USER repeated)
-YADM_END
-YADM_IF USER="wronguser2"
+{{% endif %}}
+{{% if yadm.user == "{LOCAL_USER}" %}}
+Included section for user = {{{{yadm.user}}}} ({{{{yadm.user}}}} repeated)
+{{% endif %}}
+{{% if yadm.user == "wronguser2" %}}
 wrong user 2
-YADM_END
-YADM_IF DISTRO="wrongdistro1"
+{{% endif %}}
+{{% if yadm.distro == "wrongdistro1" %}}
 wrong distro 1
-YADM_END
-YADM_IF DISTRO="{LOCAL_DISTRO}"
-Included section for distro = YADM_DISTRO (YADM_DISTRO repeated)
-YADM_END
-YADM_IF DISTRO="wrongdistro2"
+{{% endif %}}
+{{% if yadm.distro == "{LOCAL_DISTRO}" %}}
+Included section for distro = {{{{yadm.distro}}}} ({{{{yadm.distro}}}} again)
+{{% endif %}}
+{{% if yadm.distro == "wrongdistro2" %}}
 wrong distro 2
-YADM_END
+{{% endif %}}
 end of template
 '''
 EXPECTED = f'''
@@ -69,9 +69,9 @@ builtin user   = >{LOCAL_USER}<
 builtin distro = >{LOCAL_DISTRO}<
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
-Included section for host = {LOCAL_HOST} ({LOCAL_HOST} repeated)
+Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
-Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} repeated)
+Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
 end of template
 '''
 
