@@ -39,6 +39,8 @@ FULL_COMMAND=""
 
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
+AWK_PROGRAM="awk"
+J2CLI_PROGRAM="j2"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
 
@@ -128,6 +130,225 @@ function main() {
 
 }
 
+
+# ****** Alternate Processing ******
+
+function score_file() {
+  target="$1"
+  filename="${target%%##*}"
+  conditions="${target#*##}"
+  score=0
+  IFS=',' read -ra fields <<< "$conditions"
+  for field in "${fields[@]}"; do
+    label=${field%%.*}
+    value=${field#*.}
+    score=$((score + 1000))
+    # default condition
+    if [[ "$label" =~ ^(default)$ ]]; then
+      score=$((score + 0))
+    # variable conditions
+    elif [[ "$label" =~ ^(o|os)$ ]]; then
+      if [ "$value" = "$local_system" ]; then
+        score=$((score + 1))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(c|class)$ ]]; then
+      if [ "$value" = "$local_class" ]; then
+        score=$((score + 2))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(h|hostname)$ ]]; then
+      if [ "$value" = "$local_host" ]; then
+        score=$((score + 4))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(u|user)$ ]]; then
+      if [ "$value" = "$local_user" ]; then
+        score=$((score + 8))
+      else
+        score=0
+        return
+      fi
+    # templates
+    elif [[ "$label" =~ ^(t|template|yadm)$ ]]; then
+      score=0
+      cmd=$(choose_template_cmd "$value")
+      if [ -n "$cmd" ]; then
+        record_template "$filename" "$cmd" "$target"
+      else
+        debug "No supported template processor for template $target"
+        [ -n "$loud" ] && echo "No supported template processor for template $target"
+      fi
+      return 0
+    # unsupported values
+    else
+      score=0
+      return
+    fi
+  done
+
+  record_score "$score" "$filename" "$target"
+}
+
+function record_score() {
+  score="$1"
+  filename="$2"
+  target="$3"
+
+  # record nothing if the score is zero
+  [ "$score" -eq 0 ] && return
+
+  # search for the index of this filename, to see if we already are tracking it
+  index=-1
+  for search_index in "${!alt_filenames[@]}"; do
+    if [ "${alt_filenames[$search_index]}" = "$filename" ]; then
+        index="$search_index"
+        break
+    fi
+  done
+  # if we don't find an existing index, create one by appending to the array
+  if [ "$index" -eq -1 ]; then
+    alt_filenames+=("$filename")
+    # set index to the last index (newly created one)
+    for index in "${!alt_filenames[@]}"; do :; done
+    # and set its initial score to zero
+    alt_scores[$index]=0
+  fi
+
+  # record nothing if a template command is registered for this file
+  [ "${alt_template_cmds[$index]+isset}" ] && return
+
+  # record higher scoring targets
+  if [ "$score" -gt "${alt_scores[$index]}" ]; then
+    alt_scores[$index]="$score"
+    alt_targets[$index]="$target"
+  fi
+
+}
+
+function record_template() {
+  filename="$1"
+  cmd="$2"
+  target="$3"
+
+  # search for the index of this filename, to see if we already are tracking it
+  index=-1
+  for search_index in "${!alt_filenames[@]}"; do
+    if [ "${alt_filenames[$search_index]}" = "$filename" ]; then
+        index="$search_index"
+        break
+    fi
+  done
+  # if we don't find an existing index, create one by appending to the array
+  if [ "$index" -eq -1 ]; then
+    alt_filenames+=("$filename")
+    # set index to the last index (newly created one)
+    for index in "${!alt_filenames[@]}"; do :; done
+  fi
+
+  # record the template command, last one wins
+  alt_template_cmds[$index]="$cmd"
+  alt_targets[$index]="$target"
+
+}
+
+function choose_template_cmd() {
+  kind="$1"
+
+  if [ "$kind" = "builtin" ] || [ "$kind" = "" ] && awk_available; then
+    echo "template_builtin"
+  elif [ "$kind" = "j2cli" ] || [ "$kind" = "j2" ] && j2cli_available; then
+    echo "template_j2cli"
+  elif [ "$kind" = "envtpl" ] || [ "$kind" = "j2" ] && envtpl_available; then
+    echo "template_envtpl"
+  else
+    return # this "kind" of template is not supported
+  fi
+
+}
+
+# ****** Template Processors ******
+
+function template_builtin() {
+  input="$1"
+  output="$2"
+
+  awk_pgm=$(cat << "EOF"
+# built-in template processor
+BEGIN {
+  c["CLASS"]    = class
+  c["OS"]       = os
+  c["HOSTNAME"] = host
+  c["USER"]     = user
+  c["DISTRO"]   = distro
+  valid         = conditions()
+  end           = "^YADM_END$"
+  skip          = "^YADM_(IF|END$)"
+}
+{ replace_vars() } # variable replacements
+$0 ~ valid, $0 ~ end { if ($0 ~ skip) next } # valid conditional blocks
+/^YADM_IF/, $0 ~ end { next } # invalid conditional blocks
+{ print }
+
+function replace_vars() {
+  for (label in c) {
+    gsub(("YADM_" label), c[label])
+  }
+}
+
+function conditions() {
+  pattern = "^("
+  for (label in c) {
+    value = c[label]
+    gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
+    pattern = sprintf("%sYADM_IF +%s *= *\"%s\"|", pattern, label, value)
+  }
+  sub(/\|$/,")",pattern)
+  return pattern
+}
+EOF
+  )
+
+  "$AWK_PROGRAM" \
+    -v class="$local_class" \
+    -v os="$local_system" \
+    -v host="$local_host" \
+    -v user="$local_user" \
+    -v distro="$local_distro" \
+    "$awk_pgm" \
+    "$input" > "$output"
+}
+
+function template_j2cli() {
+  input="$1"
+  output="$2"
+
+  YADM_CLASS="$local_class"   \
+  YADM_OS="$local_system"     \
+  YADM_HOSTNAME="$local_host" \
+  YADM_USER="$local_user"     \
+  YADM_DISTRO="$local_distro" \
+  "$J2CLI_PROGRAM" "$input" -o "$output"
+}
+
+function template_envtpl() {
+  input="$1"
+  output="$2"
+
+  YADM_CLASS="$local_class"   \
+  YADM_OS="$local_system"     \
+  YADM_HOSTNAME="$local_host" \
+  YADM_USER="$local_user"     \
+  YADM_DISTRO="$local_distro" \
+  "$ENVTPL_PROGRAM" --keep-template "$input" -o "$output"
+}
+
 # ****** yadm Commands ******
 
 function alt() {
@@ -140,6 +361,7 @@ function alt() {
   local local_system
   local local_host
   local local_user
+  local local_distro
   set_local_alt_values
 
   # only be noisy if the "alt" command was run directly
@@ -220,12 +442,54 @@ function set_local_alt_values() {
     local_user=$(id -u -n)
   fi
 
+  local_distro="$(query_distro)"
+
 }
 
 function alt_future_linking() {
 
+  local alt_scores
+  local alt_filenames
+  local alt_targets
+  local alt_template_cmds
+  alt_scores=()
+  alt_filenames=()
+  alt_targets=()
+  alt_template_cmds=()
 
-  return
+  for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    alt_path="$YADM_WORK/$alt_path"
+    if [[ "$alt_path" =~ .\#\#. ]]; then
+      if [ -e "$alt_path" ] ; then
+        score_file "$alt_path"
+      fi
+    fi
+  done
+
+  for index in "${!alt_filenames[@]}"; do
+    filename="${alt_filenames[$index]}"
+    target="${alt_targets[$index]}"
+    template_cmd="${alt_template_cmds[$index]}"
+    if [ -n "$template_cmd" ]; then
+      # a template is defined, process the template
+      debug "Creating $filename from template $target"
+      [ -n "$loud" ] && echo "Creating $filename from template $target"
+      "$template_cmd" "$target" "$filename"
+    elif [ -n "$target" ]; then
+      # a link target is defined, create symlink
+      debug "Linking $target to $filename"
+      [ -n "$loud" ] && echo "Linking $target to $filename"
+      if [ "$do_copy" -eq 1 ]; then
+        if [ -L "$filename" ]; then
+          rm -f "$filename"
+        fi
+        cp -f "$target" "$filename"
+      else
+        ln -nfs "$target" "$filename"
+        alt_linked+=("$target")
+      fi
+    fi
+  done
 
 }
 
@@ -290,7 +554,7 @@ function alt_past_linking() {
           YADM_OS="$local_system"     \
           YADM_HOSTNAME="$local_host" \
           YADM_USER="$local_user"     \
-          YADM_DISTRO=$(query_distro) \
+          YADM_DISTRO="$local_distro" \
           "$ENVTPL_PROGRAM" --keep-template "$tracked_file" -o "$real_file"
         else
           debug "envtpl not available, not creating $real_file from template $tracked_file"
@@ -1202,6 +1466,14 @@ function require_shell() {
 }
 function bootstrap_available() {
   [ -f "$YADM_BOOTSTRAP" ] && [ -x "$YADM_BOOTSTRAP" ] && return
+  return 1
+}
+function awk_available() {
+  command -v "$AWK_PROGRAM" >/dev/null 2>&1 && return
+  return 1
+}
+function j2cli_available() {
+  command -v "$J2CLI_PROGRAM" >/dev/null 2>&1 && return
   return 1
 }
 function envtpl_available() {

@@ -1,7 +1,6 @@
 """Test alt"""
 
 import os
-import re
 import string
 import py
 import pytest
@@ -92,7 +91,7 @@ def test_alt(runner, yadm_y, paths,
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     for file_path in TEST_PATHS:
@@ -195,7 +194,7 @@ def test_wild(request, runner, yadm_y, paths,
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     for file_path in TEST_PATHS:
@@ -220,7 +219,7 @@ def test_wild(request, runner, yadm_y, paths,
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     for file_path in TEST_PATHS:
@@ -260,7 +259,7 @@ def test_local_override(runner, yadm_y, paths,
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     for file_path in TEST_PATHS:
@@ -300,7 +299,7 @@ def test_class_case(runner, yadm_y, paths, tst_sys, suffix):
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     for file_path in TEST_PATHS:
@@ -335,7 +334,7 @@ def test_auto_alt(runner, yadm_y, paths, autoalt):
     run = runner(yadm_y('status'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     for file_path in TEST_PATHS:
@@ -373,7 +372,7 @@ def test_delimiter(runner, yadm_y, paths,
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     # only a delimiter of '.' is valid
@@ -415,7 +414,7 @@ def test_invalid_links_removed(runner, yadm_y, paths):
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the proper linking has occurred
     for file_path in TEST_PATHS:
@@ -439,20 +438,10 @@ def test_invalid_links_removed(runner, yadm_y, paths):
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    linked = linked_list(run.out)
+    linked = utils.parse_alt_output(run.out)
 
     # assert the linking is removed
     for file_path in TEST_PATHS:
         source_file = file_path + '##' + tst_class
         assert not paths.work.join(file_path).exists()
         assert str(paths.work.join(source_file)) not in linked
-
-
-def linked_list(output):
-    """Parse output, and return list of linked files"""
-    linked = dict()
-    for line in output.splitlines():
-        match = re.match('Linking (.+) to (.+)$', line)
-        if match:
-            linked[match.group(2)] = match.group(1)
-    return linked.values()

@@ -60,3 +60,18 @@ def test_set_local_alt_values(
         assert f"user='override'" in run.out
     else:
         assert f"user='{tst_user}'" in run.out
+
+
+def test_distro(runner, yadm):
+    """Assert that local_distro is set"""
+
+    script = f"""
+        YADM_TEST=1 source {yadm}
+        function query_distro() {{ echo "testdistro"; }}
+        set_local_alt_values
+        echo "distro='$local_distro'"
+    """
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert run.out.strip() == "distro='testdistro'"

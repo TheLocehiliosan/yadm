@@ -3,6 +3,7 @@
 This module holds values/functions common to multiple tests.
 """
 
+import re
 import os
 
 ALT_FILE1 = 'test_alt'
@@ -55,7 +56,7 @@ def create_alt_files(paths, suffix,
     # Do not test directory support for jinja alternates
     test_paths = [new_file1, new_file2]
     test_names = [ALT_FILE1, ALT_FILE2]
-    if suffix != '##yadm.j2':
+    if not re.match(r'##(t|template|yadm)\.', suffix):
         test_paths += [new_dir]
         test_names += [ALT_DIR]
 
@@ -67,6 +68,22 @@ def create_alt_files(paths, suffix,
     _create_includefiles(includefile, paths, test_paths)
     _create_tracked(tracked, test_paths, paths)
     _create_encrypt(encrypt, test_names, suffix, paths, exclude)
+
+
+def parse_alt_output(output, linked=True):
+    """Parse output of 'alt', and return list of linked files"""
+    regex = r'Creating (.+) from template (.+)$'
+    if linked:
+        regex = r'Linking (.+) to (.+)$'
+    parsed_list = dict()
+    for line in output.splitlines():
+        match = re.match(regex, line)
+        if match:
+            if linked:
+                parsed_list[match.group(2)] = match.group(1)
+            else:
+                parsed_list[match.group(1)] = match.group(2)
+    return parsed_list.values()
 
 
 def _create_includefiles(includefile, paths, test_paths):

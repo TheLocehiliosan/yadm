@@ -1,7 +1,6 @@
 """Test jinja"""
 
 import os
-import re
 import pytest
 import utils
 
@@ -55,7 +54,7 @@ def test_local_override(runner, yadm_y, paths,
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    created = created_list(run.out)
+    created = utils.parse_alt_output(run.out, linked=False)
 
     # assert the proper creation has occurred
     for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
@@ -90,7 +89,7 @@ def test_auto_alt(runner, yadm_y, paths, autoalt, tst_sys,
     run = runner(yadm_y('status'), env=env)
     assert run.success
     assert run.err == ''
-    created = created_list(run.out)
+    created = utils.parse_alt_output(run.out, linked=False)
 
     # assert the proper creation has occurred
     for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
@@ -180,7 +179,7 @@ def test_jinja(runner, yadm_y, paths,
     run = runner(yadm_y('alt'), env=env)
     assert run.success
     assert run.err == ''
-    created = created_list(run.out)
+    created = utils.parse_alt_output(run.out, linked=False)
 
     # assert the proper creation has occurred
     for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
@@ -194,14 +193,3 @@ def test_jinja(runner, yadm_y, paths,
         else:
             assert not paths.work.join(file_path).exists()
             assert str(paths.work.join(source_file)) not in created
-
-
-def created_list(output):
-    """Parse output, and return list of created files"""
-
-    created = dict()
-    for line in output.splitlines():
-        match = re.match('Creating (.+) from template (.+)$', line)
-        if match:
-            created[match.group(1)] = match.group(2)
-    return created.values()
