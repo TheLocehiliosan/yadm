@@ -1,8 +1,12 @@
 ." vim: set spell so=8:
 .TH yadm 1 "25 October 2017" "1.12.0"
+
 .SH NAME
+
 yadm \- Yet Another Dotfiles Manager
+
 .SH SYNOPSIS
+
 .B yadm
 .I command
 .RI [ options ]
@@ -52,19 +56,23 @@ list
 
 .BR yadm " introspect
 .I category
+
 .SH DESCRIPTION
+
 .B yadm
 is a tool for managing a collection of files across multiple computers,
 using a shared Git repository.
 In addition,
 .B yadm
-provides a feature to select alternate versions of files
-based on the operating system or host name.
+provides a feature to select alternate versions of files for particular
+systems.
 Lastly,
 .B yadm
 supplies the ability to manage a subset of secure files, which are
 encrypted before they are included in the repository.
+
 .SH COMMANDS
+
 .TP
 .IR git-command " or " git-alias
 Any command not internally handled by
@@ -94,9 +102,9 @@ Instead use the
 command (see below).
 .TP
 .B alt
-Create symbolic links and process Jinja templates for any managed files
-matching the naming rules described in the ALTERNATES and JINJA sections. It is
-usually unnecessary to run this command, as
+Create symbolic links and process templates for any managed files matching the
+naming rules described in the ALTERNATES and TEMPLATES sections. It is usually
+unnecessary to run this command, as
 .B yadm
 automatically processes alternates by default.
 This automatic behavior can be disabled by setting the configuration
@@ -268,6 +276,30 @@ to "false".
 .B version
 Print the version of
 .BR yadm .
+
+.SH COMPATIBILITY
+
+Beginning with version 2.0.0,
+.B yadm
+introduced a couple major changes which may require you to adjust your configurations.
+
+First,
+.B yadm
+now uses the "XDG Base Directory Specification" to find its configurations.
+You can read https://yadm.io/docs/xdg_config_home for more information.
+
+Second, the naming conventions for alternate files have been changed.
+You can read https://yadm.io/docs/alternates for more information.
+
+If you want to retain the old functionality, you can set an environment variable,
+.IR YADM_COMPATIBILITY=1 .
+Doing so will automatically use the old
+.B yadm
+directory, and process alternates the same as the pre-2.0.0 version.
+This compatibility mode is deprecated, and will be removed in future versions.
+This mode exists solely for transitioning to the new paths and naming of
+alternates.
+
 .SH OPTIONS
 
 .B yadm
@@ -317,7 +349,9 @@ encrypted files archive.
 Override the location of the
 .B yadm
 bootstrap program.
+
 .SH CONFIGURATION
+
 .B yadm
 uses a configuration file named
 .IR $HOME/.config/yadm/config .
@@ -386,43 +420,83 @@ symbolic links. This might be desirable, because non-Cygwin software may not
 properly interpret Cygwin symlinks.
 
 .RE
-These last four "local" configurations are not stored in the
+The following four "local" configurations are not stored in the
 .IR $HOME/.config/yadm/config,
 they are stored in the local repository.
 
 .TP
 .B local.class
-Specify a CLASS for the purpose of symlinking alternate files.
-By default, no CLASS will be matched.
+Specify a class for the purpose of symlinking alternate files.
+By default, no class will be matched.
 .TP
 .B local.os
 Override the OS for the purpose of symlinking alternate files.
 .TP
 .B local.hostname
-Override the HOSTNAME for the purpose of symlinking alternate files.
+Override the hostname for the purpose of symlinking alternate files.
 .TP
 .B local.user
-Override the USER for the purpose of symlinking alternate files.
+Override the user for the purpose of symlinking alternate files.
+
 .SH ALTERNATES
+
 When managing a set of files across different systems, it can be useful to have
 an automated way of choosing an alternate version of a file for a different
-operating system, host, or user.
-.B yadm
-implements a feature which will automatically create a symbolic link to
-the appropriate version of a file, as long as you follow a specific naming
-convention.
-.B yadm
-can detect files with names ending in any of the following:
+operating system, host, user, etc.
 
-  ##
-  ##CLASS
-  ##CLASS.OS
-  ##CLASS.OS.HOSTNAME
-  ##CLASS.OS.HOSTNAME.USER
-  ##OS
-  ##OS.HOSTNAME
-  ##OS.HOSTNAME.USER
+yadm will automatically create a symbolic link to the appropriate version of a
+file, when a valid suffix is appended to the filename. The suffix contains
+the conditions that must be met for that file to be used.
 
+The suffix begins with "##", followed by any number of conditions separated by
+commas.
+
+  ##<condition>[,<condition>,...]
+
+Each condition is an attribute/value pair, separated by a period. Some
+conditions do not require a "value", and in that case, the period and value can
+be omitted.
+
+  <attribute>[.<value>]
+
+These are the supported attributes, in the order of the weighted precedence:
+
+.TP
+.BR template , " t
+Valid when the value matches a supported template processor.
+See the TEMPLATES section for more details.
+.TP
+.BR user ,  " u
+Valid if the value matches the current user.
+Current user is calculated by running
+.BR "id -u -n" .
+.TP
+.BR os , " o
+Valid if the value matches the OS.
+OS is calculated by running
+.BR "uname -s" .
+.TP
+.BR class , " c
+Valid if the value matches the
+.B local.class
+configuration.
+Class must be manually set using
+.BR "yadm config local.class <class>" .
+See the CONFIGURATION section for more details about setting
+.BR local.class .
+.TP
+.BR hostname , " h
+Valid if the value matches the short hostname.
+Hostname is calculated by running
+.BR "hostname" ,
+and trimming off any domain.
+.TP
+.B default
+Valid when no other alternate is valid.
+.LP
+
+You may use any number of conditions, in any order.
+An alternate will only be used if ALL conditions are valid.
 If there are any files managed by
 .BR yadm \'s
 repository,
@@ -430,125 +504,137 @@ or listed in
 .IR $HOME/.config/yadm/encrypt ,
 which match this naming convention,
 symbolic links will be created for the most appropriate version.
-This may best be demonstrated by example. Assume the following files are managed by
+
+The "most appropriate" version is determined by calculating a score for each
+version of a file. A template is always scored higher than any symlink
+condition. The number of conditions is the next largest factor in scoring.
+Files with more conditions will always be favored. Any invalid condition will
+disqualify that file completely.
+
+Alternate linking may best be demonstrated by example. Assume the following
+files are managed by
 .BR yadm \'s
 repository:
 
-  - $HOME/path/example.txt##
-  - $HOME/path/example.txt##Work
-  - $HOME/path/example.txt##Darwin
-  - $HOME/path/example.txt##Darwin.host1
-  - $HOME/path/example.txt##Darwin.host2
-  - $HOME/path/example.txt##Linux
-  - $HOME/path/example.txt##Linux.host1
-  - $HOME/path/example.txt##Linux.host2
+  - $HOME/path/example.txt##default
+  - $HOME/path/example.txt##class.Work
+  - $HOME/path/example.txt##os.Darwin
+  - $HOME/path/example.txt##os.Darwin,hostname.host1
+  - $HOME/path/example.txt##os.Darwin,hostname.host2
+  - $HOME/path/example.txt##os.Linux
+  - $HOME/path/example.txt##os.Linux,hostname.host1
+  - $HOME/path/example.txt##os.Linux,hostname.host2
 
 If running on a Macbook named "host2",
 .B yadm
 will create a symbolic link which looks like this:
 
-.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##Darwin.host2
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##os.Darwin,hostname.host2
 
 However, on another Mackbook named "host3",
 .B yadm
 will create a symbolic link which looks like this:
 
-.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##Darwin
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##os.Darwin
 
 Since the hostname doesn't match any of the managed files, the more generic version is chosen.
 
 If running on a Linux server named "host4", the link will be:
 
-.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##Linux
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##os.Linux
 
-If running on a Solaris server, the link use the default "##" version:
+If running on a Solaris server, the link will use the default version:
 
-.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##default
 
-If running on a system, with CLASS set to "Work", the link will be:
+If running on a system, with class set to "Work", the link will be:
 
-.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##WORK
+.IR $HOME/path/example.txt " -> " $HOME/path/example.txt##class.Work
 
-If no "##" version exists and no files match the current CLASS/OS/HOSTNAME/USER, then no link will be created.
+If no "##default" version exists and no files have valid conditions, then no
+link will be created.
 
 Links are also created for directories named this way, as long as they have at least one
 .B yadm
 managed file within them.
 
-CLASS must be manually set using
-.BR yadm\ config\ local.class\ <class> .
-OS is determined by running
-.BR uname\ -s ,
-HOSTNAME by running
-.BR hostname ,
-and USER by running
-.BR id\ -u\ -n .
 .B yadm
 will automatically create these links by default. This can be disabled using the
 .I yadm.auto-alt
 configuration.
 Even if disabled, links can be manually created by running
-.BR yadm\ alt .
+.BR "yadm alt" .
 
-It is possible to use "%" as a "wildcard" in place of CLASS, OS, HOSTNAME, or
-USER. For example, The following file could be linked for any host when the
-user is "harvey".
-
-.IR $HOME/path/example.txt##%.%.harvey
-
-CLASS is a special value which is stored locally on each host (inside the local
-repository). To use alternate symlinks using CLASS, you must set the value of
+Class is a special value which is stored locally on each host (inside the local
+repository). To use alternate symlinks using class, you must set the value of
 class using the configuration
 .BR local.class .
 This is set like any other
 .B yadm
 configuration with the
 .B yadm config
-command. The following sets the CLASS to be "Work".
+command. The following sets the class to be "Work".
 
   yadm config local.class Work
 
-Similarly, the values of OS, HOSTNAME, and USER can be manually overridden
+Similarly, the values of os, hostname, and user can be manually overridden
 using the configuration options
 .BR local.os ,
 .BR local.hostname ,
 and
 .BR local.user .
 
-.SH JINJA
-If the
+.SH TEMPLATES
+
+If a template condition is defined in an alternate file's "##" suffix, and the
+necessary dependencies for the template are available, then the file will be
+processed to create or overwrite files.
+
+Supported template processors:
+.TP
+.B builtin
+This is
+.BR yadm \'s
+built-in template processor. This processor is very basic, with a Jinja-like
+syntax. The advantage of this processor is that it only depends upon \fBawk\fR,
+which is available on most *nix systems. To use this processor, specify the
+value of "builtin" or just leave the value off (e.g. "##template").
+.TP
+.B j2cli
+To use the j2cli Jinja template processor, specify the value of "j2"  or
+"j2cli".
+.TP
 .B envtpl
-command is available,
-.B Jinja
-templates will also be processed to create or overwrite real files.
-.B yadm
-will treat files ending in
+To use the envtpl Jinja template processor, specify the value of "j2" or "envtpl".
+.LP
 
-  ##yadm.j2
+.BR NOTE :
+Specifying "j2" as the processor will attempt to use j2cli or envtpl, whichever
+is available.
 
-as Jinja templates. During processing, the following variables are set
-according to the rules explained in the ALTERNATES section:
+If the template processor specified is available, templates will be processed
+to create or overwrite files.
 
-  YADM_CLASS
-  YADM_OS
-  YADM_HOSTNAME
-  YADM_USER
+During processing, the following variables are available in the template:
 
-In addition YADM_DISTRO is exposed as the value of
-.I lsb_release -si
-if
-.B lsb_release
-is locally available.
+ Builtin         Jinja           Description
+ -------------   -------------   --------------------------
+ yadm.class      YADM_CLASS      Locally defined yadm class
+ yadm.distro     YADM_DISTRO     lsb_release -si
+ yadm.hostname   YADM_HOSTNAME   hostname (without domain)
+ yadm.os         YADM_OS         uname -s
+ yadm.user       YADM_USER       id -u -n
 
-For example, a file named
-.I whatever##yadm.j2
+Examples:
+
+.I whatever##template
 with the following content
 
-  {% if YADM_USER == 'harvey' -%}
-  config={{YADM_CLASS}}-{{ YADM_OS }}
-  {% else -%}
+  {% if yadm.user == 'harvey' %}
+  config={{yadm.class}}-{{yadm.os}}
+  {% else %}
   config=dev-whatever
-  {% endif -%}
+  {% endif %}
 
 would output a file named
 .I whatever
@@ -560,16 +646,24 @@ and the following otherwise:
 
   config=dev-whatever
 
-See http://jinja.pocoo.org/ for an overview of
-.BR Jinja .
+An equivalent Jinja template named
+.I whatever##template.j2
+would look like:
+
+  {% if YADM_USER == 'harvey' -%}
+  config={{YADM_CLASS}}-{{YADM_OS}}
+  {% else -%}
+  config=dev-whatever
+  {% endif -%}
 
 .SH ENCRYPTION
+
 It can be useful to manage confidential files, like SSH or GPG keys, across
 multiple systems. However, doing so would put plain text data into a Git
 repository, which often resides on a public system.
 .B yadm
-implements a feature which can make it easy to encrypt and decrypt a set of
-files so the encrypted version can be maintained in the Git repository.
+can make it easy to encrypt and decrypt a set of files so the encrypted version
+can be maintained in the Git repository.
 This feature will only work if the
 .BR gpg (1)
 command is available.
@@ -601,7 +695,7 @@ The patterns and files.gpg should be added to the
 repository so they are available across multiple systems.
 
 To decrypt these files later, or on another system run
-.BR yadm\ decrypt
+.B yadm decrypt
 and provide the correct password.
 After files are decrypted, permissions are automatically updated as described
 in the PERMISSIONS section.
@@ -614,7 +708,9 @@ configuration.
 .BR NOTE :
 It is recommended that you use a private repository when keeping confidential
 files, even though they are encrypted.
+
 .SH PERMISSIONS
+
 When files are checked out of a Git repository, their initial permissions are
 dependent upon the user's umask. Because of this,
 .B yadm
@@ -636,7 +732,7 @@ will automatically update the permissions of some file paths. The "group" and
 will automatically update permissions by default. This can be disabled using the
 .I yadm.auto-perms
 configuration. Even if disabled, permissions can be manually updated by running
-.BR yadm\ perms .
+.BR "yadm perms" .
 The
 .I .ssh
 directory processing can be disabled using the
@@ -662,7 +758,9 @@ will create those directories with mask 0700 prior to running the Git command.
 This can be disabled using the
 .I yadm.auto-private-dirs
 configuration.
+
 .SH HOOKS
+
 For every command
 .B yadm
 supports, a program can be provided to run before or after that command. These
@@ -718,7 +816,21 @@ repository
 .TP
 .B YADM_HOOK_WORK
 The path to the work-tree
+
 .SH FILES
+
+All of
+.BR yadm \'s
+configurations are relative to the "yadm directory".
+.B yadm
+uses the "XDG Base Directory Specification" to determine this directory. If the
+environment variable
+.B $XDG_CONFIG_HOME
+is defined as a fully qualified path, this directory will be
+.IR "$XDG_CONFIG_HOME/yadm" .
+Otherwise it will be
+.IR "$HOME/.config/yadm" .
+
 The following are the default paths
 .B yadm
 uses for its own data.
@@ -747,7 +859,9 @@ List of globs used for encrypt/decrypt
 All files encrypted with
 .B yadm encrypt
 are stored in this file.
+
 .SH EXAMPLES
+
 .TP
 .B yadm init
 Create an empty repo for managing files
@@ -768,12 +882,17 @@ Add a new pattern to the list of encrypted files
 .TP
 .B yadm encrypt ; yadm add ~/.config/yadm/files.gpg ; yadm commit
 Commit a new set of encrypted files
+
 .SH REPORTING BUGS
+
 Report issues or create pull requests at GitHub:
 
 https://github.com/TheLocehiliosan/yadm/issues
+
 .SH AUTHOR
+
 Tim Byrne <sultan@locehilios.com>
+
 .SH SEE ALSO
 
 .BR git (1),
