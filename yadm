@@ -290,21 +290,30 @@ BEGIN {
   c["hostname"] = host
   c["user"]     = user
   c["distro"]   = distro
-  valid         = conditions()
+  vld           = conditions()
+  ifs           = "^{%" blank "*if"
+  els           = "^{%" blank "*else" blank "*%}$"
   end           = "^{%" blank "*endif" blank "*%}$"
-  skip          = "^{%" blank "*(if|endif)"
+  skp           = "^{%" blank "*(if|else|endif)"
+  prt           = 1
 }
 { replace_vars() } # variable replacements
-$0 ~ valid, $0 ~ end { if ($0 ~ skip) next } # valid conditional blocks
-$0 ~ ("^{%" blank "*if"), $0 ~ end { next } # invalid conditional blocks
-{ print }
-
+$0 ~ vld, $0 ~ end {
+  if ($0 ~ vld || $0 ~ end) prt=1;
+  if ($0 ~ els) prt=0;
+  if ($0 ~ skp) next;
+}
+($0 ~ ifs && $0 !~ vld), $0 ~ end {
+  if ($0 ~ ifs && $0 !~ vld) prt=0;
+  if ($0 ~ els || $0 ~ end) prt=1;
+  if ($0 ~ skp) next;
+}
+{ if (prt) print }
 function replace_vars() {
   for (label in c) {
     gsub(("{{" blank "*yadm\\." label blank "*}}"), c[label])
   }
 }
-
 function conditions() {
   pattern = "^{%" blank "*if" blank "*("
   for (label in c) {

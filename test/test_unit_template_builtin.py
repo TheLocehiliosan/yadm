@@ -13,11 +13,19 @@ builtin os     = >{{{{yadm.os}}}}<
 builtin host   = >{{{{yadm.hostname}}}}<
 builtin user   = >{{{{yadm.user}}}}<
 builtin distro = >{{{{yadm.distro}}}}<
+{{% if yadm.class == "else1" %}}
+wrong else 1
+{{% else %}}
+Included section from else
+{{% endif %}}
 {{% if yadm.class == "wrongclass1" %}}
 wrong class 1
 {{% endif %}}
 {{% if yadm.class == "{LOCAL_CLASS}" %}}
 Included section for class = {{{{yadm.class}}}} ({{{{yadm.class}}}} repeated)
+Multiple lines
+{{% else %}}
+Should not be included...
 {{% endif %}}
 {{% if yadm.class == "wrongclass2" %}}
 wrong class 2
@@ -67,7 +75,9 @@ builtin os     = >{LOCAL_SYSTEM}<
 builtin host   = >{LOCAL_HOST}<
 builtin user   = >{LOCAL_USER}<
 builtin distro = >{LOCAL_DISTRO}<
+Included section from else
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
+Multiple lines
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
