@@ -59,29 +59,20 @@ list
 
 .SH DESCRIPTION
 
-.B yadm
-is a tool for managing a collection of files across multiple computers,
+yadm is a tool for managing a collection of files across multiple computers,
 using a shared Git repository.
-In addition,
-.B yadm
-provides a feature to select alternate versions of files for particular
-systems.
-Lastly,
-.B yadm
-supplies the ability to manage a subset of secure files, which are
+In addition, yadm provides a feature to select alternate versions of files for
+particular systems.
+Lastly, yadm supplies the ability to manage a subset of secure files, which are
 encrypted before they are included in the repository.
 
 .SH COMMANDS
 
 .TP
 .IR git-command " or " git-alias
-Any command not internally handled by
-.B yadm
-is passed through to
+Any command not internally handled by yadm is passed through to
 .BR git (1).
-Git commands or aliases are invoked with the
-.B yadm
-managed repository.
+Git commands or aliases are invoked with the yadm managed repository.
 The working directory for Git commands will be the configured
 .IR work-tree " (usually
 .IR $HOME ).
@@ -104,10 +95,8 @@ command (see below).
 .B alt
 Create symbolic links and process templates for any managed files matching the
 naming rules described in the ALTERNATES and TEMPLATES sections. It is usually
-unnecessary to run this command, as
-.B yadm
-automatically processes alternates by default.
-This automatic behavior can be disabled by setting the configuration
+unnecessary to run this command, as yadm automatically processes alternates by
+default. This automatic behavior can be disabled by setting the configuration
 .I yadm.auto-alt
 to "false".
 .TP
@@ -155,21 +144,17 @@ will be used as the
 .IR work-tree ,
 but this can be overridden with the
 .BR -w " option.
-.B yadm
-can be forced to overwrite an existing repository by providing the
+yadm can be forced to overwrite an existing repository by providing the
 .BR -f " option.
-By default
-.B yadm
-will ask the user if the bootstrap program should be run (if it exists). The
-options
+By default yadm will ask the user if the bootstrap program should be run (if it
+exists). The options
 .BR --bootstrap " or " --no-bootstrap
 will either force the bootstrap to be run, or prevent it from being run,
 without prompting the user.
 .RE
 .TP
 .B config
-This command manages configurations for
-.BR yadm .
+This command manages configurations for yadm.
 This command works exactly they way
 .BR git-config (1)
 does.
@@ -193,11 +178,9 @@ See the ENCRYPTION section for more details.
 .B enter
 Run a sub-shell with all Git variables set. Exit the sub-shell the same way you
 leave your normal shell (usually with the "exit" command). This sub-shell can
-be used to easily interact with your
-.B yadm
-repository using "git" commands. This could be useful if you are using a tool
-which uses Git directly. For example, Emacs Tramp and Magit can manage files by
-using this configuration:
+be used to easily interact with your yadm repository using "git" commands. This
+could be useful if you are using a tool which uses Git directly. For example,
+Emacs Tramp and Magit can manage files by using this configuration:
 .RS
     (add-to-list 'tramp-methods
          '("yadm"
@@ -210,17 +193,16 @@ using this configuration:
 .B gitconfig
 Pass options to the
 .B git config
-command. Since
-.B yadm
-already uses the
+command. Since yadm already uses the
 .I config
 command to manage its own configurations,
-this command is provided as a way to change configurations of the repository managed by
-.BR yadm .
-One useful case might be to configure the repository so untracked files are shown in status commands.
-.B yadm
-initially configures its repository so that untracked files are not shown.
-If you wish use the default Git behavior (to show untracked files and directories), you can remove this configuration.
+this command is provided as a way to change configurations of the repository
+managed by yadm.
+One useful case might be to configure the repository so untracked files are
+shown in status commands. yadm initially configures its repository so that
+untracked files are not shown.
+If you wish use the default Git behavior (to show untracked files and
+directories), you can remove this configuration.
 
 .RS
 .RS
@@ -229,8 +211,7 @@ yadm gitconfig --unset status.showUntrackedFiles
 .RE
 .TP
 .B help
-Print a summary of
-.BR yadm " commands.
+Print a summary of yadm commands.
 .TP
 .B init
 Initialize a new, empty repository for tracking dotfiles.
@@ -242,21 +223,17 @@ will be used as the
 .IR work-tree ,
 but this can be overridden with the
 .BR -w " option.
-.B yadm
-can be forced to overwrite an existing repository by providing the
+yadm can be forced to overwrite an existing repository by providing the
 .BR -f " option.
 .TP
 .B list
-Print a list of files managed by
-.BR yadm .
+Print a list of files managed by yadm.
 .RB The " -a
 option will cause all managed files to be listed.
 Otherwise, the list will only include files from the current directory or below.
 .TP
 .BI introspect " category
-Report internal
-.B yadm
-data. Supported categories are
+Report internal yadm data. Supported categories are
 .IR commands ,
 .IR configs ,
 .IR repo,
@@ -266,50 +243,42 @@ The purpose of introspection is to support command line completion.
 .TP
 .B perms
 Update permissions as described in the PERMISSIONS section.
-It is usually unnecessary to run this command, as
-.B yadm
-automatically processes permissions by default.
-This automatic behavior can be disabled by setting the configuration
+It is usually unnecessary to run this command, as yadm automatically processes
+permissions by default. This automatic behavior can be disabled by setting the
+configuration
 .I yadm.auto-perms
 to "false".
 .TP
 .B version
-Print the version of
-.BR yadm .
+Print the version of yadm.
 
 .SH COMPATIBILITY
 
-Beginning with version 2.0.0,
-.B yadm
-introduced a couple major changes which may require you to adjust your configurations.
+Beginning with version 2.0.0, yadm introduced a couple major changes which may
+require you to adjust your configurations.
 
-First,
-.B yadm
-now uses the "XDG Base Directory Specification" to find its configurations.
-You can read https://yadm.io/docs/xdg_config_home for more information.
+First, yadm now uses the "XDG Base Directory Specification" to find its
+configurations. You can read https://yadm.io/docs/xdg_config_home for more
+information.
 
 Second, the naming conventions for alternate files have been changed.
 You can read https://yadm.io/docs/alternates for more information.
 
 If you want to retain the old functionality, you can set an environment variable,
 .IR YADM_COMPATIBILITY=1 .
-Doing so will automatically use the old
-.B yadm
-directory, and process alternates the same as the pre-2.0.0 version.
-This compatibility mode is deprecated, and will be removed in future versions.
-This mode exists solely for transitioning to the new paths and naming of
-alternates.
+Doing so will automatically use the old yadm directory, and process alternates
+the same as the pre-2.0.0 version. This compatibility mode is deprecated, and
+will be removed in future versions. This mode exists solely for transitioning
+to the new paths and naming of alternates.
 
 .SH OPTIONS
 
-.B yadm
-supports a set of universal options that alter the paths it uses.
-The default paths are documented in the FILES section.
-Any path specified by these options must be fully qualified.
-If you always want to override one or more of these paths, it may be useful to create an alias for the
-.B yadm
-command.
-For example, the following alias could be used to override the repository directory.
+yadm supports a set of universal options that alter the paths it uses. The
+default paths are documented in the FILES section. Any path specified by these
+options must be fully qualified. If you always want to override one or more of
+these paths, it may be useful to create an alias for the yadm command.
+For example, the following alias could be used to override the repository
+directory.
 
 .RS
 alias yadm='yadm --yadm-repo /alternate/path/to/repo'
@@ -319,41 +288,27 @@ The following is the full list of universal options.
 Each option should be followed by a fully qualified path.
 .TP
 .B -Y,--yadm-dir
-Override the
-.B yadm
-directory.
-.B yadm
-stores its data relative to this directory.
+Override the yadm directory.
+yadm stores its data relative to this directory.
 .TP
 .B --yadm-repo
-Override the location of the
-.B yadm
-repository.
+Override the location of the yadm repository.
 .TP
 .B --yadm-config
-Override the location of the
-.B yadm
-configuration file.
+Override the location of the yadm configuration file.
 .TP
 .B --yadm-encrypt
-Override the location of the
-.B yadm
-encryption configuration.
+Override the location of the yadm encryption configuration.
 .TP
 .B --yadm-archive
-Override the location of the
-.B yadm
-encrypted files archive.
+Override the location of the yadm encrypted files archive.
 .TP
 .B --yadm-bootstrap
-Override the location of the
-.B yadm
-bootstrap program.
+Override the location of the yadm bootstrap program.
 
 .SH CONFIGURATION
 
-.B yadm
-uses a configuration file named
+yadm uses a configuration file named
 .IR $HOME/.config/yadm/config .
 This file uses the same format as
 .BR git-config (1).
@@ -371,11 +326,9 @@ yadm config yadm.auto-alt false
 The following is the full list of supported configurations:
 .TP
 .B yadm.auto-alt
-Disable the automatic linking described in the section ALTERNATES.
-If disabled, you may still run
-.B yadm alt
-manually to create the alternate links.
-This feature is enabled by default.
+Disable the automatic linking described in the section ALTERNATES. If disabled,
+you may still run "yadm alt" manually to create the alternate links. This
+feature is enabled by default.
 .TP
 .B yadm.auto-perms
 Disable the automatic permission changes described in the section PERMISSIONS.
@@ -497,10 +450,7 @@ Valid when no other alternate is valid.
 
 You may use any number of conditions, in any order.
 An alternate will only be used if ALL conditions are valid.
-If there are any files managed by
-.BR yadm \'s
-repository,
-or listed in
+If there are any files managed by yadm's repository, or listed in
 .IR $HOME/.config/yadm/encrypt ,
 which match this naming convention,
 symbolic links will be created for the most appropriate version.
@@ -512,9 +462,7 @@ Files with more conditions will always be favored. Any invalid condition will
 disqualify that file completely.
 
 Alternate linking may best be demonstrated by example. Assume the following
-files are managed by
-.BR yadm \'s
-repository:
+files are managed by yadm's repository:
 
   - $HOME/path/example.txt##default
   - $HOME/path/example.txt##class.Work
@@ -526,14 +474,12 @@ repository:
   - $HOME/path/example.txt##os.Linux,hostname.host2
 
 If running on a Macbook named "host2",
-.B yadm
-will create a symbolic link which looks like this:
+yadm will create a symbolic link which looks like this:
 
 .IR $HOME/path/example.txt " -> " $HOME/path/example.txt##os.Darwin,hostname.host2
 
-However, on another Mackbook named "host3",
-.B yadm
-will create a symbolic link which looks like this:
+However, on another Mackbook named "host3", yadm will create a symbolic link
+which looks like this:
 
 .IR $HOME/path/example.txt " -> " $HOME/path/example.txt##os.Darwin
 
@@ -554,12 +500,11 @@ If running on a system, with class set to "Work", the link will be:
 If no "##default" version exists and no files have valid conditions, then no
 link will be created.
 
-Links are also created for directories named this way, as long as they have at least one
-.B yadm
-managed file within them.
+Links are also created for directories named this way, as long as they have at
+least one yadm managed file within them.
 
-.B yadm
-will automatically create these links by default. This can be disabled using the
+yadm will automatically create these links by default. This can be disabled
+using the
 .I yadm.auto-alt
 configuration.
 Even if disabled, links can be manually created by running
@@ -569,9 +514,7 @@ Class is a special value which is stored locally on each host (inside the local
 repository). To use alternate symlinks using class, you must set the value of
 class using the configuration
 .BR local.class .
-This is set like any other
-.B yadm
-configuration with the
+This is set like any other yadm configuration with the
 .B yadm config
 command. The following sets the class to be "Work".
 
@@ -593,12 +536,12 @@ processed to create or overwrite files.
 Supported template processors:
 .TP
 .B builtin
-This is
-.BR yadm \'s
-built-in template processor. This processor is very basic, with a Jinja-like
-syntax. The advantage of this processor is that it only depends upon \fBawk\fR,
-which is available on most *nix systems. To use this processor, specify the
-value of "builtin" or just leave the value off (e.g. "##template").
+This is yadm's built-in template processor. This processor is very basic, with
+a Jinja-like syntax. The advantage of this processor is that it only depends
+upon
+.BR awk ,
+which is available on most *nix systems. To use this processor,
+specify the value of "builtin" or just leave the value off (e.g. "##template").
 .TP
 .B j2cli
 To use the j2cli Jinja template processor, specify the value of "j2"  or
@@ -660,10 +603,9 @@ would look like:
 
 It can be useful to manage confidential files, like SSH or GPG keys, across
 multiple systems. However, doing so would put plain text data into a Git
-repository, which often resides on a public system.
-.B yadm
-can make it easy to encrypt and decrypt a set of files so the encrypted version
-can be maintained in the Git repository.
+repository, which often resides on a public system. yadm can make it easy to
+encrypt and decrypt a set of files so the encrypted version can be maintained
+in the Git repository.
 This feature will only work if the
 .BR gpg (1)
 command is available.
@@ -690,9 +632,8 @@ The
 command will find all files matching the patterns, and prompt for a password. Once a
 password has confirmed, the matching files will be encrypted and saved as
 .IR $HOME/.config/yadm/files.gpg .
-The patterns and files.gpg should be added to the
-.B yadm
-repository so they are available across multiple systems.
+The patterns and files.gpg should be added to the yadm repository so they are
+available across multiple systems.
 
 To decrypt these files later, or on another system run
 .B yadm decrypt
@@ -712,10 +653,9 @@ files, even though they are encrypted.
 .SH PERMISSIONS
 
 When files are checked out of a Git repository, their initial permissions are
-dependent upon the user's umask. Because of this,
-.B yadm
-will automatically update the permissions of some file paths. The "group" and
-"others" permissions will be removed from the following files:
+dependent upon the user's umask. Because of this, yadm will automatically
+update the permissions of some file paths. The "group" and "others" permissions
+will be removed from the following files:
 
 .RI - " $HOME/.config/yadm/files.gpg
 
@@ -728,8 +668,8 @@ will automatically update the permissions of some file paths. The "group" and
 - The GPG directory and files,
 .I .gnupg/*
 
-.B yadm
-will automatically update permissions by default. This can be disabled using the
+yadm will automatically update permissions by default. This can be disabled
+using the
 .I yadm.auto-perms
 configuration. Even if disabled, permissions can be manually updated by running
 .BR "yadm perms" .
@@ -745,29 +685,22 @@ configuration.
 
 When cloning a repo which includes data in a
 .IR .ssh " or " .gnupg
-directory, if those directories do not exist at the time of cloning,
-.B yadm
-will create the directories with mask 0700 prior to merging the fetched data
-into the work-tree.
+directory, if those directories do not exist at the time of cloning, yadm will
+create the directories with mask 0700 prior to merging the fetched data into
+the work-tree.
 
 When running a Git command and
 .IR .ssh " or " .gnupg
-directories do not exist,
-.B yadm
-will create those directories with mask 0700 prior to running the Git command.
-This can be disabled using the
+directories do not exist, yadm will create those directories with mask 0700
+prior to running the Git command. This can be disabled using the
 .I yadm.auto-private-dirs
 configuration.
 
 .SH HOOKS
 
-For every command
-.B yadm
-supports, a program can be provided to run before or after that command. These
-are referred to as "hooks".
-.B yadm
-looks for
-hooks in the directory
+For every command yadm supports, a program can be provided to run before or
+after that command. These are referred to as "hooks". yadm looks for hooks in
+the directory
 .IR $HOME/.config/yadm/hooks .
 Each hook is named using a prefix of
 .I pre_
@@ -782,11 +715,8 @@ Hooks must have the executable file permission set.
 
 If a
 .I pre_
-hook is defined, and the hook terminates with a non-zero exit status,
-.B yadm
-will refuse to run the
-.B yadm
-command. For example, if a
+hook is defined, and the hook terminates with a non-zero exit status, yadm will
+refuse to run the yadm command. For example, if a
 .I pre_commit
 hook is defined, but that command ends with a non-zero exit status, the
 .I yadm commit
@@ -800,57 +730,41 @@ Hooks have the following environment variables available to them at runtime:
 The command which triggered the hook
 .TP
 .B YADM_HOOK_EXIT
-The exit status of the
-.B yadm
-command
+The exit status of the yadm command
 .TP
 .B YADM_HOOK_FULL_COMMAND
-The
-.B yadm
-command with all command line arguments
+The yadm command with all command line arguments
 .TP
 .B YADM_HOOK_REPO
-The path to the
-.B yadm
-repository
+The path to the yadm repository
 .TP
 .B YADM_HOOK_WORK
 The path to the work-tree
 
 .SH FILES
 
-All of
-.BR yadm \'s
-configurations are relative to the "yadm directory".
-.B yadm
-uses the "XDG Base Directory Specification" to determine this directory. If the
-environment variable
+All of yadm's configurations are relative to the "yadm directory".
+yadm uses the "XDG Base Directory Specification" to determine this directory.
+If the environment variable
 .B $XDG_CONFIG_HOME
 is defined as a fully qualified path, this directory will be
 .IR "$XDG_CONFIG_HOME/yadm" .
 Otherwise it will be
 .IR "$HOME/.config/yadm" .
 
-The following are the default paths
-.B yadm
-uses for its own data.
+The following are the default paths yadm uses for its own data.
 These paths can be altered using universal options.
 See the OPTIONS section for details.
 .TP
 .I $HOME/.config/yadm
-The
-.B yadm
-directory. By default, all data
-.B yadm
-stores is relative to this directory.
+The yadm directory. By default, all data yadm stores is relative to this
+directory.
 .TP
 .I $YADM_DIR/config
-Configuration file for
-.BR yadm .
+Configuration file for yadm.
 .TP
 .I $YADM_DIR/repo.git
-Git repository used by
-.BR yadm .
+Git repository used by yadm.
 .TP
 .I $YADM_DIR/encrypt
 List of globs used for encrypt/decrypt
