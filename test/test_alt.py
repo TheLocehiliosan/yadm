@@ -49,13 +49,14 @@ def test_alt_source(
 @pytest.mark.parametrize('suffix', [
     '##default',
     '##o.$tst_sys', '##os.$tst_sys',
+    '##d.$tst_distro', '##distro.$tst_distro',
     '##c.$tst_class', '##class.$tst_class',
     '##h.$tst_host', '##hostname.$tst_host',
     '##u.$tst_user', '##user.$tst_user',
     ])
 def test_alt_conditions(
         runner, yadm_y, paths,
-        tst_sys, tst_host, tst_user, suffix):
+        tst_sys, tst_distro, tst_host, tst_user, suffix):
     """Test conditions supported by yadm alt"""
 
     # set the class
@@ -64,6 +65,7 @@ def test_alt_conditions(
 
     suffix = string.Template(suffix).substitute(
         tst_sys=tst_sys,
+        tst_distro=tst_distro,
         tst_class=tst_class,
         tst_host=tst_host,
         tst_user=tst_user,

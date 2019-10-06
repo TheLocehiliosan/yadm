@@ -10,17 +10,21 @@ CONDITION = {
         'labels': ['o', 'os'],
         'modifier': 1,
         },
+    'distro': {
+        'labels': ['d', 'distro'],
+        'modifier': 2,
+        },
     'class': {
         'labels': ['c', 'class'],
-        'modifier': 2,
+        'modifier': 4,
         },
     'hostname': {
         'labels': ['h', 'hostname'],
-        'modifier': 4,
+        'modifier': 8,
         },
     'user': {
         'labels': ['u', 'user'],
-        'modifier': 8,
+        'modifier': 16,
         },
     }
 TEMPLATE_LABELS = ['t', 'template', 'yadm']
@@ -44,24 +48,35 @@ def calculate_score(filename):
             if value == 'testsystem':
                 score += 1000 + CONDITION['system']['modifier']
             else:
-                return 0
+                score = 0
+                break
+        elif label in CONDITION['distro']['labels']:
+            if value == 'testdistro':
+                score += 1000 + CONDITION['distro']['modifier']
+            else:
+                score = 0
+                break
         elif label in CONDITION['class']['labels']:
             if value == 'testclass':
                 score += 1000 + CONDITION['class']['modifier']
             else:
-                return 0
+                score = 0
+                break
         elif label in CONDITION['hostname']['labels']:
             if value == 'testhost':
                 score += 1000 + CONDITION['hostname']['modifier']
             else:
-                return 0
+                score = 0
+                break
         elif label in CONDITION['user']['labels']:
             if value == 'testuser':
                 score += 1000 + CONDITION['user']['modifier']
             else:
-                return 0
+                score = 0
+                break
         elif label in TEMPLATE_LABELS:
-            return 0
+            score = 0
+            break
     return score
 
 
@@ -70,17 +85,20 @@ def calculate_score(filename):
 @pytest.mark.parametrize(
     'system', ['system', None], ids=['system', 'no-system'])
 @pytest.mark.parametrize(
+    'distro', ['distro', None], ids=['distro', 'no-distro'])
+@pytest.mark.parametrize(
     'cla', ['class', None], ids=['class', 'no-class'])
 @pytest.mark.parametrize(
     'host', ['hostname', None], ids=['hostname', 'no-host'])
 @pytest.mark.parametrize(
     'user', ['user', None], ids=['user', 'no-user'])
 def test_score_values(
-        runner, yadm, default, system, cla, host, user):
+        runner, yadm, default, system, distro, cla, host, user):
     """Test score results"""
     # pylint: disable=too-many-branches
     local_class = 'testclass'
     local_system = 'testsystem'
+    local_distro = 'testdistro'
     local_host = 'testhost'
     local_user = 'testuser'
     filenames = {'filename##': 0}
@@ -103,6 +121,18 @@ def test_score_values(
                     newfile += '.'.join([
                         label,
                         local_system if match else 'badsys'
+                        ])
+                    filenames[newfile] = calculate_score(newfile)
+    if distro:
+        for filename in list(filenames):
+            for match in [True, False]:
+                for label in CONDITION[distro]['labels']:
+                    newfile = filename
+                    if not newfile.endswith('##'):
+                        newfile += ','
+                    newfile += '.'.join([
+                        label,
+                        local_distro if match else 'baddistro'
                         ])
                     filenames[newfile] = calculate_score(newfile)
     if cla:
@@ -147,6 +177,7 @@ def test_score_values(
         score=0
         local_class={local_class}
         local_system={local_system}
+        local_distro={local_distro}
         local_host={local_host}
         local_user={local_user}
     """
@@ -169,6 +200,7 @@ def test_score_values_templates(runner, yadm):
     """Test score results"""
     local_class = 'testclass'
     local_system = 'testsystem'
+    local_distro = 'testdistro'
     local_host = 'testhost'
     local_user = 'testuser'
     filenames = {'filename##': 0}
@@ -186,6 +218,7 @@ def test_score_values_templates(runner, yadm):
         score=0
         local_class={local_class}
         local_system={local_system}
+        local_distro={local_distro}
         local_host={local_host}
         local_user={local_user}
     """

@@ -424,6 +424,11 @@ Valid if the value matches the current user.
 Current user is calculated by running
 .BR "id -u -n" .
 .TP
+.BR distro , " d
+Valid if the value matches the distro.
+Distro is calculated by running
+.BR "lsb_release -si" .
+.TP
 .BR os , " o
 Valid if the value matches the OS.
 OS is calculated by running

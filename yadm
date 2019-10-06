@@ -154,23 +154,30 @@ function score_file() {
         score=0
         return
       fi
+    elif [[ "$label" =~ ^(d|distro)$ ]]; then
+      if [ "$value" = "$local_distro" ]; then
+        score=$((score + 2))
+      else
+        score=0
+        return
+      fi
     elif [[ "$label" =~ ^(c|class)$ ]]; then
       if [ "$value" = "$local_class" ]; then
-        score=$((score + 2))
+        score=$((score + 4))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(h|hostname)$ ]]; then
       if [ "$value" = "$local_host" ]; then
-        score=$((score + 4))
+        score=$((score + 8))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(u|user)$ ]]; then
       if [ "$value" = "$local_user" ]; then
-        score=$((score + 8))
+        score=$((score + 16))
       else
         score=0
         return
