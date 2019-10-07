@@ -251,6 +251,51 @@ def test_clone_perms(
             f'.{private_type} has not been secured by auto.perms')
 
 
+@pytest.mark.usefixtures('remote')
+@pytest.mark.parametrize('branch', ['master', 'valid', 'invalid'])
+def test_alternate_branch(runner, paths, yadm_y, repo_config, branch):
+    """Test cloning a branch other than master"""
+
+    # add a "valid" branch to the remote
+    os.system(f'GIT_DIR="{paths.remote}" git checkout -b valid')
+    os.system(
+        f'GIT_DIR="{paths.remote}" git commit '
+        f'--allow-empty -m "This branch is valid"')
+
+    # clear out the work path
+    paths.work.remove()
+    paths.work.mkdir()
+
+    remote_url = f'file://{paths.remote}'
+
+    # run the clone command
+    args = ['clone', '-w', paths.work]
+    if branch != 'master':
+        args += ['-b', branch]
+    args += [remote_url]
+    run = runner(command=yadm_y(*args))
+
+    if branch == 'invalid':
+        assert run.failure
+        assert 'ERROR: Clone failed' in run.out
+        assert f"'origin/{branch}' does not exist in {remote_url}" in run.out
+    else:
+        assert successful_clone(run, paths, repo_config)
+
+        # confirm correct Git origin
+        run = runner(
+            command=('git', 'remote', '-v', 'show'),
+            env={'GIT_DIR': paths.repo})
+        assert run.success
+        assert run.err == ''
+        assert f'origin\t{remote_url}' in run.out
+        run = runner(command=yadm_y('show'))
+        if branch == 'valid':
+            assert 'This branch is valid' in run.out
+        else:
+            assert 'Initial commit' in run.out
+
+
 def successful_clone(run, paths, repo_config, expected_code=0):
     """Assert clone is successful"""
     assert run.code == expected_code

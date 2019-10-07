@@ -610,11 +610,20 @@ function clean() {
 function clone() {
 
   DO_BOOTSTRAP=1
+  local branch
+  branch="master"
 
   clone_args=()
   while [[ $# -gt 0 ]] ; do
     key="$1"
     case $key in
+      -b)
+        if ! is_valid_branch_name "$2"; then
+          error_out "You must provide a branch name when using '-b'"
+        fi
+        branch="$2"
+        shift
+      ;;
       --bootstrap) # force bootstrap, without prompt
         DO_BOOTSTRAP=2
       ;;
@@ -634,12 +643,12 @@ function clone() {
   local empty=
   init $empty
 
-  # add the specified remote, and configure the repo to track origin/master
+  # add the specified remote, and configure the repo to track origin/$branch
   debug "Adding remote to new repo"
   "$GIT_PROGRAM" remote add origin "${clone_args[@]}"
-  debug "Configuring new repo to track origin/master"
-  "$GIT_PROGRAM" config branch.master.remote origin
-  "$GIT_PROGRAM" config branch.master.merge refs/heads/master
+  debug "Configuring new repo to track origin/${branch}"
+  "$GIT_PROGRAM" config "branch.${branch}.remote" origin
+  "$GIT_PROGRAM" config "branch.${branch}.merge" "refs/heads/${branch}"
 
   # fetch / merge (and possibly fallback to reset)
   debug "Doing an initial fetch of the origin"
@@ -648,30 +657,36 @@ function clone() {
     rm -rf "$YADM_REPO"
     error_out "Unable to fetch origin ${clone_args[0]}"
   }
+  debug "Verifying '${branch}' is a valid branch to merge"
+  [ -f "${YADM_REPO}/refs/remotes/origin/${branch}" ] || {
+    debug "Removing repo after failed clone"
+    rm -rf "$YADM_REPO"
+    error_out "Clone failed, 'origin/${branch}' does not exist in ${clone_args[0]}"
+  }
   debug "Determining if repo tracks private directories"
   for private_dir in .ssh/ .gnupg/; do
-    found_log=$("$GIT_PROGRAM" log -n 1 origin/master -- "$private_dir" 2>/dev/null)
+    found_log=$("$GIT_PROGRAM" log -n 1 "origin/${branch}" -- "$private_dir" 2>/dev/null)
     if [ -n "$found_log" ]; then
       debug "Private directory $private_dir is tracked by repo"
       assert_private_dirs "$private_dir"
     fi
   done
   [ -n "$DEBUG" ] && display_private_perms "pre-merge"
-  debug "Doing an initial merge of origin/master"
-  "$GIT_PROGRAM" merge origin/master || {
+  debug "Doing an initial merge of origin/${branch}"
+  "$GIT_PROGRAM" merge "origin/${branch}" || {
     debug "Merge failed, doing a reset and stashing conflicts."
-    "$GIT_PROGRAM" reset origin/master
+    "$GIT_PROGRAM" reset "origin/${branch}"
     if cd "$YADM_WORK"; then # necessary because of a bug in Git
       "$GIT_PROGRAM" -c user.name='yadm clone' -c user.email='yadm' stash save Conflicts preserved from yadm clone command 2>&1
       cat <<EOF
 **NOTE**
-  Merging origin/master failed.
+  Merging origin/${branch} failed.
 
-  As a result, yadm did 'reset origin/master', and then
+  As a result, yadm did 'reset origin/${branch}', and then
   stashed the conflicting data.
 
   This likely happened because you had files in \$HOME
-  which conflicted with files tracked by origin/master.
+  which conflicted with files tracked by origin/${branch}.
 
   You can review the stashed conflicts with the
   command 'yadm stash show -p' from within your
@@ -685,15 +700,15 @@ EOF
       DO_BOOTSTRAP=0
       cat <<EOF
 **NOTE**
-  Merging origin/master failed.
-  yadm did 'reset origin/master' instead.
+  Merging origin/${branch} failed.
+  yadm did 'reset origin/${branch}' instead.
 
   yadm did not stash these conflicts beacuse it was unable
   to change to the $YADM_WORK directory.
 
   Please review and resolve any differences appropriately
   If you know what you're doing, and want to overwrite the
-  tracked files, consider 'yadm reset --hard origin/master'
+  tracked files, consider 'yadm reset --hard origin/${branch}'
 EOF
     fi
   }
@@ -1035,6 +1050,17 @@ function version() {
 }
 
 # ****** Utility Functions ******
+
+function is_valid_branch_name() {
+  # Git branches do not allow:
+  #  * path component that begins with "."
+  #  * double dot
+  #  * "~", "^", ":", "\", space
+  #  * end with a "/"
+  #  * end with ".lock"
+  [[ "$1" =~ (\/\.|\.\.|[~^:\\ ]|\/$|\.lock$) ]] && return 1
+  return 0
+}
 
 function query_distro() {
   distro=""

@@ -19,13 +19,15 @@ yadm \- Yet Another Dotfiles Manager
 init
 .RB [ -f ]
 .RB [ -w
-.IR directory ]
+.IR dir ]
 
 .B yadm
 .RI clone " url
 .RB [ -f ]
 .RB [ -w
-.IR directory ]
+.IR dir ]
+.RB [ -b
+.IR branch ]
 .RB [ --bootstrap ]
 .RB [ --no-bootstrap ]
 
@@ -146,6 +148,10 @@ but this can be overridden with the
 .BR -w " option.
 yadm can be forced to overwrite an existing repository by providing the
 .BR -f " option.
+If you want to use a branch other than
+.IR origin/master ,
+you can specify it using the
+.BR -b " option.
 By default yadm will ask the user if the bootstrap program should be run (if it
 exists). The options
 .BR --bootstrap " or " --no-bootstrap
