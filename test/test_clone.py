@@ -28,6 +28,10 @@ def test_clone(
         good_remote, repo_exists, force, conflicts):
     """Test basic clone operation"""
 
+    # clear out the work path
+    paths.work.remove()
+    paths.work.mkdir()
+
     # determine remote url
     remote_url = f'file://{paths.remote}'
     if not good_remote:
