@@ -357,15 +357,18 @@ This feature is enabled by default.
 .B yadm.auto-private-dirs
 Disable the automatic creating of private directories described in the section PERMISSIONS.
 .TP
-.B yadm.ssh-perms
-Disable the permission changes to
-.IR $HOME/.ssh/* .
-This feature is enabled by default.
+.B yadm.git-program
+Specify an alternate program to use instead of "git".
+By default, the first "git" found in $PATH is used.
 .TP
 .B yadm.gpg-perms
 Disable the permission changes to
 .IR $HOME/.gnupg/* .
 This feature is enabled by default.
+.TP
+.B yadm.gpg-program
+Specify an alternate program to use instead of "gpg".
+By default, the first "gpg" found in $PATH is used.
 .TP
 .B yadm.gpg-recipient
 Asymmetrically encrypt files with a gpg public/private key pair.
@@ -376,13 +379,10 @@ If set to "ASK", gpg will interactively ask for recipients.
 See the ENCRYPTION section for more details.
 This feature is disabled by default.
 .TP
-.B yadm.gpg-program
-Specify an alternate program to use instead of "gpg".
-By default, the first "gpg" found in $PATH is used.
-.TP
-.B yadm.git-program
-Specify an alternate program to use instead of "git".
-By default, the first "git" found in $PATH is used.
+.B yadm.ssh-perms
+Disable the permission changes to
+.IR $HOME/.ssh/* .
+This feature is enabled by default.
 
 .RE
 The following four "local" configurations are not stored in the
@@ -394,11 +394,11 @@ they are stored in the local repository.
 Specify a class for the purpose of symlinking alternate files.
 By default, no class will be matched.
 .TP
-.B local.os
-Override the OS for the purpose of symlinking alternate files.
-.TP
 .B local.hostname
 Override the hostname for the purpose of symlinking alternate files.
+.TP
+.B local.os
+Override the OS for the purpose of symlinking alternate files.
 .TP
 .B local.user
 Override the user for the purpose of symlinking alternate files.
