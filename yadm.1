@@ -331,6 +331,17 @@ yadm config yadm.auto-alt false
 
 The following is the full list of supported configurations:
 .TP
+.B yadm.alt-copy
+If set to "true", alternate files will be copies instead of symbolic links.
+This might be desirable, because some systems may not properly support
+symlinks.
+
+NOTE: The deprecated
+.I yadm.cygwin-copy
+option used by older versions of yadm has been replaced by
+.IR yadm.alt-copy .
+The old option will be removed in the next version of yadm.
+.TP
 .B yadm.auto-alt
 Disable the automatic linking described in the section ALTERNATES. If disabled,
 you may still run "yadm alt" manually to create the alternate links. This
@@ -372,11 +383,6 @@ By default, the first "gpg" found in $PATH is used.
 .B yadm.git-program
 Specify an alternate program to use instead of "git".
 By default, the first "git" found in $PATH is used.
-.TP
-.B yadm.cygwin-copy
-If set to "true", for Cygwin hosts, alternate files will be copies instead of
-symbolic links. This might be desirable, because non-Cygwin software may not
-properly interpret Cygwin symlinks.
 
 .RE
 The following four "local" configurations are not stored in the

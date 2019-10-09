@@ -64,12 +64,6 @@ def tst_sys():
 
 
 @pytest.fixture(scope='session')
-def cygwin_sys():
-    """CYGWIN uname id"""
-    return 'CYGWIN_NT-6.1-WOW64'
-
-
-@pytest.fixture(scope='session')
 def supported_commands():
     """List of supported commands
 
@@ -105,10 +99,10 @@ def supported_configs():
         'local.hostname',
         'local.os',
         'local.user',
+        'yadm.alt-copy',
         'yadm.auto-alt',
         'yadm.auto-perms',
         'yadm.auto-private-dirs',
-        'yadm.cygwin-copy',
         'yadm.git-program',
         'yadm.gpg-perms',
         'yadm.gpg-program',
@@ -444,7 +438,7 @@ class DataSet():
 
 
 @pytest.fixture(scope='session')
-def ds1_dset(tst_sys, cygwin_sys):
+def ds1_dset(tst_sys):
     """Meta-data for dataset one files"""
     dset = DataSet()
     dset.add_file('t1')
@@ -457,10 +451,8 @@ def ds1_dset(tst_sys, cygwin_sys):
     dset.add_file(f'test alt/test alt##S.H')
     dset.add_file(f'test alt/test alt##S.H.U')
     dset.add_file(f'test alt/test alt##C.S.H.U')
-    dset.add_file(f'test_cygwin_copy##{tst_sys}')
-    dset.add_file(f'test_cygwin_copy##{cygwin_sys}')
-    dset.add_file(f'test_cygwin_copy##os.{tst_sys}')
-    dset.add_file(f'test_cygwin_copy##os.{cygwin_sys}')
+    dset.add_file(f'test_alt_copy##{tst_sys}')
+    dset.add_file(f'test_alt_copy##os.{tst_sys}')
     dset.add_file('u1', tracked=False)
     dset.add_file('d2/u2', tracked=False)
     dset.add_file('.ssh/p1', tracked=False, private=True)

@@ -389,9 +389,10 @@ function alt() {
 
   # decide if a copy should be done instead of a symbolic link
   local do_copy=0
-  [[ $OPERATING_SYSTEM =~ ^(CYGWIN|MSYS) ]] &&
-    [ "$(config --bool yadm.cygwin-copy)" == "true" ] &&
-      do_copy=1
+  [ "$(config --bool yadm.alt-copy)" == "true" ] && do_copy=1
+
+  # deprecated yadm.cygwin-copy option (to be removed)
+  [ "$(config --bool yadm.cygwin-copy)" == "true" ] && do_copy=1
 
   cd_work "Alternates" || return
 
@@ -966,10 +967,10 @@ local.class
 local.hostname
 local.os
 local.user
+yadm.alt-copy
 yadm.auto-alt
 yadm.auto-perms
 yadm.auto-private-dirs
-yadm.cygwin-copy
 yadm.git-program
 yadm.gpg-perms
 yadm.gpg-program
