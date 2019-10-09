@@ -389,7 +389,7 @@ function alt() {
 
   # decide if a copy should be done instead of a symbolic link
   local do_copy=0
-  [[ $OPERATING_SYSTEM == CYGWIN* ]] &&
+  [[ $OPERATING_SYSTEM =~ ^(CYGWIN|MSYS) ]] &&
     [ "$(config --bool yadm.cygwin-copy)" == "true" ] &&
       do_copy=1
 
@@ -1271,11 +1271,12 @@ function set_operating_system() {
   fi
 
   case "$OPERATING_SYSTEM" in
-    CYGWIN*)
+    CYGWIN*|MINGW*|MSYS*)
       git_version="$("$GIT_PROGRAM" --version 2>/dev/null)"
       if [[ "$git_version" =~ windows ]] ; then
           USE_CYGPATH=1
       fi
+      OPERATING_SYSTEM=$(uname -o)
       ;;
     *)
       ;;
