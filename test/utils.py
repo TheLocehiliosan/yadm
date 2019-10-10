@@ -32,7 +32,8 @@ def set_local(paths, variable, value):
 def create_alt_files(paths, suffix,
                      preserve=False, tracked=True,
                      encrypt=False, exclude=False,
-                     content=None, includefile=False):
+                     content=None, includefile=False,
+                     yadm_alt=False, yadm_dir=None):
     """Create new files, and add to the repo
 
     This is used for testing alternate files. In each case, a suffix is
@@ -40,17 +41,19 @@ def create_alt_files(paths, suffix,
     repo handling are dependent upon the function arguments.
     """
 
+    basepath = yadm_dir.join('alt') if yadm_alt else paths.work
+
     if not preserve:
         for remove_path in (ALT_FILE1, ALT_FILE2, ALT_DIR):
-            if paths.work.join(remove_path).exists():
-                paths.work.join(remove_path).remove(rec=1, ignore_errors=True)
-                assert not paths.work.join(remove_path).exists()
+            if basepath.join(remove_path).exists():
+                basepath.join(remove_path).remove(rec=1, ignore_errors=True)
+                assert not basepath.join(remove_path).exists()
 
-    new_file1 = paths.work.join(ALT_FILE1 + suffix)
+    new_file1 = basepath.join(ALT_FILE1 + suffix)
     new_file1.write(ALT_FILE1 + suffix, ensure=True)
-    new_file2 = paths.work.join(ALT_FILE2 + suffix)
+    new_file2 = basepath.join(ALT_FILE2 + suffix)
     new_file2.write(ALT_FILE2 + suffix, ensure=True)
-    new_dir = paths.work.join(ALT_DIR + suffix).join(CONTAINED)
+    new_dir = basepath.join(ALT_DIR + suffix).join(CONTAINED)
     new_dir.write(ALT_DIR + suffix, ensure=True)
 
     # Do not test directory support for jinja alternates
@@ -65,9 +68,11 @@ def create_alt_files(paths, suffix,
             test_path.write('\n' + content, mode='a', ensure=True)
         assert test_path.exists()
 
-    _create_includefiles(includefile, paths, test_paths)
+    _create_includefiles(includefile, test_paths, basepath)
     _create_tracked(tracked, test_paths, paths)
-    _create_encrypt(encrypt, test_names, suffix, paths, exclude)
+
+    prefix = '.config/yadm/alt/' if yadm_alt else ''
+    _create_encrypt(encrypt, test_names, suffix, paths, exclude, prefix)
 
 
 def parse_alt_output(output, linked=True):
@@ -86,10 +91,10 @@ def parse_alt_output(output, linked=True):
     return parsed_list.values()
 
 
-def _create_includefiles(includefile, paths, test_paths):
+def _create_includefiles(includefile, test_paths, basepath):
     if includefile:
         for dpath in INCLUDE_DIRS:
-            incfile = paths.work.join(dpath + '/' + INCLUDE_FILE)
+            incfile = basepath.join(dpath + '/' + INCLUDE_FILE)
             incfile.write(INCLUDE_CONTENT, ensure=True)
             test_paths += [incfile]
 
@@ -101,9 +106,11 @@ def _create_tracked(tracked, test_paths, paths):
         os.system(f'GIT_DIR={str(paths.repo)} git commit -m "Add test files"')
 
 
-def _create_encrypt(encrypt, test_names, suffix, paths, exclude):
+def _create_encrypt(encrypt, test_names, suffix, paths, exclude, prefix):
     if encrypt:
         for encrypt_name in test_names:
-            paths.encrypt.write(f'{encrypt_name + suffix}\n', mode='a')
+            paths.encrypt.write(
+                f'{prefix + encrypt_name + suffix}\n', mode='a')
             if exclude:
-                paths.encrypt.write(f'!{encrypt_name + suffix}\n', mode='a')
+                paths.encrypt.write(
+                    f'!{prefix + encrypt_name + suffix}\n', mode='a')

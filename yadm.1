@@ -478,6 +478,12 @@ condition. The number of conditions is the next largest factor in scoring.
 Files with more conditions will always be favored. Any invalid condition will
 disqualify that file completely.
 
+If you don't care to have all versions of alternates stored in the same
+directory as the generated symlink, you can place them in the
+.I $HOME/.config/yadm/alt
+directory. The generated symlink or processed template will be created using
+same relative path.
+
 Alternate linking may best be demonstrated by example. Assume the following
 files are managed by yadm's repository:
 
@@ -771,7 +777,7 @@ Otherwise it will be
 .IR "$HOME/.config/yadm" .
 
 The following are the default paths yadm uses for its own data.
-These paths can be altered using universal options.
+Most of these paths can be altered using universal options.
 See the OPTIONS section for details.
 .TP
 .I $HOME/.config/yadm
@@ -780,6 +786,11 @@ directory.
 .TP
 .I $YADM_DIR/config
 Configuration file for yadm.
+.TP
+.I $YADM_DIR/alt
+This is a directory to keep "alternate files" without having them side-by-side
+with the resulting symlink or processed template. Alternate files placed in
+this directory will be created relative to $HOME instead.
 .TP
 .I $YADM_DIR/repo.git
 Git repository used by yadm.

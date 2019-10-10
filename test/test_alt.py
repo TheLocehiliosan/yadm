@@ -9,6 +9,7 @@ TEST_PATHS = [utils.ALT_FILE1, utils.ALT_FILE2, utils.ALT_DIR]
 
 
 @pytest.mark.usefixtures('ds1_copy')
+@pytest.mark.parametrize('yadm_alt', [True, False], ids=['alt', 'worktree'])
 @pytest.mark.parametrize(
     'tracked,encrypt,exclude', [
         (False, False, False),
@@ -17,32 +18,39 @@ TEST_PATHS = [utils.ALT_FILE1, utils.ALT_FILE2, utils.ALT_DIR]
         (False, True, True),
     ], ids=['untracked', 'tracked', 'encrypted', 'excluded'])
 def test_alt_source(
-        runner, yadm_y, paths,
-        tracked, encrypt, exclude):
+        runner, paths,
+        tracked, encrypt, exclude,
+        yadm_alt):
     """Test yadm alt operates on all expected sources of alternates"""
+    yadm_dir = setup_standard_yadm_dir(paths)
 
     utils.create_alt_files(
-        paths, '##default', tracked=tracked, encrypt=encrypt, exclude=exclude)
-    run = runner(yadm_y('alt'))
+        paths, '##default', tracked=tracked, encrypt=encrypt, exclude=exclude,
+        yadm_alt=yadm_alt, yadm_dir=yadm_dir)
+    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
     assert run.success
     assert run.err == ''
     linked = utils.parse_alt_output(run.out)
 
+    basepath = yadm_dir.join('alt') if yadm_alt else paths.work
+
     for link_path in TEST_PATHS:
-        source_file = link_path + '##default'
+        source_file_content = link_path + '##default'
+        source_file = basepath.join(source_file_content)
+        link_file = paths.work.join(link_path)
         if tracked or (encrypt and not exclude):
-            assert paths.work.join(link_path).islink()
-            target = py.path.local(paths.work.join(link_path).readlink())
+            assert link_file.islink()
+            target = py.path.local(link_file.readlink())
             if target.isfile():
-                assert paths.work.join(link_path).read() == source_file
-                assert str(paths.work.join(source_file)) in linked
+                assert link_file.read() == source_file_content
+                assert str(source_file) in linked
             else:
-                assert paths.work.join(link_path).join(
-                    utils.CONTAINED).read() == source_file
-                assert str(paths.work.join(source_file)) in linked
+                assert link_file.join(
+                    utils.CONTAINED).read() == source_file_content
+                assert str(source_file) in linked
         else:
-            assert not paths.work.join(link_path).exists()
-            assert str(paths.work.join(source_file)) not in linked
+            assert not link_file.exists()
+            assert str(source_file) not in linked
 
 
 @pytest.mark.usefixtures('ds1_copy')
@@ -55,9 +63,10 @@ def test_alt_source(
     '##u.$tst_user', '##user.$tst_user',
     ])
 def test_alt_conditions(
-        runner, yadm_y, paths,
+        runner, paths,
         tst_sys, tst_distro, tst_host, tst_user, suffix):
     """Test conditions supported by yadm alt"""
+    yadm_dir = setup_standard_yadm_dir(paths)
 
     # set the class
     tst_class = 'testclass'
@@ -72,7 +81,7 @@ def test_alt_conditions(
     )
 
     utils.create_alt_files(paths, suffix)
-    run = runner(yadm_y('alt'))
+    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
     assert run.success
     assert run.err == ''
     linked = utils.parse_alt_output(run.out)
@@ -94,12 +103,13 @@ def test_alt_conditions(
 @pytest.mark.parametrize('kind', ['builtin', '', 'envtpl', 'j2cli', 'j2'])
 @pytest.mark.parametrize('label', ['t', 'template', 'yadm', ])
 def test_alt_templates(
-        runner, yadm_y, paths, kind, label):
+        runner, paths, kind, label):
     """Test templates supported by yadm alt"""
+    yadm_dir = setup_standard_yadm_dir(paths)
 
     suffix = f'##{label}.{kind}'
     utils.create_alt_files(paths, suffix)
-    run = runner(yadm_y('alt'))
+    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
     assert run.success
     assert run.err == ''
     created = utils.parse_alt_output(run.out, linked=False)
@@ -220,3 +230,11 @@ def test_template_overwrite_symlink(runner, yadm_y, paths, tst_sys):
     assert not link.islink()
     assert target.read().strip() == 'target'
     assert link.read().strip() == 'test-data'
+
+
+def setup_standard_yadm_dir(paths):
+    """Configure a yadm home within the work tree"""
+    std_yadm_dir = paths.work.mkdir('.config').mkdir('yadm')
+    std_yadm_dir.join('repo.git').mksymlinkto(paths.repo, absolute=1)
+    std_yadm_dir.join('encrypt').mksymlinkto(paths.encrypt, absolute=1)
+    return std_yadm_dir

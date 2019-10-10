@@ -33,6 +33,7 @@ YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
 YADM_HOOKS="hooks"
+YADM_ALT="alt"
 
 HOOK_COMMAND=""
 FULL_COMMAND=""
@@ -137,6 +138,11 @@ function score_file() {
   target="$1"
   filename="${target%%##*}"
   conditions="${target#*##}"
+
+  if [ "${filename#$YADM_ALT/}" != "${filename}" ]; then
+    filename="${YADM_WORK}/${filename#$YADM_ALT/}"
+  fi
+
   score=0
   IFS=',' read -ra fields <<< "$conditions"
   for field in "${fields[@]}"; do
@@ -1223,6 +1229,7 @@ function configure_paths() {
   YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
   YADM_HOOKS="$YADM_DIR/$YADM_HOOKS"
+  YADM_ALT="$YADM_DIR/$YADM_ALT"
 
   # independent overrides for paths
   if [ -n "$YADM_OVERRIDE_REPO" ]; then
