@@ -106,3 +106,20 @@ def test_template_builtin(runner, yadm, tmpdir):
     assert run.success
     assert run.err == ''
     assert output_file.read() == EXPECTED
+
+
+def test_source(runner, yadm, tmpdir):
+    """Test yadm.source"""
+
+    input_file = tmpdir.join('input')
+    input_file.write('{{yadm.source}}', ensure=True)
+    output_file = tmpdir.join('output')
+
+    script = f"""
+        YADM_TEST=1 source {yadm}
+        template_builtin "{input_file}" "{output_file}"
+    """
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert output_file.read().strip() == str(input_file)

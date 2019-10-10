@@ -97,3 +97,21 @@ def test_template_j2(runner, yadm, tmpdir, processor):
     assert run.success
     assert run.err == ''
     assert output_file.read() == EXPECTED
+
+
+@pytest.mark.parametrize('processor', ('j2cli', 'envtpl'))
+def test_source(runner, yadm, tmpdir, processor):
+    """Test YADM_SOURCE"""
+
+    input_file = tmpdir.join('input')
+    input_file.write('{{YADM_SOURCE}}', ensure=True)
+    output_file = tmpdir.join('output')
+
+    script = f"""
+        YADM_TEST=1 source {yadm}
+        template_{processor} "{input_file}" "{output_file}"
+    """
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert output_file.read().strip() == str(input_file)

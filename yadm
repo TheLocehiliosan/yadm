@@ -297,6 +297,7 @@ BEGIN {
   c["hostname"] = host
   c["user"]     = user
   c["distro"]   = distro
+  c["source"]   = source
   vld           = conditions()
   ifs           = "^{%" blank "*if"
   els           = "^{%" blank "*else" blank "*%}$"
@@ -340,6 +341,7 @@ EOF
     -v host="$local_host" \
     -v user="$local_user" \
     -v distro="$local_distro" \
+    -v source="$input" \
     "$awk_pgm" \
     "$input" > "$output"
 }
@@ -353,6 +355,7 @@ function template_j2cli() {
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_SOURCE="$input"        \
   "$J2CLI_PROGRAM" "$input" -o "$output"
 }
 
@@ -365,6 +368,7 @@ function template_envtpl() {
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_SOURCE="$input"        \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$output"
 }
 
