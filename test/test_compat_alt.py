@@ -153,7 +153,7 @@ def test_wild(request, runner, yadm_y, paths,
     if request.node.name in BROKEN_TEST_IDS:
         pytest.xfail(
             'This test is known to be broken. '
-            'This bug needs to be fixed.')
+            'This bug only affects deprecated features.')
 
     tst_class = 'testclass'
 
