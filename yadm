@@ -498,15 +498,16 @@ function alt_future_linking() {
       # a template is defined, process the template
       debug "Creating $filename from template $target"
       [ -n "$loud" ] && echo "Creating $filename from template $target"
+      # remove any existing symlink before processing template
+      [ -L "$filename" ] && rm -f "$filename"
       "$template_cmd" "$target" "$filename"
     elif [ -n "$target" ]; then
       # a link target is defined, create symlink
       debug "Linking $target to $filename"
       [ -n "$loud" ] && echo "Linking $target to $filename"
       if [ "$do_copy" -eq 1 ]; then
-        if [ -L "$filename" ]; then
-          rm -f "$filename"
-        fi
+        # remove any existing symlink before copying
+        [ -L "$filename" ] && rm -f "$filename"
         cp -f "$target" "$filename"
       else
         ln -nfs "$target" "$filename"

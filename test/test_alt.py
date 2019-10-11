@@ -193,3 +193,30 @@ def test_stale_link_removal(runner, yadm_y, paths):
         source_file = stale_path + '##class.' + tst_class
         assert not paths.work.join(stale_path).exists()
         assert str(paths.work.join(source_file)) not in linked
+
+
+@pytest.mark.usefixtures('ds1_repo_copy')
+def test_template_overwrite_symlink(runner, yadm_y, paths, tst_sys):
+    """Remove symlinks before processing a template
+
+    If a symlink is in the way of the output of a template, the target of the
+    symlink will get the template content. To prevent this, the symlink should
+    be removed just before processing a template.
+    """
+
+    target = paths.work.join(f'test_link##os.{tst_sys}')
+    target.write('target')
+
+    link = paths.work.join('test_link')
+    link.mksymlinkto(target, absolute=1)
+
+    template = paths.work.join('test_link##template.builtin')
+    template.write('test-data')
+
+    run = runner(yadm_y('add', target, template))
+    assert run.success
+    assert run.err == ''
+    assert run.out == ''
+    assert not link.islink()
+    assert target.read().strip() == 'target'
+    assert link.read().strip() == 'test-data'
