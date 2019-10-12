@@ -59,7 +59,7 @@ def create_alt_files(paths, suffix,
     # Do not test directory support for jinja alternates
     test_paths = [new_file1, new_file2]
     test_names = [ALT_FILE1, ALT_FILE2]
-    if not re.match(r'##(t|template|yadm)\.', suffix):
+    if not re.match(r'##(t$|t\.|template|yadm)', suffix):
         test_paths += [new_dir]
         test_names += [ALT_DIR]
 

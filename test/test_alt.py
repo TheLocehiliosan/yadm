@@ -100,7 +100,8 @@ def test_alt_conditions(
 
 
 @pytest.mark.usefixtures('ds1_copy')
-@pytest.mark.parametrize('kind', ['builtin', '', 'envtpl', 'j2cli', 'j2'])
+@pytest.mark.parametrize(
+    'kind', ['builtin', '', None, 'envtpl', 'j2cli', 'j2'])
 @pytest.mark.parametrize('label', ['t', 'template', 'yadm', ])
 def test_alt_templates(
         runner, paths, kind, label):
@@ -108,6 +109,8 @@ def test_alt_templates(
     yadm_dir = setup_standard_yadm_dir(paths)
 
     suffix = f'##{label}.{kind}'
+    if kind is None:
+        suffix = f'##{label}'
     utils.create_alt_files(paths, suffix)
     run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
     assert run.success

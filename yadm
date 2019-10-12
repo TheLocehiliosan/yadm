@@ -148,6 +148,7 @@ function score_file() {
   for field in "${fields[@]}"; do
     label=${field%%.*}
     value=${field#*.}
+    [ "$field" = "$label" ] && value="" # when .value is omitted
     score=$((score + 1000))
     # default condition
     if [[ "$label" =~ ^(default)$ ]]; then
