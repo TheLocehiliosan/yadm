@@ -505,10 +505,13 @@ function alt_future_linking() {
     filename="${alt_filenames[$index]}"
     target="${alt_targets[$index]}"
     template_cmd="${alt_template_cmds[$index]}"
+    basedir=${filename%/*}
     if [ -n "$template_cmd" ]; then
       # a template is defined, process the template
       debug "Creating $filename from template $target"
       [ -n "$loud" ] && echo "Creating $filename from template $target"
+      # ensure the destination path exists
+      [ -e "$basedir" ] || mkdir -p "$basedir"
       # remove any existing symlink before processing template
       [ -L "$filename" ] && rm -f "$filename"
       "$template_cmd" "$target" "$filename"
@@ -516,6 +519,8 @@ function alt_future_linking() {
       # a link target is defined, create symlink
       debug "Linking $target to $filename"
       [ -n "$loud" ] && echo "Linking $target to $filename"
+      # ensure the destination path exists
+      [ -e "$basedir" ] || mkdir -p "$basedir"
       if [ "$do_copy" -eq 1 ]; then
         # remove any existing symlink before copying
         [ -L "$filename" ] && rm -f "$filename"

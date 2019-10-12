@@ -235,6 +235,22 @@ def test_template_overwrite_symlink(runner, yadm_y, paths, tst_sys):
     assert link.read().strip() == 'test-data'
 
 
+@pytest.mark.usefixtures('ds1_copy')
+@pytest.mark.parametrize('style', ['symlink', 'template'])
+def test_ensure_alt_path(runner, paths, style):
+    """Test that directories are created before making alternates"""
+    yadm_dir = setup_standard_yadm_dir(paths)
+    suffix = 'default' if style == 'symlink' else 'template'
+    filename = 'a/b/c/file'
+    source = yadm_dir.join(f'alt/{filename}##{suffix}')
+    source.write('test-data', ensure=True)
+    run = runner([paths.pgm, '-Y', yadm_dir, 'add', source])
+    assert run.success
+    assert run.err == ''
+    assert run.out == ''
+    assert paths.work.join(filename).read().strip() == 'test-data'
+
+
 def setup_standard_yadm_dir(paths):
     """Configure a yadm home within the work tree"""
     std_yadm_dir = paths.work.mkdir('.config').mkdir('yadm')
