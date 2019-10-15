@@ -101,6 +101,7 @@ def supported_configs():
         'local.user',
         'yadm.alt-copy',
         'yadm.auto-alt',
+        'yadm.auto-exclude',
         'yadm.auto-perms',
         'yadm.auto-private-dirs',
         'yadm.git-program',

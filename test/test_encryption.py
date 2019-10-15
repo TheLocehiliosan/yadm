@@ -372,6 +372,29 @@ def test_offer_to_add(runner, yadm_y, paths, encrypt_targets, untracked):
         assert f'AM {worktree_archive.basename}' in run.out
 
 
+def test_encrypt_added_to_exclude(runner, yadm_y, paths):
+    """Confirm that .config/yadm/encrypt is added to exclude"""
+
+    expect = [
+        ('passphrase:', PASSPHRASE),
+        ('passphrase:', PASSPHRASE),
+        ]
+
+    exclude_file = paths.repo.join('info/exclude')
+    paths.encrypt.write('test-encrypt-data\n')
+    exclude_file.write('original-data', ensure=True)
+
+    run = runner(
+        yadm_y('encrypt'),
+        expect=expect,
+        )
+
+    assert 'test-encrypt-data' in paths.repo.join('info/exclude').read()
+    assert 'original-data' in paths.repo.join('info/exclude').read()
+    assert run.success
+    assert run.err == ''
+
+
 def encrypted_data_valid(runner, encrypted, expected):
     """Verify encrypted data matches expectations"""
     run = runner([

@@ -804,6 +804,7 @@ function encrypt() {
 
   require_gpg
   require_encrypt
+  exclude_encrypted
   parse_encrypt
 
   cd_work "Encryption" || return
@@ -986,6 +987,7 @@ local.os
 local.user
 yadm.alt-copy
 yadm.auto-alt
+yadm.auto-exclude
 yadm.auto-perms
 yadm.auto-private-dirs
 yadm.git-program
@@ -1068,6 +1070,55 @@ function version() {
 }
 
 # ****** Utility Functions ******
+
+function exclude_encrypted() {
+
+  auto_exclude=$(config --bool yadm.auto-exclude)
+  [ "$auto_exclude" == "false" ] && return 0
+
+  exclude_path="${YADM_REPO}/info/exclude"
+  newline=$'\n'
+  exclude_flag="# yadm-auto-excludes"
+  exclude_header="${exclude_flag}${newline}"
+  exclude_header="${exclude_header}# This section is managed by yadm."
+  exclude_header="${exclude_header}${newline}"
+  exclude_header="${exclude_header}# Any edits below will be lost."
+  exclude_header="${exclude_header}${newline}"
+
+  # do nothing if there is no YADM_ENCRYPT
+  [ -e "$YADM_ENCRYPT" ] || return 0
+
+  # read encrypt
+  encrypt_data=""
+  while IFS='' read -r line || [ -n "$line" ]; do
+    encrypt_data="${encrypt_data}${line}${newline}"
+  done < "$YADM_ENCRYPT"
+
+  # read info/exclude
+  unmanaged=""
+  managed=""
+  if [ -e "$exclude_path" ]; then
+    flag_seen=0
+    while IFS='' read -r line || [ -n "$line" ]; do
+      [ "$line" = "$exclude_flag" ] && flag_seen=1
+      if [ "$flag_seen" -eq 0 ]; then
+        unmanaged="${unmanaged}${line}${newline}"
+      else
+        managed="${managed}${line}${newline}"
+      fi
+    done < "$exclude_path"
+  fi
+
+  if [ "${exclude_header}${encrypt_data}" != "$managed" ]; then
+    basedir=${exclude_path%/*}
+    [ -e "$basedir" ] || mkdir -p "$basedir" # assert path
+    debug "Updating ${exclude_path}"
+    printf "%s" "${unmanaged}${exclude_header}${encrypt_data}" > "$exclude_path"
+  fi
+
+  return 0
+
+}
 
 function is_valid_branch_name() {
   # Git branches do not allow:

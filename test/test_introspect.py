@@ -27,7 +27,7 @@ def test_introspect_category(
     expected = []
     if name == 'commands':
         expected = supported_commands
-    elif name == 'config':
+    elif name == 'configs':
         expected = supported_configs
     elif name == 'switches':
         expected = supported_switches

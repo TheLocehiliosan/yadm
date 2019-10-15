@@ -347,6 +347,11 @@ Disable the automatic linking described in the section ALTERNATES. If disabled,
 you may still run "yadm alt" manually to create the alternate links. This
 feature is enabled by default.
 .TP
+.B yadm.auto-exclude
+Disable the automatic exclusion of patterns defined in
+.IR $HOME/.config/yadm/encrypt .
+This feature is enabled by default.
+.TP
 .B yadm.auto-perms
 Disable the automatic permission changes described in the section PERMISSIONS.
 If disabled, you may still run
@@ -673,6 +678,18 @@ configuration.
 .BR NOTE :
 It is recommended that you use a private repository when keeping confidential
 files, even though they are encrypted.
+
+Patterns found in
+.I $HOME/.config/yadm/encrypt
+are automatically added to the repository's
+.I info/exclude
+file every time
+.B yadm encrypt
+is run.
+This is to prevent accidentally committing sensitive data to the repository.
+This can be disabled using the
+.I yadm.auto-exclude
+configuration.
 
 .SH PERMISSIONS
 
