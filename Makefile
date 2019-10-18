@@ -1,4 +1,5 @@
 IGNORED = .jekyll-metadata Gemfile.lock _site
+VOLUME_ARG =
 
 .PHONY: all
 all:
@@ -37,6 +38,9 @@ usage:
 	@echo '  make clean'
 	@echo '    - Remove previously built data and any jekyll containers.'
 	@echo
+	@echo '  make fresh'
+	@echo '    - Like "make clean", but also removes the docker volumes.'
+	@echo
 
 .PHONY: test
 test: require-docker-compose clean
@@ -62,11 +66,15 @@ restart: require-docker-compose
 
 .PHONY: down
 down: require-docker-compose
-	docker-compose down --remove-orphans
+	docker-compose down --remove-orphans ${VOLUME_ARG}
 
 .PHONY: clean
 clean: down
 	rm -rf ${IGNORED}
+
+.PHONY: fresh
+fresh: VOLUME_ARG = -v
+fresh: clean
 
 .PHONY: require-docker-compose
 require-docker-compose: require-docker

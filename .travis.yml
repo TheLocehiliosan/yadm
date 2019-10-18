@@ -1,6 +1,6 @@
 ---
 env:
-  - IMAGE="yadm/jekyll:latest"
+  - IMAGE="yadm/jekyll:2019-10-17"
 language: minimal
 services:
   - docker
