@@ -1,4 +1,4 @@
-FROM jekyll/jekyll:3.8.5
+FROM jekyll/jekyll:4.0.0
 MAINTAINER Tim Byrne <sultan@locehilios.com>
 
 # Convenience settings for the testbed's root account
@@ -11,8 +11,3 @@ RUN touch /.yadmjekyll
 RUN gem install html-proofer
 RUN apk add --update py-pip
 RUN pip install yamllint==1.15.0
-
-# # Gemfile dependencies (for speed)
-# COPY Gemfile /tmp/Gemfile
-# RUN bundle install --gemfile=/tmp/Gemfile
-# RUN rm -f /tmp/Gemfile*
