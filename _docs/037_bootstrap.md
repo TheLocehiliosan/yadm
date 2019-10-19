@@ -5,11 +5,11 @@ permalink: /docs/bootstrap
 
 Often there is more to set up once your dotfiles repository has been cloned. For
 example, if your repository has submodules, you may wish to initialize them. On
-MacOS, you may wish to install **Homebrew** and process a `.Brewfile`. These types
+MacOS, you may wish to install Homebrew and process a `.Brewfile`. These types
 of additional steps are generally referred to as "bootstrapping".
 
 Though everyone may have a different set of bootstrap operations they need to
-perform, **yadm** has a standard command for executing them.
+perform, yadm has a standard command for executing them.
 
     yadm bootstrap
 
@@ -17,7 +17,7 @@ This command will execute the program named `$HOME/.yadm/bootstrap`. You must
 provide this program yourself, and it must be made executable. But those are the
 only constraints.
 
-After **yadm** successfully clones a repository, if there is a bootstrap program
+After yadm successfully clones a repository, if there is a bootstrap program
 available, it will offer to run it for you.
 
     Found .yadm/bootstrap
@@ -37,7 +37,7 @@ in Bash, but you can use any executable file as a bootstrap.
 
 ### Initialize submodules
 
-If you've added repositories as submodules for the **yadm** repository, you can
+If you've added repositories as submodules for the yadm repository, you can
 initialize them after a successful clone.
 
 ```bash
@@ -105,10 +105,10 @@ if [ -f "$HOME/.terminfo/custom.terminfo" ]; then
 fi
 ```
 
-### Update the **yadm** repo origin URL
+### Update the yadm repo origin URL
 
 You might initially clone your repo using `https`, but ssh configurations may be
-available after cloning. If so, you could update the **yadm** repo origin to use
+available after cloning. If so, you could update the yadm repo origin to use
 `ssh` instead.
 
 ```bash
@@ -120,9 +120,9 @@ yadm remote set-url origin "git@github.com:MyUser/dotfiles.git"
 
 ### Install [vim](http://www.vim.org/) plugins managed with [vim-plug](https://github.com/junegunn/vim-plug)
 
-**vim-plug** can be used in your `.vimrc` to enable plugins. The example here will
-automatically download **vim-plug** and run the `:PlugInstall` command if
-**vim-plug** is missing when **vim** starts.
+vim-plug can be used in your `.vimrc` to enable plugins. The example here will
+automatically download vim-plug and run the `:PlugInstall` command if
+vim-plug is missing when vim starts.
 
 ```vim
 " download vim-plug if missing
@@ -154,7 +154,7 @@ endif
 ```
 
 You can enhance this scheme by having your bootstrap program initialize
-**vim-plug** when you clone, instead of when you first run **vim**. This example
+vim-plug when you clone, instead of when you first run vim. This example
 will install any new plugins, and also remove any plugins now deleted from your
 `.vimrc`.
 

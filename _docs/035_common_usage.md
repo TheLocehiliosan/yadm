@@ -3,23 +3,23 @@ title: "Common Commands"
 permalink: /docs/common_commands
 ---
 Most of these operations will look like Git commands; because they are.
-**yadm** wraps Git, allowing it to perform all of Git's operations. The
+yadm wraps Git, allowing it to perform all of Git's operations. The
 difference is your `$HOME` directory becomes the working directory, and you can
 run the commands from any directory.
 
-Commands below which are special to **yadm** are denoted with
+Commands below which are special to yadm are denoted with
 <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>,
 and those which are passed directly through to Git are denoted with
 <i class="fab fa-fw fa-git-square" aria-hidden="true"></i>.
 
 <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i> `man yadm`
-: Display **yadm**'s
+: Display yadm's
 [manual](https://github.com/TheLocehiliosan/yadm/blob/master/yadm.md).
 
 <i class="fab fa-fw fa-git-square" aria-hidden="true"></i> `yadm status`
 : Show the repository status; added, changed, removed files. Because a `$HOME`
 directory often more than only dotfiles, by default
-**yadm** ignores untracked files when displaying status.
+yadm ignores untracked files when displaying status.
 
 <i class="fab fa-fw fa-git-square" aria-hidden="true"></i> `yadm push`, `yadm fetch`
 : Send or retrive commits to/from your remote repository .
@@ -36,7 +36,7 @@ message or add staged changes to the previous commit.
 commit.
 
 <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i> `yadm list -a`
-: Print  a list of files managed by **yadm**.  The -a option will cause all managed
+: Print  a list of files managed by yadm.  The -a option will cause all managed
 files to be listed.  Otherwise, the list will only include files from the
 current directory or below.
 

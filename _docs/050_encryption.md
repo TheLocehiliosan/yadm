@@ -4,7 +4,7 @@ permalink: /docs/encryption
 ---
 It can be useful to manage confidential files, like SSH keys, across multiple
 systems. However, doing so would put plain text data into a Git repository,
-which often resides on a public system. **yadm** implements a feature which can
+which often resides on a public system. yadm implements a feature which can
 make it easy to encrypt and decrypt a set of files so the encrypted version can
 be maintained in the Git repository. This feature will only work if the gpg
 command is available.
@@ -19,7 +19,7 @@ To use this feature, a list of patterns must be created and saved as
 The `yadm encrypt` command will find all files matching the patterns, and
 prompt for a password. Once a password has confirmed, the matching files will be
 encrypted and saved as `$HOME/.yadm/files.gpg`. The patterns and files.gpg
-should be added to the **yadm** repository so they are available across multiple
+should be added to the yadm repository so they are available across multiple
 systems.
 
     yadm add .yadm/encrypt

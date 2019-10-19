@@ -36,10 +36,10 @@ feature_row:
     url: /docs/overview
     excerpt: '
 
-        If you know how to use Git, you already know how to use **yadm**.
-        **yadm** helps you maintain a single repository of dotfiles, while keeping
+        If you know how to use Git, you already know how to use yadm.
+        yadm helps you maintain a single repository of dotfiles, while keeping
         them where they belong---in `$HOME`.
-        Anything you can do with Git, you can do using **yadm**.
+        Anything you can do with Git, you can do using yadm.
 
     '
   - title: Alternate Files
@@ -51,7 +51,7 @@ feature_row:
     excerpt: '
 
         Sometimes you need different configurations on different systems.
-        **yadm** makes it possible to use alternate versions of files based on
+        yadm makes it possible to use alternate versions of files based on
         the OS or hostname of the system.
 
     '
@@ -64,7 +64,7 @@ feature_row:
     excerpt: '
 
         Configurations occasionally include secrets such as passwords,
-        encryption keys, or other sensitive information. **yadm** allows you to
+        encryption keys, or other sensitive information. yadm allows you to
         add such files to an encrypted archive, which can be maintained
         alongside your other configurations.
 
@@ -78,7 +78,7 @@ feature_row:
     excerpt: '
 
         Define your own instructions to complete your dotfiles installation.
-        If provided, **yadm** can execute your custom program immediately
+        If provided, yadm can execute your custom program immediately
         following a successful clone.
 
     '

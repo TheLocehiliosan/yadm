@@ -10,9 +10,9 @@ features and strategies for dealing with those occasions.
 ## Symlink alternates
 
 It can be useful to have an automated way of choosing an alternate version of a
-file for a different operating system, host, or user. **yadm** implements a
+file for a different operating system, host, or user. yadm implements a
 feature which will automatically create a symbolic link to the appropriate
-version of a file, as long as you follow a specific naming convention. **yadm** can
+version of a file, as long as you follow a specific naming convention. yadm can
 detect files with names ending in:
 
 | `##`                       | Default file linked                  |
@@ -24,10 +24,10 @@ detect files with names ending in:
 | `##OS.HOSTNAME`            | Matching OS & Hostname               |
 | `##OS.HOSTNAME.USER`       | Matching OS, Hostname, & User        |
 
-If there are any files managed by **yadm**'s repository, or listed in
+If there are any files managed by yadm's repository, or listed in
 `$HOME/.yadm/encrypt`, which match this naming convention, symbolic links will
 be created for the most appropriate version. This may best be demonstrated by
-example. Assume the following files are managed by **yadm**'s repository:
+example. Assume the following files are managed by yadm's repository:
 
     $HOME/path/example.txt##
     $HOME/path/example.txt##Work
@@ -38,12 +38,12 @@ example. Assume the following files are managed by **yadm**'s repository:
     $HOME/path/example.txt##Linux.host1
     $HOME/path/example.txt##Linux.host2
 
-If running on a Macbook named `host2`, **yadm** will create a symbolic link which
+If running on a Macbook named `host2`, yadm will create a symbolic link which
 looks like this:
 
 `$HOME/path/example.txt` → `$HOME/path/example.txt##Darwin.host2`
 
-However, on another Macbook named `host3`, **yadm** will create a symbolic link
+However, on another Macbook named `host3`, yadm will create a symbolic link
 which looks like this:
 
 `$HOME/path/example.txt` → `$HOME/path/example.txt##Darwin`
@@ -71,7 +71,7 @@ then no link will be created.
 | **HOSTNAME** by running `hostname` and removing any domain.
 | **USER** by running `id -u -n`.
 
-**yadm** will automatically create these links by default. This can be disabled using the `yadm.auto-alt` configuration. Even if disabled, links can be manually created by running **yadm** alt.
+yadm will automatically create these links by default. This can be disabled using the `yadm.auto-alt` configuration. Even if disabled, links can be manually created by running yadm alt.
 
 ## Wildcards
 
@@ -87,7 +87,7 @@ $HOME/path/example.txt##%.%.harvey
 
 Class is a special value which is stored locally on each host (inside the local
 repository). To use alternate symlinks using `CLASS`, you must set the value of
-class using the configuration `local.class`. This is set like any other **yadm**
+class using the configuration `local.class`. This is set like any other yadm
 configuration—with the `yadm config` command. The following sets the `CLASS` to
 be "Work".
 
@@ -100,7 +100,7 @@ overridden using the configuration options `local.os`, `local.hostname`, and
 ## Jinja templates
 
 If the `envtpl` command is available, Jinja templates will also be processed to
-create or overwrite real files. **yadm** will treat files ending in `##yadm.j2`
+create or overwrite real files. yadm will treat files ending in `##yadm.j2`
 as Jinja templates. During processing, the following variables are set according
 to the rules explained in the [Alternates section](alternates#symlink-alternates):
 
@@ -110,7 +110,7 @@ to the rules explained in the [Alternates section](alternates#symlink-alternates
 * `YADM_USER`
 
 In addition `YADM_DISTRO` is exposed as the value of `lsb_release -si` if
-**lsb_release** is locally available.
+lsb_release is locally available.
 
 For example, a file named `whatever##yadm.j2` with the following content
 
@@ -168,7 +168,7 @@ fi
 
 However, sometimes the type of file you are using doesn't allow for this type of
 logic. If a configuration can do an "_include_", you can include a specific
-alternate version using **yadm**. Consider these three files:
+alternate version using yadm. Consider these three files:
 
 `.gitconfig`
 
@@ -197,6 +197,6 @@ alternate version using **yadm**. Consider these three files:
 ```
 
 Configuring Git this way includes `.gitconfig.local` in the standard
-`.gitconfig`. **yadm** will automatically link the correct version based on the
+`.gitconfig`. yadm will automatically link the correct version based on the
 operating system. The bulk of your configurations can go in a single file, and
 you just put the exceptions in OS-specific files.

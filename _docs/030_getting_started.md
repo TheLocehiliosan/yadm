@@ -2,7 +2,7 @@
 title: "Getting Started"
 permalink: /docs/getting_started
 ---
-Starting out with **yadm** should be just a few easy steps.
+Starting out with yadm should be just a few easy steps.
 
 ### If you don't currently have a repository
 Start out with an empty local repository
@@ -17,7 +17,7 @@ Eventually you will want to push the local repo to a remote.
     yadm push -u origin master
 
 ### If you have an existing remote repository
-Clone your existing repo using **yadm**.
+Clone your existing repo using yadm.
 
     yadm clone <url>
     yadm status
