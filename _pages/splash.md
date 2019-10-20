@@ -32,7 +32,7 @@ feature_row:
     alt: Overview
     btn_class: btn--inverse
     btn_label: Discover yadm
-    image_path: /images/cogs-padding.png
+    image_path: /images/picture-padding.png
     url: /docs/overview
     excerpt: '
 
@@ -53,6 +53,7 @@ feature_row:
         Sometimes you need different configurations on different systems.
         yadm makes it possible to use alternate versions of files based on
         the OS or hostname of the system.
+        Templates allow you to use alternate sections within files.
 
     '
   - title: Encryption
@@ -80,6 +81,17 @@ feature_row:
         Define your own instructions to complete your dotfiles installation.
         If provided, yadm can execute your custom program immediately
         following a successful clone.
+
+    '
+  - title: Hooks
+    alt: Hooks
+    btn_class: btn--inverse
+    btn_label: Get started
+    image_path: /images/cogs-padding.png
+    url: /docs/hooks
+    excerpt: '
+
+        Perform custom operations before or after any yadm command.
 
     '
   - title: FAQ
@@ -113,6 +125,18 @@ feature_row:
     excerpt: '
 
         Need some inspiration? Here are some example dotfiles repository.
+
+    '
+  - title: Contribute
+    alt: Contribute
+    btn_class: btn--inverse
+    btn_label: Read guidlines
+    image_path: /images/hands-padding.png
+    url: https://github.com/TheLocehiliosan/yadm/blob/master/.github/CONTRIBUTING.md
+    excerpt: '
+
+        Improve yadm by reporting bugs, coding changes, documentation and
+        packaging yadm installations.
 
     '
 ---

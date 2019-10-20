@@ -13,14 +13,14 @@ perform, yadm has a standard command for executing them.
 
     yadm bootstrap
 
-This command will execute the program named `$HOME/.yadm/bootstrap`. You must
+This command will execute the program named `$HOME/.config/yadm/bootstrap`. You must
 provide this program yourself, and it must be made executable. But those are the
 only constraints.
 
 After yadm successfully clones a repository, if there is a bootstrap program
 available, it will offer to run it for you.
 
-    Found .yadm/bootstrap
+    Found .config/yadm/bootstrap
     It appears that a bootstrap program exists.
     Would you like to execute it now? (y/n)
 

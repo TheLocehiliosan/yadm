@@ -45,11 +45,11 @@ current directory or below.
 Read about [alternate files](alternates) for more details. 
 
 <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i> `yadm encrypt`
-: Encrypt all files matching the patterns found in `$HOME/.yadm/encrypt`. Read
+: Encrypt all files matching the patterns found in `$HOME/.config/yadm/encrypt`. Read
 about [encryption](encryption) for more details.
 
 <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i> `yadm decrypt`, `yadm decrypt -l`
-: Decrypt files stored in `$HOME/.yadm/files.gpg`. Using the `-l` option will
+: Decrypt files stored in `$HOME/.config/yadm/files.gpg`. Using the `-l` option will
 only list the files (without decrypting them). Read about
 [encryption](encryption) for more details.
 

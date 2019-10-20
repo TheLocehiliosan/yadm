@@ -12,18 +12,18 @@ _It is recommended that you use a private repository when keeping confidential
 files, even though they are encrypted._
 
 To use this feature, a list of patterns must be created and saved as
-`$HOME/.yadm/encrypt`. For example:
+`$HOME/.config/yadm/encrypt`. For example:
 
     .ssh/*.key
 
 The `yadm encrypt` command will find all files matching the patterns, and
 prompt for a password. Once a password has confirmed, the matching files will be
-encrypted and saved as `$HOME/.yadm/files.gpg`. The patterns and files.gpg
+encrypted and saved as `$HOME/.config/yadm/files.gpg`. The patterns and files.gpg
 should be added to the yadm repository so they are available across multiple
 systems.
 
-    yadm add .yadm/encrypt
-    yadm add .yadm/files.gpg
+    yadm add .config/yadm/encrypt
+    yadm add .config/yadm/files.gpg
 
 To decrypt these files later, or on another system run `yadm decrypt` and
 provide the correct password.
