@@ -56,6 +56,8 @@ list
 
 .BR yadm " perms
 
+.BR yadm " upgrade
+
 .BR yadm " introspect
 .I category
 
@@ -255,6 +257,22 @@ configuration
 .I yadm.auto-perms
 to "false".
 .TP
+.B upgrade
+Version 2 of yadm uses a different directory for storing your configurations.
+When you start to use version 2 for the first time, you may see warnings about
+moving your data to this new directory.
+The easiest way to accomplish this is by running "yadm upgrade".
+This command will start by moving your yadm repo to the new path.
+Next it will move any configuration data to the new path.
+If the configurations are tracked within your yadm repo, this command will
+"stage" the renaming of those files in the repo's index.
+After running "yadm upgrade", you should run "yadm status" to review changes
+which have been staged, and commit them to your repository.
+
+You can read
+https://yadm.io/docs/upgrade_from_1.x.x
+for more information.
+.TP
 .B version
 Print the version of yadm.
 
@@ -262,10 +280,14 @@ Print the version of yadm.
 
 Beginning with version 2.0.0, yadm introduced a couple major changes which may
 require you to adjust your configurations.
+See the
+.B upgrade
+command for help making those adjustments.
 
 First, yadm now uses the "XDG Base Directory Specification" to find its
-configurations. You can read https://yadm.io/docs/xdg_config_home for more
-information.
+configurations. You can read
+https://yadm.io/docs/upgrade_from_1.x.x
+for more information.
 
 Second, the naming conventions for alternate files have been changed.
 You can read https://yadm.io/docs/alternates for more information.

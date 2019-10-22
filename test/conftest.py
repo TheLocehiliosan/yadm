@@ -84,6 +84,7 @@ def supported_commands():
         'introspect',
         'list',
         'perms',
+        'upgrade',
         'version',
         ]
 
