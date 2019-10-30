@@ -2,12 +2,12 @@
 import pytest
 
 
-@pytest.mark.parametrize('label', ['', 'builtin', 'other'])
+@pytest.mark.parametrize('label', ['', 'default', 'other'])
 @pytest.mark.parametrize('awk', [True, False], ids=['awk', 'no-awk'])
-def test_kind_builtin(runner, yadm, awk, label):
-    """Test kind: builtin"""
+def test_kind_default(runner, yadm, awk, label):
+    """Test kind: default"""
 
-    expected = 'template_builtin'
+    expected = 'template_default'
     awk_avail = 'true'
 
     if not awk:

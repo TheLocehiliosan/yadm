@@ -101,7 +101,7 @@ def test_alt_conditions(
 
 @pytest.mark.usefixtures('ds1_copy')
 @pytest.mark.parametrize(
-    'kind', ['builtin', '', None, 'envtpl', 'j2cli', 'j2'])
+    'kind', ['default', '', None, 'envtpl', 'j2cli', 'j2'])
 @pytest.mark.parametrize('label', ['t', 'template', 'yadm', ])
 def test_alt_templates(
         runner, paths, kind, label):
@@ -223,7 +223,7 @@ def test_template_overwrite_symlink(runner, yadm_y, paths, tst_sys):
     link = paths.work.join('test_link')
     link.mksymlinkto(target, absolute=1)
 
-    template = paths.work.join('test_link##template.builtin')
+    template = paths.work.join('test_link##template.default')
     template.write('test-data')
 
     run = runner(yadm_y('add', target, template))

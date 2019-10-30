@@ -1,18 +1,18 @@
-"""Unit tests: template_builtin"""
+"""Unit tests: template_default"""
 
 # these values are also testing the handling of bizarre characters
-LOCAL_CLASS = "builtin_Test+@-!^Class"
-LOCAL_SYSTEM = "builtin_Test+@-!^System"
-LOCAL_HOST = "builtin_Test+@-!^Host"
-LOCAL_USER = "builtin_Test+@-!^User"
-LOCAL_DISTRO = "builtin_Test+@-!^Distro"
+LOCAL_CLASS = "default_Test+@-!^Class"
+LOCAL_SYSTEM = "default_Test+@-!^System"
+LOCAL_HOST = "default_Test+@-!^Host"
+LOCAL_USER = "default_Test+@-!^User"
+LOCAL_DISTRO = "default_Test+@-!^Distro"
 TEMPLATE = f'''
 start of template
-builtin class  = >{{{{yadm.class}}}}<
-builtin os     = >{{{{yadm.os}}}}<
-builtin host   = >{{{{yadm.hostname}}}}<
-builtin user   = >{{{{yadm.user}}}}<
-builtin distro = >{{{{yadm.distro}}}}<
+default class  = >{{{{yadm.class}}}}<
+default os     = >{{{{yadm.os}}}}<
+default host   = >{{{{yadm.hostname}}}}<
+default user   = >{{{{yadm.user}}}}<
+default distro = >{{{{yadm.distro}}}}<
 {{% if yadm.class == "else1" %}}
 wrong else 1
 {{% else %}}
@@ -70,11 +70,11 @@ end of template
 '''
 EXPECTED = f'''
 start of template
-builtin class  = >{LOCAL_CLASS}<
-builtin os     = >{LOCAL_SYSTEM}<
-builtin host   = >{LOCAL_HOST}<
-builtin user   = >{LOCAL_USER}<
-builtin distro = >{LOCAL_DISTRO}<
+default class  = >{LOCAL_CLASS}<
+default os     = >{LOCAL_SYSTEM}<
+default host   = >{LOCAL_HOST}<
+default user   = >{LOCAL_USER}<
+default distro = >{LOCAL_DISTRO}<
 Included section from else
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Multiple lines
@@ -86,8 +86,8 @@ end of template
 '''
 
 
-def test_template_builtin(runner, yadm, tmpdir):
-    """Test template_builtin"""
+def test_template_default(runner, yadm, tmpdir):
+    """Test template_default"""
 
     input_file = tmpdir.join('input')
     input_file.write(TEMPLATE, ensure=True)
@@ -100,7 +100,7 @@ def test_template_builtin(runner, yadm, tmpdir):
         local_host="{LOCAL_HOST}"
         local_user="{LOCAL_USER}"
         local_distro="{LOCAL_DISTRO}"
-        template_builtin "{input_file}" "{output_file}"
+        template_default "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
@@ -117,7 +117,7 @@ def test_source(runner, yadm, tmpdir):
 
     script = f"""
         YADM_TEST=1 source {yadm}
-        template_builtin "{input_file}" "{output_file}"
+        template_default "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)
     assert run.success

@@ -275,8 +275,8 @@ function record_template() {
 function choose_template_cmd() {
   kind="$1"
 
-  if [ "$kind" = "builtin" ] || [ "$kind" = "" ] && awk_available; then
-    echo "template_builtin"
+  if [ "$kind" = "default" ] || [ "$kind" = "" ] && awk_available; then
+    echo "template_default"
   elif [ "$kind" = "j2cli" ] || [ "$kind" = "j2" ] && j2cli_available; then
     echo "template_j2cli"
   elif [ "$kind" = "envtpl" ] || [ "$kind" = "j2" ] && envtpl_available; then
@@ -289,14 +289,14 @@ function choose_template_cmd() {
 
 # ****** Template Processors ******
 
-function template_builtin() {
+function template_default() {
   input="$1"
   output="$2"
 
   # the explicit "space + tab" character class used below is used because not
   # all versions of awk seem to support the POSIX character classes [[:blank:]]
   awk_pgm=$(cat << "EOF"
-# built-in template processor
+# built-in default template processor
 BEGIN {
   blank         = "[ 	]"
   c["class"]    = class
