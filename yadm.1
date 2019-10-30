@@ -270,7 +270,7 @@ After running "yadm upgrade", you should run "yadm status" to review changes
 which have been staged, and commit them to your repository.
 
 You can read
-https://yadm.io/docs/upgrade_from_1.x.x
+https://yadm.io/docs/upgrade_from_1
 for more information.
 .TP
 .B version
@@ -286,7 +286,7 @@ command for help making those adjustments.
 
 First, yadm now uses the "XDG Base Directory Specification" to find its
 configurations. You can read
-https://yadm.io/docs/upgrade_from_1.x.x
+https://yadm.io/docs/upgrade_from_1
 for more information.
 
 Second, the naming conventions for alternate files have been changed.
@@ -447,7 +447,7 @@ commas.
 
 Each condition is an attribute/value pair, separated by a period. Some
 conditions do not require a "value", and in that case, the period and value can
-be omitted.
+be omitted. Most attributes can be abbreviated as a single letter.
 
   <attribute>[.<value>]
 
@@ -494,9 +494,9 @@ Valid when no other alternate is valid.
 
 You may use any number of conditions, in any order.
 An alternate will only be used if ALL conditions are valid.
-If there are any files managed by yadm's repository, or listed in
+For all files managed by yadm’s repository or listed in
 .IR $HOME/.config/yadm/encrypt ,
-which match this naming convention,
+if they match this naming convention,
 symbolic links will be created for the most appropriate version.
 
 The "most appropriate" version is determined by calculating a score for each
@@ -509,7 +509,7 @@ If you don't care to have all versions of alternates stored in the same
 directory as the generated symlink, you can place them in the
 .I $HOME/.config/yadm/alt
 directory. The generated symlink or processed template will be created using
-same relative path.
+the same relative path.
 
 Alternate linking may best be demonstrated by example. Assume the following
 files are managed by yadm's repository:
@@ -585,13 +585,13 @@ processed to create or overwrite files.
 
 Supported template processors:
 .TP
-.B builtin
+.B default
 This is yadm's built-in template processor. This processor is very basic, with
 a Jinja-like syntax. The advantage of this processor is that it only depends
 upon
 .BR awk ,
 which is available on most *nix systems. To use this processor,
-specify the value of "builtin" or just leave the value off (e.g. "##template").
+specify the value of "default" or just leave the value off (e.g. "##template").
 .TP
 .B j2cli
 To use the j2cli Jinja template processor, specify the value of "j2"  or
