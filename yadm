@@ -763,7 +763,7 @@ EOF
 
     # operate on the yadm repo's configuration file
     # this is always local to the machine
-    "$GIT_PROGRAM" config --local "$@"
+    "$GIT_PROGRAM" config "$@"
 
     CHANGES_POSSIBLE=1
 
