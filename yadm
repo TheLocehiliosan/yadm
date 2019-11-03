@@ -96,6 +96,7 @@ function main() {
         ;;
         -l) # used by decrypt()
           DO_LIST="YES"
+          [ "$YADM_COMMAND" = "config" ] && YADM_ARGS+=("$1")
         ;;
         -w) # used by init() and clone()
           if [[ ! "$2" =~ ^/ ]] ; then
