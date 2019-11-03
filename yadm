@@ -748,6 +748,7 @@ function config() {
     # with no parameters, provide some helpful documentation
     echo "yadm supports the following configurations:"
     echo
+    local IFS=$'\n'
     for supported_config in $(introspect_configs); do
       echo "  ${supported_config}"
     done
@@ -980,7 +981,7 @@ EOF
 }
 
 function introspect_configs() {
-  cat << EOF
+  cat <<-EOF
 local.class
 local.hostname
 local.os
