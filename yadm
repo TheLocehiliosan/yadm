@@ -1322,7 +1322,7 @@ function issue_legacy_path_warning() {
   Beginning with version 2.0.0, yadm uses the XDG Base Directory Specification
   to find its configurations. Read more about this change here:
 
-    https://yadm.io/docs/upgrade_from_1.x.x
+    https://yadm.io/docs/upgrade_from_1
 
   In your environment, the configuration directory has been resolved to:
 
