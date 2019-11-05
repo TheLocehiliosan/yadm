@@ -75,6 +75,7 @@ def test_upgrade(tmpdir, runner, yadm, condition):
         YADM_REPO="{yadm_dir}/repo.git"
         YADM_LEGACY_DIR="{legacy_dir}"
         GIT_PROGRAM="{git}"
+        function cd {{ echo "$@";}}
         upgrade
     """
     run = runner(command=['bash'], inp=script)
@@ -99,3 +100,5 @@ def test_upgrade(tmpdir, runner, yadm, condition):
                     f'{yadm_dir.join(lpath)}')
                 assert expected in run.out
             assert 'files tracked by yadm have been renamed' in run.out
+            assert 'submodule deinit -f .' in run.out
+            assert 'submodule update --init --recursive' in run.out

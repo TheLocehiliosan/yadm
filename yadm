@@ -1091,6 +1091,8 @@ function upgrade() {
   fi
 
   # handle other legacy paths
+  GIT_DIR="$YADM_REPO"
+  export GIT_DIR
   for legacy_path in                      \
     "$YADM_LEGACY_DIR/config"             \
     "$YADM_LEGACY_DIR/encrypt"            \
@@ -1106,13 +1108,22 @@ function upgrade() {
       echo "Moving $legacy_path to $new_filename"
       assert_parent "$new_filename"
       # test to see if path is "tracked" in repo, if so 'git mv' must be used
-      if GIT_DIR="$YADM_REPO" "$GIT_PROGRAM" ls-files --error-unmatch "$legacy_path" >/dev/null 2>&1; then
-        GIT_DIR="$YADM_REPO" "$GIT_PROGRAM" mv "$legacy_path" "$new_filename" && repo_updates=1
+      if "$GIT_PROGRAM" ls-files --error-unmatch "$legacy_path" >/dev/null 2>&1; then
+        "$GIT_PROGRAM" mv "$legacy_path" "$new_filename" && repo_updates=1
       else
         mv -i "$legacy_path" "$new_filename"
       fi
     fi
   done
+
+  # handle submodules, which need to be reinitialized
+  if [ "$actions_performed" -ne 0 ]; then
+    cd_work "Upgrade submodules"
+    if "$GIT_PROGRAM" ls-files --error-unmatch .gitmodules >/dev/null 2>&1; then
+      "$GIT_PROGRAM" submodule deinit -f .
+      "$GIT_PROGRAM" submodule update --init --recursive
+    fi
+  fi
 
   [ "$actions_performed" -eq 0 ] && \
     echo "No legacy paths found. Upgrade is not necessary"
