@@ -6,15 +6,18 @@ permalink: /docs/install
 
 ## OSX
 
-yadm can be installed using [Homebrew](https://github.com/Homebrew/homebrew).
+yadm can be installed using [Homebrew][homebrew].
 
 ```
 brew install yadm
 ```
 
-## Fedora/Red Hat/CentOS (YUM/RPM)
+## RPM Based Installations
 
-Several yum repositories are on Copr. Follow this link for [repositories and installation instructions](https://copr.fedorainfracloud.org/coprs/thelocehiliosan/yadm/).
+For RPM based systems like Fedora, Red Hat, CentOS, openSUSE, etc, there are
+repositories hosted by openSUSE Build Service.
+
+Follow this link for [repositories and installation instructions][OBS].
 
 ## Ubuntu/Debian
 
@@ -107,5 +110,9 @@ yadm commit
 Again, adjust the file paths above to be appropriate for your `$PATH` and
 situation.
 
-You can find more information about Git submodules by reading the [git-submodule](https://git-scm.com/docs/git-submodule)
-man page.
+You can find more information about Git submodules by reading the
+[git-submodule][git-submodule] man page.
+
+[OBS]: https://software.opensuse.org//download.html?project=home%3ATheLocehiliosan%3Ayadm&package=yadm
+[git-submodule]: https://git-scm.com/docs/git-submodule
+[homebrew]: https://github.com/Homebrew/homebrew
