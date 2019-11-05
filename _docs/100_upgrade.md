@@ -23,7 +23,9 @@ named `XDG_CONFIG_HOME`.
 If you previously had configurations in `$HOME/.yadm`, the easiest way
 to migrate is to use the new `yadm upgrade` command. This command will move your
 existing repo and configurations to the new directory, and rename any yadm
-configurations that are tracked by your repo.
+configurations that are tracked by your repo. Upgrading will also re-initialize
+all submodules you have added (otherwise they will be broken when the repo
+moves).
 
 ## New alternate file naming convention
 The naming conventions for alternate files have been changed.
