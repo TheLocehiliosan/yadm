@@ -50,7 +50,8 @@ def test_upgrade_errors(tmpdir, runner, yadm, condition):
         assert 'already exists' in run.out
 
 
-@pytest.mark.parametrize('condition', ['no-paths', 'untracked', 'tracked'])
+@pytest.mark.parametrize(
+    'condition', ['no-paths', 'untracked', 'tracked', 'submodules'])
 def test_upgrade(tmpdir, runner, yadm, condition):
     """Test upgrade()
 
@@ -67,14 +68,25 @@ def test_upgrade(tmpdir, runner, yadm, condition):
         for lpath in LEGACY_PATHS:
             legacy_dir.join(lpath).write(lpath, ensure=True)
 
-    git = 'echo' if condition == 'tracked' else 'git'
+    mock_git = ""
+    if condition in ['tracked', 'submodules']:
+        mock_git = f'''
+            function git() {{
+                echo "$@"
+                if [[ "$*" == *.gitmodules* ]]; then
+                    return { '0' if condition == 'submodules' else '1' }
+                fi
+                return 0
+            }}
+        '''
 
     script = f"""
         YADM_TEST=1 source {yadm}
         YADM_DIR="{yadm_dir}"
         YADM_REPO="{yadm_dir}/repo.git"
         YADM_LEGACY_DIR="{legacy_dir}"
-        GIT_PROGRAM="{git}"
+        GIT_PROGRAM="git"
+        {mock_git}
         function cd {{ echo "$@";}}
         upgrade
     """
@@ -93,12 +105,16 @@ def test_upgrade(tmpdir, runner, yadm, condition):
             assert 'test-repo' in yadm_dir.join('repo.git/config').read()
             for lpath in LEGACY_PATHS:
                 assert lpath in yadm_dir.join(lpath).read()
-        elif condition == 'tracked':
+        elif condition in ['tracked', 'submodules']:
             for lpath in LEGACY_PATHS:
                 expected = (
                     f'mv {legacy_dir.join(lpath)} '
                     f'{yadm_dir.join(lpath)}')
                 assert expected in run.out
             assert 'files tracked by yadm have been renamed' in run.out
-            assert 'submodule deinit -f .' in run.out
-            assert 'submodule update --init --recursive' in run.out
+            if condition == 'submodules':
+                assert 'submodule deinit -f .' in run.out
+                assert 'submodule update --init --recursive' in run.out
+            else:
+                assert 'submodule deinit -f .' not in run.out
+                assert 'submodule update --init --recursive' not in run.out
