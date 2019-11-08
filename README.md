@@ -2,7 +2,7 @@
 
 [![Latest Version][releases-badge]][releases-link]
 [![Homebrew Version][homebrew-badge]][homebrew-link]
-[![Copr Version][copr-badge]][copr-link]
+[![OBS Version][obs-badge]][obs-link]
 [![Arch Version][aur-badge]][aur-link]
 [![License][license-badge]][license-link]<br />
 [![Master Update][master-date]][master-commits]
@@ -29,8 +29,6 @@ Features, usage, examples and installation instructions can be found on the
 [GnuPG]: https://gnupg.org/
 [aur-badge]: https://img.shields.io/aur/version/yadm-git.svg
 [aur-link]: https://aur.archlinux.org/packages/yadm-git
-[copr-badge]: https://img.shields.io/badge/dynamic/json.svg?label=copr&prefix=v&query=%24..version&url=https%3A%2F%2Fcopr.fedorainfracloud.org%2Fapi_2%2Fbuilds%3Fproject_id%3D7041%26limit%3D1
-[copr-link]: https://copr.fedorainfracloud.org/coprs/thelocehiliosan/yadm/
 [dev-pages-badge]: https://img.shields.io/travis/TheLocehiliosan/yadm/dev-pages.svg?label=dev-pages
 [develop-badge]: https://img.shields.io/travis/TheLocehiliosan/yadm/develop.svg?label=develop
 [develop-commits]: https://github.com/TheLocehiliosan/yadm/commits/develop
@@ -44,6 +42,8 @@ Features, usage, examples and installation instructions can be found on the
 [master-badge]: https://img.shields.io/travis/TheLocehiliosan/yadm/master.svg?label=master
 [master-commits]: https://github.com/TheLocehiliosan/yadm/commits/master
 [master-date]: https://img.shields.io/github/last-commit/TheLocehiliosan/yadm/master.svg?label=master
+[obs-badge]: https://img.shields.io/badge/OBS-v2.0.0-blue
+[obs-link]: https://software.opensuse.org//download.html?project=home%3ATheLocehiliosan%3Ayadm&package=yadm
 [releases-badge]: https://img.shields.io/github/tag/TheLocehiliosan/yadm.svg?label=latest+release
 [releases-link]: https://github.com/TheLocehiliosan/yadm/releases
 [travis-ci]: https://travis-ci.org/TheLocehiliosan/yadm/branches
