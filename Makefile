@@ -164,7 +164,7 @@ yadm.md: yadm.1
 .PHONY: contrib
 contrib:
 	@echo "CONTRIBUTORS\n" > CONTRIBUTORS
-	@git shortlog -ns master gh-pages dev dev-pages | cut -f2 >> CONTRIBUTORS
+	@git shortlog -ns master gh-pages develop dev-pages | cut -f2 >> CONTRIBUTORS
 
 .PHONY: sync-clock
 sync-clock:
