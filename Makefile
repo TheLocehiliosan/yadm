@@ -65,6 +65,11 @@ usage:
 	@echo '  make contrib'
 	@echo '    - Generate the CONTRIBUTORS file, from the repo history.'
 	@echo
+	@echo 'INSTALLATION'
+	@echo
+	@echo '  make install PREFIX=<prefix>'
+	@echo '    - Install yadm, manpage, etc. to <prefix>'
+	@echo
 	@echo 'UTILITIES'
 	@echo
 	@echo '  make sync-clock'
@@ -165,6 +170,21 @@ yadm.md: yadm.1
 contrib:
 	@echo "CONTRIBUTORS\n" > CONTRIBUTORS
 	@git shortlog -ns master gh-pages develop dev-pages | cut -f2 >> CONTRIBUTORS
+
+.PHONY: install
+install:
+	@[ -n "$(PREFIX)" ] || { echo "PREFIX is not set"; exit 1; }
+	@{\
+		set -e                                               ;\
+		bin="$(PREFIX)/bin"                                  ;\
+		doc="$(PREFIX)/share/doc/yadm"                       ;\
+		man="$(PREFIX)/share/man/man1"                       ;\
+		install -d "$$bin" "$$doc" "$$man"                   ;\
+		install -m 0755 yadm "$$bin"                         ;\
+		install -m 0644 yadm.1 "$$man"                       ;\
+		install -m 0644 CHANGES CONTRIBUTORS LICENSE "$$doc" ;\
+		cp -r contrib "$$doc"                                ;\
+	}
 
 .PHONY: sync-clock
 sync-clock:
