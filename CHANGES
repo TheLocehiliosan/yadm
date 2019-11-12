@@ -1,3 +1,24 @@
+2.0.0
+  * Support XDG base directory specification
+  * Redesign alternate processing
+  * Add built-in default template processor
+  * Allow storing alternates in yadm dir (#90)
+  * Add support for j2cli template processor
+  * Ignore encrypted files (#69)
+  * Support DISTRO in alternates (#72)
+  * Support `source` in templates (#163)
+  * Change yadm.cygwin-copy to yadm.alt-copy
+  * Support `-b <branch>` when cloning (#133)
+  * Support includes for j2-based templates (#114)
+  * Remove stale/invalid linked alternates (#65)
+  * Add support for Mingw/Msys (#102)
+  * Allow `-l` to pass thru to the `yadm config` command
+  * Improve processing of `yadm/encrypt`
+  * Fix bugs in legacy alternate processing
+  * Fix bug with hidden private files
+  * Improve support for older versions of Git
+  * Add upgrade command
+
 1.12.0
   * Add basic Zsh completion (#71, #79)
   * Support directories in `.yadm/encrypt` (#81, #82)

@@ -1,0 +1,17 @@
+[BASIC]
+good-names=pytestmark
+
+[DESIGN]
+max-args=14
+max-locals=28
+max-attributes=8
+max-statements=65
+
+[SIMILARITIES]
+min-similarity-lines=6
+
+[MESSAGES CONTROL]
+disable=redefined-outer-name
+
+[TYPECHECK]
+ignored-modules=py
