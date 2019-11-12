@@ -55,7 +55,7 @@ if declare -F _git > /dev/null; then
 
     case "$antepenultimate" in
       clone)
-        COMPREPLY=( $(compgen -W "-f -w --bootstrap --no-bootstrap" -- "$current") )
+        COMPREPLY=( $(compgen -W "-f -w -b --bootstrap --no-bootstrap" -- "$current") )
         return 0
 		  ;;
     esac

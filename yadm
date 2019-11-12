@@ -1,40 +1,47 @@
 #!/bin/sh
 # yadm - Yet Another Dotfiles Manager
-# Copyright (C) 2015-2017 Tim Byrne
+# Copyright (C) 2015-2019 Tim Byrne
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, version 3 of the License.
-
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#; execute script with bash (shebang line is /bin/sh for portability)
+# execute script with bash (shebang line is /bin/sh for portability)
 if [ -z "$BASH_VERSION" ]; then
   [ "$YADM_TEST" != 1 ] && exec bash "$0" "$@"
 fi
 
-VERSION=1.12.0
+VERSION=2.0.0
 
 YADM_WORK="$HOME"
-YADM_DIR="$HOME/.yadm"
+YADM_DIR=
+YADM_LEGACY_DIR="${HOME}/.yadm"
 
+# these are the default paths relative to YADM_DIR
 YADM_REPO="repo.git"
 YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
+YADM_HOOKS="hooks"
+YADM_ALT="alt"
 
 HOOK_COMMAND=""
 FULL_COMMAND=""
 
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
+AWK_PROGRAM="awk"
+J2CLI_PROGRAM="j2"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
 
@@ -43,34 +50,34 @@ OPERATING_SYSTEM="Unknown"
 
 ENCRYPT_INCLUDE_FILES="unparsed"
 
-#; flag causing path translations with cygpath
+# flag causing path translations with cygpath
 USE_CYGPATH=0
 
-#; flag when something may have changes (which prompts auto actions to be performed)
+# flag when something may have changes (which prompts auto actions to be performed)
 CHANGES_POSSIBLE=0
 
-#; flag when a bootstrap should be performed after cloning
-#; 0: skip auto_bootstrap, 1: ask, 2: perform bootstrap, 3: prevent bootstrap
+# flag when a bootstrap should be performed after cloning
+# 0: skip auto_bootstrap, 1: ask, 2: perform bootstrap, 3: prevent bootstrap
 DO_BOOTSTRAP=0
 
 function main() {
 
   require_git
 
-  #; capture full command, for passing to hooks
+  # capture full command, for passing to hooks
   FULL_COMMAND="$*"
 
-  #; create the YADM_DIR if it doesn't exist yet
+  # create the YADM_DIR if it doesn't exist yet
   [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
 
-  #; parse command line arguments
+  # parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|init|introspect|list|perms|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|init|introspect|list|perms|upgrade|version)$"
   if [ -z "$*" ] ; then
-    #; no argumnts will result in help()
+    # no argumnts will result in help()
     help
   elif [[ "$1" =~ $internal_commands ]] ; then
-    #; for internal commands, process all of the arguments
+    # for internal commands, process all of the arguments
     YADM_COMMAND="$1"
     YADM_ARGS=()
     shift
@@ -78,26 +85,27 @@ function main() {
     while [[ $# -gt 0 ]] ; do
       key="$1"
       case $key in
-        -a) #; used by list()
+        -a) # used by list()
           LIST_ALL="YES"
         ;;
-        -d) #; used by all commands
+        -d) # used by all commands
           DEBUG="YES"
         ;;
-        -f) #; used by init() and clone()
+        -f) # used by init() and clone()
           FORCE="YES"
         ;;
-        -l) #; used by decrypt()
+        -l) # used by decrypt()
           DO_LIST="YES"
+          [ "$YADM_COMMAND" = "config" ] && YADM_ARGS+=("$1")
         ;;
-        -w) #; used by init() and clone()
+        -w) # used by init() and clone()
           if [[ ! "$2" =~ ^/ ]] ; then
             error_out "You must specify a fully qualified work tree"
           fi
           YADM_WORK="$2"
           shift
         ;;
-        *) #; any unhandled arguments
+        *) # any unhandled arguments
           YADM_ARGS+=("$1")
         ;;
       esac
@@ -108,14 +116,14 @@ function main() {
     invoke_hook "pre"
     $YADM_COMMAND "${YADM_ARGS[@]}"
   else
-    #; any other commands are simply passed through to git
+    # any other commands are simply passed through to git
     HOOK_COMMAND="$1"
     invoke_hook "pre"
     git_command "$@"
     retval="$?"
   fi
 
-  #; process automatic events
+  # process automatic events
   auto_alt
   auto_perms
   auto_bootstrap
@@ -124,93 +132,458 @@ function main() {
 
 }
 
-#; ****** yadm Commands ******
+
+# ****** Alternate Processing ******
+
+function score_file() {
+  target="$1"
+  filename="${target%%##*}"
+  conditions="${target#*##}"
+
+  if [ "${filename#$YADM_ALT/}" != "${filename}" ]; then
+    filename="${YADM_WORK}/${filename#$YADM_ALT/}"
+  fi
+
+  score=0
+  IFS=',' read -ra fields <<< "$conditions"
+  for field in "${fields[@]}"; do
+    label=${field%%.*}
+    value=${field#*.}
+    [ "$field" = "$label" ] && value="" # when .value is omitted
+    score=$((score + 1000))
+    # default condition
+    if [[ "$label" =~ ^(default)$ ]]; then
+      score=$((score + 0))
+    # variable conditions
+    elif [[ "$label" =~ ^(o|os)$ ]]; then
+      if [ "$value" = "$local_system" ]; then
+        score=$((score + 1))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(d|distro)$ ]]; then
+      if [ "$value" = "$local_distro" ]; then
+        score=$((score + 2))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(c|class)$ ]]; then
+      if [ "$value" = "$local_class" ]; then
+        score=$((score + 4))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(h|hostname)$ ]]; then
+      if [ "$value" = "$local_host" ]; then
+        score=$((score + 8))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(u|user)$ ]]; then
+      if [ "$value" = "$local_user" ]; then
+        score=$((score + 16))
+      else
+        score=0
+        return
+      fi
+    # templates
+    elif [[ "$label" =~ ^(t|template|yadm)$ ]]; then
+      score=0
+      cmd=$(choose_template_cmd "$value")
+      if [ -n "$cmd" ]; then
+        record_template "$filename" "$cmd" "$target"
+      else
+        debug "No supported template processor for template $target"
+        [ -n "$loud" ] && echo "No supported template processor for template $target"
+      fi
+      return 0
+    # unsupported values
+    else
+      score=0
+      return
+    fi
+  done
+
+  record_score "$score" "$filename" "$target"
+}
+
+function record_score() {
+  score="$1"
+  filename="$2"
+  target="$3"
+
+  # record nothing if the score is zero
+  [ "$score" -eq 0 ] && return
+
+  # search for the index of this filename, to see if we already are tracking it
+  index=-1
+  for search_index in "${!alt_filenames[@]}"; do
+    if [ "${alt_filenames[$search_index]}" = "$filename" ]; then
+        index="$search_index"
+        break
+    fi
+  done
+  # if we don't find an existing index, create one by appending to the array
+  if [ "$index" -eq -1 ]; then
+    alt_filenames+=("$filename")
+    # set index to the last index (newly created one)
+    for index in "${!alt_filenames[@]}"; do :; done
+    # and set its initial score to zero
+    alt_scores[$index]=0
+  fi
+
+  # record nothing if a template command is registered for this file
+  [ "${alt_template_cmds[$index]+isset}" ] && return
+
+  # record higher scoring targets
+  if [ "$score" -gt "${alt_scores[$index]}" ]; then
+    alt_scores[$index]="$score"
+    alt_targets[$index]="$target"
+  fi
+
+}
+
+function record_template() {
+  filename="$1"
+  cmd="$2"
+  target="$3"
+
+  # search for the index of this filename, to see if we already are tracking it
+  index=-1
+  for search_index in "${!alt_filenames[@]}"; do
+    if [ "${alt_filenames[$search_index]}" = "$filename" ]; then
+        index="$search_index"
+        break
+    fi
+  done
+  # if we don't find an existing index, create one by appending to the array
+  if [ "$index" -eq -1 ]; then
+    alt_filenames+=("$filename")
+    # set index to the last index (newly created one)
+    for index in "${!alt_filenames[@]}"; do :; done
+  fi
+
+  # record the template command, last one wins
+  alt_template_cmds[$index]="$cmd"
+  alt_targets[$index]="$target"
+
+}
+
+function choose_template_cmd() {
+  kind="$1"
+
+  if [ "$kind" = "default" ] || [ "$kind" = "" ] && awk_available; then
+    echo "template_default"
+  elif [ "$kind" = "j2cli" ] || [ "$kind" = "j2" ] && j2cli_available; then
+    echo "template_j2cli"
+  elif [ "$kind" = "envtpl" ] || [ "$kind" = "j2" ] && envtpl_available; then
+    echo "template_envtpl"
+  else
+    return # this "kind" of template is not supported
+  fi
+
+}
+
+# ****** Template Processors ******
+
+function template_default() {
+  input="$1"
+  output="$2"
+
+  # the explicit "space + tab" character class used below is used because not
+  # all versions of awk seem to support the POSIX character classes [[:blank:]]
+  awk_pgm=$(cat << "EOF"
+# built-in default template processor
+BEGIN {
+  blank         = "[ 	]"
+  c["class"]    = class
+  c["os"]       = os
+  c["hostname"] = host
+  c["user"]     = user
+  c["distro"]   = distro
+  c["source"]   = source
+  vld           = conditions()
+  ifs           = "^{%" blank "*if"
+  els           = "^{%" blank "*else" blank "*%}$"
+  end           = "^{%" blank "*endif" blank "*%}$"
+  skp           = "^{%" blank "*(if|else|endif)"
+  prt           = 1
+}
+{ replace_vars() } # variable replacements
+$0 ~ vld, $0 ~ end {
+  if ($0 ~ vld || $0 ~ end) prt=1;
+  if ($0 ~ els) prt=0;
+  if ($0 ~ skp) next;
+}
+($0 ~ ifs && $0 !~ vld), $0 ~ end {
+  if ($0 ~ ifs && $0 !~ vld) prt=0;
+  if ($0 ~ els || $0 ~ end) prt=1;
+  if ($0 ~ skp) next;
+}
+{ if (prt) print }
+function replace_vars() {
+  for (label in c) {
+    gsub(("{{" blank "*yadm\\." label blank "*}}"), c[label])
+  }
+}
+function conditions() {
+  pattern = "^{%" blank "*if" blank "*("
+  for (label in c) {
+    value = c[label]
+    gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
+    pattern = sprintf("%syadm\\.%s" blank "*==" blank "*\"%s\"|", pattern, label, value)
+  }
+  sub(/\|$/,")",pattern)
+  return pattern
+}
+EOF
+  )
+
+  "$AWK_PROGRAM" \
+    -v class="$local_class" \
+    -v os="$local_system" \
+    -v host="$local_host" \
+    -v user="$local_user" \
+    -v distro="$local_distro" \
+    -v source="$input" \
+    "$awk_pgm" \
+    "$input" > "$output"
+}
+
+function template_j2cli() {
+  input="$1"
+  output="$2"
+
+  YADM_CLASS="$local_class"   \
+  YADM_OS="$local_system"     \
+  YADM_HOSTNAME="$local_host" \
+  YADM_USER="$local_user"     \
+  YADM_DISTRO="$local_distro" \
+  YADM_SOURCE="$input"        \
+  "$J2CLI_PROGRAM" "$input" -o "$output"
+}
+
+function template_envtpl() {
+  input="$1"
+  output="$2"
+
+  YADM_CLASS="$local_class"   \
+  YADM_OS="$local_system"     \
+  YADM_HOSTNAME="$local_host" \
+  YADM_USER="$local_user"     \
+  YADM_DISTRO="$local_distro" \
+  YADM_SOURCE="$input"        \
+  "$ENVTPL_PROGRAM" --keep-template "$input" -o "$output"
+}
+
+# ****** yadm Commands ******
 
 function alt() {
 
   require_repo
   parse_encrypt
 
+  # gather values for processing alternates
+  local local_class
+  local local_system
+  local local_host
+  local local_user
+  local local_distro
+  set_local_alt_values
+
+  # only be noisy if the "alt" command was run directly
+  local loud=
+  [ "$YADM_COMMAND" = "alt" ] && loud="YES"
+
+  # decide if a copy should be done instead of a symbolic link
+  local do_copy=0
+  [ "$(config --bool yadm.alt-copy)" == "true" ] && do_copy=1
+
+  # deprecated yadm.cygwin-copy option (to be removed)
+  [ "$(config --bool yadm.cygwin-copy)" == "true" ] && do_copy=1
+
+  cd_work "Alternates" || return
+
+  # determine all tracked files
+  local tracked_files
+  tracked_files=()
+  local IFS=$'\n'
+  for tracked_file in $("$GIT_PROGRAM" ls-files | LC_ALL=C sort); do
+    tracked_files+=("$tracked_file")
+  done
+
+  # generate data for removing stale links
+  local possible_alts
+  possible_alts=()
+  local IFS=$'\n'
+  for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    if [[ $possible_alt =~ .\#\#. ]]; then
+      possible_alts+=("$YADM_WORK/${possible_alt%%##*}")
+    fi
+  done
+  local alt_linked
+  alt_linked=()
+
+  if [ "$YADM_COMPATIBILITY" = "1" ]; then
+    alt_past_linking
+  else
+    alt_future_linking
+  fi
+
+  remove_stale_links
+
+}
+
+function remove_stale_links() {
+  # review alternate candidates for stale links
+  # if a possible alt IS linked, but it's target is not part of alt_linked,
+  # remove it.
+  if readlink_available; then
+    for stale_candidate in "${possible_alts[@]}"; do
+      if [ -L "$stale_candidate" ]; then
+        link_target=$(readlink "$stale_candidate" 2>/dev/null)
+        if [ -n "$link_target" ]; then
+          removal=yes
+          for review_link in "${alt_linked[@]}"; do
+            [ "$link_target" = "$review_link" ] && removal=no
+          done
+          [ "$removal" = "yes" ] && rm -f "$stale_candidate"
+        fi
+      fi
+    done
+  fi
+}
+
+function set_local_alt_values() {
+
   local_class="$(config local.class)"
+
+  local_system="$(config local.os)"
+  if [ -z "$local_system" ] ; then
+    local_system="$OPERATING_SYSTEM"
+  fi
+
+  local_host="$(config local.hostname)"
+  if [ -z "$local_host" ] ; then
+    local_host=$(hostname)
+    local_host=${local_host%%.*} # trim any domain from hostname
+  fi
+
+  local_user="$(config local.user)"
+  if [ -z "$local_user" ] ; then
+    local_user=$(id -u -n)
+  fi
+
+  local_distro="$(query_distro)"
+
+}
+
+function alt_future_linking() {
+
+  local alt_scores
+  local alt_filenames
+  local alt_targets
+  local alt_template_cmds
+  alt_scores=()
+  alt_filenames=()
+  alt_targets=()
+  alt_template_cmds=()
+
+  for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    alt_path="$YADM_WORK/$alt_path"
+    if [[ "$alt_path" =~ .\#\#. ]]; then
+      if [ -e "$alt_path" ] ; then
+        score_file "$alt_path"
+      fi
+    fi
+  done
+
+  for index in "${!alt_filenames[@]}"; do
+    filename="${alt_filenames[$index]}"
+    target="${alt_targets[$index]}"
+    template_cmd="${alt_template_cmds[$index]}"
+    if [ -n "$template_cmd" ]; then
+      # a template is defined, process the template
+      debug "Creating $filename from template $target"
+      [ -n "$loud" ] && echo "Creating $filename from template $target"
+      # ensure the destination path exists
+      assert_parent "$filename"
+      # remove any existing symlink before processing template
+      [ -L "$filename" ] && rm -f "$filename"
+      "$template_cmd" "$target" "$filename"
+    elif [ -n "$target" ]; then
+      # a link target is defined, create symlink
+      debug "Linking $target to $filename"
+      [ -n "$loud" ] && echo "Linking $target to $filename"
+      # ensure the destination path exists
+      assert_parent "$filename"
+      if [ "$do_copy" -eq 1 ]; then
+        # remove any existing symlink before copying
+        [ -L "$filename" ] && rm -f "$filename"
+        cp -f "$target" "$filename"
+      else
+        ln -nfs "$target" "$filename"
+        alt_linked+=("$target")
+      fi
+    fi
+  done
+
+}
+
+function alt_past_linking() {
+
   if [ -z "$local_class" ] ; then
     match_class="%"
   else
     match_class="$local_class"
   fi
   match_class="(%|$match_class)"
-
-  local_system="$(config local.os)"
-  if [ -z "$local_system" ] ; then
-    local_system="$OPERATING_SYSTEM"
-  fi
   match_system="(%|$local_system)"
-
-  local_host="$(config local.hostname)"
-  if [ -z "$local_host" ] ; then
-    local_host=$(hostname)
-    local_host=${local_host%%.*} #; trim any domain from hostname
-  fi
   match_host="(%|$local_host)"
-
-  local_user="$(config local.user)"
-  if [ -z "$local_user" ] ; then
-    local_user=$(id -u -n)
-  fi
   match_user="(%|$local_user)"
 
-  #; regex for matching "<file>##CLASS.SYSTEM.HOSTNAME.USER"
+  # regex for matching "<file>##CLASS.SYSTEM.HOSTNAME.USER"
   match1="^(.+)##(()|$match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user)$"
   match2="^(.+)##($match_class|$match_class\.$match_system|$match_class\.$match_system\.$match_host|$match_class\.$match_system\.$match_host\.$match_user)$"
 
-  cd_work "Alternates" || return
-
-  #; only be noisy if the "alt" command was run directly
-  [ "$YADM_COMMAND" = "alt" ] && loud="YES"
-
-  #; decide if a copy should be done instead of a symbolic link
-  local do_copy=0
-  if [[ $OPERATING_SYSTEM == CYGWIN* ]] ; then
-    if [[ $(config --bool yadm.cygwin-copy) == "true" ]] ; then
-      do_copy=1
-    fi
-  fi
-
-  #; loop over all "tracked" files
-  #; for every file which matches the above regex, create a symlink
+  # loop over all "tracked" files
+  # for every file which matches the above regex, create a symlink
   for match in $match1 $match2; do
     last_linked=''
     local IFS=$'\n'
-    for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
-      tracked_file="$YADM_WORK/$tracked_file"
-      #; process both the path, and it's parent directory
-      for alt_path in "$tracked_file" "${tracked_file%/*}"; do
-        if [ -e "$alt_path" ] ; then
-          if [[ $alt_path =~ $match ]] ; then
-            if [ "$alt_path" != "$last_linked" ] ; then
-              new_link="${BASH_REMATCH[1]}"
-              debug "Linking $alt_path to $new_link"
-              [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
-              if [ "$do_copy" -eq 1 ]; then
-                if [ -L "$new_link" ]; then
-                  rm -f "$new_link"
-                fi
-                cp -f "$alt_path" "$new_link"
-              else
-                ln -nfs "$alt_path" "$new_link"
+    # the alt_paths looped over here are a unique sorted list of both files and their immediate parent directory
+    for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+      alt_path="$YADM_WORK/$alt_path"
+      if [ -e "$alt_path" ] ; then
+        if [[ $alt_path =~ $match ]] ; then
+          if [ "$alt_path" != "$last_linked" ] ; then
+            new_link="${BASH_REMATCH[1]}"
+            debug "Linking $alt_path to $new_link"
+            [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
+            if [ "$do_copy" -eq 1 ]; then
+              if [ -L "$new_link" ]; then
+                rm -f "$new_link"
               fi
-              last_linked="$alt_path"
+              cp -f "$alt_path" "$new_link"
+            else
+              ln -nfs "$alt_path" "$new_link"
+              alt_linked+=("$alt_path")
             fi
+            last_linked="$alt_path"
           fi
         fi
-      done
+      fi
     done
   done
 
-  #; loop over all "tracked" files
-  #; for every file which is a *##yadm.j2 create a real file
-  local IFS=$'\n'
+  # loop over all "tracked" files
+  # for every file which is a *##yadm.j2 create a real file
   local match="^(.+)##yadm\\.j2$"
-  for tracked_file in $("$GIT_PROGRAM" ls-files | sort) "${ENCRYPT_INCLUDE_FILES[@]}"; do
+  for tracked_file in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
     tracked_file="$YADM_WORK/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
@@ -218,12 +591,12 @@ function alt() {
         if envtpl_available; then
           debug "Creating $real_file from template $tracked_file"
           [ -n "$loud" ] && echo "Creating $real_file from template $tracked_file"
-          YADM_CLASS="$local_class" \
-          YADM_OS="$local_system" \
+          YADM_CLASS="$local_class"   \
+          YADM_OS="$local_system"     \
           YADM_HOSTNAME="$local_host" \
-          YADM_USER="$local_user" \
-          YADM_DISTRO=$(query_distro) \
-          "$ENVTPL_PROGRAM" < "$tracked_file" > "$real_file"
+          YADM_USER="$local_user"     \
+          YADM_DISTRO="$local_distro" \
+          "$ENVTPL_PROGRAM" --keep-template "$tracked_file" -o "$real_file"
         else
           debug "envtpl not available, not creating $real_file from template $tracked_file"
           [ -n "$loud" ] && echo "envtpl not available, not creating $real_file from template $tracked_file"
@@ -255,18 +628,27 @@ function clean() {
 function clone() {
 
   DO_BOOTSTRAP=1
+  local branch
+  branch="master"
 
   clone_args=()
   while [[ $# -gt 0 ]] ; do
     key="$1"
     case $key in
-      --bootstrap) #; force bootstrap, without prompt
+      -b)
+        if ! is_valid_branch_name "$2"; then
+          error_out "You must provide a branch name when using '-b'"
+        fi
+        branch="$2"
+        shift
+      ;;
+      --bootstrap) # force bootstrap, without prompt
         DO_BOOTSTRAP=2
       ;;
-      --no-bootstrap) #; prevent bootstrap, without prompt
+      --no-bootstrap) # prevent bootstrap, without prompt
         DO_BOOTSTRAP=3
       ;;
-      *) #; main arguments are kept intact
+      *) # main arguments are kept intact
         clone_args+=("$1")
       ;;
     esac
@@ -275,48 +657,54 @@ function clone() {
 
   [ -n "$DEBUG" ] && display_private_perms "initial"
 
-  #; clone will begin with a bare repo
+  # clone will begin with a bare repo
   local empty=
   init $empty
 
-  #; add the specified remote, and configure the repo to track origin/master
+  # add the specified remote, and configure the repo to track origin/$branch
   debug "Adding remote to new repo"
   "$GIT_PROGRAM" remote add origin "${clone_args[@]}"
-  debug "Configuring new repo to track origin/master"
-  "$GIT_PROGRAM" config branch.master.remote origin
-  "$GIT_PROGRAM" config branch.master.merge refs/heads/master
+  debug "Configuring new repo to track origin/${branch}"
+  "$GIT_PROGRAM" config "branch.${branch}.remote" origin
+  "$GIT_PROGRAM" config "branch.${branch}.merge" "refs/heads/${branch}"
 
-  #; fetch / merge (and possibly fallback to reset)
+  # fetch / merge (and possibly fallback to reset)
   debug "Doing an initial fetch of the origin"
   "$GIT_PROGRAM" fetch origin || {
     debug "Removing repo after failed clone"
     rm -rf "$YADM_REPO"
     error_out "Unable to fetch origin ${clone_args[0]}"
   }
+  debug "Verifying '${branch}' is a valid branch to merge"
+  [ -f "${YADM_REPO}/refs/remotes/origin/${branch}" ] || {
+    debug "Removing repo after failed clone"
+    rm -rf "$YADM_REPO"
+    error_out "Clone failed, 'origin/${branch}' does not exist in ${clone_args[0]}"
+  }
   debug "Determining if repo tracks private directories"
   for private_dir in .ssh/ .gnupg/; do
-    found_log=$("$GIT_PROGRAM" log -n 1 origin/master -- "$private_dir" 2>/dev/null)
+    found_log=$("$GIT_PROGRAM" log -n 1 "origin/${branch}" -- "$private_dir" 2>/dev/null)
     if [ -n "$found_log" ]; then
       debug "Private directory $private_dir is tracked by repo"
       assert_private_dirs "$private_dir"
     fi
   done
   [ -n "$DEBUG" ] && display_private_perms "pre-merge"
-  debug "Doing an initial merge of origin/master"
-  "$GIT_PROGRAM" merge origin/master || {
+  debug "Doing an initial merge of origin/${branch}"
+  "$GIT_PROGRAM" merge "origin/${branch}" || {
     debug "Merge failed, doing a reset and stashing conflicts."
-    "$GIT_PROGRAM" reset origin/master
+    "$GIT_PROGRAM" reset "origin/${branch}"
     if cd "$YADM_WORK"; then # necessary because of a bug in Git
       "$GIT_PROGRAM" -c user.name='yadm clone' -c user.email='yadm' stash save Conflicts preserved from yadm clone command 2>&1
       cat <<EOF
 **NOTE**
-  Merging origin/master failed.
+  Merging origin/${branch} failed.
 
-  As a result, yadm did 'reset origin/master', and then
+  As a result, yadm did 'reset origin/${branch}', and then
   stashed the conflicting data.
 
   This likely happened because you had files in \$HOME
-  which conflicted with files tracked by origin/master.
+  which conflicted with files tracked by origin/${branch}.
 
   You can review the stashed conflicts with the
   command 'yadm stash show -p' from within your
@@ -326,19 +714,19 @@ function clone() {
   in another way.
 EOF
     else
-      #; skip auto_bootstrap if conflicts could not be stashed
+      # skip auto_bootstrap if conflicts could not be stashed
       DO_BOOTSTRAP=0
       cat <<EOF
 **NOTE**
-  Merging origin/master failed.
-  yadm did 'reset origin/master' instead.
+  Merging origin/${branch} failed.
+  yadm did 'reset origin/${branch}' instead.
 
   yadm did not stash these conflicts beacuse it was unable
   to change to the $YADM_WORK directory.
 
   Please review and resolve any differences appropriately
   If you know what you're doing, and want to overwrite the
-  tracked files, consider 'yadm reset --hard origin/master'
+  tracked files, consider 'yadm reset --hard origin/${branch}'
 EOF
     fi
   }
@@ -358,9 +746,10 @@ function config() {
   done
 
   if [ -z "$*" ] ; then
-    #; with no parameters, provide some helpful documentation
+    # with no parameters, provide some helpful documentation
     echo "yadm supports the following configurations:"
     echo
+    local IFS=$'\n'
     for supported_config in $(introspect_configs); do
       echo "  ${supported_config}"
     done
@@ -374,15 +763,15 @@ EOF
 
     require_repo
 
-    #; operate on the yadm repo's configuration file
-    #; this is always local to the machine
-    git config --local "$@"
+    # operate on the yadm repo's configuration file
+    # this is always local to the machine
+    "$GIT_PROGRAM" config "$@"
 
     CHANGES_POSSIBLE=1
 
   else
-    #; operate on the yadm configuration file
-    git config --file="$(mixed_path "$YADM_CONFIG")" "$@"
+    # operate on the yadm configuration file
+    "$GIT_PROGRAM" config --file="$(mixed_path "$YADM_CONFIG")" "$@"
 
   fi
 
@@ -401,7 +790,7 @@ function decrypt() {
     tar_option="x"
   fi
 
-  #; decrypt the archive
+  # decrypt the archive
   if ($GPG_PROGRAM -d "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"; then
     [ ! "$DO_LIST" = "YES" ] && echo "All files decrypted."
   else
@@ -416,11 +805,12 @@ function encrypt() {
 
   require_gpg
   require_encrypt
+  exclude_encrypted
   parse_encrypt
 
   cd_work "Encryption" || return
 
-  #; Build gpg options for gpg
+  # Build gpg options for gpg
   GPG_KEY="$(config yadm.gpg-recipient)"
   if [ "$GPG_KEY" = "ASK" ]; then
     GPG_OPTS=("--no-default-recipient" "-e")
@@ -430,19 +820,19 @@ function encrypt() {
     GPG_OPTS=("-c")
   fi
 
-  #; report which files will be encrypted
+  # report which files will be encrypted
   echo "Encrypting the following files:"
   printf '%s\n' "${ENCRYPT_INCLUDE_FILES[@]}"
   echo
 
-  #; encrypt all files which match the globs
+  # encrypt all files which match the globs
   if tar -f - -c "${ENCRYPT_INCLUDE_FILES[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
     error_out "Unable to write $YADM_ARCHIVE"
   fi
 
-  #; offer to add YADM_ARCHIVE if untracked
+  # offer to add YADM_ARCHIVE if untracked
   archive_status=$("$GIT_PROGRAM" status --porcelain -uall "$(mixed_path "$YADM_ARCHIVE")" 2>/dev/null)
   archive_regex="^\?\?"
   if [[ $archive_status =~ $archive_regex ]] ; then
@@ -484,13 +874,13 @@ function git_command() {
 
   require_repo
 
-  #; translate 'gitconfig' to 'config' -- 'config' is reserved for yadm
+  # translate 'gitconfig' to 'config' -- 'config' is reserved for yadm
   if [ "$1" = "gitconfig" ] ; then
     set -- "config" "${@:2}"
   fi
 
-  #; ensure private .ssh and .gnupg directories exist first
-  #; TODO: consider restricting this to only commands which modify the work-tree
+  # ensure private .ssh and .gnupg directories exist first
+  # TODO: consider restricting this to only commands which modify the work-tree
 
   auto_private_dirs=$(config --bool yadm.auto-private-dirs)
   if [ "$auto_private_dirs" != "false" ] ; then
@@ -499,7 +889,7 @@ function git_command() {
 
   CHANGES_POSSIBLE=1
 
-  #; pass commands through to git
+  # pass commands through to git
   debug "Running git command $GIT_PROGRAM $*"
   "$GIT_PROGRAM" "$@"
   return "$?"
@@ -523,16 +913,16 @@ Commands:
   yadm config <name> <value> - Configure a setting
   yadm list [-a]             - List tracked files
   yadm alt                   - Create links for alternates
-  yadm bootstrap             - Execute \$HOME/.yadm/bootstrap
+  yadm bootstrap             - Execute \$HOME/.config/yadm/bootstrap
   yadm encrypt               - Encrypt files
   yadm decrypt [-l]          - Decrypt files
   yadm perms                 - Fix perms for private files
 
 Files:
-  \$HOME/.yadm/config    - yadm's configuration file
-  \$HOME/.yadm/repo.git  - yadm's Git repository
-  \$HOME/.yadm/encrypt   - List of globs used for encrypt/decrypt
-  \$HOME/.yadm/files.gpg - Encrypted data stored here
+  \$HOME/.config/yadm/config    - yadm's configuration file
+  \$HOME/.config/yadm/repo.git  - yadm's Git repository
+  \$HOME/.config/yadm/encrypt   - List of globs used for encrypt/decrypt
+  \$HOME/.config/yadm/files.gpg - Encrypted data stored here
 
 Use "man yadm" for complete documentation.
 EOF
@@ -543,17 +933,17 @@ EOF
 
 function init() {
 
-  #; safety check, don't attempt to init when the repo is already present
-  [ -d "$YADM_REPO" ] && [ -z "$FORCE" ] && \
+  # safety check, don't attempt to init when the repo is already present
+  [ -d "$YADM_REPO" ] && [ -z "$FORCE" ] &&
     error_out "Git repo already exists. [$YADM_REPO]\nUse '-f' if you want to force it to be overwritten."
 
-  #; remove existing if forcing the init to happen anyway
+  # remove existing if forcing the init to happen anyway
   [ -d "$YADM_REPO" ] && {
     debug "Removing existing repo prior to init"
     rm -rf "$YADM_REPO"
   }
 
-  #; init a new bare repo
+  # init a new bare repo
   debug "Init new repo"
   "$GIT_PROGRAM" init --shared=0600 --bare "$(mixed_path "$YADM_REPO")" "$@"
   configure_repo
@@ -586,20 +976,22 @@ init
 introspect
 list
 perms
+upgrade
 version
 EOF
 }
 
 function introspect_configs() {
-  cat << EOF
+  cat <<-EOF
 local.class
 local.hostname
 local.os
 local.user
+yadm.alt-copy
 yadm.auto-alt
+yadm.auto-exclude
 yadm.auto-perms
 yadm.auto-private-dirs
-yadm.cygwin-copy
 yadm.git-program
 yadm.gpg-perms
 yadm.gpg-program
@@ -628,12 +1020,12 @@ function list() {
 
   require_repo
 
-  #; process relative to YADM_WORK when --all is specified
+  # process relative to YADM_WORK when --all is specified
   if [ -n "$LIST_ALL" ] ; then
     cd_work "List" || return
   fi
 
-  #; list tracked files
+  # list tracked files
   "$GIT_PROGRAM" ls-files
 
 }
@@ -642,33 +1034,104 @@ function perms() {
 
   parse_encrypt
 
-  #; TODO: prevent repeats in the files changed
+  # TODO: prevent repeats in the files changed
 
   cd_work "Perms" || return
 
   GLOBS=()
 
-  #; include the archive created by "encrypt"
+  # include the archive created by "encrypt"
   [ -f "$YADM_ARCHIVE" ] && GLOBS+=("$YADM_ARCHIVE")
 
-  #; include all .ssh files (unless disabled)
+  # include all .ssh files (unless disabled)
   if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
-    GLOBS+=(".ssh" ".ssh/*")
+    GLOBS+=(".ssh" ".ssh/*" ".ssh/.*")
   fi
 
-  #; include all gpg files (unless disabled)
+  # include all gpg files (unless disabled)
   if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
-    GLOBS+=(".gnupg" ".gnupg/*")
+    GLOBS+=(".gnupg" ".gnupg/*" ".gnupg/.*")
   fi
 
-  #; include any files we encrypt
+  # include any files we encrypt
   GLOBS+=("${ENCRYPT_INCLUDE_FILES[@]}")
 
-  #; remove group/other permissions from collected globs
+  # remove group/other permissions from collected globs
   #shellcheck disable=SC2068
   #(SC2068 is disabled because in this case, we desire globbing)
   chmod -R -f go-rwx ${GLOBS[@]} >/dev/null 2>&1
-  #; TODO: detect and report changing permissions in a portable way
+  # TODO: detect and report changing permissions in a portable way
+
+}
+
+function upgrade() {
+
+  local actions_performed
+  actions_performed=0
+  local repo_updates
+  repo_updates=0
+
+  [ "$YADM_COMPATIBILITY" = "1" ] && \
+    error_out "Unable to upgrade. YADM_COMPATIBILITY is set to '1'."
+
+  [ "$YADM_DIR" = "$YADM_LEGACY_DIR" ] && \
+    error_out "Unable to upgrade. yadm dir has been resolved as '$YADM_LEGACY_DIR'."
+
+  # handle legacy repo
+  if [ -d "$YADM_LEGACY_DIR/repo.git" ]; then
+    # legacy repo detected, it must be moved to YADM_REPO
+    if [ -e "$YADM_REPO" ]; then
+      error_out "Unable to upgrade. '$YADM_REPO' already exists. Refusing to overwrite it."
+    else
+      actions_performed=1
+      echo "Moving $YADM_LEGACY_DIR/repo.git to $YADM_REPO"
+      assert_parent "$YADM_REPO"
+      mv "$YADM_LEGACY_DIR/repo.git" "$YADM_REPO"
+    fi
+  fi
+
+  # handle other legacy paths
+  GIT_DIR="$YADM_REPO"
+  export GIT_DIR
+  for legacy_path in                      \
+    "$YADM_LEGACY_DIR/config"             \
+    "$YADM_LEGACY_DIR/encrypt"            \
+    "$YADM_LEGACY_DIR/files.gpg"          \
+    "$YADM_LEGACY_DIR/bootstrap"          \
+    "$YADM_LEGACY_DIR"/hooks/{pre,post}_* \
+  ;                                       \
+  do
+    if [ -e "$legacy_path" ]; then
+      new_filename=${legacy_path#$YADM_LEGACY_DIR/}
+      new_filename="$YADM_DIR/$new_filename"
+      actions_performed=1
+      echo "Moving $legacy_path to $new_filename"
+      assert_parent "$new_filename"
+      # test to see if path is "tracked" in repo, if so 'git mv' must be used
+      if "$GIT_PROGRAM" ls-files --error-unmatch "$legacy_path" >/dev/null 2>&1; then
+        "$GIT_PROGRAM" mv "$legacy_path" "$new_filename" && repo_updates=1
+      else
+        mv -i "$legacy_path" "$new_filename"
+      fi
+    fi
+  done
+
+  # handle submodules, which need to be reinitialized
+  if [ "$actions_performed" -ne 0 ]; then
+    cd_work "Upgrade submodules"
+    if "$GIT_PROGRAM" ls-files --error-unmatch .gitmodules >/dev/null 2>&1; then
+      "$GIT_PROGRAM" submodule deinit -f .
+      "$GIT_PROGRAM" submodule update --init --recursive
+    fi
+  fi
+
+  [ "$actions_performed" -eq 0 ] && \
+    echo "No legacy paths found. Upgrade is not necessary"
+
+  [ "$repo_updates" -eq 1 ] && \
+    echo "Some files tracked by yadm have been renamed. This changes should probably be commited now."
+
+  exit 0
 
 }
 
@@ -679,7 +1142,66 @@ function version() {
 
 }
 
-#; ****** Utility Functions ******
+# ****** Utility Functions ******
+
+function exclude_encrypted() {
+
+  auto_exclude=$(config --bool yadm.auto-exclude)
+  [ "$auto_exclude" == "false" ] && return 0
+
+  exclude_path="${YADM_REPO}/info/exclude"
+  newline=$'\n'
+  exclude_flag="# yadm-auto-excludes"
+  exclude_header="${exclude_flag}${newline}"
+  exclude_header="${exclude_header}# This section is managed by yadm."
+  exclude_header="${exclude_header}${newline}"
+  exclude_header="${exclude_header}# Any edits below will be lost."
+  exclude_header="${exclude_header}${newline}"
+
+  # do nothing if there is no YADM_ENCRYPT
+  [ -e "$YADM_ENCRYPT" ] || return 0
+
+  # read encrypt
+  encrypt_data=""
+  while IFS='' read -r line || [ -n "$line" ]; do
+    encrypt_data="${encrypt_data}${line}${newline}"
+  done < "$YADM_ENCRYPT"
+
+  # read info/exclude
+  unmanaged=""
+  managed=""
+  if [ -e "$exclude_path" ]; then
+    flag_seen=0
+    while IFS='' read -r line || [ -n "$line" ]; do
+      [ "$line" = "$exclude_flag" ] && flag_seen=1
+      if [ "$flag_seen" -eq 0 ]; then
+        unmanaged="${unmanaged}${line}${newline}"
+      else
+        managed="${managed}${line}${newline}"
+      fi
+    done < "$exclude_path"
+  fi
+
+  if [ "${exclude_header}${encrypt_data}" != "$managed" ]; then
+    debug "Updating ${exclude_path}"
+    assert_parent "$exclude_path"
+    printf "%s" "${unmanaged}${exclude_header}${encrypt_data}" > "$exclude_path"
+  fi
+
+  return 0
+
+}
+
+function is_valid_branch_name() {
+  # Git branches do not allow:
+  #  * path component that begins with "."
+  #  * double dot
+  #  * "~", "^", ":", "\", space
+  #  * end with a "/"
+  #  * end with ".lock"
+  [[ "$1" =~ (\/\.|\.\.|[~^:\\ ]|\/$|\.lock$) ]] && return 1
+  return 0
+}
 
 function query_distro() {
   distro=""
@@ -691,54 +1213,54 @@ function query_distro() {
 
 function process_global_args() {
 
-  #; global arguments are removed before the main processing is done
+  # global arguments are removed before the main processing is done
   MAIN_ARGS=()
   while [[ $# -gt 0 ]] ; do
     key="$1"
     case $key in
-      -Y|--yadm-dir) #; override the standard YADM_DIR
+      -Y|--yadm-dir) # override the standard YADM_DIR
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified yadm directory"
         fi
         YADM_DIR="$2"
         shift
       ;;
-      --yadm-repo) #; override the standard YADM_REPO
+      --yadm-repo) # override the standard YADM_REPO
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified repo path"
         fi
         YADM_OVERRIDE_REPO="$2"
         shift
       ;;
-      --yadm-config) #; override the standard YADM_CONFIG
+      --yadm-config) # override the standard YADM_CONFIG
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified config path"
         fi
         YADM_OVERRIDE_CONFIG="$2"
         shift
       ;;
-      --yadm-encrypt) #; override the standard YADM_ENCRYPT
+      --yadm-encrypt) # override the standard YADM_ENCRYPT
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified encrypt path"
         fi
         YADM_OVERRIDE_ENCRYPT="$2"
         shift
       ;;
-      --yadm-archive) #; override the standard YADM_ARCHIVE
+      --yadm-archive) # override the standard YADM_ARCHIVE
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified archive path"
         fi
         YADM_OVERRIDE_ARCHIVE="$2"
         shift
       ;;
-      --yadm-bootstrap) #; override the standard YADM_BOOTSTRAP
+      --yadm-bootstrap) # override the standard YADM_BOOTSTRAP
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified bootstrap path"
         fi
         YADM_OVERRIDE_BOOTSTRAP="$2"
         shift
       ;;
-      *) #; main arguments are kept intact
+      *) # main arguments are kept intact
         MAIN_ARGS+=("$1")
       ;;
     esac
@@ -747,16 +1269,102 @@ function process_global_args() {
 
 }
 
+function set_yadm_dir() {
+
+  # only resolve YADM_DIR if it hasn't been provided already
+  [ -n "$YADM_DIR" ] && return
+
+  # compatibility with major version 1 ignores XDG_CONFIG_HOME
+  if [ "$YADM_COMPATIBILITY" = "1" ]; then
+    YADM_DIR="$YADM_LEGACY_DIR"
+    return
+  fi
+
+  local base_yadm_dir
+  base_yadm_dir="$XDG_CONFIG_HOME"
+  if [[ ! "$base_yadm_dir" =~ ^/ ]] ; then
+    base_yadm_dir="${HOME}/.config"
+  fi
+  YADM_DIR="${base_yadm_dir}/yadm"
+
+  issue_legacy_path_warning
+
+}
+
+function issue_legacy_path_warning() {
+
+  # no warnings during upgrade
+  [[ "${MAIN_ARGS[*]}" =~ upgrade ]] && return
+
+  # no warnings if YADM_DIR is resolved as the leacy path
+  [ "$YADM_DIR" = "$YADM_LEGACY_DIR" ] && return
+
+  # no warnings if the legacy directory doesn't exist
+  [ ! -d "$YADM_LEGACY_DIR" ] && return
+
+  # test for legacy paths
+  local legacy_found
+  legacy_found=()
+  # this is ordered by importance
+  for legacy_path in                            \
+    "$YADM_LEGACY_DIR/$YADM_REPO"               \
+    "$YADM_LEGACY_DIR/$YADM_CONFIG"             \
+    "$YADM_LEGACY_DIR/$YADM_ENCRYPT"            \
+    "$YADM_LEGACY_DIR/$YADM_ARCHIVE"            \
+    "$YADM_LEGACY_DIR/$YADM_BOOTSTRAP"          \
+    "$YADM_LEGACY_DIR/$YADM_HOOKS"/{pre,post}_* \
+  ;                                             \
+  do
+    [ -e "$legacy_path" ] && legacy_found+=("$legacy_path")
+  done
+
+  [ ${#legacy_found[@]} -eq 0 ] && return
+
+  local path_list
+  for legacy_path in "${legacy_found[@]}"; do
+    path_list="$path_list    * $legacy_path"$'\n'
+  done
+
+  cat <<EOF
+
+**WARNING**
+  Legacy configuration paths have been detected.
+
+  Beginning with version 2.0.0, yadm uses the XDG Base Directory Specification
+  to find its configurations. Read more about this change here:
+
+    https://yadm.io/docs/upgrade_from_1
+
+  In your environment, the configuration directory has been resolved to:
+
+    $YADM_DIR
+
+  To remove this warning do one of the following:
+    * Run "yadm upgrade" to move the yadm data to the new directory. (RECOMMENDED)
+    * Manually move yadm configurations to the directory listed above.
+    * Specify your preferred yadm directory with -Y each execution.
+    * Define an environment variable "YADM_COMPATIBILITY=1" to run in version 1
+      compatibility mode. (DEPRECATED)
+
+  Legacy paths detected:
+${path_list}
+***********
+EOF
+
+}
+
 function configure_paths() {
 
-  #; change all paths to be relative to YADM_DIR
+  # change all paths to be relative to YADM_DIR
   YADM_REPO="$YADM_DIR/$YADM_REPO"
   YADM_CONFIG="$YADM_DIR/$YADM_CONFIG"
   YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
   YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
+  YADM_HOOKS="$YADM_DIR/$YADM_HOOKS"
+  YADM_ALT="$YADM_DIR/$YADM_ALT"
 
-  #; independent overrides for paths
+  # independent overrides for paths
   if [ -n "$YADM_OVERRIDE_REPO" ]; then
     YADM_REPO="$YADM_OVERRIDE_REPO"
   fi
@@ -773,7 +1381,7 @@ function configure_paths() {
     YADM_BOOTSTRAP="$YADM_OVERRIDE_BOOTSTRAP"
   fi
 
-  #; use the yadm repo for all git operations
+  # use the yadm repo for all git operations
   GIT_DIR=$(mixed_path "$YADM_REPO")
   export GIT_DIR
 
@@ -783,23 +1391,23 @@ function configure_repo() {
 
   debug "Configuring new repo"
 
-  #; change bare to false (there is a working directory)
+  # change bare to false (there is a working directory)
   "$GIT_PROGRAM" config core.bare 'false'
 
-  #; set the worktree for the yadm repo
+  # set the worktree for the yadm repo
   "$GIT_PROGRAM" config core.worktree "$(mixed_path "$YADM_WORK")"
 
-  #; by default, do not show untracked files and directories
+  # by default, do not show untracked files and directories
   "$GIT_PROGRAM" config status.showUntrackedFiles no
 
-  #; possibly used later to ensure we're working on the yadm repo
+  # possibly used later to ensure we're working on the yadm repo
   "$GIT_PROGRAM" config yadm.managed 'true'
 
 }
 
 function set_operating_system() {
 
-  #; special detection of WSL (windows subsystem for linux)
+  # special detection of WSL (windows subsystem for linux)
   local proc_version
   proc_version=$(cat "$PROC_VERSION" 2>/dev/null)
   if [[ "$proc_version" =~ Microsoft ]]; then
@@ -809,11 +1417,12 @@ function set_operating_system() {
   fi
 
   case "$OPERATING_SYSTEM" in
-    CYGWIN*)
-      git_version=$(git --version 2>/dev/null)
+    CYGWIN*|MINGW*|MSYS*)
+      git_version="$("$GIT_PROGRAM" --version 2>/dev/null)"
       if [[ "$git_version" =~ windows ]] ; then
           USE_CYGPATH=1
       fi
+      OPERATING_SYSTEM=$(uname -o)
       ;;
     *)
       ;;
@@ -845,12 +1454,12 @@ function invoke_hook() {
 
   mode="$1"
   exit_status="$2"
-  hook_command="$YADM_DIR/hooks/${mode}_$HOOK_COMMAND"
+  hook_command="${YADM_HOOKS}/${mode}_$HOOK_COMMAND"
 
   if [ -x "$hook_command" ] ; then
     debug "Invoking hook: $hook_command"
 
-    #; expose some internal data to all hooks
+    # expose some internal data to all hooks
     work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
     YADM_HOOK_COMMAND=$HOOK_COMMAND
     YADM_HOOK_EXIT=$exit_status
@@ -866,7 +1475,7 @@ function invoke_hook() {
     "$hook_command"
     hook_status=$?
 
-    #; failing "pre" hooks will prevent commands from being run
+    # failing "pre" hooks will prevent commands from being run
     if [ "$mode" = "pre" ] && [ "$hook_status" -ne 0 ]; then
       echo "Hook $hook_command was not successful"
       echo "$HOOK_COMMAND will not be run"
@@ -886,6 +1495,11 @@ function assert_private_dirs() {
       mkdir -m 0700 -p "$work/$private_dir" >/dev/null 2>&1
     fi
   done
+}
+
+function assert_parent() {
+  basedir=${1%/*}
+  [ -e "$basedir" ] || mkdir -p "$basedir"
 }
 
 function display_private_perms() {
@@ -921,7 +1535,7 @@ function parse_encrypt() {
 
   exclude_pattern="^!(.+)"
   if [ -f "$YADM_ENCRYPT" ] ; then
-    #; parse both included/excluded
+    # parse both included/excluded
     while IFS='' read -r line || [ -n "$line" ]; do
       if [[ ! $line =~ ^# && ! $line =~ ^[[:space:]]*$ ]] ; then
         local IFS=$'\n'
@@ -943,7 +1557,7 @@ function parse_encrypt() {
       fi
     done < "$YADM_ENCRYPT"
 
-    #; remove excludes from the includes
+    # remove excludes from the includes
     #(SC2068 is disabled because in this case, we desire globbing)
     FINAL_INCLUDE=()
     #shellcheck disable=SC2068
@@ -955,16 +1569,20 @@ function parse_encrypt() {
       done
       [ -n "$skip" ] || FINAL_INCLUDE+=("$included")
     done
-    ENCRYPT_INCLUDE_FILES=("${FINAL_INCLUDE[@]}")
+
+    # sort the encrypted files
+    #shellcheck disable=SC2207
+    IFS=$'\n' ENCRYPT_INCLUDE_FILES=($(LC_ALL=C sort <<<"${FINAL_INCLUDE[*]}"))
+    unset IFS
   fi
 
 }
 
-#; ****** Auto Functions ******
+# ****** Auto Functions ******
 
 function auto_alt() {
 
-  #; process alternates if there are possible changes
+  # process alternates if there are possible changes
   if [ "$CHANGES_POSSIBLE" = "1" ] ; then
     auto_alt=$(config --bool yadm.auto-alt)
     if [ "$auto_alt" != "false" ] ; then
@@ -976,7 +1594,7 @@ function auto_alt() {
 
 function auto_perms() {
 
-  #; process permissions if there are possible changes
+  # process permissions if there are possible changes
   if [ "$CHANGES_POSSIBLE" = "1" ] ; then
     auto_perms=$(config --bool yadm.auto-perms)
     if [ "$auto_perms" != "false" ] ; then
@@ -1005,7 +1623,7 @@ function auto_bootstrap() {
 
 }
 
-#; ****** Prerequisites Functions ******
+# ****** Prerequisites Functions ******
 
 function require_archive() {
   [ -f "$YADM_ARCHIVE" ] || error_out "$YADM_ARCHIVE does not exist. did you forget to create it?"
@@ -1024,7 +1642,7 @@ function require_git() {
     GIT_PROGRAM="$alt_git"
     more_info="\nThis command has been set via the yadm.git-program configuration."
   fi
-  command -v "$GIT_PROGRAM" >/dev/null 2>&1 || \
+  command -v "$GIT_PROGRAM" >/dev/null 2>&1 ||
     error_out "This functionality requires Git to be installed, but the command '$GIT_PROGRAM' cannot be located.$more_info"
 }
 function require_gpg() {
@@ -1038,7 +1656,7 @@ function require_gpg() {
     GPG_PROGRAM="$alt_gpg"
     more_info="\nThis command has been set via the yadm.gpg-program configuration."
   fi
-  command -v "$GPG_PROGRAM" >/dev/null 2>&1 || \
+  command -v "$GPG_PROGRAM" >/dev/null 2>&1 ||
     error_out "This functionality requires GPG to be installed, but the command '$GPG_PROGRAM' cannot be located.$more_info"
 }
 function require_repo() {
@@ -1051,15 +1669,27 @@ function bootstrap_available() {
   [ -f "$YADM_BOOTSTRAP" ] && [ -x "$YADM_BOOTSTRAP" ] && return
   return 1
 }
+function awk_available() {
+  command -v "$AWK_PROGRAM" >/dev/null 2>&1 && return
+  return 1
+}
+function j2cli_available() {
+  command -v "$J2CLI_PROGRAM" >/dev/null 2>&1 && return
+  return 1
+}
 function envtpl_available() {
   command -v "$ENVTPL_PROGRAM" >/dev/null 2>&1 && return
   return 1
 }
+function readlink_available() {
+  command -v "readlink" >/dev/null 2>&1 && return
+  return 1
+}
 
-#; ****** Directory tranlations ******
+# ****** Directory tranlations ******
 
 function unix_path() {
-  #; for paths used by bash/yadm
+  # for paths used by bash/yadm
   if [ "$USE_CYGPATH" = "1" ] ; then
     cygpath -u "$1"
   else
@@ -1067,7 +1697,7 @@ function unix_path() {
   fi
 }
 function mixed_path() {
-  #; for paths used by Git
+  # for paths used by Git
   if [ "$USE_CYGPATH" = "1" ] ; then
     cygpath -m "$1"
   else
@@ -1075,7 +1705,7 @@ function mixed_path() {
   fi
 }
 
-#; ****** echo replacements ******
+# ****** echo replacements ******
 function echo() {
   IFS=' '
   printf '%s\n' "$*"
@@ -1089,11 +1719,12 @@ function echo_e() {
   printf '%b\n' "$*"
 }
 
-#; ****** Main processing (when not unit testing) ******
+# ****** Main processing (when not unit testing) ******
 
 if [ "$YADM_TEST" != 1 ] ; then
   process_global_args "$@"
   set_operating_system
+  set_yadm_dir
   configure_paths
   main "${MAIN_ARGS[@]}"
 fi
