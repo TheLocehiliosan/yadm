@@ -98,3 +98,6 @@ def test_perms_control(runner, yadm_y, paths, ds1, sshperms, gpgperms):
         else:
             assert oct(private.stat().mode).endswith('00'), (
                 'Path has not been secured')
+
+    # verify permissions aren't changed for the worktree
+    assert oct(paths.work.stat().mode).endswith('0755')
