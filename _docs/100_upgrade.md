@@ -60,4 +60,4 @@ doesn't work well with CYGWIN symlinks. Now that option has been renamed to
 a system which doesn't fully support symlinks, you can have alternates created
 as files instead.
 
-[xdg-spec]: https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+[xdg-spec]: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
