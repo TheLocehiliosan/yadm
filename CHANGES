@@ -1,3 +1,6 @@
+2.0.1
+  * Fix bug with worktree permissions (#174)
+
 2.0.0
   * Support XDG base directory specification
   * Redesign alternate processing
