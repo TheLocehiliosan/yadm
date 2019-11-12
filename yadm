@@ -1045,12 +1045,12 @@ function perms() {
 
   # include all .ssh files (unless disabled)
   if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
-    GLOBS+=(".ssh" ".ssh/*" ".ssh/.*")
+    GLOBS+=(".ssh" ".ssh/*" ".ssh/.[!.]*")
   fi
 
   # include all gpg files (unless disabled)
   if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
-    GLOBS+=(".gnupg" ".gnupg/*" ".gnupg/.*")
+    GLOBS+=(".gnupg" ".gnupg/*" ".gnupg/.[!.]*")
   fi
 
   # include any files we encrypt
