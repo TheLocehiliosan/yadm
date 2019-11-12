@@ -7,7 +7,7 @@ _yadm(){
         'config:Configure a setting'
         'list:List tracked files'
         'alt:Create links for alternates'
-        'bootstrap:Execute $HOME/.yadm/bootstrap'
+        'bootstrap:Execute $HOME/.config/yadm/bootstrap'
         'encrypt:Encrypt files'
         'decrypt:Decrypt files'
         'perms:Fix perms for private files'
