@@ -2,3 +2,4 @@
 url: http://localhost:4000
 analytics:
   provider: false
+gtm: false

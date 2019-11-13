@@ -36,6 +36,7 @@ analytics:
   provider: google-universal
   google:
     tracking_id: UA-83783540-1
+gtm: GTM-55MC869
 
 # Site Author
 author:
