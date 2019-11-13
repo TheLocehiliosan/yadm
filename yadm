@@ -20,7 +20,7 @@ if [ -z "$BASH_VERSION" ]; then
   [ "$YADM_TEST" != 1 ] && exec bash "$0" "$@"
 fi
 
-VERSION=2.0.1
+VERSION=2.0.0
 
 YADM_WORK="$HOME"
 YADM_DIR=
@@ -447,11 +447,11 @@ function remove_stale_links() {
       if [ -L "$stale_candidate" ]; then
         link_target=$(readlink "$stale_candidate" 2>/dev/null)
         if [ -n "$link_target" ]; then
-          removal=yes
           for review_link in "${alt_linked[@]}"; do
-            [ "$link_target" = "$review_link" ] && removal=no
+            [ "$link_target" = "$review_link" ] && continue 2
+            [ "$link_target" = "$(basename "$review_link")" ] && continue 2
           done
-          [ "$removal" = "yes" ] && rm -f "$stale_candidate"
+          rm -f "$stale_candidate"
         fi
       fi
     done
@@ -526,7 +526,7 @@ function alt_future_linking() {
         [ -L "$filename" ] && rm -f "$filename"
         cp -f "$target" "$filename"
       else
-        ln -nfs "$target" "$filename"
+        alt_ln "$target" "$filename"
         alt_linked+=("$target")
       fi
     fi
@@ -570,7 +570,7 @@ function alt_past_linking() {
               fi
               cp -f "$alt_path" "$new_link"
             else
-              ln -nfs "$alt_path" "$new_link"
+              alt_ln "$alt_path" "$new_link"
               alt_linked+=("$alt_path")
             fi
             last_linked="$alt_path"
@@ -605,6 +605,20 @@ function alt_past_linking() {
     fi
   done
 
+}
+
+function alt_ln() {
+  local alt_dir alt_base new_base
+
+  alt_dir="$(dirname "$1")"
+  alt_base="$(basename "$1")"
+  new_base="$(basename "$2")"
+  if pushd "$alt_dir" >/dev/null ; then
+    ln -nfs "$alt_base" "$new_base"
+    popd &>/dev/null
+  else
+    ln -nfs "$1" "$2"
+  fi
 }
 
 function bootstrap() {
