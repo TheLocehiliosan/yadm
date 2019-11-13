@@ -24,6 +24,9 @@ footer:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
       url: https://twitter.com/TheLocehiliosan
+    - label: "Privacy Policy"
+      icon: "fas fa-fw fa-user-shield"
+      url: /privacy
 
 atom_feed: false
 # path: false
