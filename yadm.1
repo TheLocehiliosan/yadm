@@ -494,6 +494,10 @@ and trimming off any domain.
 Valid when no other alternate is valid.
 .LP
 
+.BR NOTE :
+The OS for "Windows Subsystem for Linux" is reported as "WSL", even
+though uname identifies as "Linux".
+
 You may use any number of conditions, in any order.
 An alternate will only be used if ALL conditions are valid.
 For all files managed by yadm's repository or listed in
@@ -620,6 +624,10 @@ During processing, the following variables are available in the template:
  yadm.os         YADM_OS         uname -s
  yadm.user       YADM_USER       id -u -n
  yadm.source     YADM_SOURCE     Template filename
+
+.BR NOTE :
+The OS for "Windows Subsystem for Linux" is reported as "WSL", even
+though uname identifies as "Linux".
 
 Examples:
 
