@@ -41,7 +41,7 @@ If you've added repositories as submodules for the yadm repository, you can
 initialize them after a successful clone.
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
 # Because Git submodule commands cannot operate without a work tree, they must
 # be run from within $HOME (assuming this is the root of your dotfiles)
@@ -54,7 +54,7 @@ yadm submodule update --recursive --init
 ### Install [Homebrew](http://brew.sh/) and a bundle of recipes
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
 system_type=$(uname -s)
 
@@ -77,7 +77,7 @@ fi
 ### Configure [iTerm2](http://www.iterm2.com/) to use your configuration
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
 system_type=$(uname -s)
 
@@ -97,7 +97,7 @@ fi
 ### Compile a custom terminfo file
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
 if [ -f "$HOME/.terminfo/custom.terminfo" ]; then
   echo "Updating terminfo"
@@ -112,7 +112,7 @@ available after cloning. If so, you could update the yadm repo origin to use
 `ssh` instead.
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
 echo "Updating the yadm repo origin URL"
 yadm remote set-url origin "git@github.com:MyUser/dotfiles.git"
@@ -159,7 +159,7 @@ will install any new plugins, and also remove any plugins now deleted from your
 `.vimrc`.
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
 if command -v vim >/dev/null 2>&1; then
   echo "Bootstraping Vim"
