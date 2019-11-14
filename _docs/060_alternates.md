@@ -30,10 +30,14 @@ be omitted. Most attributes can be abbreviated as a single letter.
 | `template`, `t` | Valid when the value matches a supported template processor. See the [Templates](/docs/templates) section for more details.|
 | `user`, `u` | Valid if the value matches the current user. Current user is calculated by running <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>. |
 | `distro`, `d` | Valid if the value matches the distro. Distro is calculated by running <code>lsb_release&nbsp;&#8209;si</code>. |
-| `os`, `o` | Valid if the value matches the OS. OS is calculated by running <code>uname&nbsp;&#8209;s</code>. |
+| `os`, `o` | Valid if the value matches the OS. OS is calculated by running <code>uname&nbsp;&#8209;s</code>. <sup>*</sup> |
 | `class`, `c` | Valid if the value matches the local.class configuration. Class must be manually set using <code>yadm&nbsp;config&nbsp;local.class&nbsp;&lt;class&gt;</code>. |
 |`hostname`, `h`|Valid if the value matches the short hostname. Hostname is calculated by running `hostname`, and trimming off any domain.|
 |`default`|Valid when no other alternate is valid.|
+
+<sub><sup>*
+The OS for "Windows Subsystem for Linux" is reported as "WSL", even though uname identifies as "Linux".
+</sup></sub>
 
 You may use any number of conditions, in any order. An alternate will only be
 used if _ALL_ conditions are valid. For all files managed by yadm's repository
