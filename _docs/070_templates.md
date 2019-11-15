@@ -16,9 +16,9 @@ The suffix has the format:
 
     ##template.<template processor>
 
-<sub>
+<sub><sup>
 "template" can also be shortened to "t".
-</sub>
+</sup></sub>
 
 The supported template processors are:
 
@@ -28,10 +28,8 @@ The supported template processors are:
 | j2cli     | `##template.j2`, `##template.j2cli`  | `j2cli` must be installed.                                              |
 | envtpl    | `##template.j2`, `##template.envtpl` | `envtpl` must be installed.                                             |
 
-<sub>
 The processor can be omitted for "default".
 Also, `j2` will be processed by either j2cli or envtpl, whichever is found.
-</sub>
 
 ## Exposed data
 
