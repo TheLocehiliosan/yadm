@@ -187,8 +187,11 @@ See the ENCRYPTION section for more details.
 Run a sub-shell with all Git variables set. Exit the sub-shell the same way you
 leave your normal shell (usually with the "exit" command). This sub-shell can
 be used to easily interact with your yadm repository using "git" commands. This
-could be useful if you are using a tool which uses Git directly. For example,
-Emacs Tramp and Magit can manage files by using this configuration:
+could be useful if you are using a tool which uses Git directly.
+
+For example, Emacs Tramp and Magit can manage files by using this
+configuration:
+
 .RS
     (add-to-list 'tramp-methods
          '("yadm"
@@ -198,8 +201,11 @@ Emacs Tramp and Magit can manage files by using this configuration:
            (tramp-remote-shell "/bin/sh")
            (tramp-remote-shell-args ("-c"))))
 .RE
-and use (magit-status "/yadm::"). If you find issue with Emacs 27 and zsh,
+
+.RS
+With this config, use (magit-status "/yadm::"). If you find issue with Emacs 27 and zsh,
 trying running (setenv "SHELL" "/bin/bash").
+.RE
 .TP
 .B gitconfig
 Pass options to the
