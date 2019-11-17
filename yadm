@@ -1592,6 +1592,66 @@ function parse_encrypt() {
 
 }
 
+function builtin_dirname() {
+  # dirname is not builtin, and universally available, this is a built-in
+  # replacement using parameter expansion
+  path="$1"
+  dname="${path%/*}"
+  if ! [[ "$path" =~ / ]]; then
+    echo "."
+  elif [ "$dname" = "" ]; then
+    echo "/"
+  else
+    echo "$dname"
+  fi
+}
+
+function relative_path() {
+  # Output a path to $2/full, relative to $1/base
+  #
+  # This fucntion created with ideas from
+  # https://stackoverflow.com/questions/2564634
+  base="$1"
+  full="$2"
+
+  common_part="$base"
+  result=""
+
+  count=0
+  while [ "${full#$common_part}" == "${full}" ]; do
+      [ "$count" = "500" ] && return # this is a failsafe
+      # no match, means that candidate common part is not correct
+      # go up one level (reduce common part)
+      common_part="$(builtin_dirname "$common_part")"
+      # and record that we went back, with correct / handling
+      if [[ -z $result ]]; then
+          result=".."
+      else
+          result="../$result"
+      fi
+      count=$((count+1))
+  done
+
+  if [[ $common_part == "/" ]]; then
+      # special case for root (no common path)
+      result="$result/"
+  fi
+
+  # since we now have identified the common part,
+  # compute the non-common part
+  forward_part="${full#$common_part}"
+
+  # and now stick all parts together
+  if [[ -n $result ]] && [[ -n $forward_part ]]; then
+      result="$result$forward_part"
+  elif [[ -n $forward_part ]]; then
+      # extra slash removal
+      result="${forward_part:1}"
+  fi
+
+  echo "$result"
+}
+
 # ****** Auto Functions ******
 
 function auto_alt() {
