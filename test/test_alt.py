@@ -40,7 +40,7 @@ def test_alt_source(
         link_file = paths.work.join(link_path)
         if tracked or (encrypt and not exclude):
             assert link_file.islink()
-            target = py.path.local(link_file.readlink())
+            target = py.path.local(os.path.realpath(link_file))
             if target.isfile():
                 assert link_file.read() == source_file_content
                 assert str(source_file) in linked
@@ -51,6 +51,31 @@ def test_alt_source(
         else:
             assert not link_file.exists()
             assert str(source_file) not in linked
+
+
+@pytest.mark.usefixtures('ds1_copy')
+@pytest.mark.parametrize('yadm_alt', [True, False], ids=['alt', 'worktree'])
+def test_relative_link(runner, paths, yadm_alt):
+    """Confirm links created are relative"""
+    yadm_dir = setup_standard_yadm_dir(paths)
+
+    utils.create_alt_files(
+        paths, '##default', tracked=True, encrypt=False, exclude=False,
+        yadm_alt=yadm_alt, yadm_dir=yadm_dir)
+    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
+    assert run.success
+    assert run.err == ''
+
+    basepath = yadm_dir.join('alt') if yadm_alt else paths.work
+
+    for link_path in TEST_PATHS:
+        source_file_content = link_path + '##default'
+        source_file = basepath.join(source_file_content)
+        link_file = paths.work.join(link_path)
+        link = link_file.readlink()
+        relpath = os.path.relpath(
+            source_file, start=os.path.dirname(link_file))
+        assert link == relpath
 
 
 @pytest.mark.usefixtures('ds1_copy')
@@ -89,7 +114,7 @@ def test_alt_conditions(
     for link_path in TEST_PATHS:
         source_file = link_path + suffix
         assert paths.work.join(link_path).islink()
-        target = py.path.local(paths.work.join(link_path).readlink())
+        target = py.path.local(os.path.realpath(paths.work.join(link_path)))
         if target.isfile():
             assert paths.work.join(link_path).read() == source_file
             assert str(paths.work.join(source_file)) in linked
@@ -146,7 +171,8 @@ def test_auto_alt(runner, yadm_y, paths, autoalt):
             assert not paths.work.join(link_path).exists()
         else:
             assert paths.work.join(link_path).islink()
-            target = py.path.local(paths.work.join(link_path).readlink())
+            target = py.path.local(
+                os.path.realpath(paths.work.join(link_path)))
             if target.isfile():
                 assert paths.work.join(link_path).read() == source_file
                 # no linking output when run via auto-alt
@@ -183,7 +209,7 @@ def test_stale_link_removal(runner, yadm_y, paths):
     for stale_path in TEST_PATHS:
         source_file = stale_path + '##class.' + tst_class
         assert paths.work.join(stale_path).islink()
-        target = py.path.local(paths.work.join(stale_path).readlink())
+        target = py.path.local(os.path.realpath(paths.work.join(stale_path)))
         if target.isfile():
             assert paths.work.join(stale_path).read() == source_file
             assert str(paths.work.join(source_file)) in linked

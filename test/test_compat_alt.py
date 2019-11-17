@@ -101,7 +101,8 @@ def test_alt(runner, yadm_y, paths,
         source_file = file_path + precedence[precedence_index]
         if tracked or (encrypt and not exclude):
             assert paths.work.join(file_path).islink()
-            target = py.path.local(paths.work.join(file_path).readlink())
+            target = py.path.local(
+                os.path.realpath(paths.work.join(file_path)))
             if target.isfile():
                 assert paths.work.join(file_path).read() == source_file
                 assert str(paths.work.join(source_file)) in linked
@@ -203,7 +204,7 @@ def test_wild(request, runner, yadm_y, paths,
     for file_path in TEST_PATHS:
         source_file = file_path + wild_suffix
         assert paths.work.join(file_path).islink()
-        target = py.path.local(paths.work.join(file_path).readlink())
+        target = py.path.local(os.path.realpath(paths.work.join(file_path)))
         if target.isfile():
             assert paths.work.join(file_path).read() == source_file
             assert str(paths.work.join(source_file)) in linked
@@ -228,7 +229,7 @@ def test_wild(request, runner, yadm_y, paths,
     for file_path in TEST_PATHS:
         source_file = file_path + std_suffix
         assert paths.work.join(file_path).islink()
-        target = py.path.local(paths.work.join(file_path).readlink())
+        target = py.path.local(os.path.realpath(paths.work.join(file_path)))
         if target.isfile():
             assert paths.work.join(file_path).read() == source_file
             assert str(paths.work.join(source_file)) in linked
@@ -268,7 +269,7 @@ def test_local_override(runner, yadm_y, paths,
     for file_path in TEST_PATHS:
         source_file = file_path + '##or-class.or-os.or-hostname.or-user'
         assert paths.work.join(file_path).islink()
-        target = py.path.local(paths.work.join(file_path).readlink())
+        target = py.path.local(os.path.realpath(paths.work.join(file_path)))
         if target.isfile():
             assert paths.work.join(file_path).read() == source_file
             assert str(paths.work.join(source_file)) in linked
@@ -308,7 +309,7 @@ def test_class_case(runner, yadm_y, paths, tst_sys, suffix):
     for file_path in TEST_PATHS:
         source_file = file_path + f'##{suffix}'
         assert paths.work.join(file_path).islink()
-        target = py.path.local(paths.work.join(file_path).readlink())
+        target = py.path.local(os.path.realpath(paths.work.join(file_path)))
         if target.isfile():
             assert paths.work.join(file_path).read() == source_file
             assert str(paths.work.join(source_file)) in linked
@@ -346,7 +347,8 @@ def test_auto_alt(runner, yadm_y, paths, autoalt):
             assert not paths.work.join(file_path).exists()
         else:
             assert paths.work.join(file_path).islink()
-            target = py.path.local(paths.work.join(file_path).readlink())
+            target = py.path.local(
+                os.path.realpath(paths.work.join(file_path)))
             if target.isfile():
                 assert paths.work.join(file_path).read() == source_file
                 # no linking output when run via auto-alt
@@ -383,7 +385,8 @@ def test_delimiter(runner, yadm_y, paths,
         source_file = file_path + suffix
         if delimiter == '.':
             assert paths.work.join(file_path).islink()
-            target = py.path.local(paths.work.join(file_path).readlink())
+            target = py.path.local(
+                os.path.realpath(paths.work.join(file_path)))
             if target.isfile():
                 assert paths.work.join(file_path).read() == source_file
                 assert str(paths.work.join(source_file)) in linked
@@ -423,7 +426,7 @@ def test_invalid_links_removed(runner, yadm_y, paths):
     for file_path in TEST_PATHS:
         source_file = file_path + '##' + tst_class
         assert paths.work.join(file_path).islink()
-        target = py.path.local(paths.work.join(file_path).readlink())
+        target = py.path.local(os.path.realpath(paths.work.join(file_path)))
         if target.isfile():
             assert paths.work.join(file_path).read() == source_file
             assert str(paths.work.join(source_file)) in linked
