@@ -422,7 +422,12 @@ function alt() {
   local IFS=$'\n'
   for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
     if [[ $possible_alt =~ .\#\#. ]]; then
-      possible_alts+=("$YADM_WORK/${possible_alt%%##*}")
+      base_alt="${possible_alt%%##*}"
+      yadm_alt="${YADM_WORK}/${base_alt}"
+      if [ "${yadm_alt#$YADM_ALT/}" != "${yadm_alt}" ]; then
+        base_alt="${yadm_alt#$YADM_ALT/}"
+      fi
+      possible_alts+=("$YADM_WORK/${base_alt}")
     fi
   done
   local alt_linked
@@ -449,7 +454,6 @@ function remove_stale_links() {
         if [ -n "$link_target" ]; then
           for review_link in "${alt_linked[@]}"; do
             [ "$link_target" = "$review_link" ] && continue 2
-            [ "$link_target" = "$(basename "$review_link")" ] && continue 2
           done
           rm -f "$stale_candidate"
         fi
@@ -527,7 +531,6 @@ function alt_future_linking() {
         cp -f "$target" "$filename"
       else
         alt_ln "$target" "$filename"
-        alt_linked+=("$target")
       fi
     fi
   done
@@ -571,7 +574,6 @@ function alt_past_linking() {
               cp -f "$alt_path" "$new_link"
             else
               alt_ln "$alt_path" "$new_link"
-              alt_linked+=("$alt_path")
             fi
             last_linked="$alt_path"
           fi
@@ -608,17 +610,12 @@ function alt_past_linking() {
 }
 
 function alt_ln() {
-  local alt_dir alt_base new_base
-
-  alt_dir="$(dirname "$1")"
-  alt_base="$(basename "$1")"
-  new_base="$(basename "$2")"
-  if pushd "$alt_dir" >/dev/null ; then
-    ln -nfs "$alt_base" "$new_base"
-    popd &>/dev/null
-  else
-    ln -nfs "$1" "$2"
-  fi
+  local full_link base
+  full_link="$2"
+  base="${full_link%/*}"
+  rel_source=$(relative_path "$base" "$1")
+  ln -nfs "$rel_source" "$full_link"
+  alt_linked+=("$rel_source")
 }
 
 function bootstrap() {
