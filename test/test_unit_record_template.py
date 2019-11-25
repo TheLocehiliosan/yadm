@@ -1,16 +1,16 @@
 """Unit tests: record_template"""
 
 INIT_VARS = """
-    alt_filenames=()
-    alt_template_cmds=()
     alt_targets=()
+    alt_template_cmds=()
+    alt_sources=()
 """
 
 REPORT_RESULTS = """
-    echo "SIZE:${#alt_filenames[@]}"
-    echo "FILENAMES:${alt_filenames[@]}"
+    echo "SIZE:${#alt_targets[@]}"
+    echo "TARGETS:${alt_targets[@]}"
     echo "CMDS:${alt_template_cmds[@]}"
-    echo "TARGS:${alt_targets[@]}"
+    echo "SOURCES:${alt_sources[@]}"
 """
 
 
@@ -20,18 +20,18 @@ def test_new_template(runner, yadm):
     script = f"""
         YADM_TEST=1 source {yadm}
         {INIT_VARS}
-        record_template "file_one"   "cmd_one"   "targ_one"
-        record_template "file_two"   "cmd_two"   "targ_two"
-        record_template "file_three" "cmd_three" "targ_three"
+        record_template "tgt_one"   "cmd_one"   "src_one"
+        record_template "tgt_two"   "cmd_two"   "src_two"
+        record_template "tgt_three" "cmd_three" "src_three"
         {REPORT_RESULTS}
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
     assert 'SIZE:3\n' in run.out
-    assert 'FILENAMES:file_one file_two file_three\n' in run.out
+    assert 'TARGETS:tgt_one tgt_two tgt_three\n' in run.out
     assert 'CMDS:cmd_one cmd_two cmd_three\n' in run.out
-    assert 'TARGS:targ_one targ_two targ_three\n' in run.out
+    assert 'SOURCES:src_one src_two src_three\n' in run.out
 
 
 def test_existing_template(runner, yadm):
@@ -40,16 +40,16 @@ def test_existing_template(runner, yadm):
     script = f"""
         YADM_TEST=1 source {yadm}
         {INIT_VARS}
-        alt_filenames=("testfile")
+        alt_targets=("testtgt")
         alt_template_cmds=("existing_cmd")
-        alt_targets=("existing_targ")
-        record_template "testfile" "new_cmd" "new_targ"
+        alt_sources=("existing_src")
+        record_template "testtgt" "new_cmd" "new_src"
         {REPORT_RESULTS}
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
     assert 'SIZE:1\n' in run.out
-    assert 'FILENAMES:testfile\n' in run.out
+    assert 'TARGETS:testtgt\n' in run.out
     assert 'CMDS:new_cmd\n' in run.out
-    assert 'TARGS:new_targ\n' in run.out
+    assert 'SOURCES:new_src\n' in run.out

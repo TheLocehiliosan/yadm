@@ -136,12 +136,12 @@ function main() {
 # ****** Alternate Processing ******
 
 function score_file() {
-  target="$1"
-  filename="${target%%##*}"
-  conditions="${target#*##}"
+  src="$1"
+  tgt="${src%%##*}"
+  conditions="${src#*##}"
 
-  if [ "${filename#$YADM_ALT/}" != "${filename}" ]; then
-    filename="${YADM_WORK}/${filename#$YADM_ALT/}"
+  if [ "${tgt#$YADM_ALT/}" != "${tgt}" ]; then
+    tgt="${YADM_WORK}/${tgt#$YADM_ALT/}"
   fi
 
   score=0
@@ -195,10 +195,10 @@ function score_file() {
       score=0
       cmd=$(choose_template_cmd "$value")
       if [ -n "$cmd" ]; then
-        record_template "$filename" "$cmd" "$target"
+        record_template "$tgt" "$cmd" "$src"
       else
-        debug "No supported template processor for template $target"
-        [ -n "$loud" ] && echo "No supported template processor for template $target"
+        debug "No supported template processor for template $src"
+        [ -n "$loud" ] && echo "No supported template processor for template $src"
       fi
       return 0
     # unsupported values
@@ -208,30 +208,30 @@ function score_file() {
     fi
   done
 
-  record_score "$score" "$filename" "$target"
+  record_score "$score" "$tgt" "$src"
 }
 
 function record_score() {
   score="$1"
-  filename="$2"
-  target="$3"
+  tgt="$2"
+  src="$3"
 
   # record nothing if the score is zero
   [ "$score" -eq 0 ] && return
 
-  # search for the index of this filename, to see if we already are tracking it
+  # search for the index of this target, to see if we already are tracking it
   index=-1
-  for search_index in "${!alt_filenames[@]}"; do
-    if [ "${alt_filenames[$search_index]}" = "$filename" ]; then
+  for search_index in "${!alt_targets[@]}"; do
+    if [ "${alt_targets[$search_index]}" = "$tgt" ]; then
         index="$search_index"
         break
     fi
   done
   # if we don't find an existing index, create one by appending to the array
   if [ "$index" -eq -1 ]; then
-    alt_filenames+=("$filename")
+    alt_targets+=("$tgt")
     # set index to the last index (newly created one)
-    for index in "${!alt_filenames[@]}"; do :; done
+    for index in "${!alt_targets[@]}"; do :; done
     # and set its initial score to zero
     alt_scores[$index]=0
   fi
@@ -239,37 +239,37 @@ function record_score() {
   # record nothing if a template command is registered for this file
   [ "${alt_template_cmds[$index]+isset}" ] && return
 
-  # record higher scoring targets
+  # record higher scoring sources
   if [ "$score" -gt "${alt_scores[$index]}" ]; then
     alt_scores[$index]="$score"
-    alt_targets[$index]="$target"
+    alt_sources[$index]="$src"
   fi
 
 }
 
 function record_template() {
-  filename="$1"
+  tgt="$1"
   cmd="$2"
-  target="$3"
+  src="$3"
 
-  # search for the index of this filename, to see if we already are tracking it
+  # search for the index of this target, to see if we already are tracking it
   index=-1
-  for search_index in "${!alt_filenames[@]}"; do
-    if [ "${alt_filenames[$search_index]}" = "$filename" ]; then
+  for search_index in "${!alt_targets[@]}"; do
+    if [ "${alt_targets[$search_index]}" = "$tgt" ]; then
         index="$search_index"
         break
     fi
   done
   # if we don't find an existing index, create one by appending to the array
   if [ "$index" -eq -1 ]; then
-    alt_filenames+=("$filename")
+    alt_targets+=("$tgt")
     # set index to the last index (newly created one)
-    for index in "${!alt_filenames[@]}"; do :; done
+    for index in "${!alt_targets[@]}"; do :; done
   fi
 
   # record the template command, last one wins
   alt_template_cmds[$index]="$cmd"
-  alt_targets[$index]="$target"
+  alt_sources[$index]="$src"
 
 }
 
@@ -445,15 +445,15 @@ function alt() {
 
 function remove_stale_links() {
   # review alternate candidates for stale links
-  # if a possible alt IS linked, but it's target is not part of alt_linked,
+  # if a possible alt IS linked, but it's source is not part of alt_linked,
   # remove it.
   if readlink_available; then
     for stale_candidate in "${possible_alts[@]}"; do
       if [ -L "$stale_candidate" ]; then
-        link_target=$(readlink "$stale_candidate" 2>/dev/null)
-        if [ -n "$link_target" ]; then
+        src=$(readlink "$stale_candidate" 2>/dev/null)
+        if [ -n "$src" ]; then
           for review_link in "${alt_linked[@]}"; do
-            [ "$link_target" = "$review_link" ] && continue 2
+            [ "$src" = "$review_link" ] && continue 2
           done
           rm -f "$stale_candidate"
         fi
@@ -489,12 +489,12 @@ function set_local_alt_values() {
 function alt_future_linking() {
 
   local alt_scores
-  local alt_filenames
   local alt_targets
+  local alt_sources
   local alt_template_cmds
   alt_scores=()
-  alt_filenames=()
   alt_targets=()
+  alt_sources=()
   alt_template_cmds=()
 
   for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
@@ -506,31 +506,31 @@ function alt_future_linking() {
     fi
   done
 
-  for index in "${!alt_filenames[@]}"; do
-    filename="${alt_filenames[$index]}"
-    target="${alt_targets[$index]}"
+  for index in "${!alt_targets[@]}"; do
+    tgt="${alt_targets[$index]}"
+    src="${alt_sources[$index]}"
     template_cmd="${alt_template_cmds[$index]}"
     if [ -n "$template_cmd" ]; then
       # a template is defined, process the template
-      debug "Creating $filename from template $target"
-      [ -n "$loud" ] && echo "Creating $filename from template $target"
+      debug "Creating $tgt from template $src"
+      [ -n "$loud" ] && echo "Creating $tgt from template $src"
       # ensure the destination path exists
-      assert_parent "$filename"
+      assert_parent "$tgt"
       # remove any existing symlink before processing template
-      [ -L "$filename" ] && rm -f "$filename"
-      "$template_cmd" "$target" "$filename"
-    elif [ -n "$target" ]; then
-      # a link target is defined, create symlink
-      debug "Linking $target to $filename"
-      [ -n "$loud" ] && echo "Linking $target to $filename"
+      [ -L "$tgt" ] && rm -f "$tgt"
+      "$template_cmd" "$src" "$tgt"
+    elif [ -n "$src" ]; then
+      # a link source is defined, create symlink
+      debug "Linking $src to $tgt"
+      [ -n "$loud" ] && echo "Linking $src to $tgt"
       # ensure the destination path exists
-      assert_parent "$filename"
+      assert_parent "$tgt"
       if [ "$do_copy" -eq 1 ]; then
         # remove any existing symlink before copying
-        [ -L "$filename" ] && rm -f "$filename"
-        cp -f "$target" "$filename"
+        [ -L "$tgt" ] && rm -f "$tgt"
+        cp -f "$src" "$tgt"
       else
-        alt_ln "$target" "$filename"
+        ln_relative "$src" "$tgt"
       fi
     fi
   done
@@ -573,7 +573,7 @@ function alt_past_linking() {
               fi
               cp -f "$alt_path" "$new_link"
             else
-              alt_ln "$alt_path" "$new_link"
+              ln_relative "$alt_path" "$new_link"
             fi
             last_linked="$alt_path"
           fi
@@ -609,12 +609,13 @@ function alt_past_linking() {
 
 }
 
-function alt_ln() {
-  local full_link base
-  full_link="$2"
-  base="${full_link%/*}"
-  rel_source=$(relative_path "$base" "$1")
-  ln -nfs "$rel_source" "$full_link"
+function ln_relative() {
+  local full_source full_target target_dir
+  full_source="$1"
+  full_target="$2"
+  target_dir="${full_target%/*}"
+  rel_source=$(relative_path "$target_dir" "$full_source")
+  ln -nfs "$rel_source" "$full_target"
   alt_linked+=("$rel_source")
 }
 
