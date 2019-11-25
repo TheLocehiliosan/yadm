@@ -18,7 +18,7 @@ if declare -F _git > /dev/null; then
       antepenultimate=${COMP_WORDS[COMP_CWORD-2]}
     fi
 
-    local GIT_DIR
+    local -x GIT_DIR
     # shellcheck disable=SC2034
     GIT_DIR="$(yadm introspect repo 2>/dev/null)"
 
@@ -60,19 +60,33 @@ if declare -F _git > /dev/null; then
 		  ;;
     esac
 
+    local yadm_switches=( $(yadm introspect switches 2>/dev/null) )
+
     # this condition is so files are completed properly for --yadm-xxx options
-    if [[ ! "$penultimate" =~ ^- ]]; then
+    if [[ " ${yadm_switches[*]} " != *" $penultimate "* ]]; then
       # TODO: somehow solve the problem with [--yadm-xxx option] being
       #       incompatible with what git expects, namely [--arg=option]
       _git
     fi
     if [[ "$current" =~ ^- ]]; then
       local matching
-      matching=$(compgen -W "$(yadm introspect switches 2>/dev/null)" -- "$current")
+      matching=$(compgen -W "${yadm_switches[*]}" -- "$current")
       __gitcompappend "$matching"
     fi
 
-    if [ "$COMP_CWORD" == 1 ] || [[ "$antepenultimate" =~ ^- ]] ; then
+    # Find the index of where the sub-command argument should go.
+    local command_idx
+    for (( command_idx=1 ; command_idx < ${#COMP_WORDS[@]} ; command_idx++ )); do
+      local command_idx_arg="${COMP_WORDS[$command_idx]}"
+      if [[ " ${yadm_switches[*]} " = *" $command_idx_arg "* ]]; then
+        let command_idx++
+      elif [[ "$command_idx_arg" = -* ]]; then
+        :
+      else
+        break
+      fi
+    done
+    if [[ "$COMP_CWORD" = "$command_idx" ]]; then
       local matching
       matching=$(compgen -W "$(yadm introspect commands 2>/dev/null)" -- "$current")
       __gitcompappend "$matching"
