@@ -1545,6 +1545,14 @@ function parse_encrypt() {
 
   cd_work "Parsing encrypt" || return
 
+  # setting globstar to allow ** in encrypt patterns
+  # (only supported on Bash >= 4)
+  local unset_globstar
+  if ! shopt globstar &>/dev/null; then
+    unset_globstar=1
+  fi
+  shopt -s globstar &>/dev/null
+
   exclude_pattern="^!(.+)"
   if [ -f "$YADM_ENCRYPT" ] ; then
     # parse both included/excluded
@@ -1586,6 +1594,10 @@ function parse_encrypt() {
     #shellcheck disable=SC2207
     IFS=$'\n' ENCRYPT_INCLUDE_FILES=($(LC_ALL=C sort <<<"${FINAL_INCLUDE[*]}"))
     unset IFS
+  fi
+
+  if [ "$unset_globstar" = "1" ]; then
+    shopt -u globstar &>/dev/null
   fi
 
 }
