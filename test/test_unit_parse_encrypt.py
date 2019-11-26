@@ -46,12 +46,8 @@ def test_empty(runner, paths, encrypt):
     assert 'EIF_COUNT:0' in run.out, 'EIF should be empty'
 
 
-@pytest.mark.usefixtures('ds1_repo_copy')
-def test_file_parse_encrypt(runner, paths):
-    """Test parse_encrypt
-
-    Test an array of supported features of the encrypt configuration.
-    """
+def create_test_encrypt_data(paths):
+    """Generate test data for testing encrypt"""
 
     edata = ''
     expected = set()
@@ -125,6 +121,30 @@ def test_file_parse_encrypt(runner, paths):
     paths.work.join('ex ex/file6.text').write('', ensure=True)
     expected.add('ex ex/file4')
     expected.add('ex ex/file6.text')
+
+    # double star
+    edata += 'doublestar/**/file*\n'
+    edata += '!**/file3\n'
+    paths.work.join('doublestar/a/b/file1').write('', ensure=True)
+    paths.work.join('doublestar/c/d/file2').write('', ensure=True)
+    paths.work.join('doublestar/e/f/file3').write('', ensure=True)
+    paths.work.join('doublestar/g/h/nomatch').write('', ensure=True)
+    expected.add('doublestar/a/b/file1')
+    expected.add('doublestar/c/d/file2')
+    # doublestar/e/f/file3 is excluded
+
+    return edata, expected
+
+
+@pytest.mark.usefixtures('ds1_repo_copy')
+def test_file_parse_encrypt(runner, paths):
+    """Test parse_encrypt
+
+    Test an array of supported features of the encrypt configuration.
+    """
+
+    # generate test data & expectations
+    edata, expected = create_test_encrypt_data(paths)
 
     # write encrypt file
     print(f'ENCRYPT:\n---\n{edata}---\n')
