@@ -20,7 +20,7 @@ if [ -z "$BASH_VERSION" ]; then
   [ "$YADM_TEST" != 1 ] && exec bash "$0" "$@"
 fi
 
-VERSION=2.0.1
+VERSION=2.1.0
 
 YADM_WORK="$HOME"
 YADM_DIR=

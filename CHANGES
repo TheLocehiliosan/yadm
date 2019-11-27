@@ -1,3 +1,10 @@
+2.1.0
+  * Use relative symlinks for alternates (#100, #177)
+  * Support double-star globs in .config/yadm/encrypt (#109)
+  * Improve bash completion (#136)
+  * Update docs about using magit (#123)
+  * Note exception for WSL (#113)
+
 2.0.1
   * Fix bug with worktree permissions (#174)
 
