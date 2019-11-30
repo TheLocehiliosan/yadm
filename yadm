@@ -45,6 +45,7 @@ J2CLI_PROGRAM="j2"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
 
+OS_RELEASE="/etc/os-release"
 PROC_VERSION="/proc/version"
 OPERATING_SYSTEM="Unknown"
 
@@ -1219,6 +1220,13 @@ function query_distro() {
   distro=""
   if command -v "$LSB_RELEASE_PROGRAM" >/dev/null 2>&1; then
     distro=$($LSB_RELEASE_PROGRAM -si 2>/dev/null)
+  elif [ -f "$OS_RELEASE" ]; then
+    while IFS='' read -r line || [ -n "$line" ]; do
+      if [[ "$line" = ID=* ]]; then
+        distro="${line#ID=}"
+        break
+      fi
+    done < "$OS_RELEASE"
   fi
   echo "$distro"
 }
