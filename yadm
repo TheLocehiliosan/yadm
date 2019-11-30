@@ -473,7 +473,7 @@ function set_local_alt_values() {
 
   local_host="$(config local.hostname)"
   if [ -z "$local_host" ] ; then
-    local_host=$(hostname)
+    local_host=$(uname -n)
     local_host=${local_host%%.*} # trim any domain from hostname
   fi
 

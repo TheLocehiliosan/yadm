@@ -8,11 +8,6 @@ URL: https://yadm.io
 License: GPL-3.0-only
 Requires: bash
 Requires: git
-%if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version} >= 700
-Requires: /usr/bin/hostname
-%else
-Requires: /bin/hostname
-%endif
 
 Source: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
