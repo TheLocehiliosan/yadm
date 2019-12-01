@@ -19,7 +19,7 @@ RUN \
     curl \
     expect \
     git \
-    gnupg1 \
+    gnupg \
     lsb-release \
     make \
     python3-pip \
@@ -34,9 +34,6 @@ RUN pip3 install \
       pytest==5.1.3 \
       yamllint==1.17.0 \
     ;
-
-# Force GNUPG version 1 at path /usr/bin/gpg
-RUN ln -fs /usr/bin/gpg1 /usr/bin/gpg
 
 # Create a flag to identify when running inside the yadm testbed
 RUN touch /.yadmtestbed

@@ -112,7 +112,7 @@ testhost: require-docker
 		--hostname testhost \
 		--rm -it \
 		-v "/tmp/testhost:/bin/yadm:ro" \
-		yadm/testbed:2019-09-25 \
+		yadm/testbed:2019-12-02 \
 		bash -l
 
 .PHONY: scripthost
@@ -129,7 +129,7 @@ scripthost: require-docker
 		--rm -it \
 		-v "$$PWD/script.gz:/script.gz:rw" \
 		-v "/tmp/testhost:/bin/yadm:ro" \
-		yadm/testbed:2019-09-25 \
+		yadm/testbed:2019-12-02 \
 		bash -c "script /tmp/script -q -c 'bash -l'; gzip < /tmp/script > /script.gz"
 	@echo
 	@echo "Script saved to $$PWD/script.gz"
