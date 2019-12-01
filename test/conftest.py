@@ -8,6 +8,7 @@ import os
 import platform
 import pwd
 from subprocess import Popen, PIPE
+import py
 import pytest
 
 
@@ -544,3 +545,29 @@ def ds1(ds1_work_copy, paths, ds1_dset):
     dscopy = copy.deepcopy(ds1_dset)
     dscopy.relative_to(copy.deepcopy(paths.work))
     return dscopy
+
+
+@pytest.fixture(scope='session')
+def gnupg(tmpdir_factory, runner):
+    """Location of GNUPGHOME"""
+
+    def register_gpg_password(password):
+        """Publish a new GPG mock password"""
+        py.path.local('/tmp/mock-password').write(password)
+
+    home = tmpdir_factory.mktemp('gnupghome')
+    home.chmod(0o700)
+    conf = home.join('gpg-agent.conf')
+    conf.write(
+        f'pinentry-program {os.path.abspath("test/pinentry-mock")}\n'
+        'max-cache-ttl 0\n'
+    )
+    conf.chmod(0o600)
+    data = collections.namedtuple('GNUPG', ['home', 'pw'])
+    env = os.environ.copy()
+    env['GNUPGHOME'] = home
+
+    # this pre-populates std files in the GNUPGHOME
+    runner(['gpg', '-k'], env=env)
+
+    return data(home, register_gpg_password)
