@@ -161,7 +161,7 @@ alternate version using yadm. Consider these three files:
     path = .gitconfig.local
 ```
 
-`.gitconfig.local##Darwin`
+`.gitconfig.local##os.Darwin`
 
 ```ini
 [user]
@@ -169,7 +169,7 @@ alternate version using yadm. Consider these three files:
     email = tim@personal.email.org
 ```
 
-`.gitconfig.local##Linux`
+`.gitconfig.local##os.Linux`
 
 ```ini
 [user]
