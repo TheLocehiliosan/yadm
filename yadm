@@ -51,6 +51,9 @@ OPERATING_SYSTEM="Unknown"
 
 ENCRYPT_INCLUDE_FILES="unparsed"
 
+LEGACY_WARNING_ISSUED=0
+INVALID_ALT=()
+
 # flag causing path translations with cygpath
 USE_CYGPATH=0
 
@@ -204,6 +207,7 @@ function score_file() {
       return 0
     # unsupported values
     else
+      INVALID_ALT+=("$src")
       score=0
       return
     fi
@@ -442,6 +446,40 @@ function alt() {
 
   remove_stale_links
 
+  report_invalid_alts
+
+}
+
+function report_invalid_alts() {
+  [ "$YADM_COMPATIBILITY" = "1" ] && return
+  [ "$LEGACY_WARNING_ISSUED" = "1" ] && return
+  [ "${#INVALID_ALT[@]}" = "0" ] && return
+  local path_list
+  for invalid in "${INVALID_ALT[@]}"; do
+    path_list="$path_list    * $invalid"$'\n'
+  done
+  cat <<EOF
+
+**WARNING**
+  Invalid alternates have been detected.
+
+  Beginning with version 2.0.0, yadm uses a new naming convention for alternate
+  files. Read more about this change here:
+
+    https://yadm.io/docs/upgrade_from_1
+
+  Or to learn more about alternates in general, read:
+
+    https://yadm.io/docs/alternates
+
+  To rename the invalid alternates run:
+
+    yadm mv <old name> <new name>
+
+  Invalid alternates detected:
+${path_list}
+***********
+EOF
 }
 
 function remove_stale_links() {
@@ -1370,6 +1408,8 @@ function issue_legacy_path_warning() {
 ${path_list}
 ***********
 EOF
+
+LEGACY_WARNING_ISSUED=1
 
 }
 
