@@ -12,6 +12,16 @@ import py
 import pytest
 
 
+def pytest_addoption(parser):
+    """Add options to pytest"""
+    parser.addoption(
+        "--force-linters",
+        action="store_true",
+        default=False,
+        help="Run linters regardless of installed versions",
+    )
+
+
 @pytest.fixture(scope='session')
 def shellcheck_version():
     """Version of shellcheck supported"""
