@@ -567,12 +567,15 @@ def gnupg(tmpdir_factory, runner):
 
     home = tmpdir_factory.mktemp('gnupghome')
     home.chmod(0o700)
-    conf = home.join('gpg-agent.conf')
-    conf.write(
+    conf = home.join('gpg.conf')
+    conf.write('no-secmem-warning\n')
+    conf.chmod(0o600)
+    agentconf = home.join('gpg-agent.conf')
+    agentconf.write(
         f'pinentry-program {os.path.abspath("test/pinentry-mock")}\n'
         'max-cache-ttl 0\n'
     )
-    conf.chmod(0o600)
+    agentconf.chmod(0o600)
     data = collections.namedtuple('GNUPG', ['home', 'pw'])
     env = os.environ.copy()
     env['GNUPGHOME'] = home
