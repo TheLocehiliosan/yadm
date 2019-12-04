@@ -9,8 +9,6 @@ import pytest
     [pytest.param(True, marks=pytest.mark.deprecated), False],
     ids=['cygwin', 'no-cygwin'])
 @pytest.mark.parametrize(
-    'compatibility', [True, False], ids=['compat', 'no-compat'])
-@pytest.mark.parametrize(
     'setting, expect_link, pre_existing', [
         (None, True, None),
         (True, False, None),
@@ -29,7 +27,7 @@ import pytest
 def test_alt_copy(
         runner, yadm_y, paths, tst_sys,
         setting, expect_link, pre_existing,
-        compatibility, cygwin):
+        cygwin):
     """Test yadm.alt-copy"""
 
     option = 'yadm.cygwin-copy' if cygwin else 'yadm.alt-copy'
@@ -37,10 +35,7 @@ def test_alt_copy(
     if setting is not None:
         os.system(' '.join(yadm_y('config', option, str(setting))))
 
-    if compatibility:
-        expected_content = f'test_alt_copy##{tst_sys}'
-    else:
-        expected_content = f'test_alt_copy##os.{tst_sys}'
+    expected_content = f'test_alt_copy##os.{tst_sys}'
 
     alt_path = paths.work.join('test_alt_copy')
     if pre_existing == 'symlink':
@@ -48,11 +43,7 @@ def test_alt_copy(
     elif pre_existing == 'file':
         alt_path.write('wrong content')
 
-    env = os.environ.copy()
-    if compatibility:
-        env['YADM_COMPATIBILITY'] = '1'
-
-    run = runner(yadm_y('alt'), env=env)
+    run = runner(yadm_y('alt'))
     assert run.success
     assert run.err == ''
     assert 'Linking' in run.out
