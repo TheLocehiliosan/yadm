@@ -1,3 +1,9 @@
+2.2.0
+  * Resolve hostname using `uname -n` (#182)
+  * Use /etc/os-release if lsb_release is missing (#175)
+  * Issue warning for any invalid alternates found (#183)
+  * Add support for gawk (#180)
+
 2.1.0
   * Use relative symlinks for alternates (#100, #177)
   * Support double-star globs in .config/yadm/encrypt (#109)

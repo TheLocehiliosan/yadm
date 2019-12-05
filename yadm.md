@@ -363,46 +363,47 @@
 
        distro, d
               Valid  if the value matches the distro.  Distro is calculated by
-              running lsb_release -si.
+              running lsb_release -si or by inspecting the  ID  from  /etc/os-
+              release.
 
-       os, o  Valid if the value matches the OS.  OS is calculated by  running
+       os, o  Valid  if the value matches the OS.  OS is calculated by running
               uname -s.
 
        class, c
               Valid if the value matches the local.class configuration.  Class
               must be manually set using yadm config local.class <class>.  See
-              the   CONFIGURATION  section  for  more  details  about  setting
+              the  CONFIGURATION  section  for  more  details  about   setting
               local.class.
 
        hostname, h
               Valid if the value matches the short hostname.  Hostname is cal-
-              culated by running hostname, and trimming off any domain.
+              culated by running uname -n, and trimming off any domain.
 
        default
               Valid when no other alternate is valid.
 
 
-       NOTE:  The  OS  for "Windows Subsystem for Linux" is reported as "WSL",
+       NOTE: The OS for "Windows Subsystem for Linux" is  reported  as  "WSL",
        even though uname identifies as "Linux".
 
-       You may use any number of conditions, in any order.  An alternate  will
-       only  be  used  if  ALL conditions are valid.  For all files managed by
-       yadm's repository or  listed  in  $HOME/.config/yadm/encrypt,  if  they
-       match  this  naming  convention, symbolic links will be created for the
+       You  may use any number of conditions, in any order.  An alternate will
+       only be used if ALL conditions are valid.  For  all  files  managed  by
+       yadm's  repository  or  listed  in  $HOME/.config/yadm/encrypt, if they
+       match this naming convention, symbolic links will be  created  for  the
        most appropriate version.
 
        The "most appropriate" version is determined by calculating a score for
-       each  version  of  a  file. A template is always scored higher than any
-       symlink condition. The number of conditions is the next largest  factor
-       in  scoring.   Files  with  more conditions will always be favored. Any
+       each version of a file. A template is always  scored  higher  than  any
+       symlink  condition. The number of conditions is the next largest factor
+       in scoring.  Files with more conditions will  always  be  favored.  Any
        invalid condition will disqualify that file completely.
 
        If you don't care to have all versions of alternates stored in the same
        directory  as  the  generated  symlink,  you  can  place  them  in  the
-       $HOME/.config/yadm/alt directory. The generated  symlink  or  processed
+       $HOME/.config/yadm/alt  directory.  The  generated symlink or processed
        template will be created using the same relative path.
 
-       Alternate  linking may best be demonstrated by example. Assume the fol-
+       Alternate linking may best be demonstrated by example. Assume the  fol-
        lowing files are managed by yadm's repository:
 
          - $HOME/path/example.txt##default
@@ -425,7 +426,7 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##os.Darwin
 
-       Since  the  hostname  doesn't  match any of the managed files, the more
+       Since the hostname doesn't match any of the  managed  files,  the  more
        generic version is chosen.
 
        If running on a Linux server named "host4", the link will be:
@@ -440,70 +441,73 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##class.Work
 
-       If no "##default" version exists and no files  have  valid  conditions,
+       If  no  "##default"  version exists and no files have valid conditions,
        then no link will be created.
 
-       Links  are also created for directories named this way, as long as they
+       Links are also created for directories named this way, as long as  they
        have at least one yadm managed file within them.
 
        yadm will automatically create these links by default. This can be dis-
-       abled  using  the yadm.auto-alt configuration.  Even if disabled, links
+       abled using the yadm.auto-alt configuration.  Even if  disabled,  links
        can be manually created by running yadm alt.
 
-       Class is a special value which is stored locally on each  host  (inside
-       the  local repository). To use alternate symlinks using class, you must
-       set the value of class using the configuration  local.class.   This  is
+       Class  is  a special value which is stored locally on each host (inside
+       the local repository). To use alternate symlinks using class, you  must
+       set  the  value  of class using the configuration local.class.  This is
        set like any other yadm configuration with the yadm config command. The
        following sets the class to be "Work".
 
          yadm config local.class Work
 
-       Similarly, the values of os, hostname, and user can be  manually  over-
-       ridden  using  the  configuration options local.os, local.hostname, and
+       Similarly,  the  values of os, hostname, and user can be manually over-
+       ridden using the configuration options  local.os,  local.hostname,  and
        local.user.
 
 
 ## TEMPLATES
-       If a template condition is defined in an alternate file's "##"  suffix,
+       If  a template condition is defined in an alternate file's "##" suffix,
        and the necessary dependencies for the template are available, then the
        file will be processed to create or overwrite files.
 
        Supported template processors:
 
        default
-              This is yadm's built-in template processor.  This  processor  is
+              This  is  yadm's  built-in template processor. This processor is
               very basic, with a Jinja-like syntax. The advantage of this pro-
-              cessor is that it only depends upon awk, which is  available  on
-              most  *nix  systems. To use this processor, specify the value of
+              cessor  is  that it only depends upon awk, which is available on
+              most *nix systems. To use this processor, specify the  value  of
               "default" or just leave the value off (e.g. "##template").
 
-       j2cli  To use the j2cli Jinja template processor, specify the value  of
+       j2cli  To  use the j2cli Jinja template processor, specify the value of
               "j2"  or "j2cli".
 
        envtpl To use the envtpl Jinja template processor, specify the value of
               "j2" or "envtpl".
 
 
-       NOTE: Specifying "j2" as the processor will attempt  to  use  j2cli  or
+       NOTE:  Specifying  "j2"  as  the processor will attempt to use j2cli or
        envtpl, whichever is available.
 
-       If  the  template  processor  specified is available, templates will be
+       If the template processor specified is  available,  templates  will  be
        processed to create or overwrite files.
 
-       During processing, the following variables are available  in  the  tem-
+       During  processing,  the  following variables are available in the tem-
        plate:
 
         Default         Jinja           Description
         -------------   -------------   --------------------------
         yadm.class      YADM_CLASS      Locally defined yadm class
         yadm.distro     YADM_DISTRO     lsb_release -si
-        yadm.hostname   YADM_HOSTNAME   hostname (without domain)
+        yadm.hostname   YADM_HOSTNAME   uname -n (without domain)
         yadm.os         YADM_OS         uname -s
         yadm.user       YADM_USER       id -u -n
         yadm.source     YADM_SOURCE     Template filename
 
-       NOTE:  The  OS  for "Windows Subsystem for Linux" is reported as "WSL",
+       NOTE: The OS for "Windows Subsystem for Linux" is  reported  as  "WSL",
        even though uname identifies as "Linux".
+
+       NOTE:  If lsb_release is not available, DISTRO will be the ID specified
+       in /etc/os-release.
 
        Examples:
 
