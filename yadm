@@ -40,7 +40,7 @@ FULL_COMMAND=""
 
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
-AWK_PROGRAM="${AWK_PROGRAM:-awk}"
+AWK_PROGRAM=("gawk" "awk")
 J2CLI_PROGRAM="j2"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
@@ -348,7 +348,7 @@ function conditions() {
 EOF
   )
 
-  "$AWK_PROGRAM" \
+  "${AWK_PROGRAM[0]}" \
     -v class="$local_class" \
     -v os="$local_system" \
     -v host="$local_host" \
@@ -1490,6 +1490,13 @@ function set_operating_system() {
 
 }
 
+function set_awk() {
+  local pgm
+  for pgm in "${AWK_PROGRAM[@]}"; do
+    command -v "$pgm" >/dev/null 2>&1 && AWK_PROGRAM=("$pgm") && return
+  done
+}
+
 function debug() {
 
   [ -n "$DEBUG" ] && echo_e "DEBUG: $*"
@@ -1802,7 +1809,7 @@ function bootstrap_available() {
   return 1
 }
 function awk_available() {
-  command -v "$AWK_PROGRAM" >/dev/null 2>&1 && return
+  command -v "${AWK_PROGRAM[0]}" >/dev/null 2>&1 && return
   return 1
 }
 function j2cli_available() {
@@ -1856,6 +1863,7 @@ function echo_e() {
 if [ "$YADM_TEST" != 1 ] ; then
   process_global_args "$@"
   set_operating_system
+  set_awk
   set_yadm_dir
   configure_paths
   main "${MAIN_ARGS[@]}"
