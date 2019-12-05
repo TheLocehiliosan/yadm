@@ -35,7 +35,7 @@ REPO_URL=""
 
 function _private_yadm() {
   unset -f yadm
-  if command -v yadm >/dev/null 2>&1; then
+  if command -v yadm &> /dev/null; then
     echo "Found yadm installed locally, removing remote yadm() function"
     unset -f _private_yadm
     command yadm "$@"
@@ -57,7 +57,7 @@ function remote_yadm() {
 }
 
 function ask_about_source() {
-  if ! command -v yadm >/dev/null 2>&1; then
+  if ! command -v yadm &> /dev/null; then
     echo
     echo "***************************************************"
     echo "yadm is NOT currently installed."

@@ -1110,7 +1110,7 @@ function perms() {
   # remove group/other permissions from collected globs
   #shellcheck disable=SC2068
   #(SC2068 is disabled because in this case, we desire globbing)
-  chmod -f go-rwx ${GLOBS[@]} >/dev/null 2>&1
+  chmod -f go-rwx ${GLOBS[@]} &> /dev/null
   # TODO: detect and report changing permissions in a portable way
 
 }
@@ -1159,7 +1159,7 @@ function upgrade() {
       echo "Moving $legacy_path to $new_filename"
       assert_parent "$new_filename"
       # test to see if path is "tracked" in repo, if so 'git mv' must be used
-      if "$GIT_PROGRAM" ls-files --error-unmatch "$legacy_path" >/dev/null 2>&1; then
+      if "$GIT_PROGRAM" ls-files --error-unmatch "$legacy_path" &> /dev/null; then
         "$GIT_PROGRAM" mv "$legacy_path" "$new_filename" && repo_updates=1
       else
         mv -i "$legacy_path" "$new_filename"
@@ -1170,7 +1170,7 @@ function upgrade() {
   # handle submodules, which need to be reinitialized
   if [ "$actions_performed" -ne 0 ]; then
     cd_work "Upgrade submodules"
-    if "$GIT_PROGRAM" ls-files --error-unmatch .gitmodules >/dev/null 2>&1; then
+    if "$GIT_PROGRAM" ls-files --error-unmatch .gitmodules &> /dev/null; then
       "$GIT_PROGRAM" submodule deinit -f .
       "$GIT_PROGRAM" submodule update --init --recursive
     fi
@@ -1256,7 +1256,7 @@ function is_valid_branch_name() {
 
 function query_distro() {
   distro=""
-  if command -v "$LSB_RELEASE_PROGRAM" >/dev/null 2>&1; then
+  if command -v "$LSB_RELEASE_PROGRAM" &> /dev/null; then
     distro=$($LSB_RELEASE_PROGRAM -si 2>/dev/null)
   elif [ -f "$OS_RELEASE" ]; then
     while IFS='' read -r line || [ -n "$line" ]; do
@@ -1493,7 +1493,7 @@ function set_operating_system() {
 function set_awk() {
   local pgm
   for pgm in "${AWK_PROGRAM[@]}"; do
-    command -v "$pgm" >/dev/null 2>&1 && AWK_PROGRAM=("$pgm") && return
+    command -v "$pgm" &> /dev/null && AWK_PROGRAM=("$pgm") && return
   done
 }
 
@@ -1559,7 +1559,7 @@ function assert_private_dirs() {
     if [ ! -d "$work/$private_dir" ]; then
       debug "Creating $work/$private_dir"
       #shellcheck disable=SC2174
-      mkdir -m 0700 -p "$work/$private_dir" >/dev/null 2>&1
+      mkdir -m 0700 -p "$work/$private_dir" &> /dev/null
     fi
   done
 }
@@ -1603,10 +1603,10 @@ function parse_encrypt() {
   # setting globstar to allow ** in encrypt patterns
   # (only supported on Bash >= 4)
   local unset_globstar
-  if ! shopt globstar &>/dev/null; then
+  if ! shopt globstar &> /dev/null; then
     unset_globstar=1
   fi
-  shopt -s globstar &>/dev/null
+  shopt -s globstar &> /dev/null
 
   exclude_pattern="^!(.+)"
   if [ -f "$YADM_ENCRYPT" ] ; then
@@ -1652,7 +1652,7 @@ function parse_encrypt() {
   fi
 
   if [ "$unset_globstar" = "1" ]; then
-    shopt -u globstar &>/dev/null
+    shopt -u globstar &> /dev/null
   fi
 
 }
@@ -1781,7 +1781,7 @@ function require_git() {
     GIT_PROGRAM="$alt_git"
     more_info="\nThis command has been set via the yadm.git-program configuration."
   fi
-  command -v "$GIT_PROGRAM" >/dev/null 2>&1 ||
+  command -v "$GIT_PROGRAM" &> /dev/null ||
     error_out "This functionality requires Git to be installed, but the command '$GIT_PROGRAM' cannot be located.$more_info"
 }
 function require_gpg() {
@@ -1795,7 +1795,7 @@ function require_gpg() {
     GPG_PROGRAM="$alt_gpg"
     more_info="\nThis command has been set via the yadm.gpg-program configuration."
   fi
-  command -v "$GPG_PROGRAM" >/dev/null 2>&1 ||
+  command -v "$GPG_PROGRAM" &> /dev/null ||
     error_out "This functionality requires GPG to be installed, but the command '$GPG_PROGRAM' cannot be located.$more_info"
 }
 function require_repo() {
@@ -1809,19 +1809,19 @@ function bootstrap_available() {
   return 1
 }
 function awk_available() {
-  command -v "${AWK_PROGRAM[0]}" >/dev/null 2>&1 && return
+  command -v "${AWK_PROGRAM[0]}" &> /dev/null && return
   return 1
 }
 function j2cli_available() {
-  command -v "$J2CLI_PROGRAM" >/dev/null 2>&1 && return
+  command -v "$J2CLI_PROGRAM" &> /dev/null && return
   return 1
 }
 function envtpl_available() {
-  command -v "$ENVTPL_PROGRAM" >/dev/null 2>&1 && return
+  command -v "$ENVTPL_PROGRAM" &> /dev/null && return
   return 1
 }
 function readlink_available() {
-  command -v "readlink" >/dev/null 2>&1 && return
+  command -v "readlink" &> /dev/null && return
   return 1
 }
 
