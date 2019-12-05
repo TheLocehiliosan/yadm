@@ -95,6 +95,7 @@ def test_template_default(runner, yadm, tmpdir):
 
     script = f"""
         YADM_TEST=1 source {yadm}
+        set_awk
         local_class="{LOCAL_CLASS}"
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"
@@ -117,6 +118,7 @@ def test_source(runner, yadm, tmpdir):
 
     script = f"""
         YADM_TEST=1 source {yadm}
+        set_awk
         template_default "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)
