@@ -1,8 +1,9 @@
 ---
 title: "Installation"
 permalink: /docs/install
+toc: true
+toc_label: "Platforms"
 ---
-{% include toc title="Platforms" %}
 
 ## OSX
 
