@@ -1262,6 +1262,7 @@ function query_distro() {
     while IFS='' read -r line || [ -n "$line" ]; do
       if [[ "$line" = ID=* ]]; then
         distro="${line#ID=}"
+        distro="${distro//\"}"
         break
       fi
     done < "$OS_RELEASE"
