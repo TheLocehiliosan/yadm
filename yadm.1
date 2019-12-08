@@ -47,7 +47,7 @@ list
 
 .BR yadm " encrypt
 
-.BR yadm " enter
+.BR yadm " enter [ command ]
 
 .BR yadm " decrypt
 .RB [ -l ]
@@ -187,10 +187,14 @@ See the ENCRYPTION section for more details.
 Run a sub-shell with all Git variables set. Exit the sub-shell the same way you
 leave your normal shell (usually with the "exit" command). This sub-shell can
 be used to easily interact with your yadm repository using "git" commands. This
-could be useful if you are using a tool which uses Git directly.
+could be useful if you are using a tool which uses Git directly, such as tig,
+vim-fugitive, git-cola, etc.
 
-For example, Emacs Tramp and Magit can manage files by using this
-configuration:
+Optionally, you can provide a command after "enter", and instead of invoking
+your shell, that command will be run with all of the Git variables exposed to
+the command's environment.
+
+Emacs Tramp and Magit can manage files by using this configuration:
 
 .RS
     (add-to-list 'tramp-methods

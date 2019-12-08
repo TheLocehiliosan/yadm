@@ -900,6 +900,7 @@ function encrypt() {
 }
 
 function enter() {
+  command="$*"
   require_shell
   require_repo
 
@@ -913,12 +914,17 @@ function enter() {
     shell_path="%~"
   fi
 
-  echo "Entering yadm repo"
+  shell_cmd=()
+  if [ -n "$command" ]; then
+    shell_cmd=('-c' "$*")
+  fi
+
+  [ "${#shell_cmd[@]}" -eq 0 ] && echo "Entering yadm repo"
 
   yadm_prompt="yadm shell ($YADM_REPO) $shell_path > "
-  PROMPT="$yadm_prompt" PS1="$yadm_prompt" "$SHELL" $shell_opts
+  PROMPT="$yadm_prompt" PS1="$yadm_prompt" "$SHELL" $shell_opts "${shell_cmd[@]}"
 
-  echo "Leaving yadm repo"
+  [ "${#shell_cmd[@]}" -eq 0 ] && echo "Leaving yadm repo"
 }
 
 function git_command() {
