@@ -919,6 +919,9 @@ function enter() {
     shell_cmd=('-c' "$*")
   fi
 
+  GIT_WORK_TREE=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+  export GIT_WORK_TREE
+
   [ "${#shell_cmd[@]}" -eq 0 ] && echo "Entering yadm repo"
 
   yadm_prompt="yadm shell ($YADM_REPO) $shell_path > "

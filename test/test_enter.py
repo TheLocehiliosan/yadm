@@ -44,6 +44,7 @@ def test_enter(runner, yadm_y, paths, shell, success):
         assert 'does not refer to an executable' in run.out
     if 'env' in shell:
         assert f'GIT_DIR={paths.repo}' in run.out
+        assert f'GIT_WORK_TREE={paths.work}' in run.out
         assert f'PROMPT={prompt}' in run.out
         assert f'PS1={prompt}' in run.out
 
