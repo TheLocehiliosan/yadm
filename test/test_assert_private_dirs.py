@@ -8,7 +8,8 @@ pytestmark = pytest.mark.usefixtures('ds1_copy')
 PRIVATE_DIRS = ['.gnupg', '.ssh']
 
 
-def test_pdirs_missing(runner, yadm_y, paths):
+@pytest.mark.parametrize('home', [True, False], ids=['home', 'not-home'])
+def test_pdirs_missing(runner, yadm_y, paths, home):
     """Private dirs (private dirs missing)
 
     When a git command is run
@@ -23,8 +24,12 @@ def test_pdirs_missing(runner, yadm_y, paths):
             path.remove()
         assert not path.exists()
 
+    env = {'DEBUG': 'yes'}
+    if home:
+        env['HOME'] = paths.work
+
     # run status
-    run = runner(command=yadm_y('status'), env={'DEBUG': 'yes'})
+    run = runner(command=yadm_y('status'), env=env)
     assert run.success
     assert run.err == ''
     assert 'On branch master' in run.out
@@ -33,13 +38,19 @@ def test_pdirs_missing(runner, yadm_y, paths):
     # and are protected
     for pdir in PRIVATE_DIRS:
         path = paths.work.join(pdir)
-        assert path.exists()
-        assert oct(path.stat().mode).endswith('00'), 'Directory is not secured'
+        if home:
+            assert path.exists()
+            assert oct(path.stat().mode).endswith('00'), ('Directory is '
+                                                          'not secured')
+        else:
+            assert not path.exists()
 
     # confirm directories are created before command is run:
-    assert re.search(
-        r'Creating.+\.gnupg.+Creating.+\.ssh.+Running git command git status',
-        run.out, re.DOTALL), 'directories created before command is run'
+    if home:
+        assert re.search(
+            (r'Creating.+\.gnupg.+Creating.+\.ssh.+'
+             r'Running git command git status'),
+            run.out, re.DOTALL), 'directories created before command is run'
 
 
 def test_pdirs_missing_apd_false(runner, yadm_y, paths):

@@ -222,8 +222,11 @@ def test_clone_perms(
         paths.work.remove()
         paths.work.mkdir()
 
+    env = {'HOME': paths.work}
     run = runner(
-        yadm_y('clone', '-d', '-w', paths.work, f'file://{paths.remote}'))
+        yadm_y('clone', '-d', '-w', paths.work, f'file://{paths.remote}'),
+        env=env
+    )
 
     assert successful_clone(run, paths, repo_config)
     if in_work:

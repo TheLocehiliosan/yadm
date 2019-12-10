@@ -1564,6 +1564,10 @@ function invoke_hook() {
 
 function assert_private_dirs() {
   work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+
+  # only assert private dirs if the worktree is the same as $HOME
+  [ "$work" != "$HOME" ] && return
+
   for private_dir in "$@"; do
     if [ ! -d "$work/$private_dir" ]; then
       debug "Creating $work/$private_dir"
