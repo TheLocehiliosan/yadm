@@ -833,8 +833,6 @@ function decrypt() {
   require_gpg
   require_archive
 
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-
   if [ "$DO_LIST" = "YES" ] ; then
     tar_option="t"
   else
@@ -919,7 +917,7 @@ function enter() {
     shell_cmd=('-c' "$*")
   fi
 
-  GIT_WORK_TREE=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+  GIT_WORK_TREE="$YADM_WORK"
   export GIT_WORK_TREE
 
   [ "${#shell_cmd[@]}" -eq 0 ] && echo "Entering yadm repo"
@@ -1454,6 +1452,13 @@ function configure_paths() {
   GIT_DIR=$(mixed_path "$YADM_REPO")
   export GIT_DIR
 
+  # obtain YADM_WORK from repo if it exists
+  if [ -d "$GIT_DIR" ]; then
+    local work
+    work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
+    [ -n "$work" ] && YADM_WORK="$work"
+  fi
+
 }
 
 function configure_repo() {
@@ -1536,12 +1541,11 @@ function invoke_hook() {
     debug "Invoking hook: $hook_command"
 
     # expose some internal data to all hooks
-    work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
     YADM_HOOK_COMMAND=$HOOK_COMMAND
     YADM_HOOK_EXIT=$exit_status
     YADM_HOOK_FULL_COMMAND=$FULL_COMMAND
     YADM_HOOK_REPO=$YADM_REPO
-    YADM_HOOK_WORK=$work
+    YADM_HOOK_WORK=$YADM_WORK
     export YADM_HOOK_COMMAND
     export YADM_HOOK_EXIT
     export YADM_HOOK_FULL_COMMAND
@@ -1563,16 +1567,14 @@ function invoke_hook() {
 }
 
 function assert_private_dirs() {
-  work=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
-
   # only assert private dirs if the worktree is the same as $HOME
-  [ "$work" != "$HOME" ] && return
+  [ "$YADM_WORK" != "$HOME" ] && return
 
   for private_dir in "$@"; do
-    if [ ! -d "$work/$private_dir" ]; then
-      debug "Creating $work/$private_dir"
+    if [ ! -d "$YADM_WORK/$private_dir" ]; then
+      debug "Creating $YADM_WORK/$private_dir"
       #shellcheck disable=SC2174
-      mkdir -m 0700 -p "$work/$private_dir" &> /dev/null
+      mkdir -m 0700 -p "$YADM_WORK/$private_dir" &> /dev/null
     fi
   done
 }
@@ -1593,7 +1595,6 @@ function display_private_perms() {
 }
 
 function cd_work() {
-  YADM_WORK=$(unix_path "$("$GIT_PROGRAM" config core.worktree)")
   cd "$YADM_WORK" || {
     debug "$1 not processed, unable to cd to $YADM_WORK"
     return 1
