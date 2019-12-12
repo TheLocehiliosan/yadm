@@ -732,14 +732,18 @@ function clone() {
     rm -rf "$YADM_REPO"
     error_out "Clone failed, 'origin/${branch}' does not exist in ${clone_args[0]}"
   }
-  debug "Determining if repo tracks private directories"
-  for private_dir in .ssh/ .gnupg/; do
-    found_log=$("$GIT_PROGRAM" log -n 1 "origin/${branch}" -- "$private_dir" 2>/dev/null)
-    if [ -n "$found_log" ]; then
-      debug "Private directory $private_dir is tracked by repo"
-      assert_private_dirs "$private_dir"
-    fi
-  done
+
+  if [ "$YADM_WORK" = "$HOME" ]; then
+    debug "Determining if repo tracks private directories"
+    for private_dir in .ssh/ .gnupg/; do
+      found_log=$("$GIT_PROGRAM" log -n 1 "origin/${branch}" -- "$private_dir" 2>/dev/null)
+      if [ -n "$found_log" ]; then
+        debug "Private directory $private_dir is tracked by repo"
+        assert_private_dirs "$private_dir"
+      fi
+    done
+  fi
+
   [ -n "$DEBUG" ] && display_private_perms "pre-merge"
   debug "Doing an initial merge of origin/${branch}"
   "$GIT_PROGRAM" merge "origin/${branch}" || {
@@ -940,9 +944,11 @@ function git_command() {
   # ensure private .ssh and .gnupg directories exist first
   # TODO: consider restricting this to only commands which modify the work-tree
 
-  auto_private_dirs=$(config --bool yadm.auto-private-dirs)
-  if [ "$auto_private_dirs" != "false" ] ; then
-    assert_private_dirs .gnupg/ .ssh/
+  if [ "$YADM_WORK" = "$HOME" ]; then
+    auto_private_dirs=$(config --bool yadm.auto-private-dirs)
+    if [ "$auto_private_dirs" != "false" ] ; then
+      assert_private_dirs .gnupg/ .ssh/
+    fi
   fi
 
   CHANGES_POSSIBLE=1
@@ -1567,9 +1573,6 @@ function invoke_hook() {
 }
 
 function assert_private_dirs() {
-  # only assert private dirs if the worktree is the same as $HOME
-  [ "$YADM_WORK" != "$HOME" ] && return
-
   for private_dir in "$@"; do
     if [ ! -d "$YADM_WORK/$private_dir" ]; then
       debug "Creating $YADM_WORK/$private_dir"
