@@ -48,7 +48,7 @@ def test_pdirs_missing(runner, yadm_y, paths, home):
     # confirm directories are created before command is run:
     if home:
         assert re.search(
-            (r'Creating.+\.gnupg.+Creating.+\.ssh.+'
+            (r'Creating.+\.(gnupg|ssh).+Creating.+\.(gnupg|ssh).+'
              r'Running git command git status'),
             run.out, re.DOTALL), 'directories created before command is run'
 

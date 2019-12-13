@@ -735,7 +735,7 @@ function clone() {
 
   if [ "$YADM_WORK" = "$HOME" ]; then
     debug "Determining if repo tracks private directories"
-    for private_dir in .ssh/ .gnupg/; do
+    for private_dir in $(private_dirs all); do
       found_log=$("$GIT_PROGRAM" log -n 1 "origin/${branch}" -- "$private_dir" 2>/dev/null)
       if [ -n "$found_log" ]; then
         debug "Private directory $private_dir is tracked by repo"
@@ -947,7 +947,9 @@ function git_command() {
   if [ "$YADM_WORK" = "$HOME" ]; then
     auto_private_dirs=$(config --bool yadm.auto-private-dirs)
     if [ "$auto_private_dirs" != "false" ] ; then
-      assert_private_dirs .gnupg/ .ssh/
+      for pdir in $(private_dirs all); do
+        assert_private_dirs "$pdir"
+      done
     fi
   fi
 
@@ -1115,8 +1117,9 @@ function perms() {
     fi
 
     # include all gpg files (unless disabled)
+    gnupghome="$(private_dirs gnupg)"
     if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
-      GLOBS+=(".gnupg" ".gnupg/*" ".gnupg/.[!.]*")
+      GLOBS+=("${gnupghome}" "${gnupghome}/*" "${gnupghome}/.[!.]*")
     fi
   fi
 
@@ -1575,6 +1578,21 @@ function invoke_hook() {
 
 }
 
+function private_dirs() {
+  fetch="$1"
+  pdirs=(.ssh)
+  if [ -z "${GNUPGHOME:-}" ]; then
+    pdirs+=(.gnupg)
+  else
+    pdirs+=("$(relative_path "$YADM_WORK" "$GNUPGHOME")")
+  fi
+  if [ "$fetch" = "all" ]; then
+    echo "${pdirs[@]}"
+  else
+    echo "${pdirs[1]}"
+  fi
+}
+
 function assert_private_dirs() {
   for private_dir in "$@"; do
     if [ ! -d "$YADM_WORK/$private_dir" ]; then
@@ -1592,7 +1610,7 @@ function assert_parent() {
 
 function display_private_perms() {
   when="$1"
-  for private_dir in .ssh .gnupg; do
+  for private_dir in $(private_dirs all); do
     if [ -d "$YADM_WORK/$private_dir" ]; then
       private_perms=$(ls -ld "$YADM_WORK/$private_dir")
       debug "$when" private dir perms "$private_perms"
