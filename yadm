@@ -1107,14 +1107,17 @@ function perms() {
   # include the archive created by "encrypt"
   [ -f "$YADM_ARCHIVE" ] && GLOBS+=("$YADM_ARCHIVE")
 
-  # include all .ssh files (unless disabled)
-  if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
-    GLOBS+=(".ssh" ".ssh/*" ".ssh/.[!.]*")
-  fi
+  # only include private globs if using HOME as worktree
+  if [ "$YADM_WORK" = "$HOME" ]; then
+    # include all .ssh files (unless disabled)
+    if [[ $(config --bool yadm.ssh-perms) != "false" ]] ; then
+      GLOBS+=(".ssh" ".ssh/*" ".ssh/.[!.]*")
+    fi
 
-  # include all gpg files (unless disabled)
-  if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
-    GLOBS+=(".gnupg" ".gnupg/*" ".gnupg/.[!.]*")
+    # include all gpg files (unless disabled)
+    if [[ $(config --bool yadm.gpg-perms) != "false" ]] ; then
+      GLOBS+=(".gnupg" ".gnupg/*" ".gnupg/.[!.]*")
+    fi
   fi
 
   # include any files we encrypt

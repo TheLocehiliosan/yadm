@@ -38,7 +38,7 @@ def test_perms(runner, yadm_y, paths, ds1, autoperms):
     cmd = 'perms'
     if autoperms != 'notest':
         cmd = 'status'
-    run = runner(yadm_y(cmd))
+    run = runner(yadm_y(cmd), env={'HOME': paths.work})
     assert run.success
     assert run.err == ''
     if cmd == 'perms':
@@ -81,7 +81,7 @@ def test_perms_control(runner, yadm_y, paths, ds1, sshperms, gpgperms):
         assert not oct(private.stat().mode).endswith('00'), (
             'Path started secured')
 
-    run = runner(yadm_y('perms'))
+    run = runner(yadm_y('perms'), env={'HOME': paths.work})
     assert run.success
     assert run.err == ''
     assert run.out == ''
