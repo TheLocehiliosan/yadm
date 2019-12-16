@@ -89,6 +89,7 @@ def supported_commands():
         'decrypt',
         'encrypt',
         'enter',
+        'git-crypt',
         'gitconfig',
         'help',
         'init',

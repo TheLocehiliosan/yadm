@@ -41,6 +41,7 @@ FULL_COMMAND=""
 GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
 AWK_PROGRAM=("gawk" "awk")
+GIT_CRYPT_PROGRAM="git-crypt"
 J2CLI_PROGRAM="j2"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
@@ -76,45 +77,50 @@ function main() {
 
   # parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|help|init|introspect|list|perms|upgrade|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|init|introspect|list|perms|upgrade|version)$"
   if [ -z "$*" ] ; then
     # no argumnts will result in help()
     help
   elif [[ "$1" =~ $internal_commands ]] ; then
     # for internal commands, process all of the arguments
-    YADM_COMMAND="$1"
+    YADM_COMMAND="${1/-/_}"
     YADM_ARGS=()
     shift
 
-    while [[ $# -gt 0 ]] ; do
-      key="$1"
-      case $key in
-        -a) # used by list()
-          LIST_ALL="YES"
-        ;;
-        -d) # used by all commands
-          DEBUG="YES"
-        ;;
-        -f) # used by init() and clone()
-          FORCE="YES"
-        ;;
-        -l) # used by decrypt()
-          DO_LIST="YES"
-          [ "$YADM_COMMAND" = "config" ] && YADM_ARGS+=("$1")
-        ;;
-        -w) # used by init() and clone()
-          if [[ ! "$2" =~ ^/ ]] ; then
-            error_out "You must specify a fully qualified work tree"
-          fi
-          YADM_WORK="$2"
-          shift
-        ;;
-        *) # any unhandled arguments
-          YADM_ARGS+=("$1")
-        ;;
-      esac
-      shift
-    done
+    # commands listed below do not process any of the parameters
+    if [[ "$YADM_COMMAND" =~ ^(enter|git_crypt)$ ]] ; then
+      YADM_ARGS=("$@")
+    else
+      while [[ $# -gt 0 ]] ; do
+        key="$1"
+        case $key in
+          -a) # used by list()
+            LIST_ALL="YES"
+          ;;
+          -d) # used by all commands
+            DEBUG="YES"
+          ;;
+          -f) # used by init() and clone()
+            FORCE="YES"
+          ;;
+          -l) # used by decrypt()
+            DO_LIST="YES"
+            [ "$YADM_COMMAND" = "config" ] && YADM_ARGS+=("$1")
+          ;;
+          -w) # used by init() and clone()
+            if [[ ! "$2" =~ ^/ ]] ; then
+              error_out "You must specify a fully qualified work tree"
+            fi
+            YADM_WORK="$2"
+            shift
+          ;;
+          *) # any unhandled arguments
+            YADM_ARGS+=("$1")
+          ;;
+        esac
+        shift
+      done
+    fi
     [ ! -d "$YADM_WORK" ] && error_out "Work tree does not exist: [$YADM_WORK]"
     HOOK_COMMAND="$YADM_COMMAND"
     invoke_hook "pre"
@@ -901,6 +907,11 @@ function encrypt() {
 
 }
 
+function git_crypt() {
+  require_git_crypt
+  enter "${GIT_CRYPT_PROGRAM} $*"
+}
+
 function enter() {
   command="$*"
   require_shell
@@ -983,6 +994,8 @@ Commands:
   yadm encrypt               - Encrypt files
   yadm decrypt [-l]          - Decrypt files
   yadm perms                 - Fix perms for private files
+  yadm enter [COMMAND]       - Run sub-shell with GIT variables set
+  yadm git-crypt [OPTIONS]   - Run git-crypt commands for the yadm repo
 
 Files:
   \$HOME/.config/yadm/config    - yadm's configuration file
@@ -1037,6 +1050,7 @@ decrypt
 encrypt
 enter
 gitconfig
+git-crypt
 help
 init
 introspect
@@ -1841,6 +1855,10 @@ function require_repo() {
 }
 function require_shell() {
   [ -x "$SHELL" ] || error_out "\$SHELL does not refer to an executable."
+}
+function require_git_crypt() {
+  command -v "$GIT_CRYPT_PROGRAM" &> /dev/null ||
+    error_out "This functionality requires git-crypt to be installed, but the command '$GIT_CRYPT_PROGRAM' cannot be located."
 }
 function bootstrap_available() {
   [ -f "$YADM_BOOTSTRAP" ] && [ -x "$YADM_BOOTSTRAP" ] && return
