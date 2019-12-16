@@ -59,14 +59,21 @@ def test_enter(runner, yadm_y, paths, shell, success):
         'csh',
         'zsh',
     ])
-@pytest.mark.parametrize('cmd', [False, True], ids=['no-cmd', 'cmd'])
+@pytest.mark.parametrize(
+    'cmd',
+    [False, 'cmd', 'cmd-bad-exit'],
+    ids=['no-cmd', 'cmd', 'cmd-bad-exit'])
 @pytest.mark.usefixtures('ds1_copy')
 def test_enter_shell_ops(runner, yadm_y, paths, shell, opts, path, cmd):
     """Enter tests for specific shell options"""
 
+    change_exit = '\nfalse' if cmd == 'cmd-bad-exit' else ''
+
     # Create custom shell to detect options passed
     custom_shell = paths.root.join(shell)
-    custom_shell.write('#!/bin/sh\necho OPTS=$*\necho PROMPT=$PROMPT')
+    custom_shell.write(
+        f'#!/bin/sh\necho OPTS=$*\necho PROMPT=$PROMPT{change_exit}'
+    )
     custom_shell.chmod(0o775)
 
     test_cmd = ['test1', 'test2', 'test3']
@@ -79,7 +86,10 @@ def test_enter_shell_ops(runner, yadm_y, paths, shell, opts, path, cmd):
     env['SHELL'] = custom_shell
 
     run = runner(command=yadm_y(*enter_cmd), env=env)
-    assert run.success
+    if cmd == 'cmd-bad-exit':
+        assert run.failure
+    else:
+        assert run.success
     assert run.err == ''
     assert f'OPTS={opts}' in run.out
     assert f'PROMPT=yadm shell ({paths.repo}) {path} >' in run.out
