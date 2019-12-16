@@ -939,8 +939,13 @@ function enter() {
 
   yadm_prompt="yadm shell ($YADM_REPO) $shell_path > "
   PROMPT="$yadm_prompt" PS1="$yadm_prompt" "$SHELL" $shell_opts "${shell_cmd[@]}"
+  return_code="$?"
 
-  [ "${#shell_cmd[@]}" -eq 0 ] && echo "Leaving yadm repo"
+  if [ "${#shell_cmd[@]}" -eq 0 ]; then
+    echo "Leaving yadm repo"
+  else
+    exit_with_hook "$return_code"
+  fi
 }
 
 function git_command() {
