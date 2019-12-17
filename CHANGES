@@ -1,3 +1,10 @@
+2.3.0
+  * Support git-crypt (#168)
+  * Support specifying a command after `yadm enter`
+  * Expose GIT_WORK_TREE during `yadm enter` (#160)
+  * Support GNUPGHOME environment variable (#134)
+  * Assert private dirs, only when worktree = $HOME (#171)
+
 2.2.0
   * Resolve hostname using `uname -n` (#182)
   * Use /etc/os-release if lsb_release is missing (#175)
