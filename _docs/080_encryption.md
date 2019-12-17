@@ -38,3 +38,14 @@ be enabled using the `yadm.gpg-recipient` configuration. To do so, run:
     yadm config yadm.gpg-recipient <recipient-address>
 
 For this to work, `<recipient-address>` must exist in your gpg keyrings.
+
+## git-crypt
+
+git-crypt is a tool that enables transparent encryption and decryption of files
+in a Git repository. If git-crypt is installed, you can use it with your yadm
+repository.
+
+Simply use it normally, prefacing the `git-crypt` commands with `yadm`.
+
+You can learn more about [git-crypt](https://github.com/AGWA/git-crypt) at this
+[website](https://www.agwa.name/projects/git-crypt/).
