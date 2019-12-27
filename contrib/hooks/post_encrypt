@@ -67,7 +67,7 @@ ensure_algorithm
 echo -n > $YADM_CHECKSUMS
 
 # calculate checksums for encrypted files
-for included in ${YADM_ENCRYPT_INCLUDE_FILES[@]}; do
+for included in "${YADM_ENCRYPT_INCLUDE_FILES[@]}"; do
     shasum --algorithm $CHECKSUM_ALGORITHM $included >> $YADM_CHECKSUMS
 
     # signal errors
