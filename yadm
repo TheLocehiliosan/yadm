@@ -1577,11 +1577,13 @@ function invoke_hook() {
     YADM_HOOK_FULL_COMMAND=$FULL_COMMAND
     YADM_HOOK_REPO=$YADM_REPO
     YADM_HOOK_WORK=$YADM_WORK
+    YADM_ENCRYPT_INCLUDE_FILES=${ENCRYPT_INCLUDE_FILES[@]}
     export YADM_HOOK_COMMAND
     export YADM_HOOK_EXIT
     export YADM_HOOK_FULL_COMMAND
     export YADM_HOOK_REPO
     export YADM_HOOK_WORK
+    export YADM_ENCRYPT_INCLUDE_FILES
 
     "$hook_command"
     hook_status=$?

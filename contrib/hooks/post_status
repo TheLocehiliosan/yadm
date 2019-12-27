@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+# yadm - Yet Another Dotfiles Manager
+# Copyright (C) 2015-2019 Tim Byrne and Martin Zuther
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+YADM_DIRECTORY=$(dirname $YADM_HOOK_REPO)
+YADM_CHECKSUMS=$YADM_DIRECTORY/files.checksums
+
+
+# check whether file with checksums exists
+if [ -f $YADM_CHECKSUMS ]; then
+    # check if "shasum" exists
+    if command -v shasum > /dev/null; then
+        # check if "shasum" supports SHA-512/256 algorithm
+        echo -n | shasum --algorithm 512256 2>&1 1> /dev/null
+
+        if [ $? -ne 0 ]; then
+            echo
+            echo "WARNING: \"shasum\" does not support SHA-512/256.  Checksums were not verified."
+            exit $YADM_HOOK_EXIT
+        fi
+
+        # check encrypted files for differences and capture output
+        YADM_CHECKSUM_OUTPUT=$(shasum --algorithm 512256 --check $YADM_CHECKSUMS 2> /dev/null)
+        ERROR_CODE=$?
+        
+        # some checksums do not match
+        if [ $ERROR_CODE -ne 0 ]; then
+            echo
+            echo "Some SHA-512/256 sums do not match:"
+            
+            # set output color to red
+            echo -e "\033[0;31m"
+            
+            # display mismatching files
+            while IFS= read -r line; do
+                echo $line | grep -iv "\sok$" | sed 's/^/        / ; s/: FAILED$//'
+            done <<< "$YADM_CHECKSUM_OUTPUT"
+            
+            # reset output color
+            echo -e "\033[0m"
+            echo "Consider running either \"yadm encrypt\" or \"yadm decrypt\"."
+            
+            # signal error
+            exit $ERROR_CODE
+        fi
+    else
+        echo
+        echo "WARNING: command \"shasum\" not found.  Checksums were not verified."
+        exit $YADM_HOOK_EXIT
+    fi
+fi
+
+# return exit status of the yadm command
+exit $YADM_HOOK_EXIT
