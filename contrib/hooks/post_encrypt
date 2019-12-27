@@ -20,38 +20,63 @@
 YADM_DIRECTORY=$(dirname $YADM_HOOK_REPO)
 YADM_CHECKSUMS=$YADM_DIRECTORY/files.checksums
 
+CHECKSUM_ALGORITHM="512256"
+CHECKSUM_ALGORITHM_NAME="SHA-512/256"
+WARNING_MESSAGE="No checksums were created."
 
-# check if "shasum" exists
-if command -v shasum > /dev/null; then
-    # check if "shasum" supports SHA-512/256 algorithm
-    echo -n | shasum --algorithm 512256 2>&1 1> /dev/null
+
+function print_warning_and_exit {
+    MESSAGE=$1
+
+    # set output color to yellow
+    echo -e "\033[1;33m"
+    echo "WARNING: $MESSAGE  $WARNING_MESSAGE"
+
+    # reset output color
+    echo -e "\033[0m"
+
+    exit $YADM_HOOK_EXIT
+}
+
+
+function ensure_command {
+    COMMAND_NAME=$1
+
+    # check if command exists
+    if ! command -v "$COMMAND_NAME" > /dev/null; then
+        print_warning_and_exit "command \"$COMMAND_NAME\" not found."
+    fi
+}
+
+
+function ensure_algorithm {
+    # check if "shasum" supports algorithm
+    echo -n | shasum --algorithm "$CHECKSUM_ALGORITHM" &> /dev/null
 
     if [ $? -ne 0 ]; then
-        echo
-        echo "WARNING: \"shasum\" does not support SHA-512/256.  No checksums were created."
-        exit $YADM_HOOK_EXIT
+        print_warning_and_exit "\"shasum\" does not support $CHECKSUM_ALGORITHM_NAME."
     fi
+}
 
-    # empty checksum file
-    echo -n > $YADM_CHECKSUMS
 
-    # calculate checksums for encrypted files
-    for included in ${YADM_ENCRYPT_INCLUDE_FILES[@]}; do
-        shasum --algorithm 512256 $included >> $YADM_CHECKSUMS
-        ERROR_CODE=$?
+# check if "shasum" exists and supports algorithm
+ensure_command shasum
+ensure_algorithm
 
-        # signal errors
-        if [ $ERROR_CODE -ne 0 ]; then
-            exit $ERROR_CODE
-        fi
-    done
+# empty checksum file
+echo -n > $YADM_CHECKSUMS
 
-    echo "Wrote checksums: $YADM_CHECKSUMS (SHA-512/256)"
-else
-    echo
-    echo "WARNING: command \"shasum\" not found.  No checksums were created."
-    exit $YADM_HOOK_EXIT
-fi
+# calculate checksums for encrypted files
+for included in ${YADM_ENCRYPT_INCLUDE_FILES[@]}; do
+    shasum --algorithm $CHECKSUM_ALGORITHM $included >> $YADM_CHECKSUMS
+
+    # signal errors
+    if [ $? -ne 0 ]; then
+        exit $?
+    fi
+done
+
+echo "Wrote checksums: $YADM_CHECKSUMS ($CHECKSUM_ALGORITHM_NAME)"
 
 # return exit status of the yadm command
 exit $YADM_HOOK_EXIT
