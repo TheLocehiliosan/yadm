@@ -17,8 +17,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-YADM_DIRECTORY=$(dirname $YADM_HOOK_REPO)
+YADM_DIRECTORY=$(dirname "$YADM_HOOK_REPO")
 YADM_CHECKSUMS=$YADM_DIRECTORY/files.checksums
+
+# unpack exported array; filenames including a newline character (\n)
+# are NOT supported
+OLD_IFS="$IFS"
+IFS=$'\n'
+YADM_ENCRYPT_INCLUDE_FILES=( $YADM_ENCRYPT_INCLUDE_FILES )
+IFS="$OLD_IFS"
 
 CHECKSUM_ALGORITHM="512"
 CHECKSUM_ALGORITHM_NAME="SHA-512"
@@ -35,7 +42,7 @@ function print_warning_and_exit {
     # reset output color
     echo -e "\033[0m"
 
-    exit $YADM_HOOK_EXIT
+    exit "$YADM_HOOK_EXIT"
 }
 
 
@@ -50,7 +57,7 @@ function ensure_command {
 
 
 function ensure_algorithm {
-    # check if "shasum" supports algorithm
+    # check if "shasum" supports algorithm by hashing an empty string
     echo -n | shasum --algorithm "$CHECKSUM_ALGORITHM" &> /dev/null
 
     if [ $? -ne 0 ]; then
@@ -60,9 +67,9 @@ function ensure_algorithm {
 
 
 # check whether file with checksums exists
-if [ ! -f $YADM_CHECKSUMS ]; then
+if [ ! -f "$YADM_CHECKSUMS" ]; then
     # return exit status of the yadm command
-    exit $YADM_HOOK_EXIT
+    exit "$YADM_HOOK_EXIT"
 fi
 
 # check if "shasum" exists and supports algorithm
@@ -70,7 +77,7 @@ ensure_command shasum
 ensure_algorithm
 
 # check encrypted files for differences and capture output
-YADM_CHECKSUM_OUTPUT=$(shasum --algorithm "$CHECKSUM_ALGORITHM" --check $YADM_CHECKSUMS 2> /dev/null)
+YADM_CHECKSUM_OUTPUT=$(shasum --algorithm "$CHECKSUM_ALGORITHM" --check "$YADM_CHECKSUMS" 2> /dev/null)
 ERROR_CODE=$?
 
 # some checksums do not match
@@ -85,9 +92,9 @@ if [ $ERROR_CODE -ne 0 ]; then
     while IFS= read -r line; do
         # try to beautify output
         if command -v grep > /dev/null && command -v sed > /dev/null; then
-            echo $line | grep -iv "\sok$" | sed 's/^/        / ; s/: FAILED$//'
+            echo "$line" | grep -iv "\sok$" | sed 's/^/        / ; s/: FAILED$//'
         else
-            echo $line
+            echo "$line"
         fi
     done <<< "$YADM_CHECKSUM_OUTPUT"
 

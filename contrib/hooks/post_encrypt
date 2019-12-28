@@ -17,8 +17,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-YADM_DIRECTORY=$(dirname $YADM_HOOK_REPO)
+YADM_DIRECTORY=$(dirname "$YADM_HOOK_REPO")
 YADM_CHECKSUMS=$YADM_DIRECTORY/files.checksums
+
+# unpack exported array; filenames including a newline character (\n)
+# are NOT supported
+OLD_IFS="$IFS"
+IFS=$'\n'
+YADM_ENCRYPT_INCLUDE_FILES=( $YADM_ENCRYPT_INCLUDE_FILES )
+IFS="$OLD_IFS"
 
 CHECKSUM_ALGORITHM="512"
 CHECKSUM_ALGORITHM_NAME="SHA-512"
@@ -35,7 +42,7 @@ function print_warning_and_exit {
     # reset output color
     echo -e "\033[0m"
 
-    exit $YADM_HOOK_EXIT
+    exit "$YADM_HOOK_EXIT"
 }
 
 
@@ -50,7 +57,7 @@ function ensure_command {
 
 
 function ensure_algorithm {
-    # check if "shasum" supports algorithm
+    # check if "shasum" supports algorithm by hashing an empty string
     echo -n | shasum --algorithm "$CHECKSUM_ALGORITHM" &> /dev/null
 
     if [ $? -ne 0 ]; then
@@ -64,11 +71,11 @@ ensure_command shasum
 ensure_algorithm
 
 # empty checksum file
-echo -n > $YADM_CHECKSUMS
+echo -n > "$YADM_CHECKSUMS"
 
 # calculate checksums for encrypted files
-for included in "${YADM_ENCRYPT_INCLUDE_FILES[@]}"; do
-    shasum --algorithm $CHECKSUM_ALGORITHM $included >> $YADM_CHECKSUMS
+for included in ${YADM_ENCRYPT_INCLUDE_FILES[*]}; do
+    shasum --algorithm $CHECKSUM_ALGORITHM "$included" >> "$YADM_CHECKSUMS"
 
     # signal errors
     if [ $? -ne 0 ]; then
@@ -79,4 +86,4 @@ done
 echo "Wrote checksums: $YADM_CHECKSUMS ($CHECKSUM_ALGORITHM_NAME)"
 
 # return exit status of the yadm command
-exit $YADM_HOOK_EXIT
+exit "$YADM_HOOK_EXIT"
