@@ -46,28 +46,24 @@ if [ ! -f "$YADM_CHECKSUMS" ]; then
     exit "$YADM_HOOK_EXIT"
 fi
 
-# list encrypted files; try to satisfy the "list -a" argument and
-# beautify the output (requires "grep" and "sed")
-if command -v grep > /dev/null && command -v sed > /dev/null; then
+# list encrypted files
+while IFS= read -r filename; do
     # remove checksums from file names
-    while IFS= read -r filename; do
-        if [ $OPTION_LIST_ALL -eq 0 ]; then
-            # list only files in the subdirectories below (i.e. files
-            # whose relative path doesn't begin with "../")
-            REL_PATH=$(relative_path "$PWD" "$YADM_HOOK_WORK/$filename")
+    filename="${filename##[a-zA-Z0-9]* }"
 
-            if ! echo "$REL_PATH" | grep '^\.\./' > /dev/null; then
-               echo "$REL_PATH"
-            fi
-        else
-            # list all files
-            echo "$filename"
+    # list only files in the subdirectories below (i.e. files
+    # whose relative path doesn't begin with "../")
+    if [ $OPTION_LIST_ALL -eq 0 ]; then
+        REL_PATH=$(relative_path "$PWD" "$YADM_HOOK_WORK/$filename")
+
+        if [ "$REL_PATH" = "${REL_PATH##../}" ]; then
+            echo "$REL_PATH"
         fi
-    done <<< "$(sed -r 's/^\S+\s+//' "$YADM_CHECKSUMS")"
-else
-    # just display checksum file
-    cat "$YADM_CHECKSUMS"
-fi
+    # list all files
+    else
+        echo "$filename"
+    fi
+done <<< "$(cat "$YADM_CHECKSUMS")"
 
 # return original exit status of yadm command
 exit "$YADM_HOOK_EXIT"

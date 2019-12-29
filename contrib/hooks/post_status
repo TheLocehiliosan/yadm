@@ -83,10 +83,12 @@ if [ $ERROR_CODE -ne 0 ]; then
     echo -e "\033[0;31m"
 
     while IFS= read -r line; do
-        # try to beautify output (requires "grep" and "sed")
-        if command -v grep > /dev/null && command -v sed > /dev/null; then
-            echo "$line" | grep -iv "\sok$" | sed 's/^/        / ; s/: FAILED$// ; /^.*WARNING:.*did NOT match$/ d'
-        else
+        # beautify output and get rid of unnecessary lines
+        line="${line%%*: [Oo][Kk]}"
+        line="${line%%: [Ff][Aa][Ii][Ll][Ee][Dd]}"
+        line="${line##*WARNING:*did NOT match}"
+
+        if [ -n "$line" ]; then
             echo "$line"
         fi
     done <<< "$YADM_CHECKSUM_OUTPUT"
