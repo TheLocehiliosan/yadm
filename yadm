@@ -1591,6 +1591,12 @@ function invoke_hook() {
     export YADM_HOOK_WORK
     export YADM_ENCRYPT_INCLUDE_FILES
 
+    # export helper functions
+    export -f builtin_dirname
+    export -f relative_path
+    export -f unix_path
+    export -f mixed_path
+
     "$hook_command"
     hook_status=$?
 
