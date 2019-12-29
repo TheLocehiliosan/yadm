@@ -61,10 +61,9 @@ fi
 
 # get checksum command
 CHECKSUM_COMMAND=$(get_checksum_command)
-ERROR_CODE=$?
 
 # no command found
-if [ $ERROR_CODE -ne 0 ]; then
+if (($?)); then
     # return original exit status of yadm command
     exit "$YADM_HOOK_EXIT"
 fi
@@ -75,7 +74,7 @@ YADM_CHECKSUM_OUTPUT=$($CHECKSUM_COMMAND --check "$YADM_CHECKSUMS" 2>&1)
 ERROR_CODE=$?
 
 # handle mismatched checksums and errors
-if [ $ERROR_CODE -ne 0 ]; then
+if (($ERROR_CODE)); then
     echo
     echo "Some SHA-256 sums do not match (or an error occurred):"
 

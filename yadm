@@ -1837,7 +1837,7 @@ function auto_bootstrap() {
 
 function join_string {
     local IFS="$1"
-    echo "${*:2}"
+    printf "%s" "${*:2}"
 }
 
 # ****** Prerequisites Functions ******

@@ -30,7 +30,7 @@ fi
 
 # list all files or only those in the subdirectories below?
 OPTION_LIST_ALL=0
-for argument in ${YADM_HOOK_FULL_COMMAND[*]}; do
+for argument in "${YADM_HOOK_FULL_COMMAND[@]}"; do
     # mimick git ls-files by displaying all files when not on work
     # path
     if [ "$argument" = "-a" ] || [ $ON_WORK_PATH -eq 0 ]; then
@@ -63,7 +63,7 @@ while IFS= read -r filename; do
     else
         echo "$filename"
     fi
-done <<< "$(cat "$YADM_CHECKSUMS")"
+done < "$YADM_CHECKSUMS"
 
 # return original exit status of yadm command
 exit "$YADM_HOOK_EXIT"
