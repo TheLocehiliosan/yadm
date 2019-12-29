@@ -17,8 +17,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-YADM_DIRECTORY=$(dirname "$YADM_HOOK_REPO")
-YADM_CHECKSUMS=$YADM_DIRECTORY/files.checksums
+YADM_CHECKSUMS="$YADM_HOOK_DIR/files.checksums"
+WARNING_MESSAGE="No checksums were created"
 
 # unpack exported array; filenames including a newline character (\n)
 # are NOT supported
@@ -26,8 +26,6 @@ OLD_IFS="$IFS"
 IFS=$'\n'
 YADM_ENCRYPT_INCLUDE_FILES=( $YADM_ENCRYPT_INCLUDE_FILES )
 IFS="$OLD_IFS"
-
-WARNING_MESSAGE="No checksums were created"
 
 
 function get_checksum_command {
