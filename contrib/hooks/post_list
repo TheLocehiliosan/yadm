@@ -57,11 +57,11 @@ while IFS= read -r filename; do
         REL_PATH=$(relative_path "$PWD" "$YADM_HOOK_WORK/$filename")
 
         if [ "$REL_PATH" = "${REL_PATH##../}" ]; then
-            echo "$REL_PATH"
+            printf "%s\n" "$REL_PATH"
         fi
     # list all files
     else
-        echo "$filename"
+        printf "%s\n" "$filename"
     fi
 done < "$YADM_CHECKSUMS"
 
