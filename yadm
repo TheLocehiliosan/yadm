@@ -427,6 +427,12 @@ function alt() {
     tracked_files+=("$tracked_file")
   done
 
+  for tracked_file in $(
+    "$GIT_PROGRAM" submodule foreach 'git ls-files | sed "s|^|$path/|"' |
+      LC_ALL=C sort); do
+        tracked_files+=("$tracked_file")
+  done
+
   # generate data for removing stale links
   local possible_alts
   possible_alts=()
