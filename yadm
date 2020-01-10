@@ -1573,15 +1573,29 @@ function invoke_hook() {
 
     # expose some internal data to all hooks
     YADM_HOOK_COMMAND=$HOOK_COMMAND
+    YADM_HOOK_DIR=$YADM_DIR
     YADM_HOOK_EXIT=$exit_status
     YADM_HOOK_FULL_COMMAND=$FULL_COMMAND
     YADM_HOOK_REPO=$YADM_REPO
     YADM_HOOK_WORK=$YADM_WORK
+
+    # pack array to export it; filenames including a newline character (\n)
+    # are NOT supported
+    YADM_ENCRYPT_INCLUDE_FILES=$(join_string $'\n' "${ENCRYPT_INCLUDE_FILES[@]}")
+
     export YADM_HOOK_COMMAND
+    export YADM_HOOK_DIR
     export YADM_HOOK_EXIT
     export YADM_HOOK_FULL_COMMAND
     export YADM_HOOK_REPO
     export YADM_HOOK_WORK
+    export YADM_ENCRYPT_INCLUDE_FILES
+
+    # export helper functions
+    export -f builtin_dirname
+    export -f relative_path
+    export -f unix_path
+    export -f mixed_path
 
     "$hook_command"
     hook_status=$?
@@ -1819,6 +1833,13 @@ function auto_bootstrap() {
 
 }
 
+# ****** Helper Functions ******
+
+function join_string {
+    local IFS="$1"
+    printf "%s" "${*:2}"
+}
+
 # ****** Prerequisites Functions ******
 
 function require_archive() {
@@ -1886,7 +1907,7 @@ function readlink_available() {
   return 1
 }
 
-# ****** Directory tranlations ******
+# ****** Directory translations ******
 
 function unix_path() {
   # for paths used by bash/yadm
@@ -1906,6 +1927,7 @@ function mixed_path() {
 }
 
 # ****** echo replacements ******
+
 function echo() {
   IFS=' '
   printf '%s\n' "$*"
