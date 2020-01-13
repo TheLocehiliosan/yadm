@@ -62,7 +62,7 @@ def test_hook_env(runner, yadm_y, paths):
 
     # write the hook
     hook = paths.hooks.join(f'post_{cmd}')
-    hook.write('#!/bin/sh\nenv\n')
+    hook.write('#!/bin/bash\nenv\ndeclare\n')
     hook.chmod(0o755)
 
     run = runner(yadm_y(cmd, 'extra_args'))
@@ -74,9 +74,33 @@ def test_hook_env(runner, yadm_y, paths):
     # verify hook environment
     assert 'YADM_HOOK_EXIT=1\n' in run.out
     assert f'YADM_HOOK_COMMAND={cmd}\n' in run.out
+    assert f'YADM_HOOK_DIR={paths.yadm}\n' in run.out
     assert f'YADM_HOOK_FULL_COMMAND={cmd} extra_args\n' in run.out
     assert f'YADM_HOOK_REPO={paths.repo}\n' in run.out
     assert f'YADM_HOOK_WORK={paths.work}\n' in run.out
+    assert f'YADM_ENCRYPT_INCLUDE_FILES=\n' in run.out
+
+    # verify the hook environment contains certain exported functions
+    for func in [
+            'builtin_dirname',
+            'relative_path',
+            'unix_path',
+            'mixed_path',
+    ]:
+        assert f'BASH_FUNC_{func}' in run.out
+
+    # verify the hook environment contains the list of encrypted files
+    script = f"""
+        YADM_TEST=1 source {paths.pgm}
+        YADM_HOOKS="{paths.hooks}"
+        HOOK_COMMAND="{cmd}"
+        ENCRYPT_INCLUDE_FILES=(a b c)
+        invoke_hook "post"
+    """
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert 'YADM_ENCRYPT_INCLUDE_FILES=a\nb\nc\n' in run.out
 
 
 def create_hook(paths, name, code):
