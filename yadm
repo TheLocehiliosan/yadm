@@ -860,6 +860,8 @@ function decrypt() {
   require_gpg
   require_archive
 
+  [ -f "$YADM_ENCRYPT" ] && exclude_encrypted
+
   if [ "$DO_LIST" = "YES" ] ; then
     tar_option="t"
   else
