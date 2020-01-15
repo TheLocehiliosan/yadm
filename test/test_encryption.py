@@ -320,6 +320,24 @@ def test_asymmetric_encrypt(
 
 
 @pytest.mark.usefixtures('asymmetric_key')
+@pytest.mark.usefixtures('encrypt_targets')
+def test_multi_key(runner, yadm_y, gnupg):
+    """Test multiple recipients"""
+
+    # specify two encryption recipient
+    os.system(' '.join(yadm_y(
+        'config', 'yadm.gpg-recipient', f'"{KEY_NAME} second-key"')))
+
+    env = os.environ.copy()
+    env['GNUPGHOME'] = gnupg.home
+
+    run = runner(yadm_y('encrypt'), env=env)
+
+    assert run.failure
+    assert 'second-key: skipped: No public key' in run.err
+
+
+@pytest.mark.usefixtures('asymmetric_key')
 @pytest.mark.parametrize(
     'key_exists', [True, False],
     ids=['key_exists', 'key_missing'])
