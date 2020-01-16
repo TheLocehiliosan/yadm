@@ -629,6 +629,7 @@ function alt_past_linking() {
 
   # loop over all "tracked" files
   # for every file which is a *##yadm.j2 create a real file
+  local temp="$(mktemp)"
   local match="^(.+)##yadm\\.j2$"
   for tracked_file in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
     tracked_file="$YADM_WORK/$tracked_file"
@@ -643,7 +644,8 @@ function alt_past_linking() {
           YADM_HOSTNAME="$local_host" \
           YADM_USER="$local_user"     \
           YADM_DISTRO="$local_distro" \
-          "$ENVTPL_PROGRAM" --keep-template "$tracked_file" -o "$real_file"
+          "$ENVTPL_PROGRAM" --keep-template "$tracked_file" -o "$temp"
+          mv "$temp" "$real_file"
         else
           debug "envtpl not available, not creating $real_file from template $tracked_file"
           [ -n "$loud" ] && echo "envtpl not available, not creating $real_file from template $tracked_file"
