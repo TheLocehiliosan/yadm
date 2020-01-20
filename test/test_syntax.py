@@ -54,3 +54,12 @@ def test_yamllint(pytestconfig, runner, yamllint_version):
         command=['yamllint', '-s', '$(find . -name \\*.yml)'],
         shell=True)
     assert run.success
+
+
+def test_man(runner):
+    """Check for warnings from man"""
+    run = runner(
+        command=['man', '--warnings', './yadm.1'])
+    assert run.success
+    assert run.err == ''
+    assert 'yadm - Yet Another Dotfiles Manager' in run.out
