@@ -4,4 +4,4 @@ services:
   testbed:
     volumes:
       - .:/yadm:ro
-    image: yadm/testbed:2019-12-02
+    image: yadm/testbed:2020-01-20

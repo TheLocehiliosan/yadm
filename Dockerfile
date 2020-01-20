@@ -22,6 +22,7 @@ RUN \
     gnupg \
     lsb-release \
     make \
+    man \
     python3-pip \
     shellcheck=0.4.6-1 \
     vim \
