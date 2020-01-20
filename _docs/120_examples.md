@@ -11,7 +11,6 @@ list.
 
 * [DoomHammer/dotfiles](https://github.com/DoomHammer/dotfiles)
 * [SShrike/dotfiles](https://github.com/SShrike/dotfiles)
-* [TheLocehiliosan/dotfiles](https://github.com/TheLocehiliosan/dotfiles)
 * [akatrevorjay/dotfiles](https://github.com/akatrevorjay/dotfiles)
 * [akupila/dotfiles](https://github.com/akupila/dotfiles)
 * [bjartek/dotfiles](https://github.com/bjartek/dotfiles)
