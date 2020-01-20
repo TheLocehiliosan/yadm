@@ -6,7 +6,7 @@ import pytest
 @pytest.mark.parametrize(
     'proc_value, expected_os', [
         ('missing', 'uname'),
-        ('has Microsoft inside', 'WSL'),
+        ('has MiCrOsOfT inside', 'WSL'),  # case insensitive
         ('another value', 'uname'),
     ], ids=[
         '/proc/version missing',
