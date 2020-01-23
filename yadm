@@ -70,7 +70,16 @@ function main() {
   require_git
 
   # capture full command, for passing to hooks
-  FULL_COMMAND="$*"
+  # the parameters will be space delimited and
+  # spaces, tabs, and backslashes will be escaped
+  _tab=$'\t'
+  for param in "$@"; do
+    param="${param//\\/\\\\}"
+    param="${param//$_tab/\\$_tab}"
+    param="${param// /\\ }"
+    _fc+=( "$param" )
+  done
+  FULL_COMMAND="${_fc[*]}"
 
   # create the YADM_DIR if it doesn't exist yet
   [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
