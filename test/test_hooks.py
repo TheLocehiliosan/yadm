@@ -103,6 +103,29 @@ def test_hook_env(runner, yadm_y, paths):
     assert 'YADM_ENCRYPT_INCLUDE_FILES=a\nb\nc\n' in run.out
 
 
+def test_escaped(runner, yadm_y, paths):
+    """Test escaped values in YADM_HOOK_FULL_COMMAND"""
+
+    # test will be done with a non existent "git" passthru command
+    # which should exit with a failing code
+    cmd = 'passthrucmd'
+
+    # write the hook
+    hook = paths.hooks.join(f'post_{cmd}')
+    hook.write('#!/bin/bash\nenv\n')
+    hook.chmod(0o755)
+
+    run = runner(yadm_y(cmd, 'a b', 'c\td', 'e\\f'))
+
+    # expect passthru to fail
+    assert run.failure
+
+    # verify escaped values
+    assert (
+        f'YADM_HOOK_FULL_COMMAND={cmd} '
+        'a\\ b c\\\td e\\\\f\n') in run.out
+
+
 def create_hook(paths, name, code):
     """Create hook"""
     hook = paths.hooks.join(name)
