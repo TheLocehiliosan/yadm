@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# yadm exposes all parameters of the command which triggers a hook. Those
+# parameters are exported as the environment variable YADM_HOOK_FULL_COMMAND.
+# Any spaces, tabs, or backslashes in those parameters are escaped with a
+# backslash. The function `parse_full_command()` is a demonstration of parsing
+# those values which may be escaped.
+
+function parse_full_command() {
+  local delim=$'\x1e' # ASCII Record Separator
+  local space=$'\x1f' # ASCII Unit Separator
+  local tab=$'\t'     # ASCII TAB
+  local cmd
+  cmd="$YADM_HOOK_FULL_COMMAND"
+  cmd="${cmd//\\ /$space}"      # swap escaped spaces for `1f`
+  cmd="${cmd//\\\\/\\}"         # fix escaped backslashes
+  cmd="${cmd//\\$tab/$tab}"     # fix escaped tabs
+  cmd="${cmd// /$delim}"        # convert space delimiters to `1c`
+  cmd="${cmd//$space/ }"        # convert `1f` back to spaces
+  # parse data into an array
+  IFS=$delim read -r -a full_cmd <<< "$cmd"
+}
+parse_full_command
+for param in "${full_cmd[@]}"; do
+  echo "Parameter: '$param'"
+done
