@@ -27,9 +27,14 @@ YADM_HOOK_EXIT
 
 YADM_HOOK_FULL_COMMAND
 : The yadm command with all command line arguments
+  (Parameters are space delimited, and any space, tab or backslash will be
+  escaped with a backslash. An example of parsing this variable with Bash can be
+  found [here][parse-example].)
 
 YADM_HOOK_REPO
 : The path to the yadm repository
 
 YADM_HOOK_WORK
 : The path to the work-tree
+
+[parse-example]: https://github.com/TheLocehiliosan/yadm/blob/master/contrib/hooks/parsing_full_command_example/pre_log
