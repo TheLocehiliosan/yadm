@@ -139,7 +139,7 @@ scripthost: require-docker
 testenv:
 	@echo 'Creating a local virtual environment in "testenv/"'
 	@echo
-	virtualenv --python=python3 testenv
+	python3 -m venv --clear testenv
 	testenv/bin/pip3 install --upgrade pip setuptools
 	testenv/bin/pip3 install --upgrade \
 		flake8==3.7.8 \
