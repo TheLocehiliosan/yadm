@@ -6,12 +6,14 @@ import pytest
 @pytest.mark.parametrize(
     'proc_value, expected_os', [
         ('missing', 'uname'),
-        ('has MiCrOsOfT inside', 'WSL'),  # case insensitive
+        ('has microsoft inside', 'WSL'),  # case insensitive
+        ('has Microsoft inside', 'WSL'),  # case insensitive
         ('another value', 'uname'),
     ], ids=[
         '/proc/version missing',
-        '/proc/version includes MS',
-        '/proc/version excludes MS',
+        '/proc/version includes ms',
+        '/proc/version excludes Ms',
+        'another value',
     ])
 def test_set_operating_system(
         runner, paths, tst_sys, proc_value, expected_os):
