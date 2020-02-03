@@ -1535,7 +1535,9 @@ function configure_repo() {
 
 function set_operating_system() {
 
-  if [[ "$(<"$PROC_VERSION")" =~ [Mm]icrosoft ]]; then
+  local proc_version
+  proc_version=$(cat "$PROC_VERSION" 2>/dev/null)
+  if [[ "$proc_version" =~ [Mm]icrosoft ]]; then
     OPERATING_SYSTEM="WSL"
   else
     OPERATING_SYSTEM=$(uname -s)
