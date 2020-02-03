@@ -1535,17 +1535,7 @@ function configure_repo() {
 
 function set_operating_system() {
 
-  # setting nocasematch to ignore case
-  local unset_nocasematch
-  if ! shopt nocasematch &> /dev/null; then
-    unset_nocasematch=1
-  fi
-  shopt -s nocasematch &> /dev/null
-
-  # special detection of WSL (windows subsystem for linux)
-  local proc_version
-  proc_version=$(cat "$PROC_VERSION" 2>/dev/null)
-  if [[ "$proc_version" =~ Microsoft ]]; then
+  if [[ "$(<"$PROC_VERSION")" =~ [Mm]icrosoft ]]; then
     OPERATING_SYSTEM="WSL"
   else
     OPERATING_SYSTEM=$(uname -s)
@@ -1562,10 +1552,6 @@ function set_operating_system() {
     *)
       ;;
   esac
-
-  if [ "$unset_nocasematch" = "1" ]; then
-    shopt -u nocasematch &> /dev/null
-  fi
 
 }
 
