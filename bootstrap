@@ -4,6 +4,8 @@
 # This script can be "curl-piped" into bash to bootstrap a dotfiles repo when
 # yadm is not locally installed. Read below for instructions.
 #
+# This script is hosted at bootstrap.yadm.io to make it easy to remember/type.
+#
 # DISCLAIMER: In general, I would advise against piping someone's code directly
 #             from the Internet into an interpreter (like Bash). You should
 #             probably review any code like this prior to executing it. I leave
@@ -13,29 +15,38 @@
 #             (allowing the yadm project to be a submodule of my dotfiles
 #             repo).
 #
-# Invoke with:
+# Invoke bootstrap with:
 #
-# curl -fsSL 'https://tinyurl.com/yadm-bootstrap' | bash
+#   curl -L bootstrap.yadm.io | bash
 #
-# OR
+#     OR
 #
-# curl -fsSL 'https://github.com/TheLocehiliosan/yadm/raw/master/bootstrap' | bash [-s -- REPO_URL [YADM_RELEASE]]
+#   curl -L bootstrap.yadm.io | bash [-s -- REPO_URL [YADM_RELEASE]]
+#
+# Alternatively, source in this file to export a yadm() function which uses
+# yadm remotely until it is locally installed.
+#
+#   source <(curl -L bootstrap.yadm.io)
+#
 
 YADM_REPO="https://github.com/TheLocehiliosan/yadm"
-YADM_RELEASE="master"
+YADM_RELEASE=${release:-master}
 REPO_URL=""
 
-function yadm() {
-  if command -v which >/dev/null 2>&1 && which yadm >/dev/null 2>&1; then
+function _private_yadm() {
+  unset -f yadm
+  if command -v yadm &> /dev/null; then
     echo "Found yadm installed locally, removing remote yadm() function"
-    unset -f yadm
+    unset -f _private_yadm
     command yadm "$@"
   else
+    function yadm() { _private_yadm "$@"; }; export -f yadm
     echo WARNING: Using yadm remotely. You should install yadm locally.
     curl -fsSL "$YADM_REPO/raw/$YADM_RELEASE/yadm" | bash -s -- "$@"
   fi
 }
-export -f yadm
+export -f _private_yadm
+function yadm() { _private_yadm "$@"; }; export -f yadm
 
 # if being sourced, return here, otherwise continue processing
 return 2>/dev/null
@@ -46,18 +57,18 @@ function remote_yadm() {
 }
 
 function ask_about_source() {
-  if ! command -v yadm >/dev/null 2>&1; then
+  if ! command -v yadm &> /dev/null; then
     echo
     echo "***************************************************"
     echo "yadm is NOT currently installed."
     echo "You should install it locally, this link may help:"
-    echo "https://thelocehiliosan.github.io/yadm/docs/install"
+    echo "https://yadm.io/docs/install"
     echo "***************************************************"
     echo
     echo "If installation is not possible right now, you can temporarily \"source\""
     echo "in a yadm() function which fetches yadm remotely each time it is called."
     echo
-    echo "    source <(curl -fsSL '$YADM_REPO/raw/$YADM_RELEASE/bootstrap')"
+    echo "    source <(curl -L bootstrap.yadm.io)"
     echo
   fi
 }
