@@ -314,26 +314,27 @@
        yadm.gpg-recipient
               Asymmetrically encrypt files with a gpg public/private key pair.
               Provide a "key ID" to specify which public key to encrypt  with.
-              The  key  must  exist in your public keyrings.  If left blank or
-              not provided, symmetric encryption is used instead.  If  set  to
-              "ASK",  gpg  will  interactively  ask  for  recipients.  See the
-              ENCRYPTION section for more details.  This feature  is  disabled
+              The key must exist in your public keyrings.  Multiple recipients
+              can be specified (separated by space).  If  left  blank  or  not
+              provided,  symmetric  encryption  is  used  instead.   If set to
+              "ASK", gpg will  interactively  ask  for  recipients.   See  the
+              ENCRYPTION  section  for more details.  This feature is disabled
               by default.
 
        yadm.ssh-perms
               Disable the permission changes to $HOME/.ssh/*.  This feature is
               enabled by default.
 
-       The following  four  "local"  configurations  are  not  stored  in  the
+       The  following  four  "local"  configurations  are  not  stored  in the
        $HOME/.config/yadm/config, they are stored in the local repository.
 
 
        local.class
-              Specify  a  class for the purpose of symlinking alternate files.
+              Specify a class for the purpose of symlinking  alternate  files.
               By default, no class will be matched.
 
        local.hostname
-              Override the hostname for the purpose  of  symlinking  alternate
+              Override  the  hostname  for the purpose of symlinking alternate
               files.
 
        local.os
@@ -348,9 +349,9 @@
        to have an automated way of choosing an alternate version of a file for
        a different operating system, host, user, etc.
 
-       yadm will automatically create a symbolic link to the appropriate  ver-
-       sion  of  a  file, when a valid suffix is appended to the filename. The
-       suffix contains the conditions that must be met for  that  file  to  be
+       yadm  will automatically create a symbolic link to the appropriate ver-
+       sion of a file, when a valid suffix is appended to  the  filename.  The
+       suffix  contains  the  conditions  that must be met for that file to be
        used.
 
        The suffix begins with "##", followed by any number of conditions sepa-
@@ -358,9 +359,9 @@
 
          ##<condition>[,<condition>,...]
 
-       Each condition is an attribute/value pair, separated by a period.  Some
-       conditions  do  not require a "value", and in that case, the period and
-       value can be omitted. Most attributes can be abbreviated  as  a  single
+       Each  condition is an attribute/value pair, separated by a period. Some
+       conditions do not require a "value", and in that case, the  period  and
+       value  can  be  omitted. Most attributes can be abbreviated as a single
        letter.
 
          <attribute>[.<value>]
@@ -370,25 +371,25 @@
 
 
        template, t
-              Valid when the value matches  a  supported  template  processor.
+              Valid  when  the  value  matches a supported template processor.
               See the TEMPLATES section for more details.
 
        user, u
-              Valid  if  the  value matches the current user.  Current user is
+              Valid if the value matches the current user.   Current  user  is
               calculated by running id -u -n.
 
        distro, d
-              Valid if the value matches the distro.  Distro is calculated  by
-              running  lsb_release  -si  or by inspecting the ID from /etc/os-
+              Valid  if the value matches the distro.  Distro is calculated by
+              running lsb_release -si or by inspecting the  ID  from  /etc/os-
               release.
 
-       os, o  Valid if the value matches the OS.  OS is calculated by  running
+       os, o  Valid  if the value matches the OS.  OS is calculated by running
               uname -s.
 
        class, c
               Valid if the value matches the local.class configuration.  Class
               must be manually set using yadm config local.class <class>.  See
-              the   CONFIGURATION  section  for  more  details  about  setting
+              the  CONFIGURATION  section  for  more  details  about   setting
               local.class.
 
        hostname, h
@@ -399,27 +400,27 @@
               Valid when no other alternate is valid.
 
 
-       NOTE:  The  OS  for "Windows Subsystem for Linux" is reported as "WSL",
+       NOTE: The OS for "Windows Subsystem for Linux" is  reported  as  "WSL",
        even though uname identifies as "Linux".
 
-       You may use any number of conditions, in any order.  An alternate  will
-       only  be  used  if  ALL conditions are valid.  For all files managed by
-       yadm's repository or  listed  in  $HOME/.config/yadm/encrypt,  if  they
-       match  this  naming  convention, symbolic links will be created for the
+       You  may use any number of conditions, in any order.  An alternate will
+       only be used if ALL conditions are valid.  For  all  files  managed  by
+       yadm's  repository  or  listed  in  $HOME/.config/yadm/encrypt, if they
+       match this naming convention, symbolic links will be  created  for  the
        most appropriate version.
 
        The "most appropriate" version is determined by calculating a score for
-       each  version  of  a  file. A template is always scored higher than any
-       symlink condition. The number of conditions is the next largest  factor
-       in  scoring.   Files  with  more conditions will always be favored. Any
+       each version of a file. A template is always  scored  higher  than  any
+       symlink  condition. The number of conditions is the next largest factor
+       in scoring.  Files with more conditions will  always  be  favored.  Any
        invalid condition will disqualify that file completely.
 
        If you don't care to have all versions of alternates stored in the same
        directory  as  the  generated  symlink,  you  can  place  them  in  the
-       $HOME/.config/yadm/alt directory. The generated  symlink  or  processed
+       $HOME/.config/yadm/alt  directory.  The  generated symlink or processed
        template will be created using the same relative path.
 
-       Alternate  linking may best be demonstrated by example. Assume the fol-
+       Alternate linking may best be demonstrated by example. Assume the  fol-
        lowing files are managed by yadm's repository:
 
          - $HOME/path/example.txt##default
@@ -442,7 +443,7 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##os.Darwin
 
-       Since  the  hostname  doesn't  match any of the managed files, the more
+       Since the hostname doesn't match any of the  managed  files,  the  more
        generic version is chosen.
 
        If running on a Linux server named "host4", the link will be:
@@ -457,57 +458,57 @@
 
        $HOME/path/example.txt -> $HOME/path/example.txt##class.Work
 
-       If no "##default" version exists and no files  have  valid  conditions,
+       If  no  "##default"  version exists and no files have valid conditions,
        then no link will be created.
 
-       Links  are also created for directories named this way, as long as they
+       Links are also created for directories named this way, as long as  they
        have at least one yadm managed file within them.
 
        yadm will automatically create these links by default. This can be dis-
-       abled  using  the yadm.auto-alt configuration.  Even if disabled, links
+       abled using the yadm.auto-alt configuration.  Even if  disabled,  links
        can be manually created by running yadm alt.
 
-       Class is a special value which is stored locally on each  host  (inside
-       the  local repository). To use alternate symlinks using class, you must
-       set the value of class using the configuration  local.class.   This  is
+       Class  is  a special value which is stored locally on each host (inside
+       the local repository). To use alternate symlinks using class, you  must
+       set  the  value  of class using the configuration local.class.  This is
        set like any other yadm configuration with the yadm config command. The
        following sets the class to be "Work".
 
          yadm config local.class Work
 
-       Similarly, the values of os, hostname, and user can be  manually  over-
-       ridden  using  the  configuration options local.os, local.hostname, and
+       Similarly,  the  values of os, hostname, and user can be manually over-
+       ridden using the configuration options  local.os,  local.hostname,  and
        local.user.
 
 
 ## TEMPLATES
-       If a template condition is defined in an alternate file's "##"  suffix,
+       If  a template condition is defined in an alternate file's "##" suffix,
        and the necessary dependencies for the template are available, then the
        file will be processed to create or overwrite files.
 
        Supported template processors:
 
        default
-              This is yadm's built-in template processor.  This  processor  is
+              This  is  yadm's  built-in template processor. This processor is
               very basic, with a Jinja-like syntax. The advantage of this pro-
-              cessor is that it only depends upon awk, which is  available  on
-              most  *nix  systems. To use this processor, specify the value of
+              cessor  is  that it only depends upon awk, which is available on
+              most *nix systems. To use this processor, specify the  value  of
               "default" or just leave the value off (e.g. "##template").
 
-       j2cli  To use the j2cli Jinja template processor, specify the value  of
+       j2cli  To  use the j2cli Jinja template processor, specify the value of
               "j2"  or "j2cli".
 
        envtpl To use the envtpl Jinja template processor, specify the value of
               "j2" or "envtpl".
 
 
-       NOTE: Specifying "j2" as the processor will attempt  to  use  j2cli  or
+       NOTE:  Specifying  "j2"  as  the processor will attempt to use j2cli or
        envtpl, whichever is available.
 
-       If  the  template  processor  specified is available, templates will be
+       If the template processor specified is  available,  templates  will  be
        processed to create or overwrite files.
 
-       During processing, the following variables are available  in  the  tem-
+       During  processing,  the  following variables are available in the tem-
        plate:
 
         Default         Jinja           Description
@@ -519,10 +520,10 @@
         yadm.user       YADM_USER       id -u -n
         yadm.source     YADM_SOURCE     Template filename
 
-       NOTE:  The  OS  for "Windows Subsystem for Linux" is reported as "WSL",
+       NOTE: The OS for "Windows Subsystem for Linux" is  reported  as  "WSL",
        even though uname identifies as "Linux".
 
-       NOTE: If lsb_release is not available, DISTRO will be the ID  specified
+       NOTE:  If lsb_release is not available, DISTRO will be the ID specified
        in /etc/os-release.
 
        Examples:
@@ -535,7 +536,7 @@
          config=dev-whatever
          {% endif %}
 
-       would  output  a  file named whatever with the following content if the
+       would output a file named whatever with the following  content  if  the
        user is "harvey":
 
          config=work-Linux
@@ -544,7 +545,7 @@
 
          config=dev-whatever
 
-       An equivalent Jinja template  named  whatever##template.j2  would  look
+       An  equivalent  Jinja  template  named whatever##template.j2 would look
        like:
 
          {% if YADM_USER == 'harvey' -%}
@@ -555,62 +556,62 @@
 
 
 ## ENCRYPTION
-       It  can  be  useful to manage confidential files, like SSH or GPG keys,
-       across multiple systems. However, doing so would put  plain  text  data
+       It can be useful to manage confidential files, like SSH  or  GPG  keys,
+       across  multiple  systems.  However, doing so would put plain text data
        into a Git repository, which often resides on a public system. yadm can
-       make it easy to encrypt and decrypt a set of  files  so  the  encrypted
-       version  can  be  maintained  in the Git repository.  This feature will
+       make  it  easy  to  encrypt and decrypt a set of files so the encrypted
+       version can be maintained in the Git  repository.   This  feature  will
        only work if the gpg(1) command is available.
 
-       To use this feature, a list of patterns must be created  and  saved  as
-       $HOME/.config/yadm/encrypt.   This  list of patterns should be relative
+       To  use  this  feature, a list of patterns must be created and saved as
+       $HOME/.config/yadm/encrypt.  This list of patterns should  be  relative
        to the configured work-tree (usually $HOME).  For example:
 
                   .ssh/*.key
                   .gnupg/*.gpg
 
        Standard filename expansions (*, ?, [) are supported.  If you have Bash
-       version  4,  you may use "**" to match all subdirectories.  Other shell
+       version 4, you may use "**" to match all subdirectories.   Other  shell
        expansions like brace and tilde are not supported.  Spaces in paths are
-       supported,  and should not be quoted.  If a directory is specified, its
+       supported, and should not be quoted.  If a directory is specified,  its
        contents will be included, but not recursively.  Paths beginning with a
        "!" will be excluded.
 
        The yadm encrypt command will find all files matching the patterns, and
-       prompt for a password. Once a  password  has  confirmed,  the  matching
+       prompt  for  a  password.  Once  a password has confirmed, the matching
        files will be encrypted and saved as $HOME/.config/yadm/files.gpg.  The
-       patterns and files.gpg should be added to the yadm repository  so  they
+       patterns  and  files.gpg should be added to the yadm repository so they
        are available across multiple systems.
 
        To decrypt these files later, or on another system run yadm decrypt and
-       provide the correct password.  After files are  decrypted,  permissions
+       provide  the  correct password.  After files are decrypted, permissions
        are automatically updated as described in the PERMISSIONS section.
 
-       Symmetric  encryption is used by default, but asymmetric encryption may
+       Symmetric encryption is used by default, but asymmetric encryption  may
        be enabled using the yadm.gpg-recipient configuration.
 
-       NOTE: It is recommended that you use a private repository when  keeping
+       NOTE:  It is recommended that you use a private repository when keeping
        confidential files, even though they are encrypted.
 
        Patterns found in $HOME/.config/yadm/encrypt are automatically added to
-       the repository's info/exclude file every  time  yadm  encrypt  is  run.
+       the  repository's  info/exclude  file  every  time yadm encrypt is run.
        This is to prevent accidentally committing sensitive data to the repos-
        itory.  This can be disabled using the yadm.auto-exclude configuration.
 
        Using git-crypt
 
-       A  completely separate option for encrypting data is to install and use
+       A completely separate option for encrypting data is to install and  use
        git-crypt.  Once installed, you can run git-crypt commands for the yadm
-       repo  by running yadm git-crypt.  git-crypt enables transparent encryp-
-       tion and decryption of  files  in  a  git  repository.   You  can  read
+       repo by running yadm git-crypt.  git-crypt enables transparent  encryp-
+       tion  and  decryption  of  files  in  a  git  repository.  You can read
        https://github.com/AGWA/git-crypt for details.
 
 
 
 ## PERMISSIONS
-       When  files  are checked out of a Git repository, their initial permis-
-       sions are dependent upon the user's umask. Because of this,  yadm  will
-       automatically  update  the  permissions of some file paths. The "group"
+       When files are checked out of a Git repository, their  initial  permis-
+       sions  are  dependent upon the user's umask. Because of this, yadm will
+       automatically update the permissions of some file  paths.  The  "group"
        and "others" permissions will be removed from the following files:
 
        - $HOME/.config/yadm/files.gpg
@@ -622,39 +623,39 @@
        - The GPG directory and files, .gnupg/*
 
        yadm will automatically update permissions by default. This can be dis-
-       abled  using  the yadm.auto-perms configuration. Even if disabled, per-
-       missions can be manually updated  by  running  yadm  perms.   The  .ssh
-       directory  processing can be disabled using the yadm.ssh-perms configu-
-       ration. The .gnupg directory  processing  can  be  disabled  using  the
+       abled using the yadm.auto-perms configuration. Even if  disabled,  per-
+       missions  can  be  manually  updated  by  running yadm perms.  The .ssh
+       directory processing can be disabled using the yadm.ssh-perms  configu-
+       ration.  The  .gnupg  directory  processing  can  be disabled using the
        yadm.gpg-perms configuration.
 
-       When  cloning a repo which includes data in a .ssh or .gnupg directory,
-       if those directories do not exist at the time  of  cloning,  yadm  will
+       When cloning a repo which includes data in a .ssh or .gnupg  directory,
+       if  those  directories  do  not exist at the time of cloning, yadm will
        create the directories with mask 0700 prior to merging the fetched data
        into the work-tree.
 
        When running a Git command and .ssh or .gnupg directories do not exist,
-       yadm  will create those directories with mask 0700 prior to running the
+       yadm will create those directories with mask 0700 prior to running  the
        Git command. This can be disabled using the yadm.auto-private-dirs con-
        figuration.
 
 
 ## HOOKS
-       For  every  command  yadm  supports,  a  program can be provided to run
-       before or after that command. These are referred to  as  "hooks".  yadm
-       looks  for  hooks in the directory $HOME/.config/yadm/hooks.  Each hook
+       For every command yadm supports, a  program  can  be  provided  to  run
+       before  or  after  that command. These are referred to as "hooks". yadm
+       looks for hooks in the directory $HOME/.config/yadm/hooks.   Each  hook
        is named using a prefix of pre_ or post_, followed by the command which
-       should  trigger  the  hook.  For example, to create a hook which is run
-       after every yadm pull command, create a hook  named  post_pull.   Hooks
+       should trigger the hook. For example, to create a  hook  which  is  run
+       after  every  yadm  pull command, create a hook named post_pull.  Hooks
        must have the executable file permission set.
 
        If a pre_ hook is defined, and the hook terminates with a non-zero exit
-       status, yadm will refuse to run the yadm command.  For  example,  if  a
-       pre_commit  hook is defined, but that command ends with a non-zero exit
-       status, the yadm commit will never be run. This allows one  to  "short-
+       status,  yadm  will  refuse  to run the yadm command. For example, if a
+       pre_commit hook is defined, but that command ends with a non-zero  exit
+       status,  the  yadm commit will never be run. This allows one to "short-
        circuit" any operation using a pre_ hook.
 
-       Hooks  have  the  following  environment variables available to them at
+       Hooks have the following environment variables  available  to  them  at
        runtime:
 
        YADM_HOOK_COMMAND
@@ -664,7 +665,9 @@
               The exit status of the yadm command
 
        YADM_HOOK_FULL_COMMAND
-              The yadm command with all command line arguments
+              The yadm command with all command line arguments (parameters are
+              space delimited, and any space, tab or backslash will be escaped
+              with a backslash)
 
        YADM_HOOK_REPO
               The path to the yadm repository
@@ -674,13 +677,13 @@
 
 
 ## FILES
-       All of yadm's configurations are  relative  to  the  "yadm  directory".
-       yadm  uses  the  "XDG  Base  Directory Specification" to determine this
-       directory.  If the environment variable $XDG_CONFIG_HOME is defined  as
-       a  fully  qualified path, this directory will be $XDG_CONFIG_HOME/yadm.
+       All  of  yadm's  configurations  are  relative to the "yadm directory".
+       yadm uses the "XDG Base  Directory  Specification"  to  determine  this
+       directory.   If the environment variable $XDG_CONFIG_HOME is defined as
+       a fully qualified path, this directory will  be  $XDG_CONFIG_HOME/yadm.
        Otherwise it will be $HOME/.config/yadm.
 
-       The following are the default paths yadm uses for its own  data.   Most
+       The  following  are the default paths yadm uses for its own data.  Most
        of these paths can be altered using universal options.  See the OPTIONS
        section for details.
 
@@ -692,9 +695,9 @@
               Configuration file for yadm.
 
        $YADM_DIR/alt
-              This  is  a  directory  to keep "alternate files" without having
-              them side-by-side with the resulting symlink or  processed  tem-
-              plate.  Alternate files placed in this directory will be created
+              This is a directory to keep  "alternate  files"  without  having
+              them  side-by-side  with the resulting symlink or processed tem-
+              plate. Alternate files placed in this directory will be  created
               relative to $HOME instead.
 
        $YADM_DIR/repo.git

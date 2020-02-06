@@ -1,3 +1,12 @@
+2.4.0
+  * Support multiple keys in `yadm.gpg-recipient` (#139)
+  * Ensure all templates are written atomically (#142)
+  * Add encrypt_with_checksums to the hooks collection (#188)
+  * Escape white space in YADM_HOOK_FULL_COMMAND (#187)
+  * Improve parsing of os-release (#194)
+  * Improve identification of WSL (#196)
+  * Fix troff warnings emitted by man page (#195)
+  * Write encrypt-based exclusions during decrypt
 2.3.0
   * Support git-crypt (#168)
   * Support specifying a command after `yadm enter`
