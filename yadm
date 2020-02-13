@@ -39,6 +39,7 @@ HOOK_COMMAND=""
 FULL_COMMAND=""
 
 GPG_PROGRAM="gpg"
+OPENSSL_PROGRAM="openssl"
 GIT_PROGRAM="git"
 AWK_PROGRAM=("gawk" "awk")
 GIT_CRYPT_PROGRAM="git-crypt"
@@ -855,9 +856,93 @@ EOF
 
 }
 
+function _get_openssl_ciphername() {
+    OPENSSL_CIPHERNAME="$(config yadm.openssl-ciphername)"
+    if [ -z "$OPENSSL_CIPHERNAME" ]; then
+      OPENSSL_CIPHERNAME="aes-256-cbc"
+    fi
+
+    echo "$OPENSSL_CIPHERNAME"
+}
+
+function _decrypt_from() {
+
+  local output_archive
+  output_archive="$1"
+
+  local yadm_crypher
+  yadm_crypher="$(config yadm.cypher)"
+  if [ -z "$yadm_crypher" ]; then
+      yadm_crypher="gpg"
+  fi
+
+  case "$yadm_crypher" in
+    gpg)
+      require_gpg
+
+      $GPG_PROGRAM -d "$output_archive"
+      ;;
+
+    openssl)
+      require_openssl
+
+      OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
+      $OPENSSL_PROGRAM enc -d -$OPENSSL_CIPHERNAME -salt -in "$output_archive"
+      ;;
+
+    *)
+      error_out "Unknown cypher '$yadm_crypher'"
+      ;;
+
+  esac
+
+}
+
+function _encrypt_to() {
+
+  local output_archive
+  output_archive="$1"
+
+  local yadm_crypher
+  yadm_crypher="$(config yadm.cypher)"
+  if [ -z "$yadm_crypher" ]; then
+      yadm_crypher="gpg"
+  fi
+
+  case "$yadm_crypher" in
+    gpg)
+      require_gpg
+
+      #; Build gpg options for gpg
+      GPG_KEY="$(config yadm.gpg-recipient)"
+      if [ "$GPG_KEY" = "ASK" ]; then
+        GPG_OPTS=("--no-default-recipient" "-e")
+      elif [ "$GPG_KEY" != "" ]; then
+        GPG_OPTS=("-e" "-r $GPG_KEY")
+      else
+        GPG_OPTS=("-c")
+      fi
+
+      $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$output_archive"
+      ;;
+
+    openssl)
+      require_openssl
+
+      OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
+      $OPENSSL_PROGRAM enc -e -$OPENSSL_CIPHERNAME -salt -out "$output_archive"
+      ;;
+
+    *)
+      error_out "Unknown cypher '$yadm_crypher'"
+      ;;
+
+  esac
+
+}
+
 function decrypt() {
 
-  require_gpg
   require_archive
 
   [ -f "$YADM_ENCRYPT" ] && exclude_encrypted
@@ -869,7 +954,7 @@ function decrypt() {
   fi
 
   # decrypt the archive
-  if ($GPG_PROGRAM -d "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"; then
+  if (_decrypt_from "$YADM_ARCHIVE" || echo 1) | tar v${tar_option}f - -C "$YADM_WORK"; then
     [ ! "$DO_LIST" = "YES" ] && echo "All files decrypted."
   else
     error_out "Unable to extract encrypted files."
@@ -881,25 +966,11 @@ function decrypt() {
 
 function encrypt() {
 
-  require_gpg
   require_encrypt
   exclude_encrypted
   parse_encrypt
 
   cd_work "Encryption" || return
-
-  # Build gpg options for gpg
-  GPG_KEY="$(config yadm.gpg-recipient)"
-  if [ "$GPG_KEY" = "ASK" ]; then
-    GPG_OPTS=("--no-default-recipient" "-e")
-  elif [ "$GPG_KEY" != "" ]; then
-    GPG_OPTS=("-e")
-    for key in $GPG_KEY; do
-      GPG_OPTS+=("-r $key")
-    done
-  else
-    GPG_OPTS=("-c")
-  fi
 
   # report which files will be encrypted
   echo "Encrypting the following files:"
@@ -907,7 +978,7 @@ function encrypt() {
   echo
 
   # encrypt all files which match the globs
-  if tar -f - -c "${ENCRYPT_INCLUDE_FILES[@]}" | $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$YADM_ARCHIVE"; then
+  if tar -f - -c "${ENCRYPT_INCLUDE_FILES[@]}" | _encrypt_to "$YADM_ARCHIVE"; then
     echo "Wrote new file: $YADM_ARCHIVE"
   else
     error_out "Unable to write $YADM_ARCHIVE"
@@ -1099,10 +1170,17 @@ yadm.auto-alt
 yadm.auto-exclude
 yadm.auto-perms
 yadm.auto-private-dirs
+<<<<<<< HEAD
+=======
+yadm.cygwin-copy
+yadm.cypher
+>>>>>>> local
 yadm.git-program
 yadm.gpg-perms
 yadm.gpg-program
 yadm.gpg-recipient
+yadm.openssl-ciphername
+yadm.openssl-program
 yadm.ssh-perms
 EOF
 }
@@ -1897,6 +1975,20 @@ function require_gpg() {
   fi
   command -v "$GPG_PROGRAM" &> /dev/null ||
     error_out "This functionality requires GPG to be installed, but the command '$GPG_PROGRAM' cannot be located.$more_info"
+}
+function require_openssl() {
+  local alt_openssl
+  alt_openssl="$(config yadm.openssl-program)"
+
+  local more_info
+  more_info=""
+
+  if [ "$alt_openssl" != "" ] ; then
+    OPENSSL_PROGRAM="$alt_openssl"
+    more_info="\nThis command has been set via the yadm.openssl-program configuration."
+  fi
+  command -v "$OPENSSL_PROGRAM" >/dev/null 2>&1 || \
+    error_out "This functionality requires OpenSSL to be installed, but the command '$OPENSSL_PROGRAM' cannot be located.$more_info"
 }
 function require_repo() {
   [ -d "$YADM_REPO" ] || error_out "Git repo does not exist. did you forget to run 'init' or 'clone'?"
