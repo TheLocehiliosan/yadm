@@ -1,0 +1,12 @@
+#!/bin/bash
+# This program is a custom mock pinentry program
+# It always uses whatever password is found in the /tmp directory
+password="$(cat /tmp/mock-password 2>/dev/null)"
+echo "OK Pleased to meet you"
+while read -r line; do
+  if [[ $line =~ GETPIN ]]; then
+    echo -n "D "
+    echo "$password"
+  fi
+  echo "OK";
+done
