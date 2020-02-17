@@ -117,10 +117,13 @@ def supported_configs():
         'yadm.auto-exclude',
         'yadm.auto-perms',
         'yadm.auto-private-dirs',
+        'yadm.cipher',
         'yadm.git-program',
         'yadm.gpg-perms',
         'yadm.gpg-program',
         'yadm.gpg-recipient',
+        'yadm.openssl-ciphername',
+        'yadm.openssl-program',
         'yadm.ssh-perms',
         ]
 
