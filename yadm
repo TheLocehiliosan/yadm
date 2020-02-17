@@ -870,13 +870,13 @@ function _decrypt_from() {
   local output_archive
   output_archive="$1"
 
-  local yadm_crypher
-  yadm_crypher="$(config yadm.cypher)"
-  if [ -z "$yadm_crypher" ]; then
-      yadm_crypher="gpg"
+  local yadm_cipher
+  yadm_cipher="$(config yadm.cipher)"
+  if [ -z "$yadm_cipher" ]; then
+      yadm_cipher="gpg"
   fi
 
-  case "$yadm_crypher" in
+  case "$yadm_cipher" in
     gpg)
       require_gpg
 
@@ -887,11 +887,11 @@ function _decrypt_from() {
       require_openssl
 
       OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
-      $OPENSSL_PROGRAM enc -d -$OPENSSL_CIPHERNAME -salt -in "$output_archive"
+      $OPENSSL_PROGRAM enc -d "-${OPENSSL_CIPHERNAME}" -salt -in "$output_archive"
       ;;
 
     *)
-      error_out "Unknown cypher '$yadm_crypher'"
+      error_out "Unknown cipher '$yadm_cipher'"
       ;;
 
   esac
@@ -903,13 +903,13 @@ function _encrypt_to() {
   local output_archive
   output_archive="$1"
 
-  local yadm_crypher
-  yadm_crypher="$(config yadm.cypher)"
-  if [ -z "$yadm_crypher" ]; then
-      yadm_crypher="gpg"
+  local yadm_cipher
+  yadm_cipher="$(config yadm.cipher)"
+  if [ -z "$yadm_cipher" ]; then
+      yadm_cipher="gpg"
   fi
 
-  case "$yadm_crypher" in
+  case "$yadm_cipher" in
     gpg)
       require_gpg
 
@@ -930,11 +930,11 @@ function _encrypt_to() {
       require_openssl
 
       OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
-      $OPENSSL_PROGRAM enc -e -$OPENSSL_CIPHERNAME -salt -out "$output_archive"
+      $OPENSSL_PROGRAM enc -e "-${OPENSSL_CIPHERNAME}" -salt -out "$output_archive"
       ;;
 
     *)
-      error_out "Unknown cypher '$yadm_crypher'"
+      error_out "Unknown cipher '$yadm_cipher'"
       ;;
 
   esac
@@ -1171,7 +1171,7 @@ yadm.auto-exclude
 yadm.auto-perms
 yadm.auto-private-dirs
 yadm.cygwin-copy
-yadm.cypher
+yadm.cipher
 yadm.git-program
 yadm.gpg-perms
 yadm.gpg-program
