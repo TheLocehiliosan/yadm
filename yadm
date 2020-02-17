@@ -1170,11 +1170,8 @@ yadm.auto-alt
 yadm.auto-exclude
 yadm.auto-perms
 yadm.auto-private-dirs
-<<<<<<< HEAD
-=======
 yadm.cygwin-copy
 yadm.cypher
->>>>>>> local
 yadm.git-program
 yadm.gpg-perms
 yadm.gpg-program
