@@ -42,6 +42,7 @@ GPG_PROGRAM="gpg"
 GIT_PROGRAM="git"
 AWK_PROGRAM=("gawk" "awk")
 GIT_CRYPT_PROGRAM="git-crypt"
+TRANSCRYPT_PROGRAM="transcrypt"
 J2CLI_PROGRAM="j2"
 ENVTPL_PROGRAM="envtpl"
 LSB_RELEASE_PROGRAM="lsb_release"
@@ -86,7 +87,7 @@ function main() {
 
   # parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|init|introspect|list|perms|upgrade|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|init|introspect|list|perms|transcrypt|upgrade|version)$"
   if [ -z "$*" ] ; then
     # no argumnts will result in help()
     help
@@ -934,6 +935,11 @@ function git_crypt() {
   enter "${GIT_CRYPT_PROGRAM} $*"
 }
 
+function transcrypt() {
+  require_transcrypt
+  enter "${TRANSCRYPT_PROGRAM} $*"
+}
+
 function enter() {
   command="$*"
   require_shell
@@ -1023,6 +1029,7 @@ Commands:
   yadm perms                 - Fix perms for private files
   yadm enter [COMMAND]       - Run sub-shell with GIT variables set
   yadm git-crypt [OPTIONS]   - Run git-crypt commands for the yadm repo
+  yadm transcrypt [OPTIONS]  - Run transcrypt commands for the yadm repo
 
 Files:
   \$HOME/.config/yadm/config    - yadm's configuration file
@@ -1083,6 +1090,7 @@ init
 introspect
 list
 perms
+transcrypt
 upgrade
 version
 EOF
@@ -1907,6 +1915,10 @@ function require_shell() {
 function require_git_crypt() {
   command -v "$GIT_CRYPT_PROGRAM" &> /dev/null ||
     error_out "This functionality requires git-crypt to be installed, but the command '$GIT_CRYPT_PROGRAM' cannot be located."
+}
+function require_transcrypt() {
+  command -v "$TRANSCRYPT_PROGRAM" &> /dev/null ||
+    error_out "This functionality requires transcrypt to be installed, but the command '$TRANSCRYPT_PROGRAM' cannot be located."
 }
 function bootstrap_available() {
   [ -f "$YADM_BOOTSTRAP" ] && [ -x "$YADM_BOOTSTRAP" ] && return

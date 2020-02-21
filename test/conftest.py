@@ -96,6 +96,7 @@ def supported_commands():
         'introspect',
         'list',
         'perms',
+        'transcrypt',
         'upgrade',
         'version',
         ]
