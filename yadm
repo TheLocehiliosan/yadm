@@ -1076,8 +1076,8 @@ config
 decrypt
 encrypt
 enter
-gitconfig
 git-crypt
+gitconfig
 help
 init
 introspect
