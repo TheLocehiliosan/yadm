@@ -58,6 +58,8 @@ list
 
 .BR yadm " git-crypt [ options ]
 
+.BR yadm " transcrypt [ options ]
+
 .BR yadm " upgrade
 
 .BR yadm " introspect
@@ -280,6 +282,15 @@ permissions by default. This automatic behavior can be disabled by setting the
 configuration
 .I yadm.auto-perms
 to "false".
+.TP
+.BI transcrypt " options
+If transcrypt is installed, this command allows you to pass options directly to
+transcrypt, with the environment configured to use the yadm repository.
+
+transcrypt enables transparent encryption and decryption of files in a git repository.
+You can read
+https://github.com/elasticdog/transcrypt
+for details.
 .TP
 .B upgrade
 Version 2 of yadm uses a different directory for storing your configurations.
