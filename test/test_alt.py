@@ -81,6 +81,7 @@ def test_relative_link(runner, paths, yadm_alt):
 @pytest.mark.usefixtures('ds1_copy')
 @pytest.mark.parametrize('suffix', [
     '##default',
+    '##a.$tst_arch', '##arch.$tst_arch', '##architecture.$tst_arch',
     '##o.$tst_sys', '##os.$tst_sys',
     '##d.$tst_distro', '##distro.$tst_distro',
     '##c.$tst_class', '##class.$tst_class',
@@ -89,7 +90,7 @@ def test_relative_link(runner, paths, yadm_alt):
     ])
 def test_alt_conditions(
         runner, paths,
-        tst_sys, tst_distro, tst_host, tst_user, suffix):
+        tst_arch, tst_sys, tst_distro, tst_host, tst_user, suffix):
     """Test conditions supported by yadm alt"""
     yadm_dir = setup_standard_yadm_dir(paths)
 
@@ -98,6 +99,7 @@ def test_alt_conditions(
     utils.set_local(paths, 'class', tst_class)
 
     suffix = string.Template(suffix).substitute(
+        tst_arch=tst_arch,
         tst_sys=tst_sys,
         tst_distro=tst_distro,
         tst_class=tst_class,

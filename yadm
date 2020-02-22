@@ -175,37 +175,44 @@ function score_file() {
     if [[ "$label" =~ ^(default)$ ]]; then
       score=$((score + 0))
     # variable conditions
+    elif [[ "$label" =~ ^(a|arch|architecture)$ ]]; then
+      if [ "$value" = "$local_arch" ]; then
+        score=$((score + 1))
+      else
+        score=0
+        return
+      fi
     elif [[ "$label" =~ ^(o|os)$ ]]; then
       if [ "$value" = "$local_system" ]; then
-        score=$((score + 1))
+        score=$((score + 2))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
       if [ "$value" = "$local_distro" ]; then
-        score=$((score + 2))
+        score=$((score + 4))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(c|class)$ ]]; then
       if [ "$value" = "$local_class" ]; then
-        score=$((score + 4))
+        score=$((score + 8))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(h|hostname)$ ]]; then
       if [ "$value" = "$local_host" ]; then
-        score=$((score + 8))
+        score=$((score + 16))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(u|user)$ ]]; then
       if [ "$value" = "$local_user" ]; then
-        score=$((score + 16))
+        score=$((score + 32))
       else
         score=0
         return
@@ -367,6 +374,7 @@ EOF
 
   "${AWK_PROGRAM[0]}" \
     -v class="$local_class" \
+    -v arch="$local_arch" \
     -v os="$local_system" \
     -v host="$local_host" \
     -v user="$local_user" \
@@ -383,6 +391,7 @@ function template_j2cli() {
   temp_file="${output}.$$.$RANDOM"
 
   YADM_CLASS="$local_class"   \
+  YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
@@ -398,6 +407,7 @@ function template_envtpl() {
   temp_file="${output}.$$.$RANDOM"
 
   YADM_CLASS="$local_class"   \
+  YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
@@ -416,6 +426,7 @@ function alt() {
 
   # gather values for processing alternates
   local local_class
+  local local_arch
   local local_system
   local local_host
   local local_user
@@ -526,6 +537,11 @@ function remove_stale_links() {
 function set_local_alt_values() {
 
   local_class="$(config local.class)"
+
+  local_arch="$(config local.arch)"
+  if [ -z "$local_arch" ] ; then
+    local_arch=$(uname -m)
+  fi
 
   local_system="$(config local.os)"
   if [ -z "$local_system" ] ; then
@@ -656,6 +672,7 @@ function alt_past_linking() {
           [ -n "$loud" ] && echo "Creating $real_file from template $tracked_file"
           temp_file="${real_file}.$$.$RANDOM"
           YADM_CLASS="$local_class"   \
+          YADM_ARCH="$local_arch"     \
           YADM_OS="$local_system"     \
           YADM_HOSTNAME="$local_host" \
           YADM_USER="$local_user"     \
