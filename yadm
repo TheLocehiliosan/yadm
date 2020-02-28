@@ -914,7 +914,7 @@ function _encrypt_to() {
     gpg)
       require_gpg
 
-      #; Build gpg options for gpg
+      # Build gpg options for gpg
       GPG_KEY="$(config yadm.gpg-recipient)"
       if [ "$GPG_KEY" = "ASK" ]; then
         GPG_OPTS=("--no-default-recipient" "-e")
@@ -1178,7 +1178,6 @@ yadm.auto-alt
 yadm.auto-exclude
 yadm.auto-perms
 yadm.auto-private-dirs
-yadm.cygwin-copy
 yadm.cipher
 yadm.git-program
 yadm.gpg-perms
@@ -1992,7 +1991,7 @@ function require_openssl() {
     OPENSSL_PROGRAM="$alt_openssl"
     more_info="\nThis command has been set via the yadm.openssl-program configuration."
   fi
-  command -v "$OPENSSL_PROGRAM" >/dev/null 2>&1 || \
+  command -v "$OPENSSL_PROGRAM" &> /dev/null ||
     error_out "This functionality requires OpenSSL to be installed, but the command '$OPENSSL_PROGRAM' cannot be located.$more_info"
 }
 function require_repo() {
