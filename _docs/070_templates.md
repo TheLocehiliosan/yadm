@@ -93,7 +93,7 @@ directive as there is in Jinja. Here is an example.
 {% if yadm.os == "Darwin" %}
 This block is included for MacOS
 {% else %}
-This block is included for for any other OS
+This block is included for any other OS
 {% endif %}
 ```
 
