@@ -1318,7 +1318,8 @@ function is_valid_branch_name() {
   #  * "~", "^", ":", "\", space
   #  * end with a "/"
   #  * end with ".lock"
-  [[ "$1" =~ (\/\.|\.\.|[~^:\\ ]|\/$|\.lock$) ]] && return 1
+  pattern='(\/\.|\.\.|[~^:\\ ]|\/$|\.lock$)'
+  [[ "$1" =~ $pattern ]] && return 1
   return 0
 }
 
