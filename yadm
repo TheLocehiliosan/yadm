@@ -251,11 +251,19 @@ function record_score() {
   done
   # if we don't find an existing index, create one by appending to the array
   if [ "$index" -eq -1 ]; then
-    alt_targets+=("$tgt")
-    # set index to the last index (newly created one)
-    for index in "${!alt_targets[@]}"; do :; done
-    # and set its initial score to zero
-    alt_scores[$index]=0
+    # The configuration must be the first alt of the list.
+    # This ensures that if any templates uses "yadm config some-confid", the config will be available.
+    if [ "$tgt" = "$YADM_DIR/.config/yadm/config" ]; then
+        alt_targets=("$tgt" "${alt_targets[@]}")
+        alt_scores=(0 "${alt_scores[@]}")
+        index=0
+    else
+        alt_targets+=("$tgt")
+        # set index to the last index (newly created one)
+        for index in "${!alt_targets[@]}"; do :; done
+        # and set its initial score to zero
+        alt_scores[$index]=0
+     fi
   fi
 
   # record nothing if a template command is registered for this file
