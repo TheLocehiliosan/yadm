@@ -1,0 +1,53 @@
+#!/usr/bin/fish
+
+function __fish_yadm_first_arg
+  set cmd (commandline -opc)
+  if [ (count $cmd) -eq 1 -a $cmd[1] = 'yadm' ]
+    return 0
+  end
+  return 1
+end
+
+function __fish_yadm_using_command
+    set cmd (commandline -opc)
+    if [ (count $cmd) -gt 1 -a "x$argv[1]" = "x$cmd[-1]" ]
+        return 0
+    end
+    return 1
+end
+
+# no dirs in complete list
+complete -c yadm -x
+
+# yadm's specific autocomplete
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'clone' -d 'Clone an existing repository'
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'alt' -d 'Create links for alternates'
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'bootstrap' -d 'Execute $HOME/.config/yadm/bootstrap'
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'encrypt' -d 'Encrypt files'
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'perms' -d 'Fix perms for private files'
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'enter' -d 'Run sub-shell with GIT variables set'
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'git-crypt' -d 'Run git-crypt commands for the yadm repo'
+
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'init' -d 'Initialize an empty repository'
+complete -f -c yadm -n '__fish_yadm_using_command init' -s f
+
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'list' -d 'List tracked files'
+complete -f -c yadm -n '__fish_yadm_using_command list' -s a
+
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'decrypt' -d 'Decrypt files'
+complete -f -c yadm -n '__fish_yadm_using_command decrypt' -s l
+
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'introspect'
+complete -f -c yadm -n '__fish_yadm_using_command introspect' -a "commands"
+complete -f -c yadm -n '__fish_yadm_using_command introspect' -a "configs"
+complete -f -c yadm -n '__fish_yadm_using_command introspect' -a "repo"
+complete -f -c yadm -n '__fish_yadm_using_command introspect' -a "switches"
+
+complete -f -c yadm -n '__fish_yadm_first_arg' -a 'config' -d 'Configure a setting'
+for name in (yadm introspect configs)
+    complete -f -c yadm -n "__fish_yadm_using_command config" -a "$name" -d "yadm config"
+end
+
+# wraps git's autocomplete
+set -l GIT_DIR (yadm introspect repo)
+complete -c yadm -w "git --git-dir $GIT_DIR"
