@@ -849,6 +849,8 @@ EOF
     CHANGES_POSSIBLE=1
 
   else
+    # make sure parent folder of config file exists
+    assert_parent "$YADM_CONFIG"
     # operate on the yadm configuration file
     "$GIT_PROGRAM" config --file="$(mixed_path "$YADM_CONFIG")" "$@"
 
