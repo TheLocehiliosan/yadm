@@ -155,7 +155,6 @@ def test_config_without_parent_directory(runner, yadm_y, paths):
     assert run.err == ''
     assert run.out == ''
 
-    paths.config.write(TEST_FILE)
     run = runner(yadm_y('--yadm-config', config_file, 'config', TEST_KEY))
 
     assert run.success
