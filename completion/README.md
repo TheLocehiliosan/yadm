@@ -34,3 +34,7 @@ Load `_yadm` as a plugin in your `.zshrc`:
 fpath=("$ZPLUG_HOME/bin" $fpath)
 zplug "TheLocehiliosan/yadm", rename-to:_yadm, use:"completion/yadm.zsh_completion", as:command, defer:2
 ```
+
+## Fish completions
+### Manual installation
+Copy the completion script `yadm.fish_completion` locally, rename it to `yadm.fish`, and add it to any folder within `$fish_complete_path`. For example, for local installation, you can copy it to `$HOME/.config/fish/completions/` and it will be loaded when `yadm` is invoked.
