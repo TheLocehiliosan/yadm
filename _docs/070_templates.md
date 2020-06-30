@@ -39,7 +39,7 @@ When template processors run, they will be provided the following set of data.
 | Default (built-in) | Jinja           | Description                | Source                                         |
 | -                  | -               | -                          | -                                              |
 | `yadm.class`       | `YADM_CLASS`    | Locally defined yadm class | <code>yadm&nbsp;config&nbsp;local.class</code> |
-| `yadm.distro`      | `YADM_DISTRO`   | Distribution               | <code>lsb_release&nbsp;&#8209;si</code>        |
+| `yadm.distro`      | `YADM_DISTRO`   | Distribution               | <code>lsb_release&nbsp;&#8209;si</code><br/>or <code>/etc/os-release</code> |
 | `yadm.hostname`    | `YADM_HOSTNAME` | Hostname                   | `hostname` (without domain)                    |
 | `yadm.os`          | `YADM_OS`       | Operating system           | <code>uname&nbsp;&#8209;s</code> <sup>*</sup>  |
 | `yadm.user`        | `YADM_USER`     | Current user               | <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>    |
@@ -47,6 +47,9 @@ When template processors run, they will be provided the following set of data.
 
 <sub><sup>*
 The OS for "Windows Subsystem for Linux" is reported as "WSL", even though uname identifies as "Linux".
+<br/>
+*
+If `lsb_release` is not available, "distro" will be the ID specified in `/etc/os-release`.
 </sup></sub>
 
 ## Supported template processors
