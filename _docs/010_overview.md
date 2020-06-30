@@ -5,7 +5,7 @@ permalink: /docs/overview
 <a name=""></a><!-- Anchor "#" used at the ends of pagination -->
 > You've spent time tweaking your computing environment. Everything operates the
   way you want. That's fantastic! Then your hard drive fails, and the computer
-  needs to be rebuilt. yadm can restore you configurations.
+  needs to be rebuilt. yadm can restore your configurations.
 
 > You get a new computer, and you want to recreate that environment. You
   probably want to keep both machines' configurations in sync. yadm can help
