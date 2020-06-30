@@ -10,7 +10,6 @@ list.
 * [Search github for repos tagged with `yadm`](https://github.com/search?q=topic%3Ayadm&type=Repositories)
 
 * [DoomHammer/dotfiles](https://github.com/DoomHammer/dotfiles)
-* [SShrike/dotfiles](https://github.com/SShrike/dotfiles)
 * [akatrevorjay/dotfiles](https://github.com/akatrevorjay/dotfiles)
 * [akupila/dotfiles](https://github.com/akupila/dotfiles)
 * [bjartek/dotfiles](https://github.com/bjartek/dotfiles)
@@ -19,5 +18,6 @@ list.
 * [gverilla/dotfiles](https://github.com/gverilla/dotfiles)
 * [mago0/dotfiles](https://github.com/mago0/dotfiles)
 * [mes5k/dotfiles](https://github.com/mes5k/dotfiles)
+* [overclockedllama/dotfiles](https://github.com/overclockedllama/dotfiles)
 * [pendowski/dotfiles](https://github.com/pendowski/dotfiles)
 * [tonipes/dotfiles](https://github.com/tonipes/dotfiles)
