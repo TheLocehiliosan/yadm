@@ -45,6 +45,7 @@ GIT_CRYPT_PROGRAM="git-crypt"
 TRANSCRYPT_PROGRAM="transcrypt"
 J2CLI_PROGRAM="j2"
 ENVTPL_PROGRAM="envtpl"
+ESH_PROGRAM="esh"
 LSB_RELEASE_PROGRAM="lsb_release"
 
 OS_RELEASE="/etc/os-release"
@@ -250,11 +251,19 @@ function record_score() {
   done
   # if we don't find an existing index, create one by appending to the array
   if [ "$index" -eq -1 ]; then
-    alt_targets+=("$tgt")
-    # set index to the last index (newly created one)
-    for index in "${!alt_targets[@]}"; do :; done
-    # and set its initial score to zero
-    alt_scores[$index]=0
+    # The configuration must be the first alt of the list.
+    # This ensures that if any templates uses "yadm config some-confid", the config will be available.
+    if [ "$tgt" = "$YADM_DIR/.config/yadm/config" ]; then
+        alt_targets=("$tgt" "${alt_targets[@]}")
+        alt_scores=(0 "${alt_scores[@]}")
+        index=0
+    else
+        alt_targets+=("$tgt")
+        # set index to the last index (newly created one)
+        for index in "${!alt_targets[@]}"; do :; done
+        # and set its initial score to zero
+        alt_scores[$index]=0
+     fi
   fi
 
   # record nothing if a template command is registered for this file
@@ -299,6 +308,8 @@ function choose_template_cmd() {
 
   if [ "$kind" = "default" ] || [ "$kind" = "" ] && awk_available; then
     echo "template_default"
+  elif [ "$kind" = "esh" ] && esh_available; then
+    echo "template_esh"
   elif [ "$kind" = "j2cli" ] || [ "$kind" = "j2" ] && j2cli_available; then
     echo "template_j2cli"
   elif [ "$kind" = "envtpl" ] || [ "$kind" = "j2" ] && envtpl_available; then
@@ -404,6 +415,22 @@ function template_envtpl() {
   YADM_DISTRO="$local_distro" \
   YADM_SOURCE="$input"        \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
+  [ -f "$temp_file" ] && mv -f "$temp_file" "$output"
+}
+
+function template_esh() {
+  input="$1"
+  output="$2"
+  temp_file="${output}.$$.$RANDOM"
+
+  "$ESH_PROGRAM" -o "$temp_file" "$input" \
+  YADM_CLASS="$local_class"   \
+  YADM_OS="$local_system"     \
+  YADM_HOSTNAME="$local_host" \
+  YADM_USER="$local_user"     \
+  YADM_DISTRO="$local_distro" \
+  YADM_SOURCE="$input"
+
   [ -f "$temp_file" ] && mv -f "$temp_file" "$output"
 }
 
@@ -1934,6 +1961,10 @@ function j2cli_available() {
 }
 function envtpl_available() {
   command -v "$ENVTPL_PROGRAM" &> /dev/null && return
+  return 1
+}
+function esh_available() {
+  command -v "$ESH_PROGRAM" &> /dev/null && return
   return 1
 }
 function readlink_available() {

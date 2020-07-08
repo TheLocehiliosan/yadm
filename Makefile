@@ -90,7 +90,7 @@ $(PYTESTS):
 test:
 	@if [ -f /.yadmtestbed ]; then \
 		cd /yadm && \
-		py.test -v $(testargs); \
+		py.test -vv $(testargs); \
 	else \
 		if command -v "docker-compose" &> /dev/null; then \
 			docker-compose run --rm testbed make test testargs="$(testargs)"; \
