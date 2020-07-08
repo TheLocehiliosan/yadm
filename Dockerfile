@@ -36,8 +36,9 @@ RUN pip3 install \
       yamllint==1.17.0 \
     ;
 
-RUN curl https://raw.githubusercontent.com/jirutka/esh/v0.3.0/esh > /usr/local/bin/esh; \
-    chmod +x /usr/local/bin/esh
+RUN \
+  curl https://raw.githubusercontent.com/jirutka/esh/v0.3.0/esh > /usr/local/bin/esh && \
+  chmod +x /usr/local/bin/esh
 
 # Create a flag to identify when running inside the yadm testbed
 RUN touch /.yadmtestbed

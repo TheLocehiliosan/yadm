@@ -4,4 +4,4 @@ services:
   testbed:
     volumes:
       - .:/yadm:ro
-    build: .
+    image: yadm/testbed:2020-07-08

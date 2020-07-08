@@ -3,6 +3,6 @@ language: minimal
 services:
   - docker
 before_install:
-  - docker pull yadm/testbed:2020-01-20
+  - docker pull yadm/testbed:2020-07-08
 script:
-  - docker run -t --rm -v "$PWD:/yadm:ro" yadm/testbed:2020-01-20
+  - docker run -t --rm -v "$PWD:/yadm:ro" yadm/testbed:2020-07-08
