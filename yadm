@@ -254,8 +254,18 @@ function record_score() {
     # $YADM_CONFIG must be processed first, in case other templates lookup yadm configurations
     if [ "$tgt" = "$YADM_CONFIG" ]; then
         alt_targets=("$tgt" "${alt_targets[@]}")
+        alt_sources=("$src" "${alt_sources[@]}")
         alt_scores=(0 "${alt_scores[@]}")
         index=0
+        # increase the index of any existing alt_template_cmds
+        new_cmds=()
+        for cmd_index in "${!alt_template_cmds[@]}"; do
+            new_cmds[$((cmd_index+1))]="${alt_template_cmds[$cmd_index]}"
+        done
+        alt_template_cmds=()
+        for cmd_index in "${!new_cmds[@]}"; do
+            alt_template_cmds[$cmd_index]="${new_cmds[$cmd_index]}"
+        done
     else
         alt_targets+=("$tgt")
         # set index to the last index (newly created one)
