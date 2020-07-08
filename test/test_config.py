@@ -140,7 +140,7 @@ def test_config_local_write(runner, yadm_y, paths, supported_local_configs):
 
 
 def test_config_without_parent_directory(runner, yadm_y, paths):
-    """Write and read attribute to/from config file with non-existent parent directory
+    """Write and read attribute to/from config file with non-existent parent dir
 
     Update configuration file
     Display value
@@ -149,7 +149,8 @@ def test_config_without_parent_directory(runner, yadm_y, paths):
 
     config_file = paths.root + '/folder/does/not/exist/config'
 
-    run = runner(yadm_y('--yadm-config', config_file, 'config', TEST_KEY, TEST_VALUE))
+    run = runner(
+        yadm_y('--yadm-config', config_file, 'config', TEST_KEY, TEST_VALUE))
 
     assert run.success
     assert run.err == ''
