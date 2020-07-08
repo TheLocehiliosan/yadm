@@ -495,15 +495,6 @@
               most *nix systems. To use this processor, specify the  value  of
               "default" or just leave the value off (e.g. "##template").
 
-       esh
-              ESH  is  a  super  light  template  processor  written in  POSIX 
-              compliant shell. With no  other dependencies than awk. It should 
-              therefore  run  on  any  system. It can be "installed" by simply   
-              downloading  the file. Also one  of the great features of esh is 
-              that you can execute shell  commands from inside templates. This 
-              can be verry  usefull to use  your own  configuration  variables 
-              from  inside  templates, like this `<% yadm config my-config %>` 
-
        j2cli  To  use the j2cli Jinja template processor, specify the value of
               "j2"  or "j2cli".
 
@@ -520,7 +511,7 @@
        During  processing,  the  following variables are available in the tem-
        plate:
 
-        Default         Jinja & Esh     Description
+        Default         Jinja           Description
         -------------   -------------   --------------------------
         yadm.class      YADM_CLASS      Locally defined yadm class
         yadm.distro     YADM_DISTRO     lsb_release -si
@@ -563,13 +554,6 @@
          config=dev-whatever
          {% endif -%}
 
-        And an equivalent esh namedwhatever##template.esh would look like:
-        
-          <% if [ "$YADM_USER" = "harvey" ]; then -%>
-          config=<%= $YADM_CLASS %>-<%= $YADM_OS %>
-          <% else -%>
-          config=dev-whatever
-          <% fi -%>
 
 ## ENCRYPTION
        It can be useful to manage confidential files, like SSH  or  GPG  keys,
