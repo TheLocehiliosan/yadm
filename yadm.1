@@ -637,6 +637,15 @@ upon
 which is available on most *nix systems. To use this processor,
 specify the value of "default" or just leave the value off (e.g. "##template").
 .TP
+.B ESH
+ESH is a template processor written in POSIX compliant shell. It allows
+executing shell commands within templates. This can be used to reference your
+own configurations within templates, for example:
+
+  <% yadm config mysection.myconfig %>
+
+To use the ESH template processor, specify the value of "esh"
+.TP
 .B j2cli
 To use the j2cli Jinja template processor, specify the value of "j2"  or
 "j2cli".
@@ -654,7 +663,7 @@ to create or overwrite files.
 
 During processing, the following variables are available in the template:
 
- Default         Jinja           Description
+ Default         Jinja or ESH    Description
  -------------   -------------   --------------------------
  yadm.class      YADM_CLASS      Locally defined yadm class
  yadm.distro     YADM_DISTRO     lsb_release -si
@@ -701,6 +710,16 @@ would look like:
   {% else -%}
   config=dev-whatever
   {% endif -%}
+
+An equivalent ESH templated named
+.I whatever##template.esh
+would look like:
+
+  <% if [ "$YADM_USER" = "harvey" ]; then -%>
+  config=<%= $YADM_CLASS %>-<%= $YADM_OS %>
+  <% else -%>
+  config=dev-whatever
+  <% fi -%>
 
 .SH ENCRYPTION
 

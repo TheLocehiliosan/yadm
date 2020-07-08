@@ -126,7 +126,7 @@ def test_alt_conditions(
 
 @pytest.mark.usefixtures('ds1_copy')
 @pytest.mark.parametrize(
-    'kind', ['default', '', None, 'envtpl', 'j2cli', 'j2'])
+    'kind', ['default', '', None, 'envtpl', 'j2cli', 'j2', 'esh'])
 @pytest.mark.parametrize('label', ['t', 'template', 'yadm', ])
 def test_alt_templates(
         runner, paths, kind, label):

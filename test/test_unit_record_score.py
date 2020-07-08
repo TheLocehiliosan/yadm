@@ -112,3 +112,30 @@ def test_existing_template(runner, yadm):
     assert 'SCORES:1\n' in run.out
     assert 'TARGETS:testtgt\n' in run.out
     assert 'SOURCES:\n' in run.out
+
+
+def test_config_first(runner, yadm):
+    """Verify YADM_CONFIG is always processed first"""
+
+    config = 'yadm_config_file'
+    script = f"""
+        YADM_TEST=1 source {yadm}
+        {INIT_VARS}
+        YADM_CONFIG={config}
+        record_score "1" "tgt_before" "src_before"
+        record_template "tgt_tmp" "cmd_tmp" "src_tmp"
+        record_score "2" "{config}"   "src_config"
+        record_score "3" "tgt_after"  "src_after"
+        {REPORT_RESULTS}
+        echo "CMD_VALUE:${{alt_template_cmds[@]}}"
+        echo "CMD_INDEX:${{!alt_template_cmds[@]}}"
+    """
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert 'SIZE:3\n' in run.out
+    assert 'SCORES:2 1 3\n' in run.out
+    assert f'TARGETS:{config} tgt_before tgt_tmp tgt_after\n' in run.out
+    assert 'SOURCES:src_config src_before src_tmp src_after\n' in run.out
+    assert 'CMD_VALUE:cmd_tmp\n' in run.out
+    assert 'CMD_INDEX:2\n' in run.out

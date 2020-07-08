@@ -1,4 +1,5 @@
 PYTESTS = $(wildcard test/test_*.py)
+IMAGE = yadm/testbed:2020-07-08
 
 .PHONY: all
 all:
@@ -112,7 +113,7 @@ testhost: require-docker
 		--hostname testhost \
 		--rm -it \
 		-v "/tmp/testhost:/bin/yadm:ro" \
-		yadm/testbed:2020-01-20 \
+		$(IMAGE) \
 		bash -l
 
 .PHONY: scripthost
@@ -129,7 +130,7 @@ scripthost: require-docker
 		--rm -it \
 		-v "$$PWD/script.gz:/script.gz:rw" \
 		-v "/tmp/testhost:/bin/yadm:ro" \
-		yadm/testbed:2020-01-20 \
+		$(IMAGE) \
 		bash -c "script /tmp/script -q -c 'bash -l'; gzip < /tmp/script > /script.gz"
 	@echo
 	@echo "Script saved to $$PWD/script.gz"
