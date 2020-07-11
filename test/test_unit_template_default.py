@@ -1,4 +1,7 @@
 """Unit tests: template_default"""
+import os
+
+FILE_MODE = 0o754
 
 # these values are also testing the handling of bizarre characters
 LOCAL_CLASS = "default_Test+@-!^Class"
@@ -91,6 +94,7 @@ def test_template_default(runner, yadm, tmpdir):
 
     input_file = tmpdir.join('input')
     input_file.write(TEMPLATE, ensure=True)
+    input_file.chmod(FILE_MODE)
     output_file = tmpdir.join('output')
 
     script = f"""
@@ -107,6 +111,7 @@ def test_template_default(runner, yadm, tmpdir):
     assert run.success
     assert run.err == ''
     assert output_file.read() == EXPECTED
+    assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
 
 def test_source(runner, yadm, tmpdir):
@@ -114,6 +119,7 @@ def test_source(runner, yadm, tmpdir):
 
     input_file = tmpdir.join('input')
     input_file.write('{{yadm.source}}', ensure=True)
+    input_file.chmod(FILE_MODE)
     output_file = tmpdir.join('output')
 
     script = f"""
@@ -125,3 +131,4 @@ def test_source(runner, yadm, tmpdir):
     assert run.success
     assert run.err == ''
     assert output_file.read().strip() == str(input_file)
+    assert os.stat(output_file).st_mode == os.stat(input_file).st_mode

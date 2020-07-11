@@ -394,7 +394,11 @@ EOF
     -v source="$input" \
     "$awk_pgm" \
     "$input" > "$temp_file"
-  [ -f "$temp_file" ] && mv -f "$temp_file" "$output"
+
+  if [ -f "$temp_file" ] ; then
+    copy_perms "$input" "$temp_file"
+    mv -f "$temp_file" "$output"
+  fi
 }
 
 function template_j2cli() {
@@ -409,7 +413,11 @@ function template_j2cli() {
   YADM_DISTRO="$local_distro" \
   YADM_SOURCE="$input"        \
   "$J2CLI_PROGRAM" "$input" -o "$temp_file"
-  [ -f "$temp_file" ] && mv -f "$temp_file" "$output"
+
+  if [ -f "$temp_file" ] ; then
+    copy_perms "$input" "$temp_file"
+    mv -f "$temp_file" "$output"
+  fi
 }
 
 function template_envtpl() {
@@ -424,7 +432,11 @@ function template_envtpl() {
   YADM_DISTRO="$local_distro" \
   YADM_SOURCE="$input"        \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
-  [ -f "$temp_file" ] && mv -f "$temp_file" "$output"
+
+  if [ -f "$temp_file" ] ; then
+    copy_perms "$input" "$temp_file"
+    mv -f "$temp_file" "$output"
+  fi
 }
 
 function template_esh() {
@@ -440,7 +452,10 @@ function template_esh() {
   YADM_DISTRO="$local_distro" \
   YADM_SOURCE="$input"
 
-  [ -f "$temp_file" ] && mv -f "$temp_file" "$output"
+  if [ -f "$temp_file" ] ; then
+    copy_perms "$input" "$temp_file"
+    mv -f "$temp_file" "$output"
+  fi
 }
 
 # ****** yadm Commands ******
@@ -1906,6 +1921,33 @@ function auto_bootstrap() {
 function join_string {
     local IFS="$1"
     printf "%s" "${*:2}"
+}
+
+function get_mode {
+  local filename="$1"
+  local mode
+
+  # most *nixes
+  mode=$(stat -c '%a' "$filename" 2>/dev/null)
+  if [ -z "$mode" ] ; then
+    # BSD-style
+    mode=$(stat -f '%A' "$filename" 2>/dev/null)
+  fi
+
+  # only accept results if they are octal
+  if [[ ! $mode =~ ^[0-7]+$ ]] ; then
+    mode=""
+  fi
+
+  echo "$mode"
+}
+
+function copy_perms {
+  local source="$1"
+  local dest="$2"
+  mode=$(get_mode "$source")
+  [ -n "$mode" ] && chmod "$mode" "$dest"
+  return 0
 }
 
 # ****** Prerequisites Functions ******

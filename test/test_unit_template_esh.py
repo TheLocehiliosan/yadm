@@ -1,4 +1,7 @@
 """Unit tests: template_esh"""
+import os
+
+FILE_MODE = 0o754
 
 LOCAL_CLASS = "esh_Test+@-!^Class"
 LOCAL_SYSTEM = "esh_Test+@-!^System"
@@ -80,6 +83,7 @@ def test_template_esh(runner, yadm, tmpdir):
 
     input_file = tmpdir.join('input')
     input_file.write(TEMPLATE, ensure=True)
+    input_file.chmod(FILE_MODE)
     output_file = tmpdir.join('output')
 
     script = f"""
@@ -95,6 +99,7 @@ def test_template_esh(runner, yadm, tmpdir):
     assert run.success
     assert run.err == ''
     assert output_file.read().strip() == str(EXPECTED).strip()
+    assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
 
 def test_source(runner, yadm, tmpdir):
@@ -102,6 +107,7 @@ def test_source(runner, yadm, tmpdir):
 
     input_file = tmpdir.join('input')
     input_file.write('<%= $YADM_SOURCE %>', ensure=True)
+    input_file.chmod(FILE_MODE)
     output_file = tmpdir.join('output')
 
     script = f"""
@@ -112,3 +118,4 @@ def test_source(runner, yadm, tmpdir):
     assert run.success
     assert run.err == ''
     assert output_file.read().strip() == str(input_file)
+    assert os.stat(output_file).st_mode == os.stat(input_file).st_mode

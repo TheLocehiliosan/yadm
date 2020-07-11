@@ -1,5 +1,8 @@
 """Unit tests: template_j2cli & template_envtpl"""
+import os
 import pytest
+
+FILE_MODE = 0o754
 
 LOCAL_CLASS = "j2_Test+@-!^Class"
 LOCAL_SYSTEM = "j2_Test+@-!^System"
@@ -82,6 +85,7 @@ def test_template_j2(runner, yadm, tmpdir, processor):
 
     input_file = tmpdir.join('input')
     input_file.write(TEMPLATE, ensure=True)
+    input_file.chmod(FILE_MODE)
     output_file = tmpdir.join('output')
 
     script = f"""
@@ -97,6 +101,7 @@ def test_template_j2(runner, yadm, tmpdir, processor):
     assert run.success
     assert run.err == ''
     assert output_file.read() == EXPECTED
+    assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
 
 @pytest.mark.parametrize('processor', ('j2cli', 'envtpl'))
@@ -105,6 +110,7 @@ def test_source(runner, yadm, tmpdir, processor):
 
     input_file = tmpdir.join('input')
     input_file.write('{{YADM_SOURCE}}', ensure=True)
+    input_file.chmod(FILE_MODE)
     output_file = tmpdir.join('output')
 
     script = f"""
@@ -115,3 +121,4 @@ def test_source(runner, yadm, tmpdir, processor):
     assert run.success
     assert run.err == ''
     assert output_file.read().strip() == str(input_file)
+    assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
