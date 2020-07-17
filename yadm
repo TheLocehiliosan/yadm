@@ -162,7 +162,7 @@ function score_file() {
   conditions="${src#*##}"
 
   if [ "${tgt#$YADM_ALT/}" != "${tgt}" ]; then
-    tgt="${YADM_WORK}/${tgt#$YADM_ALT/}"
+    tgt="${YADM_BASE}/${tgt#$YADM_ALT/}"
   fi
 
   score=0
@@ -501,11 +501,11 @@ function alt() {
   for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
     if [[ $possible_alt =~ .\#\#. ]]; then
       base_alt="${possible_alt%%##*}"
-      yadm_alt="${YADM_WORK}/${base_alt}"
+      yadm_alt="${YADM_BASE}/${base_alt}"
       if [ "${yadm_alt#$YADM_ALT/}" != "${yadm_alt}" ]; then
         base_alt="${yadm_alt#$YADM_ALT/}"
       fi
-      possible_alts+=("$YADM_WORK/${base_alt}")
+      possible_alts+=("$YADM_BASE/${base_alt}")
     fi
   done
   local alt_linked
@@ -610,7 +610,7 @@ function alt_future_linking() {
   alt_template_cmds=()
 
   for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
-    alt_path="$YADM_WORK/$alt_path"
+    alt_path="$YADM_BASE/$alt_path"
     if [[ "$alt_path" =~ .\#\#. ]]; then
       if [ -e "$alt_path" ] ; then
         score_file "$alt_path"
@@ -672,7 +672,7 @@ function alt_past_linking() {
     local IFS=$'\n'
     # the alt_paths looped over here are a unique sorted list of both files and their immediate parent directory
     for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
-      alt_path="$YADM_WORK/$alt_path"
+      alt_path="$YADM_BASE/$alt_path"
       if [ -e "$alt_path" ] ; then
         if [[ $alt_path =~ $match ]] ; then
           if [ "$alt_path" != "$last_linked" ] ; then
@@ -698,7 +698,7 @@ function alt_past_linking() {
   # for every file which is a *##yadm.j2 create a real file
   local match="^(.+)##yadm\\.j2$"
   for tracked_file in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
-    tracked_file="$YADM_WORK/$tracked_file"
+    tracked_file="$YADM_BASE/$tracked_file"
     if [ -e "$tracked_file" ] ; then
       if [[ $tracked_file =~ $match ]] ; then
         real_file="${BASH_REMATCH[1]}"
@@ -728,6 +728,9 @@ function ln_relative() {
   full_source="$1"
   full_target="$2"
   target_dir="${full_target%/*}"
+  if [ "$target_dir" == "" ]; then
+    target_dir="/"
+  fi
   rel_source=$(relative_path "$target_dir" "$full_source")
   ln -nfs "$rel_source" "$full_target"
   alt_linked+=("$rel_source")
@@ -1574,6 +1577,14 @@ function configure_paths() {
     [ -n "$work" ] && YADM_WORK="$work"
   fi
 
+  # YADM_BASE is used for manipulating the base worktree path for much of the
+  # alternate file processing
+  if [ "$YADM_WORK" == "/" ]; then
+    YADM_BASE=""
+  else
+    YADM_BASE="$YADM_WORK"
+  fi
+
 }
 
 function configure_repo() {
@@ -1721,7 +1732,9 @@ function assert_private_dirs() {
 
 function assert_parent() {
   basedir=${1%/*}
-  [ -e "$basedir" ] || mkdir -p "$basedir"
+  if [ -n "$basedir" ]; then
+    [ -e "$basedir" ] || mkdir -p "$basedir"
+  fi
 }
 
 function display_private_perms() {
