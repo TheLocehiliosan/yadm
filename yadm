@@ -922,16 +922,20 @@ function _get_openssl_ciphername() {
   echo "$OPENSSL_CIPHERNAME"
 }
 
-function _decrypt_from() {
-
-  local output_archive
+function _get_cipher() {
   output_archive="$1"
-
-  local yadm_cipher
   yadm_cipher="$(config yadm.cipher)"
   if [ -z "$yadm_cipher" ]; then
       yadm_cipher="gpg"
   fi
+}
+
+
+function _decrypt_from() {
+
+  local output_archive
+  local yadm_cipher
+  _get_cipher "$1"
 
   case "$yadm_cipher" in
     gpg)
@@ -958,13 +962,8 @@ function _decrypt_from() {
 function _encrypt_to() {
 
   local output_archive
-  output_archive="$1"
-
   local yadm_cipher
-  yadm_cipher="$(config yadm.cipher)"
-  if [ -z "$yadm_cipher" ]; then
-      yadm_cipher="gpg"
-  fi
+  _get_cipher "$1"
 
   case "$yadm_cipher" in
     gpg)
