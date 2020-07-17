@@ -914,12 +914,12 @@ EOF
 }
 
 function _get_openssl_ciphername() {
-    OPENSSL_CIPHERNAME="$(config yadm.openssl-ciphername)"
-    if [ -z "$OPENSSL_CIPHERNAME" ]; then
-      OPENSSL_CIPHERNAME="aes-256-cbc"
-    fi
+  OPENSSL_CIPHERNAME="$(config yadm.openssl-ciphername)"
+  if [ -z "$OPENSSL_CIPHERNAME" ]; then
+    OPENSSL_CIPHERNAME="aes-256-cbc"
+  fi
 
-    echo "$OPENSSL_CIPHERNAME"
+  echo "$OPENSSL_CIPHERNAME"
 }
 
 function _decrypt_from() {
