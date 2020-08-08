@@ -34,6 +34,8 @@
 
        yadm git-crypt [ options ]
 
+       yadm transcrypt [ options ]
+
        yadm upgrade
 
        yadm introspect category
@@ -101,8 +103,8 @@
               user.
 
        config This command manages  configurations  for  yadm.   This  command
-              works  exactly  they way git-config(1) does.  See the CONFIGURA-
-              TION section for more details.
+              works exactly the way git-config(1) does.  See the CONFIGURATION
+              section for more details.
 
        decrypt
               Decrypt all files stored in $HOME/.config/yadm/files.gpg.  Files
@@ -184,6 +186,15 @@
               cally  processes permissions by default. This automatic behavior
               can be disabled by setting the configuration yadm.auto-perms  to
               "false".
+
+       transcrypt options
+              If  transcrypt  is  installed,  this  command allows you to pass
+              options directly to transcrypt, with the environment  configured
+              to use the yadm repository.
+
+              transcrypt  enables  transparent  encryption  and  decryption of
+              files    in    a    git    repository.      You     can     read
+              https://github.com/elasticdog/transcrypt for details.
 
        upgrade
               Version  2  of  yadm uses a different directory for storing your
@@ -495,23 +506,32 @@
               most *nix systems. To use this processor, specify the  value  of
               "default" or just leave the value off (e.g. "##template").
 
-       j2cli  To  use the j2cli Jinja template processor, specify the value of
+       ESH    ESH is a template processor written in POSIX compliant shell. It
+              allows executing shell commands within templates.  This  can  be
+              used  to reference your own configurations within templates, for
+              example:
+
+                <% yadm config mysection.myconfig %>
+
+              To use the ESH template processor, specify the value of "esh"
+
+       j2cli  To use the j2cli Jinja template processor, specify the value  of
               "j2"  or "j2cli".
 
        envtpl To use the envtpl Jinja template processor, specify the value of
               "j2" or "envtpl".
 
 
-       NOTE:  Specifying  "j2"  as  the processor will attempt to use j2cli or
+       NOTE: Specifying "j2" as the processor will attempt  to  use  j2cli  or
        envtpl, whichever is available.
 
-       If the template processor specified is  available,  templates  will  be
+       If  the  template  processor  specified is available, templates will be
        processed to create or overwrite files.
 
-       During  processing,  the  following variables are available in the tem-
+       During processing, the following variables are available  in  the  tem-
        plate:
 
-        Default         Jinja           Description
+        Default         Jinja or ESH    Description
         -------------   -------------   --------------------------
         yadm.class      YADM_CLASS      Locally defined yadm class
         yadm.distro     YADM_DISTRO     lsb_release -si
@@ -520,10 +540,10 @@
         yadm.user       YADM_USER       id -u -n
         yadm.source     YADM_SOURCE     Template filename
 
-       NOTE: The OS for "Windows Subsystem for Linux" is  reported  as  "WSL",
+       NOTE:  The  OS  for "Windows Subsystem for Linux" is reported as "WSL",
        even though uname identifies as "Linux".
 
-       NOTE:  If lsb_release is not available, DISTRO will be the ID specified
+       NOTE: If lsb_release is not available, DISTRO will be the ID  specified
        in /etc/os-release.
 
        Examples:
@@ -536,7 +556,7 @@
          config=dev-whatever
          {% endif %}
 
-       would output a file named whatever with the following  content  if  the
+       would  output  a  file named whatever with the following content if the
        user is "harvey":
 
          config=work-Linux
@@ -545,7 +565,7 @@
 
          config=dev-whatever
 
-       An  equivalent  Jinja  template  named whatever##template.j2 would look
+       An equivalent Jinja template  named  whatever##template.j2  would  look
        like:
 
          {% if YADM_USER == 'harvey' -%}
@@ -553,6 +573,15 @@
          {% else -%}
          config=dev-whatever
          {% endif -%}
+
+       An  equivalent  ESH  templated  named whatever##template.esh would look
+       like:
+
+         <% if [ "$YADM_USER" = "harvey" ]; then -%>
+         config=<%= $YADM_CLASS %>-<%= $YADM_OS %>
+         <% else -%>
+         config=dev-whatever
+         <% fi -%>
 
 
 ## ENCRYPTION

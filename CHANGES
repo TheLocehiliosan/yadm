@@ -1,3 +1,11 @@
+2.5.0
+  * Support for transcrypt (#197)
+  * Support ESH templates (#220)
+  * Preserve file mode of template (#193)
+  * Fish shell completions (#224)
+  * Fix alt processing when worktree is `/` (#198)
+  * Assert config directory if missing (#226, #227)
+  * Documentation improvements (#229)
 2.4.0
   * Support multiple keys in `yadm.gpg-recipient` (#139)
   * Ensure all templates are written atomically (#142)
