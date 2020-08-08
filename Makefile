@@ -170,7 +170,11 @@ yadm.md: yadm.1
 .PHONY: contrib
 contrib:
 	@echo "CONTRIBUTORS\n" > CONTRIBUTORS
-	@git shortlog -ns master gh-pages develop dev-pages | cut -f2 >> CONTRIBUTORS
+	@IFS=$$'\n'; for author in $$(git shortlog -ns master gh-pages develop dev-pages | cut -f2); do \
+		git log master gh-pages develop dev-pages \
+			--author="$$author" --format=tformat: --numstat | \
+			awk "{sum += \$$1 + \$$2} END {print sum \"\t\" \"$$author\"}"; \
+	done | sort -nr | cut -f2 >> CONTRIBUTORS
 
 .PHONY: install
 install:
