@@ -25,6 +25,7 @@ The supported template processors are:
 | Processor | Suffixes                             | Dependencies                                                            |
 | -         | -                                    | -                                                                       |
 | default   | `##template`, `##template.default`   | `awk` must be installed. (This should be installed on all *nix systems) |
+| esh       | `##template.esh`                     | `esh` must be installed.                                                |
 | j2cli     | `##template.j2`, `##template.j2cli`  | `j2cli` must be installed.                                              |
 | envtpl    | `##template.j2`, `##template.envtpl` | `envtpl` must be installed.                                             |
 
@@ -36,7 +37,7 @@ Also, `j2` will be processed by either j2cli or envtpl, whichever is found.
 When template processors run, they will be provided the following set of data.
 
 
-| Default (built-in) | Jinja           | Description                | Source                                         |
+| Default (built-in) | Jinja or ESH    | Description                | Source                                         |
 | -                  | -               | -                          | -                                              |
 | `yadm.class`       | `YADM_CLASS`    | Locally defined yadm class | <code>yadm&nbsp;config&nbsp;local.class</code> |
 | `yadm.distro`      | `YADM_DISTRO`   | Distribution               | <code>lsb_release&nbsp;&#8209;si</code><br/>or <code>/etc/os-release</code> |
@@ -59,6 +60,11 @@ default
 contains `awk`). This processor has a syntax _similar_ to the Jinja processors
 below, however it only supports a small set of directives. Those directives are
 detailed in the section below.
+
+esh
+: [esh][esh] is a template processor written in POSIX compliant shell. It allows
+executing shell commands within templates.  This  can  be used  to reference
+your own configurations within templates, for example:
 
 j2cli
 : [j2cli][j2cli] (or `j2`) is a Python-based Jinja2 template processor. This
@@ -103,5 +109,6 @@ This block is included for any other OS
 {% endraw %}
 
 [envtpl]: https://github.com/andreasjansson/envtpl
+[esh]: https://github.com/jirutka/esh
 [j2cli]: https://github.com/kolypto/j2cli
 [jinja]: https://jinja.palletsprojects.com
