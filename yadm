@@ -1944,8 +1944,8 @@ function get_mode {
   mode=$(stat -c '%a' "$filename" 2>/dev/null)
   if [ -z "$mode" ] ; then
     # BSD-style
-    # Using the `cut` command to match the output of GNU stat output
-    mode=$(stat -f '%p' "$filename" | cut -c4-6 2>/dev/null)
+    mode=$(stat -f '%p' "$filename" 2>/dev/null)
+    mode=${mode: -4}
   fi
 
   # only accept results if they are octal
