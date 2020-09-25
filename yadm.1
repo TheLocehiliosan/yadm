@@ -421,6 +421,11 @@ This feature is enabled by default.
 .B yadm.auto-private-dirs
 Disable the automatic creating of private directories described in the section PERMISSIONS.
 .TP
+.B yadm.cipher
+Configure which encryption system is used by the encrypt/decrypt commands.
+Valid options are "gpg" and "openssl". The default is "gpg".
+Detailed information can be found in the section ENCRYPTION.
+.TP
 .B yadm.git-program
 Specify an alternate program to use instead of "git".
 By default, the first "git" found in $PATH is used.
@@ -443,6 +448,20 @@ If left blank or not provided, symmetric encryption is used instead.
 If set to "ASK", gpg will interactively ask for recipients.
 See the ENCRYPTION section for more details.
 This feature is disabled by default.
+.TP
+.B yadm.openssl-ciphername
+Specify which cipher should be used by openssl.
+"aes-256-cbc" is used by default.
+.TP
+.B yadm.openssl-old
+Newer versions of openssl support the pbkdf2 key derivation function. This is
+used by default. If this configuration is set to "true", openssl operations
+will use options compatible with older versions of openssl. If you change this
+option, you will need to recreate your encrypted archive.
+.TP
+.B yadm.openssl-program
+Specify an alternate program to use instead of "openssl".
+By default, the first "openssl" found in $PATH is used.
 .TP
 .B yadm.ssh-perms
 Disable the permission changes to
@@ -728,9 +747,15 @@ multiple systems. However, doing so would put plain text data into a Git
 repository, which often resides on a public system. yadm can make it easy to
 encrypt and decrypt a set of files so the encrypted version can be maintained
 in the Git repository.
-This feature will only work if the
+This feature will only work if a supported tool is available.
+Both
 .BR gpg (1)
-command is available.
+and
+.BR openssl (1)
+are supported.
+gpg is used by default, but openssl can be configured with the
+.I yadm.cypher
+configuration.
 
 To use this feature, a list of patterns must be created and saved as
 .IR $HOME/.config/yadm/encrypt .
@@ -969,5 +994,8 @@ Tim Byrne <sultan@locehilios.com>
 
 .BR git (1),
 .BR gpg (1)
+.BR openssl (1)
+.BR transcrypt (1)
+.BR git-crypt (1)
 
 https://yadm.io/
