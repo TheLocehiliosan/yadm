@@ -786,15 +786,20 @@ This can be disabled using the
 .I yadm.auto-exclude
 configuration.
 
-.B Using git-crypt
+.B Using transcrypt or git-crypt
 
-A completely separate option for encrypting data is to install and use git-crypt.
-Once installed, you can run git-crypt commands for the yadm repo by running
+A completely separate option for encrypting data is to install and use
+transcrypt or git-crypt.
+Once installed, you can use these tools by running
+.B "yadm transcrypt"
+or
 .BR "yadm git-crypt" .
-git-crypt enables transparent encryption and decryption of files in a git repository.
-You can read
-https://github.com/AGWA/git-crypt
-for details.
+These tools enables transparent encryption and decryption of files in a git
+repository. See the following web sites for more information:
+
+- https://github.com/elasticdog/transcrypt
+
+- https://github.com/AGWA/git-crypt
 .LP
 
 .SH PERMISSIONS
