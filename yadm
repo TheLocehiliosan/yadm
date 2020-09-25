@@ -55,6 +55,8 @@ OPERATING_SYSTEM="Unknown"
 
 ENCRYPT_INCLUDE_FILES="unparsed"
 
+OPENSSL_OPTS=()
+
 LEGACY_WARNING_ISSUED=0
 INVALID_ALT=()
 
@@ -922,6 +924,14 @@ function _get_openssl_ciphername() {
   echo "$OPENSSL_CIPHERNAME"
 }
 
+function _set_openssl_options() {
+  if [ "$(config --bool yadm.openssl-old)" == "true" ]; then
+    OPENSSL_OPTS=(-md md5)
+  else
+    OPENSSL_OPTS=(-pbkdf2 -iter 100000 -md sha512)
+  fi
+}
+
 function _get_cipher() {
   output_archive="$1"
   yadm_cipher="$(config yadm.cipher)"
@@ -929,7 +939,6 @@ function _get_cipher() {
       yadm_cipher="gpg"
   fi
 }
-
 
 function _decrypt_from() {
 
@@ -948,7 +957,8 @@ function _decrypt_from() {
       require_openssl
 
       OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
-      $OPENSSL_PROGRAM enc -d "-${OPENSSL_CIPHERNAME}" -salt -in "$output_archive"
+      _set_openssl_options
+      $OPENSSL_PROGRAM enc -d "${OPENSSL_OPTS[@]}" "-${OPENSSL_CIPHERNAME}" -salt -in "$output_archive"
       ;;
 
     *)
@@ -1239,6 +1249,7 @@ yadm.gpg-perms
 yadm.gpg-program
 yadm.gpg-recipient
 yadm.openssl-ciphername
+yadm.openssl-old
 yadm.openssl-program
 yadm.ssh-perms
 EOF

@@ -124,6 +124,7 @@ def supported_configs():
         'yadm.gpg-program',
         'yadm.gpg-recipient',
         'yadm.openssl-ciphername',
+        'yadm.openssl-old',
         'yadm.openssl-program',
         'yadm.ssh-perms',
         ]
