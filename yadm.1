@@ -174,7 +174,7 @@ See the CONFIGURATION section for more details.
 .TP
 .B decrypt
 Decrypt all files stored in
-.IR $HOME/.config/yadm/files.gpg .
+.IR $HOME/.config/yadm/archive .
 Files decrypted will be relative to the configured
 .IR work-tree " (usually
 .IR $HOME ).
@@ -755,8 +755,8 @@ The
 .B yadm encrypt
 command will find all files matching the patterns, and prompt for a password. Once a
 password has confirmed, the matching files will be encrypted and saved as
-.IR $HOME/.config/yadm/files.gpg .
-The patterns and files.gpg should be added to the yadm repository so they are
+.IR $HOME/.config/yadm/archive .
+The "encrypt" and "archive" files should be added to the yadm repository so they are
 available across multiple systems.
 
 To decrypt these files later, or on another system run
@@ -804,7 +804,7 @@ dependent upon the user's umask. Because of this, yadm will automatically
 update the permissions of some file paths. The "group" and "others" permissions
 will be removed from the following files:
 
-.RI - " $HOME/.config/yadm/files.gpg
+.RI - " $HOME/.config/yadm/archive
 
 - All files matching patterns in
 .I $HOME/.config/yadm/encrypt
@@ -922,7 +922,7 @@ Git repository used by yadm.
 .I $YADM_DIR/encrypt
 List of globs used for encrypt/decrypt
 .TP
-.I $YADM_DIR/files.gpg
+.I $YADM_DIR/archive
 All files encrypted with
 .B yadm encrypt
 are stored in this file.
@@ -947,7 +947,7 @@ Initial push of master to origin
 .B echo ".ssh/*.key" >> $HOME/.config/yadm/encrypt
 Add a new pattern to the list of encrypted files
 .TP
-.B yadm encrypt ; yadm add ~/.config/yadm/files.gpg ; yadm commit
+.B yadm encrypt ; yadm add ~/.config/yadm/archive ; yadm commit
 Commit a new set of encrypted files
 
 .SH REPORTING BUGS

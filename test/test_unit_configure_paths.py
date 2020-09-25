@@ -2,7 +2,7 @@
 
 import pytest
 
-ARCHIVE = 'files.gpg'
+ARCHIVE = 'archive'
 BOOTSTRAP = 'bootstrap'
 CONFIG = 'config'
 ENCRYPT = 'encrypt'

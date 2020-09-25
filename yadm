@@ -30,7 +30,7 @@ YADM_LEGACY_DIR="${HOME}/.yadm"
 YADM_REPO="repo.git"
 YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
-YADM_ARCHIVE="files.gpg"
+YADM_ARCHIVE="archive"
 YADM_BOOTSTRAP="bootstrap"
 YADM_HOOKS="hooks"
 YADM_ALT="alt"
@@ -1168,10 +1168,10 @@ Commands:
   yadm transcrypt [OPTIONS]  - Run transcrypt commands for the yadm repo
 
 Files:
-  \$HOME/.config/yadm/config    - yadm's configuration file
-  \$HOME/.config/yadm/repo.git  - yadm's Git repository
-  \$HOME/.config/yadm/encrypt   - List of globs used for encrypt/decrypt
-  \$HOME/.config/yadm/files.gpg - Encrypted data stored here
+  \$HOME/.config/yadm/config   - yadm's configuration file
+  \$HOME/.config/yadm/repo.git - yadm's Git repository
+  \$HOME/.config/yadm/encrypt  - List of globs used for encrypt/decrypt
+  \$HOME/.config/yadm/archive  - Encrypted data stored here
 
 Use "man yadm" for complete documentation.
 EOF
@@ -1577,7 +1577,7 @@ function issue_legacy_path_warning() {
     "$YADM_LEGACY_DIR/$YADM_REPO"               \
     "$YADM_LEGACY_DIR/$YADM_CONFIG"             \
     "$YADM_LEGACY_DIR/$YADM_ENCRYPT"            \
-    "$YADM_LEGACY_DIR/$YADM_ARCHIVE"            \
+    "$YADM_LEGACY_DIR/files.gpg"                \
     "$YADM_LEGACY_DIR/$YADM_BOOTSTRAP"          \
     "$YADM_LEGACY_DIR/$YADM_HOOKS"/{pre,post}_* \
   ;                                             \

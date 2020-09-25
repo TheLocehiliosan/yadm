@@ -285,7 +285,7 @@ def paths(tmpdir, yadm):
     dir_repo = dir_yadm.mkdir('repo.git')
     dir_hooks = dir_yadm.mkdir('hooks')
     dir_remote = dir_root.mkdir('remote')
-    file_archive = dir_yadm.join('files.gpg')
+    file_archive = dir_yadm.join('archive')
     file_bootstrap = dir_yadm.join('bootstrap')
     file_config = dir_yadm.join('config')
     file_encrypt = dir_yadm.join('encrypt')
