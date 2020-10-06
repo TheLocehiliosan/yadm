@@ -996,7 +996,8 @@ function _encrypt_to() {
       require_openssl
 
       OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
-      $OPENSSL_PROGRAM enc -e "-${OPENSSL_CIPHERNAME}" -salt -out "$output_archive"
+      _set_openssl_options
+      $OPENSSL_PROGRAM enc -e "${OPENSSL_OPTS[@]}" "-${OPENSSL_CIPHERNAME}" -salt -out "$output_archive"
       ;;
 
     *)
