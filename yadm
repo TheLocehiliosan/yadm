@@ -55,6 +55,7 @@ OPERATING_SYSTEM="Unknown"
 
 ENCRYPT_INCLUDE_FILES="unparsed"
 
+GPG_OPTS=()
 OPENSSL_OPTS=()
 
 LEGACY_WARNING_ISSUED=0
@@ -915,20 +916,32 @@ EOF
 
 }
 
+function _set_gpg_options() {
+  gpg_key="$(config yadm.gpg-recipient)"
+  if [ "$gpg_key" = "ASK" ]; then
+    GPG_OPTS=("--no-default-recipient" "-e")
+  elif [ "$gpg_key" != "" ]; then
+    GPG_OPTS=("-e" "-r $gpg_key")
+  else
+    GPG_OPTS=("-c")
+  fi
+}
+
 function _get_openssl_ciphername() {
   OPENSSL_CIPHERNAME="$(config yadm.openssl-ciphername)"
   if [ -z "$OPENSSL_CIPHERNAME" ]; then
     OPENSSL_CIPHERNAME="aes-256-cbc"
   fi
-
   echo "$OPENSSL_CIPHERNAME"
 }
 
 function _set_openssl_options() {
+  cipher_name="$(_get_openssl_ciphername)"
+  OPENSSL_OPTS=("-${cipher_name}" -salt)
   if [ "$(config --bool yadm.openssl-old)" == "true" ]; then
-    OPENSSL_OPTS=(-md md5)
+    OPENSSL_OPTS+=(-md md5)
   else
-    OPENSSL_OPTS=(-pbkdf2 -iter 100000 -md sha512)
+    OPENSSL_OPTS+=(-pbkdf2 -iter 100000 -md sha512)
   fi
 }
 
@@ -949,16 +962,13 @@ function _decrypt_from() {
   case "$yadm_cipher" in
     gpg)
       require_gpg
-
       $GPG_PROGRAM -d "$output_archive"
       ;;
 
     openssl)
       require_openssl
-
-      OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
       _set_openssl_options
-      $OPENSSL_PROGRAM enc -d "${OPENSSL_OPTS[@]}" "-${OPENSSL_CIPHERNAME}" -salt -in "$output_archive"
+      $OPENSSL_PROGRAM enc -d "${OPENSSL_OPTS[@]}" -in "$output_archive"
       ;;
 
     *)
@@ -978,26 +988,14 @@ function _encrypt_to() {
   case "$yadm_cipher" in
     gpg)
       require_gpg
-
-      # Build gpg options for gpg
-      GPG_KEY="$(config yadm.gpg-recipient)"
-      if [ "$GPG_KEY" = "ASK" ]; then
-        GPG_OPTS=("--no-default-recipient" "-e")
-      elif [ "$GPG_KEY" != "" ]; then
-        GPG_OPTS=("-e" "-r $GPG_KEY")
-      else
-        GPG_OPTS=("-c")
-      fi
-
+      _set_gpg_options
       $GPG_PROGRAM --yes "${GPG_OPTS[@]}" --output "$output_archive"
       ;;
 
     openssl)
       require_openssl
-
-      OPENSSL_CIPHERNAME="$(_get_openssl_ciphername)"
       _set_openssl_options
-      $OPENSSL_PROGRAM enc -e "${OPENSSL_OPTS[@]}" "-${OPENSSL_CIPHERNAME}" -salt -out "$output_archive"
+      $OPENSSL_PROGRAM enc -e "${OPENSSL_OPTS[@]}" -out "$output_archive"
       ;;
 
     *)
