@@ -357,8 +357,13 @@ BEGIN {
   els           = "^{%" blank "*else" blank "*%}$"
   end           = "^{%" blank "*endif" blank "*%}$"
   skp           = "^{%" blank "*(if|else|endif)"
+  inc_start     = "^{%" blank "*include" blank "+\"?"
+  inc_end       = "\"?" blank "*%}$"
+  inc           = inc_start ".+" inc_end
   prt           = 1
+  err           = 0
 }
+END { exit err }
 { replace_vars() } # variable replacements
 $0 ~ vld, $0 ~ end {
   if ($0 ~ vld || $0 ~ end) prt=1;
@@ -370,7 +375,25 @@ $0 ~ vld, $0 ~ end {
   if ($0 ~ els || $0 ~ end) prt=1;
   if ($0 ~ skp) next;
 }
-{ if (prt) print }
+{ if (!prt) next }
+$0 ~ inc {
+  file = $0
+  sub(inc_start, "", file)
+  sub(inc_end, "", file)
+  sub(/^[^\/].*$/, source_dir "/&", file)
+
+  while ((res = getline <file) > 0) {
+    replace_vars()
+    print
+  }
+  if (res < 0) {
+    printf "%s:%d: error: could not read '%s'\n", FILENAME, NR, file | "cat 1>&2"
+    err = 1
+  }
+  close(file)
+  next
+}
+{ print }
 function replace_vars() {
   for (label in c) {
     gsub(("{{" blank "*yadm\\." label blank "*}}"), c[label])
@@ -396,8 +419,9 @@ EOF
     -v user="$local_user" \
     -v distro="$local_distro" \
     -v source="$input" \
+    -v source_dir="$(dirname "$input")" \
     "$awk_pgm" \
-    "$input" > "$temp_file"
+    "$input" > "$temp_file" || rm -f "$temp_file"
 
   if [ -f "$temp_file" ] ; then
     copy_perms "$input" "$temp_file"

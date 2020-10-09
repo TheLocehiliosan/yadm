@@ -708,6 +708,7 @@ with the following content
   config={{yadm.class}}-{{yadm.os}}
   {% else %}
   config=dev-whatever
+  {% include "whatever.extra" %}
   {% endif %}
 
 would output a file named
@@ -716,9 +717,12 @@ with the following content if the user is "harvey":
 
   config=work-Linux
 
-and the following otherwise:
+and the following otherwise (if
+.I whatever.extra
+contains admin=false):
 
   config=dev-whatever
+  admin=false
 
 An equivalent Jinja template named
 .I whatever##template.j2
@@ -728,6 +732,7 @@ would look like:
   config={{YADM_CLASS}}-{{YADM_OS}}
   {% else -%}
   config=dev-whatever
+  {% include 'whatever.extra' %}
   {% endif -%}
 
 An equivalent ESH templated named
@@ -738,6 +743,7 @@ would look like:
   config=<%= $YADM_CLASS %>-<%= $YADM_OS %>
   <% else -%>
   config=dev-whatever
+  <%+ whatever.extra %>
   <% fi -%>
 
 .SH ENCRYPTION
