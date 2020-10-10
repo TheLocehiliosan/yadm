@@ -102,8 +102,8 @@ test:
 	fi
 
 .PHONY: testhost
+testhost: version ?= HEAD
 testhost: require-docker
-	@version=HEAD
 	@rm -rf /tmp/testhost
 	@git show $(version):yadm > /tmp/testhost
 	@chmod a+x /tmp/testhost
@@ -117,8 +117,8 @@ testhost: require-docker
 		bash -l
 
 .PHONY: scripthost
+scripthost: version ?= HEAD
 scripthost: require-docker
-	@version=HEAD
 	@rm -rf /tmp/testhost
 	@git show $(version):yadm > /tmp/testhost
 	@chmod a+x /tmp/testhost
