@@ -106,6 +106,17 @@ This block is included for any other OS
 {% endif %}
 ```
 
+include
+: Content can be included from external files using the
+`{% include "filename" %}` syntax. The filename may include variables and
+should be either a path relative to the current template or an absolute
+path. The included file may itself also use variables, but if-else-endif or
+include directives are not supported. An example:
+
+```jinja
+{% include "extra/config.{{ yadm.os }}" %}
+```
+
 {% endraw %}
 
 [envtpl]: https://github.com/andreasjansson/envtpl
