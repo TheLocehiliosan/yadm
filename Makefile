@@ -93,7 +93,7 @@ test:
 		cd /yadm && \
 		py.test -v $(testargs); \
 	else \
-		if command -v "docker-compose" &> /dev/null; then \
+		if command -v "docker-compose" > /dev/null 2>&1; then \
 			docker-compose run --rm testbed make test testargs="$(testargs)"; \
 		else \
 			echo "Sorry, this make test requires docker-compose to be installed."; \
@@ -102,8 +102,8 @@ test:
 	fi
 
 .PHONY: testhost
+testhost: version ?= HEAD
 testhost: require-docker
-	@version=HEAD
 	@rm -rf /tmp/testhost
 	@git show $(version):yadm > /tmp/testhost
 	@chmod a+x /tmp/testhost
@@ -117,8 +117,8 @@ testhost: require-docker
 		bash -l
 
 .PHONY: scripthost
+scripthost: version ?= HEAD
 scripthost: require-docker
-	@version=HEAD
 	@rm -rf /tmp/testhost
 	@git show $(version):yadm > /tmp/testhost
 	@chmod a+x /tmp/testhost
@@ -197,7 +197,7 @@ sync-clock:
 
 .PHONY: require-docker
 require-docker:
-	@if ! command -v "docker" &> /dev/null; then \
+	@if ! command -v "docker" > /dev/null 2>&1; then \
 		echo "Sorry, this make target requires docker to be installed."; \
 		false; \
 	fi
