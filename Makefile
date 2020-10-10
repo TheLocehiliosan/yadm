@@ -107,7 +107,7 @@ testhost: require-docker
 	@rm -rf /tmp/testhost
 	@git show $(version):yadm > /tmp/testhost
 	@chmod a+x /tmp/testhost
-	@echo Starting testhost version=\"$$version\"
+	@echo Starting testhost version=\"$(version)\"
 	@docker run \
 		-w /root \
 		--hostname testhost \
@@ -122,7 +122,7 @@ scripthost: require-docker
 	@rm -rf /tmp/testhost
 	@git show $(version):yadm > /tmp/testhost
 	@chmod a+x /tmp/testhost
-	@echo Starting scripthost version=\"$$version\" \(recording script\)
+	@echo Starting scripthost version=\"$(version)\" \(recording script\)
 	@printf '' > script.gz
 	@docker run \
 		-w /root \
