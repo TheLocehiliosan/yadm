@@ -313,29 +313,6 @@ for more information.
 .B version
 Print the version of yadm.
 
-.SH COMPATIBILITY
-
-Beginning with version 2.0.0, yadm introduced a couple major changes which may
-require you to adjust your configurations.
-See the
-.B upgrade
-command for help making those adjustments.
-
-First, yadm now uses the "XDG Base Directory Specification" to find its
-configurations. You can read
-https://yadm.io/docs/upgrade_from_1
-for more information.
-
-Second, the naming conventions for alternate files have been changed.
-You can read https://yadm.io/docs/alternates for more information.
-
-If you want to retain the old functionality, you can set an environment variable,
-.IR YADM_COMPATIBILITY=1 .
-Doing so will automatically use the old yadm directory, and process alternates
-the same as the pre-2.0.0 version. This compatibility mode is deprecated, and
-will be removed in future versions. This mode exists solely for transitioning
-to the new paths and naming of alternates.
-
 .SH OPTIONS
 
 yadm supports a set of universal options that alter the paths it uses. The

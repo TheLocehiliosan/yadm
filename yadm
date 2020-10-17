@@ -539,20 +539,13 @@ function alt() {
   local alt_linked
   alt_linked=()
 
-  if [ "$YADM_COMPATIBILITY" = "1" ]; then
-    alt_past_linking
-  else
-    alt_future_linking
-  fi
-
+  alt_linking
   remove_stale_links
-
   report_invalid_alts
 
 }
 
 function report_invalid_alts() {
-  [ "$YADM_COMPATIBILITY" = "1" ] && return
   [ "$LEGACY_WARNING_ISSUED" = "1" ] && return
   [ "${#INVALID_ALT[@]}" = "0" ] && return
   local path_list
@@ -626,7 +619,7 @@ function set_local_alt_values() {
 
 }
 
-function alt_future_linking() {
+function alt_linking() {
 
   local alt_scores
   local alt_targets
@@ -1353,9 +1346,6 @@ function upgrade() {
   local repo_updates
   repo_updates=0
 
-  [ "$YADM_COMPATIBILITY" = "1" ] && \
-    error_out "Unable to upgrade. YADM_COMPATIBILITY is set to '1'."
-
   [ "$YADM_DIR" = "$YADM_LEGACY_DIR" ] && \
     error_out "Unable to upgrade. yadm dir has been resolved as '$YADM_LEGACY_DIR'."
 
@@ -1564,12 +1554,6 @@ function set_yadm_dir() {
   # only resolve YADM_DIR if it hasn't been provided already
   [ -n "$YADM_DIR" ] && return
 
-  # compatibility with major version 1 ignores XDG_CONFIG_HOME
-  if [ "$YADM_COMPATIBILITY" = "1" ]; then
-    YADM_DIR="$YADM_LEGACY_DIR"
-    return
-  fi
-
   local base_yadm_dir
   base_yadm_dir="$XDG_CONFIG_HOME"
   if [[ ! "$base_yadm_dir" =~ ^/ ]] ; then
@@ -1633,8 +1617,6 @@ function issue_legacy_path_warning() {
     * Run "yadm upgrade" to move the yadm data to the new directory. (RECOMMENDED)
     * Manually move yadm configurations to the directory listed above.
     * Specify your preferred yadm directory with -Y each execution.
-    * Define an environment variable "YADM_COMPATIBILITY=1" to run in version 1
-      compatibility mode. (DEPRECATED)
 
   Legacy paths detected:
 ${path_list}

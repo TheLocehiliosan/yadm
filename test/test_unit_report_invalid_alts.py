@@ -4,7 +4,6 @@ import pytest
 
 @pytest.mark.parametrize(
     'condition', [
-        'compat',
         'previous-message',
         'invalid-alts',
         'no-invalid-alts',
@@ -12,11 +11,8 @@ import pytest
 def test_report_invalid_alts(runner, yadm, condition):
     """Use report_invalid_alts"""
 
-    compat = ''
     previous = ''
     alts = 'INVALID_ALT=()'
-    if condition == 'compat':
-        compat = 'YADM_COMPATIBILITY=1'
     if condition == 'previous-message':
         previous = 'LEGACY_WARNING_ISSUED=1'
     if condition == 'invalid-alts':
@@ -24,7 +20,6 @@ def test_report_invalid_alts(runner, yadm, condition):
 
     script = f"""
         YADM_TEST=1 source {yadm}
-        {compat}
         {previous}
         {alts}
         report_invalid_alts

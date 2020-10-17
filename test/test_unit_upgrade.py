@@ -11,15 +11,12 @@ LEGACY_PATHS = [
 ]
 
 # used:
-# YADM_COMPATIBILITY
 # YADM_DIR
 # YADM_LEGACY_DIR
 # GIT_PROGRAM
-@pytest.mark.parametrize('condition', ['compat', 'equal', 'existing_repo'])
+@pytest.mark.parametrize('condition', ['equal', 'existing_repo'])
 def test_upgrade_errors(tmpdir, runner, yadm, condition):
     """Test upgrade() error conditions"""
-
-    compatibility = 'YADM_COMPATIBILITY=1' if condition == 'compat' else ''
 
     home = tmpdir.mkdir('home')
     yadm_dir = home.join('.config/yadm')
@@ -32,7 +29,6 @@ def test_upgrade_errors(tmpdir, runner, yadm, condition):
 
     script = f"""
         YADM_TEST=1 source {yadm}
-        {compatibility}
         YADM_DIR="{yadm_dir}"
         YADM_REPO="{yadm_dir}/repo.git"
         YADM_LEGACY_DIR="{legacy_dir}"
@@ -42,8 +38,6 @@ def test_upgrade_errors(tmpdir, runner, yadm, condition):
     assert run.failure
     assert run.err == ''
     assert 'Unable to upgrade' in run.out
-    if condition == 'compat':
-        assert 'YADM_COMPATIBILITY' in run.out
     if condition == 'equal':
         assert 'has been resolved as' in run.out
     if condition == 'existing_repo':
