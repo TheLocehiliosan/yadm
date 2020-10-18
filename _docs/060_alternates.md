@@ -34,6 +34,7 @@ be omitted. Most attributes can be abbreviated as a single letter.
 | `class`, `c` | Valid if the value matches the local.class configuration. Class must be manually set using <code>yadm&nbsp;config&nbsp;local.class&nbsp;&lt;class&gt;</code>. |
 | `hostname`, `h` | Valid if the value matches the short hostname. Hostname is calculated by running `hostname`, and trimming off any domain. |
 | `default` | Valid when no other alternate is valid. |
+| `extension`, `e` | A special "condition" that doesn't affect the selection process. Its purpose is instead to allow the alternate file to end with a certain extension to e.g. make editors highlight the content properly. |
 
 <sub><sup>*
 The OS for "Windows Subsystem for Linux" is reported as "WSL", even though uname identifies as "Linux".
