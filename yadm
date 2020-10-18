@@ -352,11 +352,11 @@ BEGIN {
   c["user"]     = user
   c["distro"]   = distro
   c["source"]   = source
-  vld           = conditions()
   ifs           = "^{%" blank "*if"
   els           = "^{%" blank "*else" blank "*%}$"
   end           = "^{%" blank "*endif" blank "*%}$"
   skp           = "^{%" blank "*(if|else|endif)"
+  vld           = conditions()
   inc_start     = "^{%" blank "*include" blank "+\"?"
   inc_end       = "\"?" blank "*%}$"
   inc           = inc_start ".+" inc_end
@@ -400,7 +400,7 @@ function replace_vars() {
   }
 }
 function conditions() {
-  pattern = "^{%" blank "*if" blank "*("
+  pattern = ifs blank "*("
   for (label in c) {
     value = c[label]
     gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
