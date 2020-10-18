@@ -32,7 +32,7 @@ be omitted. Most attributes can be abbreviated as a single letter.
 | `distro`, `d` | Valid if the value matches the distro. Distro is calculated by running <code>lsb_release&nbsp;&#8209;si</code> or inspecting <code>/etc/os-release</code> |
 | `os`, `o` | Valid if the value matches the OS. OS is calculated by running <code>uname&nbsp;&#8209;s</code>. <sup>*</sup> |
 | `class`, `c` | Valid if the value matches the local.class configuration. Class must be manually set using <code>yadm&nbsp;config&nbsp;local.class&nbsp;&lt;class&gt;</code>. |
-| `hostname`, `h` | Valid if the value matches the short hostname. Hostname is calculated by running `hostname`, and trimming off any domain. |
+| `hostname`, `h` | Valid if the value matches the short hostname. Hostname is calculated by running <code>uname&nbsp;&#8209;n</code>, and trimming off any domain. |
 | `default` | Valid when no other alternate is valid. |
 | `extension`, `e` | A special "condition" that doesn't affect the selection process. Its purpose is instead to allow the alternate file to end with a certain extension to e.g. make editors highlight the content properly. |
 
