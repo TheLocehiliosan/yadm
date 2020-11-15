@@ -140,6 +140,7 @@ def supported_switches():
         '--yadm-archive',
         '--yadm-bootstrap',
         '--yadm-config',
+        '--yadm-data',
         '--yadm-dir',
         '--yadm-encrypt',
         '--yadm-repo',

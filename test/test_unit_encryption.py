@@ -13,7 +13,7 @@ def test_get_cipher(runner, paths, condition):
     script = f"""
         YADM_TEST=1 source {paths.pgm}
         YADM_DIR="{paths.yadm}"
-        set_yadm_dir
+        set_yadm_dirs
         configure_paths
         _get_cipher test-archive
         echo "output_archive:$output_archive"
@@ -37,7 +37,7 @@ def test_encrypt_decrypt(runner, paths, cipher, mode):
     script = f"""
         YADM_TEST=1 source {paths.pgm}
         YADM_DIR="{paths.yadm}"
-        set_yadm_dir
+        set_yadm_dirs
         configure_paths
         function mock_openssl() {{ echo openssl $*; }}
         function mock_gpg() {{ echo gpg $*; }}
@@ -71,7 +71,7 @@ def test_get_openssl_ciphername(runner, paths, condition):
     script = f"""
         YADM_TEST=1 source {paths.pgm}
         YADM_DIR="{paths.yadm}"
-        set_yadm_dir
+        set_yadm_dirs
         configure_paths
         result=$(_get_openssl_ciphername)
         echo "result:$result"
@@ -95,7 +95,7 @@ def test_set_openssl_options(runner, paths, condition):
     script = f"""
         YADM_TEST=1 source {paths.pgm}
         YADM_DIR="{paths.yadm}"
-        set_yadm_dir
+        set_yadm_dirs
         configure_paths
         function _get_openssl_ciphername() {{ echo "testcipher"; }}
         _set_openssl_options
@@ -119,7 +119,7 @@ def test_set_gpg_options(runner, paths, recipient):
     script = f"""
         YADM_TEST=1 source {paths.pgm}
         YADM_DIR="{paths.yadm}"
-        set_yadm_dir
+        set_yadm_dirs
         configure_paths
         _set_gpg_options
         echo "result:${{GPG_OPTS[@]}}"

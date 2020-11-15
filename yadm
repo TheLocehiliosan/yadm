@@ -24,16 +24,19 @@ VERSION=2.5.0
 
 YADM_WORK="$HOME"
 YADM_DIR=
+YADM_DATA=
 YADM_LEGACY_DIR="${HOME}/.yadm"
 
 # these are the default paths relative to YADM_DIR
-YADM_REPO="repo.git"
 YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
-YADM_ARCHIVE="archive"
 YADM_BOOTSTRAP="bootstrap"
 YADM_HOOKS="hooks"
 YADM_ALT="alt"
+
+# these are the default paths relative to YADM_DATA
+YADM_REPO="repo.git"
+YADM_ARCHIVE="archive"
 
 HOOK_COMMAND=""
 FULL_COMMAND=""
@@ -87,8 +90,9 @@ function main() {
   done
   FULL_COMMAND="${_fc[*]}"
 
-  # create the YADM_DIR if it doesn't exist yet
-  [ -d "$YADM_DIR" ] || mkdir -p "$YADM_DIR"
+  # create the YADM_DIR & YADM_DATA if they doesn't exist yet
+  [ -d "$YADM_DIR" ]  || mkdir -p "$YADM_DIR"
+  [ -d "$YADM_DATA" ] || mkdir -p "$YADM_DATA"
 
   # parse command line arguments
   local retval=0
@@ -1280,6 +1284,7 @@ function introspect_switches() {
 --yadm-archive
 --yadm-bootstrap
 --yadm-config
+--yadm-data
 --yadm-dir
 --yadm-encrypt
 --yadm-repo
@@ -1505,6 +1510,13 @@ function process_global_args() {
         YADM_DIR="$2"
         shift
       ;;
+      --yadm-data) # override the standard YADM_DATA
+        if [[ ! "$2" =~ ^/ ]] ; then
+          error_out "You must specify a fully qualified yadm data directory"
+        fi
+        YADM_DATA="$2"
+        shift
+      ;;
       --yadm-repo) # override the standard YADM_REPO
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified repo path"
@@ -1549,17 +1561,27 @@ function process_global_args() {
 
 }
 
-function set_yadm_dir() {
+function set_yadm_dirs() {
+
+  # only resolve YADM_DATA if it hasn't been provided already
+  if [ -z "$YADM_DATA" ]; then
+    local base_yadm_data
+    base_yadm_data="$XDG_DATA_HOME"
+    if [[ ! "$base_yadm_data" =~ ^/ ]] ; then
+      base_yadm_data="${HOME}/.local/share"
+    fi
+    YADM_DATA="${base_yadm_data}/yadm"
+  fi
 
   # only resolve YADM_DIR if it hasn't been provided already
-  [ -n "$YADM_DIR" ] && return
-
-  local base_yadm_dir
-  base_yadm_dir="$XDG_CONFIG_HOME"
-  if [[ ! "$base_yadm_dir" =~ ^/ ]] ; then
-    base_yadm_dir="${HOME}/.config"
+  if [ -z "$YADM_DIR" ]; then
+    local base_yadm_dir
+    base_yadm_dir="$XDG_CONFIG_HOME"
+    if [[ ! "$base_yadm_dir" =~ ^/ ]] ; then
+      base_yadm_dir="${HOME}/.config"
+    fi
+    YADM_DIR="${base_yadm_dir}/yadm"
   fi
-  YADM_DIR="${base_yadm_dir}/yadm"
 
   issue_legacy_path_warning
 
@@ -1629,14 +1651,16 @@ LEGACY_WARNING_ISSUED=1
 
 function configure_paths() {
 
-  # change all paths to be relative to YADM_DIR
-  YADM_REPO="$YADM_DIR/$YADM_REPO"
+  # change paths to be relative to YADM_DIR
   YADM_CONFIG="$YADM_DIR/$YADM_CONFIG"
   YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
-  YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
   YADM_HOOKS="$YADM_DIR/$YADM_HOOKS"
   YADM_ALT="$YADM_DIR/$YADM_ALT"
+
+  # change paths to be relative to YADM_DATA
+  YADM_REPO="$YADM_DATA/$YADM_REPO"
+  YADM_ARCHIVE="$YADM_DATA/$YADM_ARCHIVE"
 
   # independent overrides for paths
   if [ -n "$YADM_OVERRIDE_REPO" ]; then
@@ -1757,6 +1781,7 @@ function invoke_hook() {
     # expose some internal data to all hooks
     YADM_HOOK_COMMAND=$HOOK_COMMAND
     YADM_HOOK_DIR=$YADM_DIR
+    YADM_HOOK_DATA=$YADM_DATA
     YADM_HOOK_EXIT=$exit_status
     YADM_HOOK_FULL_COMMAND=$FULL_COMMAND
     YADM_HOOK_REPO=$YADM_REPO
@@ -1768,6 +1793,7 @@ function invoke_hook() {
 
     export YADM_HOOK_COMMAND
     export YADM_HOOK_DIR
+    export YADM_HOOK_DATA
     export YADM_HOOK_EXIT
     export YADM_HOOK_FULL_COMMAND
     export YADM_HOOK_REPO
@@ -2182,7 +2208,7 @@ if [ "$YADM_TEST" != 1 ] ; then
   process_global_args "$@"
   set_operating_system
   set_awk
-  set_yadm_dir
+  set_yadm_dirs
   configure_paths
   main "${MAIN_ARGS[@]}"
 fi

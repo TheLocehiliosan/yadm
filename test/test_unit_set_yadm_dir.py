@@ -1,4 +1,4 @@
-"""Unit tests: set_yadm_dir"""
+"""Unit tests: set_yadm_dirs"""
 import pytest
 
 
@@ -6,8 +6,8 @@ import pytest
     'condition',
     ['basic', 'override', 'xdg_config_home'],
     )
-def test_set_yadm_dir(runner, yadm, condition):
-    """Test set_yadm_dir"""
+def test_set_yadm_dirs(runner, yadm, condition):
+    """Test set_yadm_dirs"""
     setup = ''
     if condition == 'override':
         setup = 'YADM_DIR=/override'
@@ -17,7 +17,7 @@ def test_set_yadm_dir(runner, yadm, condition):
         HOME=/testhome
         YADM_TEST=1 source {yadm}
         {setup}
-        set_yadm_dir
+        set_yadm_dirs
         echo "$YADM_DIR"
     """
     run = runner(command=['bash'], inp=script)
