@@ -22,12 +22,12 @@ def test_alt_source(
         tracked, encrypt, exclude,
         yadm_alt):
     """Test yadm alt operates on all expected sources of alternates"""
-    yadm_dir = setup_standard_yadm_dir(paths)
+    yadm_dir, yadm_data = setup_standard_yadm_dir(paths)
 
     utils.create_alt_files(
         paths, '##default', tracked=tracked, encrypt=encrypt, exclude=exclude,
         yadm_alt=yadm_alt, yadm_dir=yadm_dir)
-    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
+    run = runner([paths.pgm, '-Y', yadm_dir, '--yadm-data', yadm_data, 'alt'])
     assert run.success
     assert run.err == ''
     linked = utils.parse_alt_output(run.out)
@@ -57,12 +57,12 @@ def test_alt_source(
 @pytest.mark.parametrize('yadm_alt', [True, False], ids=['alt', 'worktree'])
 def test_relative_link(runner, paths, yadm_alt):
     """Confirm links created are relative"""
-    yadm_dir = setup_standard_yadm_dir(paths)
+    yadm_dir, yadm_data = setup_standard_yadm_dir(paths)
 
     utils.create_alt_files(
         paths, '##default', tracked=True, encrypt=False, exclude=False,
         yadm_alt=yadm_alt, yadm_dir=yadm_dir)
-    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
+    run = runner([paths.pgm, '-Y', yadm_dir, '--yadm-data', yadm_data, 'alt'])
     assert run.success
     assert run.err == ''
 
@@ -91,7 +91,7 @@ def test_alt_conditions(
         runner, paths,
         tst_sys, tst_distro, tst_host, tst_user, suffix):
     """Test conditions supported by yadm alt"""
-    yadm_dir = setup_standard_yadm_dir(paths)
+    yadm_dir, yadm_data = setup_standard_yadm_dir(paths)
 
     # set the class
     tst_class = 'testclass'
@@ -106,7 +106,7 @@ def test_alt_conditions(
     )
 
     utils.create_alt_files(paths, suffix)
-    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
+    run = runner([paths.pgm, '-Y', yadm_dir, '--yadm-data', yadm_data, 'alt'])
     assert run.success
     assert run.err == ''
     linked = utils.parse_alt_output(run.out)
@@ -131,13 +131,13 @@ def test_alt_conditions(
 def test_alt_templates(
         runner, paths, kind, label):
     """Test templates supported by yadm alt"""
-    yadm_dir = setup_standard_yadm_dir(paths)
+    yadm_dir, yadm_data = setup_standard_yadm_dir(paths)
 
     suffix = f'##{label}.{kind}'
     if kind is None:
         suffix = f'##{label}'
     utils.create_alt_files(paths, suffix)
-    run = runner([paths.pgm, '-Y', yadm_dir, 'alt'])
+    run = runner([paths.pgm, '-Y', yadm_dir, '--yadm-data', yadm_data, 'alt'])
     assert run.success
     assert run.err == ''
     created = utils.parse_alt_output(run.out, linked=False)
@@ -265,12 +265,13 @@ def test_template_overwrite_symlink(runner, yadm_y, paths, tst_sys):
 @pytest.mark.parametrize('style', ['symlink', 'template'])
 def test_ensure_alt_path(runner, paths, style):
     """Test that directories are created before making alternates"""
-    yadm_dir = setup_standard_yadm_dir(paths)
+    yadm_dir, yadm_data = setup_standard_yadm_dir(paths)
     suffix = 'default' if style == 'symlink' else 'template'
     filename = 'a/b/c/file'
     source = yadm_dir.join(f'alt/{filename}##{suffix}')
     source.write('test-data', ensure=True)
-    run = runner([paths.pgm, '-Y', yadm_dir, 'add', source])
+    run = runner([
+        paths.pgm, '-Y', yadm_dir, '--yadm-data', yadm_data, 'add', source])
     assert run.success
     assert run.err == ''
     assert run.out == ''
@@ -280,6 +281,7 @@ def test_ensure_alt_path(runner, paths, style):
 def setup_standard_yadm_dir(paths):
     """Configure a yadm home within the work tree"""
     std_yadm_dir = paths.work.mkdir('.config').mkdir('yadm')
-    std_yadm_dir.join('repo.git').mksymlinkto(paths.repo, absolute=1)
+    std_yadm_data = paths.work.mkdir('.local').mkdir('share').mkdir('yadm')
+    std_yadm_data.join('repo.git').mksymlinkto(paths.repo, absolute=1)
     std_yadm_dir.join('encrypt').mksymlinkto(paths.encrypt, absolute=1)
-    return std_yadm_dir
+    return std_yadm_dir, std_yadm_data

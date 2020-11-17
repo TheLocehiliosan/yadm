@@ -26,7 +26,7 @@ def test_set_local_alt_values(
     script = f"""
         YADM_TEST=1 source {yadm} &&
         set_operating_system &&
-        YADM_DIR={paths.yadm} configure_paths &&
+        YADM_DIR={paths.yadm} YADM_DATA={paths.data} configure_paths &&
         set_local_alt_values
         echo "class='$local_class'"
         echo "os='$local_system'"

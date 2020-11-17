@@ -180,6 +180,10 @@ class Runner():
             self.command = ' '.join([str(cmd) for cmd in command])
         else:
             self.command = command
+        if env is None:
+            env = {}
+        merged_env = os.environ.copy()
+        merged_env.update(env)
         self.inp = inp
         self.wrap(expect)
         process = Popen(
@@ -189,7 +193,7 @@ class Runner():
             stderr=PIPE,
             shell=shell,
             cwd=cwd,
-            env=env,
+            env=merged_env,
         )
         input_bytes = self.inp
         if self.inp:
@@ -280,13 +284,17 @@ def yadm():
 @pytest.fixture()
 def paths(tmpdir, yadm):
     """Function scoped test paths"""
+
     dir_root = tmpdir.mkdir('root')
-    dir_work = dir_root.mkdir('work')
-    dir_yadm = dir_root.mkdir('yadm')
-    dir_repo = dir_yadm.mkdir('repo.git')
-    dir_hooks = dir_yadm.mkdir('hooks')
     dir_remote = dir_root.mkdir('remote')
-    file_archive = dir_yadm.join('archive')
+    dir_work = dir_root.mkdir('work')
+    dir_xdg_data = dir_root.mkdir('xdg_data')
+    dir_xdg_home = dir_root.mkdir('xdg_home')
+    dir_data = dir_xdg_data.mkdir('yadm')
+    dir_yadm = dir_xdg_home.mkdir('yadm')
+    dir_hooks = dir_yadm.mkdir('hooks')
+    dir_repo = dir_data.mkdir('repo.git')
+    file_archive = dir_data.join('archive')
     file_bootstrap = dir_yadm.join('bootstrap')
     file_config = dir_yadm.join('config')
     file_encrypt = dir_yadm.join('encrypt')
@@ -294,24 +302,32 @@ def paths(tmpdir, yadm):
         'Paths', [
             'pgm',
             'root',
-            'work',
-            'yadm',
-            'repo',
-            'hooks',
             'remote',
+            'work',
+            'xdg_data',
+            'xdg_home',
+            'data',
+            'yadm',
+            'hooks',
+            'repo',
             'archive',
             'bootstrap',
             'config',
             'encrypt',
             ])
+    os.environ['XDG_CONFIG_HOME'] = str(dir_xdg_home)
+    os.environ['XDG_DATA_HOME'] = str(dir_xdg_data)
     return paths(
         yadm,
         dir_root,
-        dir_work,
-        dir_yadm,
-        dir_repo,
-        dir_hooks,
         dir_remote,
+        dir_work,
+        dir_xdg_data,
+        dir_xdg_home,
+        dir_data,
+        dir_yadm,
+        dir_hooks,
+        dir_repo,
         file_archive,
         file_bootstrap,
         file_config,
@@ -324,7 +340,7 @@ def yadm_y(paths):
     """Generate custom command_list function"""
     def command_list(*args):
         """Produce params for running yadm with -Y"""
-        return [paths.pgm, '-Y', str(paths.yadm)] + list(args)
+        return [paths.pgm] + list(args)
     return command_list
 
 

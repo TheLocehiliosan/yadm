@@ -9,12 +9,14 @@ ENCRYPT = 'encrypt'
 HOME = '/testhome'
 REPO = 'repo.git'
 YDIR = '.config/yadm'
+YDATA = '.local/share/yadm'
 
 
 @pytest.mark.parametrize(
     'override, expect', [
         (None, {}),
-        ('-Y', {}),
+        ('-Y', {'yadm': 'YADM_DIR'}),
+        ('--yadm-data', {'data': 'YADM_DATA'}),
         ('--yadm-repo', {'repo': 'YADM_REPO', 'git': 'GIT_DIR'}),
         ('--yadm-config', {'config': 'YADM_CONFIG'}),
         ('--yadm-encrypt', {'encrypt': 'YADM_ENCRYPT'}),
@@ -23,6 +25,7 @@ YDIR = '.config/yadm'
     ], ids=[
         'default',
         'override yadm dir',
+        'override yadm data',
         'override repo',
         'override config',
         'override encrypt',
@@ -36,6 +39,8 @@ def test_config(runner, paths, override, expect):
     args = []
     if override == '-Y':
         matches = match_map('/' + opath)
+    if override == '--yadm-data':
+        matches = match_map(None, '/' + opath)
 
     if override:
         args = [override, '/' + opath]
@@ -49,18 +54,20 @@ def test_config(runner, paths, override, expect):
     run_test(runner, paths, args, matches.values(), 0)
 
 
-def match_map(yadm_dir=None):
+def match_map(yadm_dir=None, yadm_data=None):
     """Create a dictionary of matches, relative to yadm_dir"""
     if not yadm_dir:
         yadm_dir = '/'.join([HOME, YDIR])
+    if not yadm_data:
+        yadm_data = '/'.join([HOME, YDATA])
     return {
         'yadm': f'YADM_DIR="{yadm_dir}"',
-        'repo': f'YADM_REPO="{yadm_dir}/{REPO}"',
+        'repo': f'YADM_REPO="{yadm_data}/{REPO}"',
         'config': f'YADM_CONFIG="{yadm_dir}/{CONFIG}"',
         'encrypt': f'YADM_ENCRYPT="{yadm_dir}/{ENCRYPT}"',
-        'archive': f'YADM_ARCHIVE="{yadm_dir}/{ARCHIVE}"',
+        'archive': f'YADM_ARCHIVE="{yadm_data}/{ARCHIVE}"',
         'bootstrap': f'YADM_BOOTSTRAP="{yadm_dir}/{BOOTSTRAP}"',
-        'git': f'GIT_DIR="{yadm_dir}/{REPO}"',
+        'git': f'GIT_DIR="{yadm_data}/{REPO}"',
         }
 
 
@@ -70,6 +77,8 @@ def run_test(runner, paths, args, expected_matches, expected_code=0):
     script = f"""
         YADM_TEST=1 HOME="{HOME}" source {paths.pgm}
         process_global_args {argstring}
+        XDG_CONFIG_HOME=
+        XDG_DATA_HOME=
         HOME="{HOME}" set_yadm_dirs
         configure_paths
         declare -p | grep -E '(YADM|GIT)_'
