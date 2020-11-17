@@ -22,7 +22,7 @@ import pytest
         'pre-post-fail',
     ])
 def test_hooks(
-        runner, yadm_y, paths,
+        runner, yadm_cmd, paths,
         pre, pre_code, post, post_code):
     """Test pre/post hook"""
 
@@ -33,7 +33,7 @@ def test_hooks(
         create_hook(paths, 'post_version', post_code)
 
     # run yadm
-    run = runner(yadm_y('version'))
+    run = runner(yadm_cmd('version'))
     # when a pre hook fails, yadm should exit with the hook's code
     assert run.code == pre_code
     assert run.err == ''
@@ -53,7 +53,7 @@ def test_hooks(
 
 # repo fixture is needed to test the population of YADM_HOOK_WORK
 @pytest.mark.usefixtures('ds1_repo_copy')
-def test_hook_env(runner, yadm_y, paths):
+def test_hook_env(runner, yadm_cmd, paths):
     """Test hook environment"""
 
     # test will be done with a non existent "git" passthru command
@@ -65,7 +65,7 @@ def test_hook_env(runner, yadm_y, paths):
     hook.write('#!/bin/bash\nenv\ndeclare\n')
     hook.chmod(0o755)
 
-    run = runner(yadm_y(cmd, 'extra_args'))
+    run = runner(yadm_cmd(cmd, 'extra_args'))
 
     # expect passthru to fail
     assert run.failure
@@ -103,7 +103,7 @@ def test_hook_env(runner, yadm_y, paths):
     assert 'YADM_ENCRYPT_INCLUDE_FILES=a\nb\nc\n' in run.out
 
 
-def test_escaped(runner, yadm_y, paths):
+def test_escaped(runner, yadm_cmd, paths):
     """Test escaped values in YADM_HOOK_FULL_COMMAND"""
 
     # test will be done with a non existent "git" passthru command
@@ -115,7 +115,7 @@ def test_escaped(runner, yadm_y, paths):
     hook.write('#!/bin/bash\nenv\n')
     hook.chmod(0o755)
 
-    run = runner(yadm_y(cmd, 'a b', 'c\td', 'e\\f'))
+    run = runner(yadm_cmd(cmd, 'a b', 'c\td', 'e\\f'))
 
     # expect passthru to fail
     assert run.failure

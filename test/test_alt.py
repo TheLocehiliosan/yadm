@@ -152,15 +152,15 @@ def test_alt_templates(
 
 @pytest.mark.usefixtures('ds1_copy')
 @pytest.mark.parametrize('autoalt', [None, 'true', 'false'])
-def test_auto_alt(runner, yadm_y, paths, autoalt):
+def test_auto_alt(runner, yadm_cmd, paths, autoalt):
     """Test auto alt"""
 
     # set the value of auto-alt
     if autoalt:
-        os.system(' '.join(yadm_y('config', 'yadm.auto-alt', autoalt)))
+        os.system(' '.join(yadm_cmd('config', 'yadm.auto-alt', autoalt)))
 
     utils.create_alt_files(paths, '##default')
-    run = runner(yadm_y('status'))
+    run = runner(yadm_cmd('status'))
     assert run.success
     assert run.err == ''
     linked = utils.parse_alt_output(run.out)
@@ -185,7 +185,7 @@ def test_auto_alt(runner, yadm_y, paths, autoalt):
 
 
 @pytest.mark.usefixtures('ds1_copy')
-def test_stale_link_removal(runner, yadm_y, paths):
+def test_stale_link_removal(runner, yadm_cmd, paths):
     """Stale links to alternative files are removed
 
     This test ensures that when an already linked alternative becomes invalid
@@ -200,7 +200,7 @@ def test_stale_link_removal(runner, yadm_y, paths):
     utils.create_alt_files(paths, f'##class.{tst_class}')
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    run = runner(yadm_cmd('alt'))
     assert run.success
     assert run.err == ''
     linked = utils.parse_alt_output(run.out)
@@ -222,7 +222,7 @@ def test_stale_link_removal(runner, yadm_y, paths):
     utils.set_local(paths, 'class', 'changedclass')
 
     # run alt to trigger linking
-    run = runner(yadm_y('alt'))
+    run = runner(yadm_cmd('alt'))
     assert run.success
     assert run.err == ''
     linked = utils.parse_alt_output(run.out)
@@ -235,7 +235,7 @@ def test_stale_link_removal(runner, yadm_y, paths):
 
 
 @pytest.mark.usefixtures('ds1_repo_copy')
-def test_template_overwrite_symlink(runner, yadm_y, paths, tst_sys):
+def test_template_overwrite_symlink(runner, yadm_cmd, paths, tst_sys):
     """Remove symlinks before processing a template
 
     If a symlink is in the way of the output of a template, the target of the
@@ -252,7 +252,7 @@ def test_template_overwrite_symlink(runner, yadm_y, paths, tst_sys):
     template = paths.work.join('test_link##template.default')
     template.write('test-data')
 
-    run = runner(yadm_y('add', target, template))
+    run = runner(yadm_cmd('add', target, template))
     assert run.success
     assert run.err == ''
     assert run.out == ''

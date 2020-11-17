@@ -336,7 +336,7 @@ def paths(tmpdir, yadm):
 
 
 @pytest.fixture()
-def yadm_y(paths):
+def yadm_cmd(paths):
     """Generate custom command_list function"""
     def command_list(*args):
         """Produce params for running yadm with -Y"""

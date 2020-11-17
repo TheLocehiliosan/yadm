@@ -10,7 +10,7 @@ TEST_VALUE = 'testvalue'
 TEST_FILE = f'[{TEST_SECTION}]\n\t{TEST_ATTRIBUTE} = {TEST_VALUE}'
 
 
-def test_config_no_params(runner, yadm_y, supported_configs):
+def test_config_no_params(runner, yadm_cmd, supported_configs):
     """No parameters
 
     Display instructions
@@ -18,7 +18,7 @@ def test_config_no_params(runner, yadm_y, supported_configs):
     Exit with 0
     """
 
-    run = runner(yadm_y('config'))
+    run = runner(yadm_cmd('config'))
 
     assert run.success
     assert run.err == ''
@@ -27,21 +27,21 @@ def test_config_no_params(runner, yadm_y, supported_configs):
         assert config in run.out
 
 
-def test_config_read_missing(runner, yadm_y):
+def test_config_read_missing(runner, yadm_cmd):
     """Read missing attribute
 
     Display an empty value
     Exit with 0
     """
 
-    run = runner(yadm_y('config', TEST_KEY))
+    run = runner(yadm_cmd('config', TEST_KEY))
 
     assert run.success
     assert run.err == ''
     assert run.out == ''
 
 
-def test_config_write(runner, yadm_y, paths):
+def test_config_write(runner, yadm_cmd, paths):
     """Write attribute
 
     Display no output
@@ -49,7 +49,7 @@ def test_config_write(runner, yadm_y, paths):
     Exit with 0
     """
 
-    run = runner(yadm_y('config', TEST_KEY, TEST_VALUE))
+    run = runner(yadm_cmd('config', TEST_KEY, TEST_VALUE))
 
     assert run.success
     assert run.err == ''
@@ -57,7 +57,7 @@ def test_config_write(runner, yadm_y, paths):
     assert paths.config.read().strip() == TEST_FILE
 
 
-def test_config_read(runner, yadm_y, paths):
+def test_config_read(runner, yadm_cmd, paths):
     """Read attribute
 
     Display value
@@ -65,14 +65,14 @@ def test_config_read(runner, yadm_y, paths):
     """
 
     paths.config.write(TEST_FILE)
-    run = runner(yadm_y('config', TEST_KEY))
+    run = runner(yadm_cmd('config', TEST_KEY))
 
     assert run.success
     assert run.err == ''
     assert run.out.strip() == TEST_VALUE
 
 
-def test_config_update(runner, yadm_y, paths):
+def test_config_update(runner, yadm_cmd, paths):
     """Update attribute
 
     Display no output
@@ -82,7 +82,7 @@ def test_config_update(runner, yadm_y, paths):
 
     paths.config.write(TEST_FILE)
 
-    run = runner(yadm_y('config', TEST_KEY, TEST_VALUE + 'extra'))
+    run = runner(yadm_cmd('config', TEST_KEY, TEST_VALUE + 'extra'))
 
     assert run.success
     assert run.err == ''
@@ -92,7 +92,7 @@ def test_config_update(runner, yadm_y, paths):
 
 
 @pytest.mark.usefixtures('ds1_repo_copy')
-def test_config_local_read(runner, yadm_y, paths, supported_local_configs):
+def test_config_local_read(runner, yadm_cmd, paths, supported_local_configs):
     """Read local attribute
 
     Display value from the repo config
@@ -107,14 +107,14 @@ def test_config_local_read(runner, yadm_y, paths, supported_local_configs):
 
     # run yadm config
     for config in supported_local_configs:
-        run = runner(yadm_y('config', config))
+        run = runner(yadm_cmd('config', config))
         assert run.success
         assert run.err == ''
         assert run.out.strip() == f'value_of_{config}'
 
 
 @pytest.mark.usefixtures('ds1_repo_copy')
-def test_config_local_write(runner, yadm_y, paths, supported_local_configs):
+def test_config_local_write(runner, yadm_cmd, paths, supported_local_configs):
     """Write local attribute
 
     Display no output
@@ -124,7 +124,7 @@ def test_config_local_write(runner, yadm_y, paths, supported_local_configs):
 
     # run yadm config
     for config in supported_local_configs:
-        run = runner(yadm_y('config', config, f'value_of_{config}'))
+        run = runner(yadm_cmd('config', config, f'value_of_{config}'))
         assert run.success
         assert run.err == ''
         assert run.out == ''
@@ -139,7 +139,7 @@ def test_config_local_write(runner, yadm_y, paths, supported_local_configs):
         assert run.out.strip() == f'value_of_{config}'
 
 
-def test_config_without_parent_directory(runner, yadm_y, paths):
+def test_config_without_parent_directory(runner, yadm_cmd, paths):
     """Write and read attribute to/from config file with non-existent parent dir
 
     Update configuration file
@@ -150,13 +150,13 @@ def test_config_without_parent_directory(runner, yadm_y, paths):
     config_file = paths.root + '/folder/does/not/exist/config'
 
     run = runner(
-        yadm_y('--yadm-config', config_file, 'config', TEST_KEY, TEST_VALUE))
+        yadm_cmd('--yadm-config', config_file, 'config', TEST_KEY, TEST_VALUE))
 
     assert run.success
     assert run.err == ''
     assert run.out == ''
 
-    run = runner(yadm_y('--yadm-config', config_file, 'config', TEST_KEY))
+    run = runner(yadm_cmd('--yadm-config', config_file, 'config', TEST_KEY))
 
     assert run.success
     assert run.err == ''

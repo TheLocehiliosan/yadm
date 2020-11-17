@@ -16,12 +16,12 @@ import pytest
     ])
 @pytest.mark.parametrize('program', ['git', 'gpg'])
 def test_x_program(
-        runner, yadm_y, paths, program, executable, success, value, match):
+        runner, yadm_cmd, paths, program, executable, success, value, match):
     """Set yadm.X-program, and test result of require_X"""
 
     # set configuration
     if executable:
-        os.system(' '.join(yadm_y(
+        os.system(' '.join(yadm_cmd(
             'config', f'yadm.{program}-program', executable)))
 
     # test require_[git,gpg]

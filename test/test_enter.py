@@ -17,7 +17,7 @@ import pytest
         'shell-noexec',
     ])
 @pytest.mark.usefixtures('ds1_copy')
-def test_enter(runner, yadm_y, paths, shell, success):
+def test_enter(runner, yadm_cmd, paths, shell, success):
     """Enter tests"""
     env = os.environ.copy()
     if shell == 'delete':
@@ -33,7 +33,7 @@ def test_enter(runner, yadm_y, paths, shell, success):
     else:
         env['SHELL'] = shell
 
-    run = runner(command=yadm_y('enter'), env=env)
+    run = runner(command=yadm_cmd('enter'), env=env)
     assert run.success == success
     assert run.err == ''
     prompt = f'yadm shell ({paths.repo})'
@@ -64,7 +64,7 @@ def test_enter(runner, yadm_y, paths, shell, success):
     [False, 'cmd', 'cmd-bad-exit'],
     ids=['no-cmd', 'cmd', 'cmd-bad-exit'])
 @pytest.mark.usefixtures('ds1_copy')
-def test_enter_shell_ops(runner, yadm_y, paths, shell, opts, path, cmd):
+def test_enter_shell_ops(runner, yadm_cmd, paths, shell, opts, path, cmd):
     """Enter tests for specific shell options"""
 
     change_exit = '\nfalse' if cmd == 'cmd-bad-exit' else ''
@@ -85,7 +85,7 @@ def test_enter_shell_ops(runner, yadm_y, paths, shell, opts, path, cmd):
     env = os.environ.copy()
     env['SHELL'] = custom_shell
 
-    run = runner(command=yadm_y(*enter_cmd), env=env)
+    run = runner(command=yadm_cmd(*enter_cmd), env=env)
     if cmd == 'cmd-bad-exit':
         assert run.failure
     else:

@@ -9,7 +9,7 @@ PRIVATE_DIRS = ['.gnupg', '.ssh']
 
 
 @pytest.mark.parametrize('home', [True, False], ids=['home', 'not-home'])
-def test_pdirs_missing(runner, yadm_y, paths, home):
+def test_pdirs_missing(runner, yadm_cmd, paths, home):
     """Private dirs (private dirs missing)
 
     When a git command is run
@@ -29,7 +29,7 @@ def test_pdirs_missing(runner, yadm_y, paths, home):
         env['HOME'] = paths.work
 
     # run status
-    run = runner(command=yadm_y('status'), env=env)
+    run = runner(command=yadm_cmd('status'), env=env)
     assert run.success
     assert run.err == ''
     assert 'On branch master' in run.out
@@ -53,7 +53,7 @@ def test_pdirs_missing(runner, yadm_y, paths, home):
             run.out, re.DOTALL), 'directories created before command is run'
 
 
-def test_pdirs_missing_apd_false(runner, yadm_y, paths):
+def test_pdirs_missing_apd_false(runner, yadm_cmd, paths):
     """Private dirs (private dirs missing / yadm.auto-private-dirs=false)
 
     When a git command is run
@@ -70,11 +70,11 @@ def test_pdirs_missing_apd_false(runner, yadm_y, paths):
         assert not path.exists()
 
     # set configuration
-    os.system(' '.join(yadm_y(
+    os.system(' '.join(yadm_cmd(
         'config', '--bool', 'yadm.auto-private-dirs', 'false')))
 
     # run status
-    run = runner(command=yadm_y('status'))
+    run = runner(command=yadm_cmd('status'))
     assert run.success
     assert run.err == ''
     assert 'On branch master' in run.out
@@ -84,7 +84,7 @@ def test_pdirs_missing_apd_false(runner, yadm_y, paths):
         assert not paths.work.join(pdir).exists()
 
 
-def test_pdirs_exist_apd_false(runner, yadm_y, paths):
+def test_pdirs_exist_apd_false(runner, yadm_cmd, paths):
     """Private dirs (private dirs exist / yadm.auto-perms=false)
 
     When a git command is run
@@ -102,11 +102,11 @@ def test_pdirs_exist_apd_false(runner, yadm_y, paths):
         assert oct(path.stat().mode).endswith('77'), 'Directory is secure.'
 
     # set configuration
-    os.system(' '.join(yadm_y(
+    os.system(' '.join(yadm_cmd(
         'config', '--bool', 'yadm.auto-perms', 'false')))
 
     # run status
-    run = runner(command=yadm_y('status'))
+    run = runner(command=yadm_cmd('status'))
     assert run.success
     assert run.err == ''
     assert 'On branch master' in run.out

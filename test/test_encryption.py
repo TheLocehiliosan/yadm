@@ -61,7 +61,7 @@ def asymmetric_key(runner, gnupg):
 
 
 @pytest.fixture
-def encrypt_targets(yadm_y, paths):
+def encrypt_targets(yadm_cmd, paths):
     """Fixture for setting up data to encrypt
 
     This fixture:
@@ -78,7 +78,7 @@ def encrypt_targets(yadm_y, paths):
     """
 
     # init empty yadm repo
-    os.system(' '.join(yadm_y('init', '-w', str(paths.work), '-f')))
+    os.system(' '.join(yadm_cmd('init', '-w', str(paths.work), '-f')))
 
     expected = []
 
@@ -186,7 +186,7 @@ def decrypt_targets(tmpdir_factory, runner, gnupg):
     'overwrite', [False, True],
     ids=['clean', 'overwrite'])
 def test_symmetric_encrypt(
-        runner, yadm_y, paths, encrypt_targets,
+        runner, yadm_cmd, paths, encrypt_targets,
         gnupg, bad_phrase, overwrite, missing_encrypt):
     """Test symmetric encryption"""
 
@@ -203,7 +203,7 @@ def test_symmetric_encrypt(
 
     env = os.environ.copy()
     env['GNUPGHOME'] = gnupg.home
-    run = runner(yadm_y('encrypt'), env=env)
+    run = runner(yadm_cmd('encrypt'), env=env)
 
     if missing_encrypt or bad_phrase:
         assert run.failure
@@ -230,12 +230,12 @@ def test_symmetric_encrypt(
     'dolist', [False, True],
     ids=['decrypt', 'list'])
 def test_symmetric_decrypt(
-        runner, yadm_y, paths, decrypt_targets, gnupg,
+        runner, yadm_cmd, paths, decrypt_targets, gnupg,
         dolist, archive_exists, bad_phrase):
     """Test decryption"""
 
     # init empty yadm repo
-    os.system(' '.join(yadm_y('init', '-w', str(paths.work), '-f')))
+    os.system(' '.join(yadm_cmd('init', '-w', str(paths.work), '-f')))
 
     if bad_phrase:
         gnupg.pw('')
@@ -256,7 +256,7 @@ def test_symmetric_decrypt(
 
     if dolist:
         args.append('-l')
-    run = runner(yadm_y('decrypt') + args, env=env)
+    run = runner(yadm_cmd('decrypt') + args, env=env)
 
     if archive_exists and not bad_phrase:
         assert run.success
@@ -284,16 +284,16 @@ def test_symmetric_decrypt(
     'overwrite', [False, True],
     ids=['clean', 'overwrite'])
 def test_asymmetric_encrypt(
-        runner, yadm_y, paths, encrypt_targets, gnupg,
+        runner, yadm_cmd, paths, encrypt_targets, gnupg,
         overwrite, key_exists, ask):
     """Test asymmetric encryption"""
 
     # specify encryption recipient
     if ask:
-        os.system(' '.join(yadm_y('config', 'yadm.gpg-recipient', 'ASK')))
+        os.system(' '.join(yadm_cmd('config', 'yadm.gpg-recipient', 'ASK')))
         expect = [('Enter the user ID', KEY_NAME), ('Enter the user ID', '')]
     else:
-        os.system(' '.join(yadm_y('config', 'yadm.gpg-recipient', KEY_NAME)))
+        os.system(' '.join(yadm_cmd('config', 'yadm.gpg-recipient', KEY_NAME)))
         expect = []
 
     if overwrite:
@@ -305,7 +305,7 @@ def test_asymmetric_encrypt(
     env = os.environ.copy()
     env['GNUPGHOME'] = gnupg.home
 
-    run = runner(yadm_y('encrypt'), env=env, expect=expect)
+    run = runner(yadm_cmd('encrypt'), env=env, expect=expect)
 
     if key_exists:
         assert run.success
@@ -321,17 +321,17 @@ def test_asymmetric_encrypt(
 
 @pytest.mark.usefixtures('asymmetric_key')
 @pytest.mark.usefixtures('encrypt_targets')
-def test_multi_key(runner, yadm_y, gnupg):
+def test_multi_key(runner, yadm_cmd, gnupg):
     """Test multiple recipients"""
 
     # specify two encryption recipient
-    os.system(' '.join(yadm_y(
+    os.system(' '.join(yadm_cmd(
         'config', 'yadm.gpg-recipient', f'"{KEY_NAME} second-key"')))
 
     env = os.environ.copy()
     env['GNUPGHOME'] = gnupg.home
 
-    run = runner(yadm_y('encrypt'), env=env)
+    run = runner(yadm_cmd('encrypt'), env=env)
 
     assert run.failure
     assert 'second-key: skipped: No public key' in run.err
@@ -345,12 +345,12 @@ def test_multi_key(runner, yadm_y, gnupg):
     'dolist', [False, True],
     ids=['decrypt', 'list'])
 def test_asymmetric_decrypt(
-        runner, yadm_y, paths, decrypt_targets, gnupg,
+        runner, yadm_cmd, paths, decrypt_targets, gnupg,
         dolist, key_exists):
     """Test decryption"""
 
     # init empty yadm repo
-    os.system(' '.join(yadm_y('init', '-w', str(paths.work), '-f')))
+    os.system(' '.join(yadm_cmd('init', '-w', str(paths.work), '-f')))
 
     decrypt_targets['asymmetric'].copy(paths.archive)
 
@@ -366,7 +366,7 @@ def test_asymmetric_decrypt(
         args.append('-l')
     env = os.environ.copy()
     env['GNUPGHOME'] = gnupg.home
-    run = runner(yadm_y('decrypt') + args, env=env)
+    run = runner(yadm_cmd('decrypt') + args, env=env)
 
     if key_exists:
         assert run.success
@@ -388,7 +388,7 @@ def test_asymmetric_decrypt(
     [False, 'y', 'n'],
     ids=['tracked', 'untracked_answer_y', 'untracked_answer_n'])
 def test_offer_to_add(
-        runner, yadm_y, paths, encrypt_targets, gnupg, untracked):
+        runner, yadm_cmd, paths, encrypt_targets, gnupg, untracked):
     """Test offer to add encrypted archive
 
     All the other encryption tests use an archive outside of the work tree.
@@ -408,10 +408,10 @@ def test_offer_to_add(
         expect.append(('add it now', untracked))
     else:
         worktree_archive.write('exists')
-        os.system(' '.join(yadm_y('add', str(worktree_archive))))
+        os.system(' '.join(yadm_cmd('add', str(worktree_archive))))
 
     run = runner(
-        yadm_y('encrypt', '--yadm-archive', str(worktree_archive)),
+        yadm_cmd('encrypt', '--yadm-archive', str(worktree_archive)),
         env=env,
         expect=expect
         )
@@ -422,7 +422,7 @@ def test_offer_to_add(
         runner, gnupg, worktree_archive, encrypt_targets)
 
     run = runner(
-        yadm_y('status', '--porcelain', '-uall', str(worktree_archive)))
+        yadm_cmd('status', '--porcelain', '-uall', str(worktree_archive)))
     assert run.success
     assert run.err == ''
 
@@ -438,7 +438,7 @@ def test_offer_to_add(
 
 
 @pytest.mark.usefixtures('ds1_copy')
-def test_encrypt_added_to_exclude(runner, yadm_y, paths, gnupg):
+def test_encrypt_added_to_exclude(runner, yadm_cmd, paths, gnupg):
     """Confirm that .config/yadm/encrypt is added to exclude"""
 
     gnupg.pw(PASSPHRASE)
@@ -450,7 +450,7 @@ def test_encrypt_added_to_exclude(runner, yadm_y, paths, gnupg):
     paths.work.join('test-encrypt-data').write('')
     exclude_file.write('original-data', ensure=True)
 
-    run = runner(yadm_y('encrypt'), env=env)
+    run = runner(yadm_cmd('encrypt'), env=env)
 
     assert 'test-encrypt-data' in paths.repo.join('info/exclude').read()
     assert 'original-data' in paths.repo.join('info/exclude').read()

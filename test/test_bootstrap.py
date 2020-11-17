@@ -14,7 +14,7 @@ import pytest
         'executable',
     ])
 def test_bootstrap(
-        runner, yadm_y, paths, exists, executable, code, expect):
+        runner, yadm_cmd, paths, exists, executable, code, expect):
     """Test bootstrap command"""
     if exists:
         paths.bootstrap.write('')
@@ -25,7 +25,7 @@ def test_bootstrap(
             f'exit {code}\n'
         )
         paths.bootstrap.chmod(0o775)
-    run = runner(command=yadm_y('bootstrap'))
+    run = runner(command=yadm_cmd('bootstrap'))
     assert run.code == code
     assert run.err == ''
     assert expect in run.out

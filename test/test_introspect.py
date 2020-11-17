@@ -13,13 +13,13 @@ import pytest
         'switches',
     ])
 def test_introspect_category(
-        runner, yadm_y, paths, name,
+        runner, yadm_cmd, paths, name,
         supported_commands, supported_configs, supported_switches):
     """Validate introspection category"""
     if name:
-        run = runner(command=yadm_y('introspect', name))
+        run = runner(command=yadm_cmd('introspect', name))
     else:
-        run = runner(command=yadm_y('introspect'))
+        run = runner(command=yadm_cmd('introspect'))
 
     assert run.success
     assert run.err == ''

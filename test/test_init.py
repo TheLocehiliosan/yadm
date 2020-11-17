@@ -19,7 +19,7 @@ import pytest
     ])
 @pytest.mark.usefixtures('ds1_work_copy')
 def test_init(
-        runner, yadm_y, paths, repo_config, alt_work, repo_present, force):
+        runner, yadm_cmd, paths, repo_config, alt_work, repo_present, force):
     """Test init
 
     Repos should have attribs:
@@ -51,7 +51,7 @@ def test_init(
         args.append('-f')
 
     # run init
-    run = runner(yadm_y(*args), env={'HOME': home})
+    run = runner(yadm_cmd(*args), env={'HOME': home})
     assert run.err == ''
 
     if repo_present and not force:

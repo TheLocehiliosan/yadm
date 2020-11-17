@@ -6,12 +6,13 @@ import pytest
 
 @pytest.mark.parametrize('autoperms', ['notest', 'unset', 'true', 'false'])
 @pytest.mark.usefixtures('ds1_copy')
-def test_perms(runner, yadm_y, paths, ds1, autoperms):
+def test_perms(runner, yadm_cmd, paths, ds1, autoperms):
     """Test perms"""
     # set the value of auto-perms
     if autoperms != 'notest':
         if autoperms != 'unset':
-            os.system(' '.join(yadm_y('config', 'yadm.auto-perms', autoperms)))
+            os.system(' '.join(
+                yadm_cmd('config', 'yadm.auto-perms', autoperms)))
 
     # privatepaths will hold all paths that should become secured
     privatepaths = [paths.work.join('.ssh'), paths.work.join('.gnupg')]
@@ -38,7 +39,7 @@ def test_perms(runner, yadm_y, paths, ds1, autoperms):
     cmd = 'perms'
     if autoperms != 'notest':
         cmd = 'status'
-    run = runner(yadm_y(cmd), env={'HOME': paths.work})
+    run = runner(yadm_cmd(cmd), env={'HOME': paths.work})
     assert run.success
     assert run.err == ''
     if cmd == 'perms':
@@ -62,15 +63,15 @@ def test_perms(runner, yadm_y, paths, ds1, autoperms):
 @pytest.mark.parametrize('sshperms', [None, 'true', 'false'])
 @pytest.mark.parametrize('gpgperms', [None, 'true', 'false'])
 @pytest.mark.usefixtures('ds1_copy')
-def test_perms_control(runner, yadm_y, paths, ds1, sshperms, gpgperms):
+def test_perms_control(runner, yadm_cmd, paths, ds1, sshperms, gpgperms):
     """Test fine control of perms"""
     # set the value of ssh-perms
     if sshperms:
-        os.system(' '.join(yadm_y('config', 'yadm.ssh-perms', sshperms)))
+        os.system(' '.join(yadm_cmd('config', 'yadm.ssh-perms', sshperms)))
 
     # set the value of gpg-perms
     if gpgperms:
-        os.system(' '.join(yadm_y('config', 'yadm.gpg-perms', gpgperms)))
+        os.system(' '.join(yadm_cmd('config', 'yadm.gpg-perms', gpgperms)))
 
     # privatepaths will hold all paths that should become secured
     privatepaths = [paths.work.join('.ssh'), paths.work.join('.gnupg')]
@@ -81,7 +82,7 @@ def test_perms_control(runner, yadm_y, paths, ds1, sshperms, gpgperms):
         assert not oct(private.stat().mode).endswith('00'), (
             'Path started secured')
 
-    run = runner(yadm_y('perms'), env={'HOME': paths.work})
+    run = runner(yadm_cmd('perms'), env={'HOME': paths.work})
     assert run.success
     assert run.err == ''
     assert run.out == ''

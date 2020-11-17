@@ -27,9 +27,9 @@ def test_semantic_version(expected_version):
 
 
 def test_reported_version(
-        runner, yadm_y, expected_version):
+        runner, yadm_cmd, expected_version):
     """Report correct version"""
-    run = runner(command=yadm_y('version'))
+    run = runner(command=yadm_cmd('version'))
     assert run.success
     assert run.err == ''
     assert run.out == f'yadm {expected_version}\n'

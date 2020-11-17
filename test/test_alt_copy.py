@@ -25,7 +25,7 @@ import pytest
     ])
 @pytest.mark.usefixtures('ds1_copy')
 def test_alt_copy(
-        runner, yadm_y, paths, tst_sys,
+        runner, yadm_cmd, paths, tst_sys,
         setting, expect_link, pre_existing,
         cygwin):
     """Test yadm.alt-copy"""
@@ -33,7 +33,7 @@ def test_alt_copy(
     option = 'yadm.cygwin-copy' if cygwin else 'yadm.alt-copy'
 
     if setting is not None:
-        os.system(' '.join(yadm_y('config', option, str(setting))))
+        os.system(' '.join(yadm_cmd('config', option, str(setting))))
 
     expected_content = f'test_alt_copy##os.{tst_sys}'
 
@@ -43,7 +43,7 @@ def test_alt_copy(
     elif pre_existing == 'file':
         alt_path.write('wrong content')
 
-    run = runner(yadm_y('alt'))
+    run = runner(yadm_cmd('alt'))
     assert run.success
     assert run.err == ''
     assert 'Linking' in run.out

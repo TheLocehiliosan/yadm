@@ -11,7 +11,7 @@ import pytest
         'subdir',
     ])
 @pytest.mark.usefixtures('ds1_copy')
-def test_list(runner, yadm_y, paths, ds1, location):
+def test_list(runner, yadm_cmd, paths, ds1, location):
     """List tests"""
     if location == 'work':
         run_dir = paths.work
@@ -23,7 +23,7 @@ def test_list(runner, yadm_y, paths, ds1, location):
     with run_dir.as_cwd():
         # test with '-a'
         # should get all tracked files, relative to the work path
-        run = runner(command=yadm_y('list', '-a'))
+        run = runner(command=yadm_cmd('list', '-a'))
         assert run.success
         assert run.err == ''
         returned_files = set(run.out.splitlines())
@@ -33,7 +33,7 @@ def test_list(runner, yadm_y, paths, ds1, location):
         # should get all tracked files, relative to the work path unless in a
         # subdir, then those should be a limited set of files, relative to the
         # subdir
-        run = runner(command=yadm_y('list'))
+        run = runner(command=yadm_cmd('list'))
         assert run.success
         assert run.err == ''
         returned_files = set(run.out.splitlines())
