@@ -145,7 +145,7 @@ yadm stash pop
 .RE
 
 The repository is stored in
-.IR $HOME/.config/yadm/repo.git .
+.IR $HOME/.local/share/yadm/repo.git .
 By default,
 .I $HOME
 will be used as the
@@ -174,7 +174,7 @@ See the CONFIGURATION section for more details.
 .TP
 .B decrypt
 Decrypt all files stored in
-.IR $HOME/.config/yadm/archive .
+.IR $HOME/.local/share/yadm/archive .
 Files decrypted will be relative to the configured
 .IR work-tree " (usually
 .IR $HOME ).
@@ -250,7 +250,7 @@ Print a summary of yadm commands.
 .B init
 Initialize a new, empty repository for tracking dotfiles.
 The repository is stored in
-.IR $HOME/.config/yadm/repo.git .
+.IR $HOME/.local/share/yadm/repo.git .
 By default,
 .I $HOME
 will be used as the
@@ -331,6 +331,10 @@ Each option should be followed by a fully qualified path.
 .TP
 .B -Y,--yadm-dir
 Override the yadm directory.
+yadm stores its configurations relative to this directory.
+.TP
+.B --yadm-data
+Override the yadm data directory.
 yadm stores its data relative to this directory.
 .TP
 .B --yadm-repo
@@ -763,7 +767,7 @@ The
 .B yadm encrypt
 command will find all files matching the patterns, and prompt for a password. Once a
 password has confirmed, the matching files will be encrypted and saved as
-.IR $HOME/.config/yadm/archive .
+.IR $HOME/.local/share/yadm/archive .
 The "encrypt" and "archive" files should be added to the yadm repository so they are
 available across multiple systems.
 
@@ -817,7 +821,7 @@ dependent upon the user's umask. Because of this, yadm will automatically
 update the permissions of some file paths. The "group" and "others" permissions
 will be removed from the following files:
 
-.RI - " $HOME/.config/yadm/archive
+.RI - " $HOME/.local/share/yadm/archive
 
 - All files matching patterns in
 .I $HOME/.config/yadm/encrypt
@@ -913,12 +917,25 @@ is defined as a fully qualified path, this directory will be
 Otherwise it will be
 .IR "$HOME/.config/yadm" .
 
+Similarly, yadm's data files are relative to the "yadm data directory".
+yadm uses the "XDG Base Directory Specification" to determine this directory.
+If the environment variable
+.B $XDG_DATA_HOME
+is defined as a fully qualified path, this directory will be
+.IR "$XDG_DATA_HOME/yadm" .
+Otherwise it will be
+.IR "$HOME/.local/share/yadm" .
+
 The following are the default paths yadm uses for its own data.
 Most of these paths can be altered using universal options.
 See the OPTIONS section for details.
 .TP
 .I $HOME/.config/yadm
-The yadm directory. By default, all data yadm stores is relative to this
+The yadm directory. By default, all configs yadm stores is relative to this
+directory.
+.TP
+.I $HOME/.local/share/yadm
+The yadm data directory. By default, all data yadm stores is relative to this
 directory.
 .TP
 .I $YADM_DIR/config
@@ -929,13 +946,13 @@ This is a directory to keep "alternate files" without having them side-by-side
 with the resulting symlink or processed template. Alternate files placed in
 this directory will be created relative to $HOME instead.
 .TP
-.I $YADM_DIR/repo.git
+.I $YADM_DATA/repo.git
 Git repository used by yadm.
 .TP
 .I $YADM_DIR/encrypt
 List of globs used for encrypt/decrypt
 .TP
-.I $YADM_DIR/archive
+.I $YADM_DATA/archive
 All files encrypted with
 .B yadm encrypt
 are stored in this file.
@@ -960,7 +977,7 @@ Initial push of master to origin
 .B echo ".ssh/*.key" >> $HOME/.config/yadm/encrypt
 Add a new pattern to the list of encrypted files
 .TP
-.B yadm encrypt ; yadm add ~/.config/yadm/archive ; yadm commit
+.B yadm encrypt ; yadm add ~/.local/share/yadm/archive ; yadm commit
 Commit a new set of encrypted files
 
 .SH REPORTING BUGS
