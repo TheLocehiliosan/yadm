@@ -25,7 +25,7 @@ VERSION=2.5.0
 YADM_WORK="$HOME"
 YADM_DIR=
 YADM_DATA=
-YADM_LEGACY_DIR="${HOME}/.yadm"
+YADM_LEGACY_ARCHIVE="files.gpg"
 
 # these are the default paths relative to YADM_DIR
 YADM_CONFIG="config"
@@ -1348,53 +1348,45 @@ function upgrade() {
 
   local actions_performed
   actions_performed=0
+  local repo_moved
+  repo_moved=0
   local repo_updates
   repo_updates=0
 
-  [ "$YADM_DIR" = "$YADM_LEGACY_DIR" ] && \
-    error_out "Unable to upgrade. yadm dir has been resolved as '$YADM_LEGACY_DIR'."
+  [[ -n "${YADM_OVERRIDE_REPO}${YADM_OVERRIDE_ARCHIVE}" || "$YADM_DATA" = "$YADM_DIR" ]] && \
+    error_out "Unable to upgrade. Paths have been overridden with command line options"
 
   # handle legacy repo
-  if [ -d "$YADM_LEGACY_DIR/repo.git" ]; then
+  if [ -d "$YADM_DIR/repo.git" ]; then
     # legacy repo detected, it must be moved to YADM_REPO
     if [ -e "$YADM_REPO" ]; then
       error_out "Unable to upgrade. '$YADM_REPO' already exists. Refusing to overwrite it."
     else
       actions_performed=1
-      echo "Moving $YADM_LEGACY_DIR/repo.git to $YADM_REPO"
+      repo_moved=1
+      echo "Moving $YADM_DIR/repo.git to $YADM_REPO"
       assert_parent "$YADM_REPO"
-      mv "$YADM_LEGACY_DIR/repo.git" "$YADM_REPO"
+      mv "$YADM_DIR/repo.git" "$YADM_REPO"
+    fi
+  fi
+  GIT_DIR="$YADM_REPO"
+  export GIT_DIR
+
+  # handle legacy archive
+  if [ -e "$YADM_DIR/$YADM_LEGACY_ARCHIVE" ]; then
+    actions_performed=1
+    echo "Moving $YADM_DIR/$YADM_LEGACY_ARCHIVE to $YADM_ARCHIVE"
+    assert_parent "$YADM_ARCHIVE"
+    # test to see if path is "tracked" in repo, if so 'git mv' must be used
+    if "$GIT_PROGRAM" ls-files --error-unmatch "$YADM_DIR/$YADM_LEGACY_ARCHIVE" &> /dev/null; then
+      "$GIT_PROGRAM" mv "$YADM_DIR/$YADM_LEGACY_ARCHIVE" "$YADM_ARCHIVE" && repo_updates=1
+    else
+      mv -i "$YADM_DIR/$YADM_LEGACY_ARCHIVE" "$YADM_ARCHIVE"
     fi
   fi
 
-  # handle other legacy paths
-  GIT_DIR="$YADM_REPO"
-  export GIT_DIR
-  for legacy_path in                      \
-    "$YADM_LEGACY_DIR/config"             \
-    "$YADM_LEGACY_DIR/encrypt"            \
-    "$YADM_LEGACY_DIR/files.gpg"          \
-    "$YADM_LEGACY_DIR/bootstrap"          \
-    "$YADM_LEGACY_DIR"/hooks/{pre,post}_* \
-  ;                                       \
-  do
-    if [ -e "$legacy_path" ]; then
-      new_filename=${legacy_path#$YADM_LEGACY_DIR/}
-      new_filename="$YADM_DIR/$new_filename"
-      actions_performed=1
-      echo "Moving $legacy_path to $new_filename"
-      assert_parent "$new_filename"
-      # test to see if path is "tracked" in repo, if so 'git mv' must be used
-      if "$GIT_PROGRAM" ls-files --error-unmatch "$legacy_path" &> /dev/null; then
-        "$GIT_PROGRAM" mv "$legacy_path" "$new_filename" && repo_updates=1
-      else
-        mv -i "$legacy_path" "$new_filename"
-      fi
-    fi
-  done
-
   # handle submodules, which need to be reinitialized
-  if [ "$actions_performed" -ne 0 ]; then
+  if [ "$repo_moved" -ne 0 ]; then
     cd_work "Upgrade submodules"
     if "$GIT_PROGRAM" ls-files --error-unmatch .gitmodules &> /dev/null; then
       "$GIT_PROGRAM" submodule deinit -f .
@@ -1592,24 +1584,17 @@ function issue_legacy_path_warning() {
   # no warnings during upgrade
   [[ "${MAIN_ARGS[*]}" =~ upgrade ]] && return
 
-  # no warnings if YADM_DIR is resolved as the leacy path
-  [ "$YADM_DIR" = "$YADM_LEGACY_DIR" ] && return
-
-  # no warnings if the legacy directory doesn't exist
-  [ ! -d "$YADM_LEGACY_DIR" ] && return
+  # no warnings if overrides have been provided
+  [[ -n "${YADM_OVERRIDE_REPO}${YADM_OVERRIDE_ARCHIVE}" || "$YADM_DATA" = "$YADM_DIR" ]] && return
 
   # test for legacy paths
   local legacy_found
   legacy_found=()
   # this is ordered by importance
-  for legacy_path in                            \
-    "$YADM_LEGACY_DIR/$YADM_REPO"               \
-    "$YADM_LEGACY_DIR/$YADM_CONFIG"             \
-    "$YADM_LEGACY_DIR/$YADM_ENCRYPT"            \
-    "$YADM_LEGACY_DIR/files.gpg"                \
-    "$YADM_LEGACY_DIR/$YADM_BOOTSTRAP"          \
-    "$YADM_LEGACY_DIR/$YADM_HOOKS"/{pre,post}_* \
-  ;                                             \
+  for legacy_path in                 \
+    "$YADM_DIR/$YADM_REPO"           \
+    "$YADM_DIR/$YADM_LEGACY_ARCHIVE" \
+  ;
   do
     [ -e "$legacy_path" ] && legacy_found+=("$legacy_path")
   done
@@ -1624,21 +1609,21 @@ function issue_legacy_path_warning() {
   cat <<EOF
 
 **WARNING**
-  Legacy configuration paths have been detected.
+  Legacy paths have been detected.
 
-  Beginning with version 2.0.0, yadm uses the XDG Base Directory Specification
-  to find its configurations. Read more about this change here:
+  With version 3.0.0, yadm uses the XDG Base Directory Specification
+  to find its configurations and data. Read more about this change here:
 
-    https://yadm.io/docs/upgrade_from_1
+    https://yadm.io/docs/upgrade_from_2
 
-  In your environment, the configuration directory has been resolved to:
+  In your environment, the data directory has been resolved to:
 
-    $YADM_DIR
+    $YADM_DATA
 
   To remove this warning do one of the following:
-    * Run "yadm upgrade" to move the yadm data to the new directory. (RECOMMENDED)
-    * Manually move yadm configurations to the directory listed above.
-    * Specify your preferred yadm directory with -Y each execution.
+    * Run "yadm upgrade" to move the yadm data to the new paths. (RECOMMENDED)
+    * Manually move yadm data to new default paths.
+    * Specify your preferred paths with --yadm-data and --yadm-archive each execution.
 
   Legacy paths detected:
 ${path_list}

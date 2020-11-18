@@ -1,45 +1,38 @@
 """Unit tests: upgrade"""
 import pytest
 
-LEGACY_PATHS = [
-    'config',
-    'encrypt',
-    'files.gpg',
-    'bootstrap',
-    'hooks/pre_command',
-    'hooks/post_command',
-]
 
-# used:
-# YADM_DIR
-# YADM_LEGACY_DIR
-# GIT_PROGRAM
-@pytest.mark.parametrize('condition', ['equal', 'existing_repo'])
+@pytest.mark.parametrize('condition', ['override', 'equal', 'existing_repo'])
 def test_upgrade_errors(tmpdir, runner, yadm, condition):
     """Test upgrade() error conditions"""
 
     home = tmpdir.mkdir('home')
     yadm_dir = home.join('.config/yadm')
-    legacy_dir = home.join('.yadm')
+    yadm_data = home.join('.local/share/yadm')
+    override = ''
+    if condition == 'override':
+        override = 'override'
     if condition == 'equal':
-        legacy_dir = yadm_dir
+        yadm_data = yadm_dir
     if condition == 'existing_repo':
         yadm_dir.ensure_dir('repo.git')
-        legacy_dir.ensure_dir('repo.git')
+        yadm_data.ensure_dir('repo.git')
 
     script = f"""
         YADM_TEST=1 source {yadm}
         YADM_DIR="{yadm_dir}"
-        YADM_REPO="{yadm_dir}/repo.git"
-        YADM_LEGACY_DIR="{legacy_dir}"
+        YADM_DATA="{yadm_data}"
+        YADM_REPO="{yadm_data}/repo.git"
+        YADM_LEGACY_ARCHIVE="files.gpg"
+        YADM_OVERRIDE_REPO="{override}"
         upgrade
     """
     run = runner(command=['bash'], inp=script)
     assert run.failure
     assert run.err == ''
     assert 'Unable to upgrade' in run.out
-    if condition == 'equal':
-        assert 'has been resolved as' in run.out
+    if condition in ['override', 'equal']:
+        assert 'Paths have been overridden' in run.out
     if condition == 'existing_repo':
         assert 'already exists' in run.out
 
@@ -55,12 +48,11 @@ def test_upgrade(tmpdir, runner, yadm, condition):
     """
     home = tmpdir.mkdir('home')
     yadm_dir = home.join('.config/yadm')
-    legacy_dir = home.join('.yadm')
+    yadm_data = home.join('.local/share/yadm')
 
     if condition != 'no-paths':
-        legacy_dir.join('repo.git/config').write('test-repo', ensure=True)
-        for lpath in LEGACY_PATHS:
-            legacy_dir.join(lpath).write(lpath, ensure=True)
+        yadm_dir.join('repo.git/config').write('test-repo', ensure=True)
+        yadm_dir.join('files.gpg').write('files.gpg', ensure=True)
 
     mock_git = ""
     if condition in ['tracked', 'submodules']:
@@ -77,8 +69,9 @@ def test_upgrade(tmpdir, runner, yadm, condition):
     script = f"""
         YADM_TEST=1 source {yadm}
         YADM_DIR="{yadm_dir}"
-        YADM_REPO="{yadm_dir}/repo.git"
-        YADM_LEGACY_DIR="{legacy_dir}"
+        YADM_DATA="{yadm_data}"
+        YADM_REPO="{yadm_data}/repo.git"
+        YADM_ARCHIVE="{yadm_data}/archive"
         GIT_PROGRAM="git"
         {mock_git}
         function cd {{ echo "$@";}}
@@ -90,21 +83,20 @@ def test_upgrade(tmpdir, runner, yadm, condition):
     if condition == 'no-paths':
         assert 'Upgrade is not necessary' in run.out
     else:
-        for lpath in LEGACY_PATHS + ['repo.git']:
+        for (lpath, npath) in [
+                ('repo.git', 'repo.git'), ('files.gpg', 'archive')]:
             expected = (
-                f'Moving {legacy_dir.join(lpath)} '
-                f'to {yadm_dir.join(lpath)}')
+                f'Moving {yadm_dir.join(lpath)} '
+                f'to {yadm_data.join(npath)}')
             assert expected in run.out
         if condition == 'untracked':
-            assert 'test-repo' in yadm_dir.join('repo.git/config').read()
-            for lpath in LEGACY_PATHS:
-                assert lpath in yadm_dir.join(lpath).read()
+            assert 'test-repo' in yadm_data.join('repo.git/config').read()
+            assert 'files.gpg' in yadm_data.join('archive').read()
         elif condition in ['tracked', 'submodules']:
-            for lpath in LEGACY_PATHS:
-                expected = (
-                    f'mv {legacy_dir.join(lpath)} '
-                    f'{yadm_dir.join(lpath)}')
-                assert expected in run.out
+            expected = (
+                f'mv {yadm_dir.join("files.gpg")} '
+                f'{yadm_data.join("archive")}')
+            assert expected in run.out
             assert 'files tracked by yadm have been renamed' in run.out
             if condition == 'submodules':
                 assert 'submodule deinit -f .' in run.out

@@ -6,36 +6,38 @@ import pytest
     'legacy_path', [
         None,
         'repo.git',
-        'config',
-        'encrypt',
         'files.gpg',
-        'bootstrap',
-        'hooks/pre_command',
-        'hooks/post_command',
         ],
     )
 @pytest.mark.parametrize(
+    'override', [True, False], ids=['override', 'no-override'])
+@pytest.mark.parametrize(
     'upgrade', [True, False], ids=['upgrade', 'no-upgrade'])
-def test_legacy_warning(tmpdir, runner, yadm, upgrade, legacy_path):
+def test_legacy_warning(tmpdir, runner, yadm, upgrade, override, legacy_path):
     """Use issue_legacy_path_warning"""
     home = tmpdir.mkdir('home')
 
     if legacy_path:
-        home.mkdir(f'.yadm').ensure(legacy_path)
+        home.ensure(f'.config/yadm/{str(legacy_path)}')
 
+    override = 'YADM_OVERRIDE_REPO=override' if override else ''
     main_args = 'MAIN_ARGS=("upgrade")' if upgrade else ''
     script = f"""
+        XDG_CONFIG_HOME=
+        XDG_DATA_HOME=
         HOME={home}
         YADM_TEST=1 source {yadm}
         {main_args}
+        {override}
+        set_yadm_dirs
         issue_legacy_path_warning
         echo "LWI:$LEGACY_WARNING_ISSUED"
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
-    if legacy_path and not upgrade:
-        assert 'Legacy configuration paths have been detected' in run.out
+    if legacy_path and (not upgrade) and (not override):
+        assert 'Legacy paths have been detected' in run.out
         assert 'LWI:1' in run.out
     else:
         assert run.out.rstrip() == 'LWI:0'

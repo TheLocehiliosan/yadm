@@ -293,21 +293,21 @@ https://github.com/elasticdog/transcrypt
 for details.
 .TP
 .B upgrade
-Version 2 of yadm uses a different directory for storing your configurations.
-When you start to use version 2 for the first time, you may see warnings about
+Version 3 of yadm uses a different directory for storing data.
+When you start to use version 3 for the first time, you may see warnings about
 moving your data to this new directory.
 The easiest way to accomplish this is by running "yadm upgrade".
 This command will start by moving your yadm repo to the new path.
-Next it will move any configuration data to the new path.
-If the configurations are tracked within your yadm repo, this command will
-"stage" the renaming of those files in the repo's index.
+Next it will move any archive data.
+If the archive is tracked within your yadm repo, this command will
+"stage" the renaming of that file in the repo's index.
 Upgrading will also re-initialize all submodules you have added (otherwise they
 will be broken when the repo moves).
 After running "yadm upgrade", you should run "yadm status" to review changes
 which have been staged, and commit them to your repository.
 
 You can read
-https://yadm.io/docs/upgrade_from_1
+https://yadm.io/docs/upgrade_from_2
 for more information.
 .TP
 .B version
