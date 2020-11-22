@@ -1,0 +1,16 @@
+---
+name: Tests
+on:  # yamllint disable-line rule:truthy
+  - push
+  - pull_request
+  - workflow_dispatch
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Tests
+        run: >-
+          docker run -t --rm
+          -v "$PWD:/yadm:ro"
+          yadm/testbed:2020-07-08

@@ -1,0 +1,20 @@
+---
+name: Scheduled Site Tests
+on:  # yamllint disable-line rule:truthy
+  schedule:
+    - cron: "0 0 1 * *"  # Monthly
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+      - run: >-
+          docker create -t
+          --name yadm-website
+          --entrypoint test/validate
+          yadm/jekyll:2019-10-17;
+          docker cp ./ yadm-website:/srv/jekyll
+      - name: Test Site
+        run: docker start yadm-website -a
