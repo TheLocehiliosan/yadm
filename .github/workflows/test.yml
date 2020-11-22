@@ -1,0 +1,20 @@
+---
+name: Test Site
+on:  # yamllint disable-line rule:truthy
+  - push
+  - pull_request
+  - workflow_dispatch
+jobs:
+  Test-Site:
+    name: Test Site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: >-
+          docker create -t
+          --name yadm-website
+          --entrypoint test/validate
+          yadm/jekyll:2019-10-17;
+          docker cp ./ yadm-website:/srv/jekyll
+      - name: Test Site
+        run: docker start yadm-website -a
