@@ -105,7 +105,11 @@ test:
 testhost: version ?= HEAD
 testhost: require-docker
 	@rm -rf /tmp/testhost
-	@git show $(version):yadm > /tmp/testhost
+	@if [ "$(version)" = "local" ]; then \
+		cp -f yadm /tmp/testhost; \
+	else \
+		git show $(version):yadm > /tmp/testhost; \
+	fi
 	@chmod a+x /tmp/testhost
 	@echo Starting testhost version=\"$(version)\"
 	@docker run \
