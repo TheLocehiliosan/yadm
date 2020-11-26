@@ -22,6 +22,8 @@
 
        yadm bootstrap
 
+       yadm dump
+
        yadm encrypt
 
        yadm decrypt [-l]
@@ -71,6 +73,9 @@
 
        bootstrap
               Execute $HOME/.config/yadm/bootstrap if it exists.
+
+       dump
+              Execute $HOME/.config/yadm/dump if it exists.
 
        clone url
               Clone a remote repository for tracking dotfiles.  After the con-

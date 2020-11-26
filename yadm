@@ -32,6 +32,7 @@ YADM_CONFIG="config"
 YADM_ENCRYPT="encrypt"
 YADM_ARCHIVE="files.gpg"
 YADM_BOOTSTRAP="bootstrap"
+YADM_DUMP="dump"
 YADM_HOOKS="hooks"
 YADM_ALT="alt"
 
@@ -88,7 +89,7 @@ function main() {
 
   # parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|init|introspect|list|perms|transcrypt|upgrade|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|init|introspect|list|perms|transcrypt|upgrade|version|dump)$"
   if [ -z "$*" ] ; then
     # no argumnts will result in help()
     help
@@ -748,6 +749,12 @@ function bootstrap() {
 
 }
 
+function dump(){
+  dump_available || error_out "Cannot execute dump\n'$YADM_DUMP' is not an executable program."
+  echo "Executing $YADM_DUMP"
+  exec "$YADM_DUMP"
+}
+
 function clean() {
 
   error_out "\"git clean\" has been disabled for safety. You could end up removing all unmanaged files."
@@ -1080,6 +1087,7 @@ Commands:
   yadm list [-a]             - List tracked files
   yadm alt                   - Create links for alternates
   yadm bootstrap             - Execute \$HOME/.config/yadm/bootstrap
+  yadm dump                  - Execute \$HOME/.config/yadm/dump
   yadm encrypt               - Encrypt files
   yadm decrypt [-l]          - Decrypt files
   yadm perms                 - Fix perms for private files
@@ -1149,6 +1157,7 @@ perms
 transcrypt
 upgrade
 version
+dump
 EOF
 }
 
@@ -1546,6 +1555,7 @@ function configure_paths() {
   YADM_ENCRYPT="$YADM_DIR/$YADM_ENCRYPT"
   YADM_ARCHIVE="$YADM_DIR/$YADM_ARCHIVE"
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
+  YADM_DUMP="$YADM_DIR/$YADM_DUMP"
   YADM_HOOKS="$YADM_DIR/$YADM_HOOKS"
   YADM_ALT="$YADM_DIR/$YADM_ALT"
 
@@ -2015,6 +2025,10 @@ function require_transcrypt() {
 }
 function bootstrap_available() {
   [ -f "$YADM_BOOTSTRAP" ] && [ -x "$YADM_BOOTSTRAP" ] && return
+  return 1
+}
+function dump_available() {
+  [ -f "$YADM_DUMP" ] && [ -x "$YADM_DUMP" ] && return
   return 1
 }
 function awk_available() {
