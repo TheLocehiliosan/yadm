@@ -260,19 +260,3 @@ def test_template_recording(runner, yadm, cmd_generated):
     assert run.success
     assert run.err == ''
     assert run.out.rstrip() == expected
-
-
-def test_invalid(runner, yadm):
-    """Verify invalid alternates are noted in INVALID_ALT"""
-
-    invalid_file = "file##invalid"
-
-    script = f"""
-        YADM_TEST=1 source {yadm}
-        score_file "{invalid_file}"
-        echo "INVALID:${{INVALID_ALT[@]}}"
-    """
-    run = runner(command=['bash'], inp=script)
-    assert run.success
-    assert run.err == ''
-    assert run.out.rstrip() == f'INVALID:{invalid_file}'
