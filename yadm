@@ -61,8 +61,6 @@ ENCRYPT_INCLUDE_FILES="unparsed"
 GPG_OPTS=()
 OPENSSL_OPTS=()
 
-LEGACY_WARNING_ISSUED=0
-
 # flag causing path translations with cygpath
 USE_CYGPATH=0
 
@@ -1595,9 +1593,6 @@ function issue_legacy_path_warning() {
 ${path_list}
 ***********
 EOF
-
-LEGACY_WARNING_ISSUED=1
-
 }
 
 function configure_paths() {

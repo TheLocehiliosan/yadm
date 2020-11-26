@@ -31,13 +31,11 @@ def test_legacy_warning(tmpdir, runner, yadm, upgrade, override, legacy_path):
         {override}
         set_yadm_dirs
         issue_legacy_path_warning
-        echo "LWI:$LEGACY_WARNING_ISSUED"
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
     if legacy_path and (not upgrade) and (not override):
         assert 'Legacy paths have been detected' in run.out
-        assert 'LWI:1' in run.out
     else:
-        assert run.out.rstrip() == 'LWI:0'
+        assert 'Legacy paths have been detected' not in run.out
