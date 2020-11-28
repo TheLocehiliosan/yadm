@@ -116,12 +116,10 @@ if it exists.
 .BI clone " url
 Clone a remote repository for tracking dotfiles.
 After the contents of the remote repository have been fetched, a "merge" of
-.I origin/master
-is attempted.
+the remote HEAD branch is attempted.
 If there are conflicting files already present in the
 .IR work-tree ,
-this merge will fail and instead a "reset" of
-.I origin/master
+this merge will fail and instead a "reset" of the remote HEAD branch
 will be done, followed by a "stash". This "stash" operation will preserve the
 original data.
 
@@ -154,8 +152,7 @@ but this can be overridden with the
 .BR -w " option.
 yadm can be forced to overwrite an existing repository by providing the
 .BR -f " option.
-If you want to use a branch other than
-.IR origin/master ,
+If you want to use a branch other than the remote HEAD branch
 you can specify it using the
 .BR -b " option.
 By default yadm will ask the user if the bootstrap program should be run (if it

@@ -70,6 +70,9 @@ def test_clone(
         # clone should succeed, and repo should be configured properly
         assert successful_clone(run, paths, repo_config)
 
+        # these clones should have master as HEAD
+        verify_head(paths, 'master')
+
         # ensure conflicts are handled properly
         if conflicts:
             assert 'NOTE' in run.out
@@ -162,6 +165,7 @@ def test_clone_bootstrap(
         assert BOOTSTRAP_MSG not in run.out
 
     assert successful_clone(run, paths, repo_config, expected_code)
+    verify_head(paths, 'master')
 
     if not bs_exists:
         assert BOOTSTRAP_MSG not in run.out
@@ -230,6 +234,7 @@ def test_clone_perms(
     )
 
     assert successful_clone(run, paths, repo_config)
+    verify_head(paths, 'master')
     if in_work:
         # private directories which already exist, should be left as they are,
         # which in this test is "insecure".
@@ -260,7 +265,8 @@ def test_clone_perms(
 
 
 @pytest.mark.usefixtures('remote')
-@pytest.mark.parametrize('branch', ['master', 'valid', 'invalid'])
+@pytest.mark.parametrize(
+    'branch', ['master', 'default', 'valid', 'invalid'])
 def test_alternate_branch(runner, paths, yadm_cmd, repo_config, branch):
     """Test cloning a branch other than master"""
 
@@ -269,6 +275,12 @@ def test_alternate_branch(runner, paths, yadm_cmd, repo_config, branch):
     os.system(
         f'GIT_DIR="{paths.remote}" git commit '
         f'--allow-empty -m "This branch is valid"')
+    if branch != 'default':
+        # When branch == 'default', the "default" branch of the remote repo
+        # will remain "valid" to validate identification the correct default
+        # branch by inspecting the repo. Otherwise it will be set back to
+        # "master"
+        os.system(f'GIT_DIR="{paths.remote}" git checkout master')
 
     # clear out the work path
     paths.work.remove()
@@ -278,7 +290,7 @@ def test_alternate_branch(runner, paths, yadm_cmd, repo_config, branch):
 
     # run the clone command
     args = ['clone', '-w', paths.work]
-    if branch != 'master':
+    if branch not in ['master', 'default']:
         args += ['-b', branch]
     args += [remote_url]
     run = runner(command=yadm_cmd(*args))
@@ -298,10 +310,12 @@ def test_alternate_branch(runner, paths, yadm_cmd, repo_config, branch):
         assert run.err == ''
         assert f'origin\t{remote_url}' in run.out
         run = runner(command=yadm_cmd('show'))
-        if branch == 'valid':
-            assert 'This branch is valid' in run.out
-        else:
+        if branch == 'master':
             assert 'Initial commit' in run.out
+            verify_head(paths, 'master')
+        else:
+            assert 'This branch is valid' in run.out
+            verify_head(paths, 'valid')
 
 
 def successful_clone(run, paths, repo_config, expected_code=0):
@@ -324,3 +338,16 @@ def remote(paths, ds1_repo_copy):
     # cannot be applied to another fixture.
     paths.remote.remove()
     paths.repo.move(paths.remote)
+
+
+def test_no_repo(runner, yadm_cmd, ):
+    """Test cloning without specifying a repo"""
+    run = runner(command=yadm_cmd('clone'))
+    assert run.failure
+    assert run.err == ''
+    assert 'ERROR: No repository provided' in run.out
+
+
+def verify_head(paths, branch):
+    """Assert the local repo has the correct head branch"""
+    assert paths.repo.join('HEAD').read() == f'ref: refs/heads/{branch}\n'

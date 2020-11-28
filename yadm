@@ -743,13 +743,23 @@ function clean() {
 
 }
 
+function _default_remote_branch() {
+  local ls_remote
+  ls_remote=$("$GIT_PROGRAM" ls-remote -q --symref "$1" 2>/dev/null)
+  match="^ref:[[:blank:]]+refs/heads/([^[:blank:]]+)"
+  if [[ "$ls_remote" =~ $match ]] ; then
+    echo "${BASH_REMATCH[1]}"
+  else
+    echo master
+  fi
+}
+
 function clone() {
 
   DO_BOOTSTRAP=1
-  local branch
-  branch="master"
+  local branch=
 
-  clone_args=()
+  local repo_url=
   while [[ $# -gt 0 ]] ; do
     key="$1"
     case $key in
@@ -766,22 +776,29 @@ function clone() {
       --no-bootstrap) # prevent bootstrap, without prompt
         DO_BOOTSTRAP=3
       ;;
-      *) # main arguments are kept intact
-        clone_args+=("$1")
+      *) # use first found argument as the URL
+        [ -z "$repo_url" ] && repo_url="$1"
       ;;
     esac
     shift
   done
 
+  [ -z "$repo_url" ] && error_out "No repository provided"
+
+  [ -z "$branch" ] && branch=$(_default_remote_branch "$repo_url")
+
   [ -n "$DEBUG" ] && display_private_perms "initial"
 
+  # shellcheck disable=SC2119
   # clone will begin with a bare repo
-  local empty=
-  init $empty
+  init
+
+  # configure local HEAD with the correct branch
+  printf 'ref: refs/heads/%s\n' "$branch" > "${YADM_REPO}/HEAD"
 
   # add the specified remote, and configure the repo to track origin/$branch
   debug "Adding remote to new repo"
-  "$GIT_PROGRAM" remote add origin "${clone_args[@]}"
+  "$GIT_PROGRAM" remote add origin "$repo_url"
   debug "Configuring new repo to track origin/${branch}"
   "$GIT_PROGRAM" config "branch.${branch}.remote" origin
   "$GIT_PROGRAM" config "branch.${branch}.merge" "refs/heads/${branch}"
@@ -791,13 +808,13 @@ function clone() {
   "$GIT_PROGRAM" fetch origin || {
     debug "Removing repo after failed clone"
     rm -rf "$YADM_REPO"
-    error_out "Unable to fetch origin ${clone_args[0]}"
+    error_out "Unable to fetch origin $repo_url"
   }
   debug "Verifying '${branch}' is a valid branch to merge"
   [ -f "${YADM_REPO}/refs/remotes/origin/${branch}" ] || {
     debug "Removing repo after failed clone"
     rm -rf "$YADM_REPO"
-    error_out "Clone failed, 'origin/${branch}' does not exist in ${clone_args[0]}"
+    error_out "Clone failed, 'origin/${branch}' does not exist in $repo_url"
   }
 
   if [ "$YADM_WORK" = "$HOME" ]; then
@@ -1164,6 +1181,7 @@ EOF
 
 }
 
+# shellcheck disable=SC2120
 function init() {
 
   # safety check, don't attempt to init when the repo is already present
