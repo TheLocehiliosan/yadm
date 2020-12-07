@@ -1858,7 +1858,7 @@ function parse_encrypt() {
   if [ -f "$YADM_ENCRYPT" ] ; then
     # parse both included/excluded
     while IFS='' read -r line || [ -n "$line" ]; do
-      if [[ ! $line =~ ^# && ! $line =~ ^[[:space:]]*$ ]] ; then
+      if [[ ! $line =~ ^# && ! $line =~ ^[[:blank:]]*$ ]] ; then
         local IFS=$'\n'
         for pattern in $line; do
           if [[ "$pattern" =~ $exclude_pattern ]]; then
