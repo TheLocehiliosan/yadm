@@ -1401,6 +1401,12 @@ function process_global_args() {
   while [[ $# -gt 0 ]] ; do
     key="$1"
     case $key in
+      -V|--version)
+        version
+      ;;
+      -h|--help)
+        help
+      ;;
       -Y|--yadm-dir) # override the standard YADM_DIR
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified yadm directory"
