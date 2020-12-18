@@ -1404,9 +1404,6 @@ function process_global_args() {
       -V|--version)
         version
       ;;
-      -h|--help)
-        help
-      ;;
       -Y|--yadm-dir) # override the standard YADM_DIR
         if [[ ! "$2" =~ ^/ ]] ; then
           error_out "You must specify a fully qualified yadm directory"
