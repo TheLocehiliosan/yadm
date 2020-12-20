@@ -75,6 +75,12 @@ def tst_sys():
 
 
 @pytest.fixture(scope='session')
+def tst_arch():
+    """Test session's uname value"""
+    return platform.machine()
+
+
+@pytest.fixture(scope='session')
 def supported_commands():
     """List of supported commands
 
