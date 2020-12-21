@@ -515,16 +515,14 @@ function alt() {
   cd_work "Alternates" || return
 
   # determine all tracked files
-  local tracked_files
-  tracked_files=()
+  local tracked_files=()
   local IFS=$'\n'
   for tracked_file in $("$GIT_PROGRAM" ls-files | LC_ALL=C sort); do
     tracked_files+=("$tracked_file")
   done
 
   # generate data for removing stale links
-  local possible_alts
-  possible_alts=()
+  local possible_alts=()
   local IFS=$'\n'
   for possible_alt in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
     if [[ $possible_alt =~ .\#\#. ]]; then
@@ -536,8 +534,7 @@ function alt() {
       possible_alts+=("$YADM_BASE/${base_alt}")
     fi
   done
-  local alt_linked
-  alt_linked=()
+  local alt_linked=()
 
   alt_linking
   remove_stale_links
@@ -589,14 +586,10 @@ function set_local_alt_values() {
 
 function alt_linking() {
 
-  local alt_scores
-  local alt_targets
-  local alt_sources
-  local alt_template_cmds
-  alt_scores=()
-  alt_targets=()
-  alt_sources=()
-  alt_template_cmds=()
+  local alt_scores=()
+  local alt_targets=()
+  local alt_sources=()
+  local alt_template_cmds=()
 
   for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
     alt_path="$YADM_BASE/$alt_path"
@@ -657,7 +650,7 @@ function alt_past_linking() {
   # loop over all "tracked" files
   # for every file which matches the above regex, create a symlink
   for match in $match1 $match2; do
-    last_linked=''
+    local last_linked=''
     local IFS=$'\n'
     # the alt_paths looped over here are a unique sorted list of both files and their immediate parent directory
     for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
@@ -714,12 +707,13 @@ function alt_past_linking() {
 
 function ln_relative() {
   local full_source full_target target_dir
-  full_source="$1"
-  full_target="$2"
-  target_dir="${full_target%/*}"
+  local full_source="$1"
+  local full_target="$2"
+  local target_dir="${full_target%/*}"
   if [ "$target_dir" == "" ]; then
     target_dir="/"
   fi
+  local rel_source
   rel_source=$(relative_path "$target_dir" "$full_source")
   ln -nfs "$rel_source" "$full_target"
   alt_linked+=("$rel_source")
@@ -1328,12 +1322,9 @@ function perms() {
 
 function upgrade() {
 
-  local actions_performed
-  actions_performed=0
-  local repo_moved
-  repo_moved=0
-  local repo_updates
-  repo_updates=0
+  local actions_performed=0
+  local repo_moved=0
+  local repo_updates=0
 
   [[ -n "${YADM_OVERRIDE_REPO}${YADM_OVERRIDE_ARCHIVE}" || "$YADM_DATA" = "$YADM_DIR" ]] && \
     error_out "Unable to upgrade. Paths have been overridden with command line options"
@@ -1539,8 +1530,7 @@ function set_yadm_dirs() {
 
   # only resolve YADM_DATA if it hasn't been provided already
   if [ -z "$YADM_DATA" ]; then
-    local base_yadm_data
-    base_yadm_data="$XDG_DATA_HOME"
+    local base_yadm_data="$XDG_DATA_HOME"
     if [[ ! "$base_yadm_data" =~ ^/ ]] ; then
       base_yadm_data="${HOME}/.local/share"
     fi
@@ -1549,8 +1539,7 @@ function set_yadm_dirs() {
 
   # only resolve YADM_DIR if it hasn't been provided already
   if [ -z "$YADM_DIR" ]; then
-    local base_yadm_dir
-    base_yadm_dir="$XDG_CONFIG_HOME"
+    local base_yadm_dir="$XDG_CONFIG_HOME"
     if [[ ! "$base_yadm_dir" =~ ^/ ]] ; then
       base_yadm_dir="${HOME}/.config"
     fi
@@ -1570,8 +1559,7 @@ function issue_legacy_path_warning() {
   [[ -n "${YADM_OVERRIDE_REPO}${YADM_OVERRIDE_ARCHIVE}" || "$YADM_DATA" = "$YADM_DIR" ]] && return
 
   # test for legacy paths
-  local legacy_found
-  legacy_found=()
+  local legacy_found=()
   # this is ordered by importance
   for legacy_path in                 \
     "$YADM_DIR/$YADM_REPO"           \
@@ -2055,8 +2043,7 @@ function require_git() {
   local alt_git
   alt_git="$(config yadm.git-program)"
 
-  local more_info
-  more_info=""
+  local more_info=""
 
   if [ "$alt_git" != "" ] ; then
     GIT_PROGRAM="$alt_git"
@@ -2069,8 +2056,7 @@ function require_gpg() {
   local alt_gpg
   alt_gpg="$(config yadm.gpg-program)"
 
-  local more_info
-  more_info=""
+  local more_info=""
 
   if [ "$alt_gpg" != "" ] ; then
     GPG_PROGRAM="$alt_gpg"
@@ -2083,8 +2069,7 @@ function require_openssl() {
   local alt_openssl
   alt_openssl="$(config yadm.openssl-program)"
 
-  local more_info
-  more_info=""
+  local more_info=""
 
   if [ "$alt_openssl" != "" ] ; then
     OPENSSL_PROGRAM="$alt_openssl"
