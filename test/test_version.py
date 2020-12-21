@@ -26,10 +26,11 @@ def test_semantic_version(expected_version):
         'does not conform to MAJOR.MINOR.PATCH')
 
 
+@pytest.mark.parametrize('cmd', ['--version', 'version'])
 def test_reported_version(
-        runner, yadm_cmd, expected_version):
+        runner, yadm_cmd, cmd, expected_version):
     """Report correct version"""
-    run = runner(command=yadm_cmd('version'))
+    run = runner(command=yadm_cmd(cmd))
     assert run.success
     assert run.err == ''
     assert run.out == f'yadm {expected_version}\n'

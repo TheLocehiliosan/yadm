@@ -93,13 +93,14 @@ function main() {
 
   # parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|init|introspect|list|perms|transcrypt|upgrade|version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|--help|init|introspect|list|perms|transcrypt|upgrade|version|--version)$"
   if [ -z "$*" ] ; then
     # no argumnts will result in help()
     help
   elif [[ "$1" =~ $internal_commands ]] ; then
     # for internal commands, process all of the arguments
-    YADM_COMMAND="${1/-/_}"
+    YADM_COMMAND="${1//-/_}"
+    YADM_COMMAND="${YADM_COMMAND/__/}"
     YADM_ARGS=()
     shift
 

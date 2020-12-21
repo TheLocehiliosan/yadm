@@ -21,8 +21,9 @@ import pytest
         'pre-post-success',
         'pre-post-fail',
     ])
+@pytest.mark.parametrize('cmd', ['--version', 'version'])
 def test_hooks(
-        runner, yadm_cmd, paths,
+        runner, yadm_cmd, paths, cmd,
         pre, pre_code, post, post_code):
     """Test pre/post hook"""
 
@@ -33,7 +34,7 @@ def test_hooks(
         create_hook(paths, 'post_version', post_code)
 
     # run yadm
-    run = runner(yadm_cmd('version'))
+    run = runner(yadm_cmd(cmd))
     # when a pre hook fails, yadm should exit with the hook's code
     assert run.code == pre_code
     assert run.err == ''
