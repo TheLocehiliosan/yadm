@@ -1,5 +1,5 @@
 PYTESTS = $(wildcard test/test_*.py)
-IMAGE = yadm/testbed:2020-07-08
+IMAGE = yadm/testbed:2020-12-21
 
 .PHONY: all
 all:
@@ -146,15 +146,15 @@ testenv:
 	@echo
 	python3 -m venv --clear testenv
 	testenv/bin/pip3 install --upgrade pip setuptools
-	testenv/bin/pip3 install --upgrade \
-		flake8==3.7.8 \
-		pylint==2.4.1 \
-		pytest==5.1.3 \
-		yamllint==1.17.0 \
-	;
+	testenv/bin/pip3 install --upgrade -r test/requirements.txt;
 	@echo
 	@echo 'To activate this test environment type:'
 	@echo '  source testenv/bin/activate'
+
+.PHONY: image
+image:
+	@docker build -f test/Dockerfile . -t "$(IMAGE)"
+
 
 .PHONY: man
 man:

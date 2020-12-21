@@ -12,6 +12,9 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 # Convenience settings for the testbed's root account
 RUN echo 'set -o vi' >> /root/.bashrc
 
+# Create a flag to identify when running inside the yadm testbed
+RUN touch /.yadmtestbed
+
 # Install prerequisites
 RUN \
   apt-get update && \
@@ -24,24 +27,24 @@ RUN \
     make \
     man \
     python3-pip \
-    shellcheck=0.4.6-1 \
     vim \
-  ;
-RUN pip3 install \
-      envtpl \
-      j2cli \
-      flake8==3.7.8 \
-      pylint==2.4.1 \
-      pytest==5.1.3 \
-      yamllint==1.17.0 \
-    ;
+  && rm -rf /var/lib/apt/lists/*;
+
+ARG SC_VER=0.7.1
+RUN \
+  curl -fLo - \
+  https://github.com/koalaman/shellcheck/releases/download/v$SC_VER/shellcheck-v$SC_VER.linux.x86_64.tar.xz | \
+  tar -xJv && \
+  mv shellcheck-v$SC_VER/shellcheck /usr/bin && \
+  rm -rf shellcheck-v$SC_VER
+
+COPY test/requirements.txt /tmp/requirements.txt
+RUN pip3 install --upgrade pip setuptools
+RUN pip3 install --upgrade -r /tmp/requirements.txt
 
 RUN \
   curl https://raw.githubusercontent.com/jirutka/esh/v0.3.0/esh > /usr/local/bin/esh && \
   chmod +x /usr/local/bin/esh
-
-# Create a flag to identify when running inside the yadm testbed
-RUN touch /.yadmtestbed
 
 # /yadm will be the work directory for all tests
 # docker commands should mount the local yadm project as /yadm

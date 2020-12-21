@@ -25,25 +25,25 @@ def pytest_addoption(parser):
 @pytest.fixture(scope='session')
 def shellcheck_version():
     """Version of shellcheck supported"""
-    return '0.4.6'
+    return '0.7.1'
 
 
 @pytest.fixture(scope='session')
 def pylint_version():
     """Version of pylint supported"""
-    return '2.4.1'
+    return '2.6.0'
 
 
 @pytest.fixture(scope='session')
 def flake8_version():
     """Version of flake8 supported"""
-    return '3.7.8'
+    return '3.8.4'
 
 
 @pytest.fixture(scope='session')
 def yamllint_version():
     """Version of yamllint supported"""
-    return '1.17.0'
+    return '1.25.0'
 
 
 @pytest.fixture(scope='session')

@@ -1,0 +1,6 @@
+envtpl
+flake8==3.8.4
+j2cli
+pylint==2.6.0
+pytest==6.1.2
+yamllint==1.25.0
