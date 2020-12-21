@@ -89,8 +89,8 @@ end of template
 '''
 
 INCLUDE_BASIC = 'basic\n'
-INCLUDE_VARIABLES = f'''\
-included <{{{{ yadm.class }}}}> file
+INCLUDE_VARIABLES = '''\
+included <{{ yadm.class }}> file
 
 empty line above
 '''

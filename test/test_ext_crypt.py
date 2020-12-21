@@ -22,7 +22,7 @@ def test_ext_encryption(runner, yadm, paths, tmpdir, crypt, cmd, var):
     pgm = bindir.join('test-ext-crypt')
 
     if crypt:
-        pgm.write(f'#!/bin/sh\necho ext-crypt ran\n')
+        pgm.write('#!/bin/sh\necho ext-crypt ran\n')
         pgm.chmod(0o775)
     if crypt == 'installed-but-failed':
         pgm.write('false\n', mode='a')

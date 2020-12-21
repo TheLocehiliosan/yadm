@@ -78,7 +78,7 @@ def test_hook_env(runner, yadm_cmd, paths):
     assert f'YADM_HOOK_FULL_COMMAND={cmd} extra_args\n' in run.out
     assert f'YADM_HOOK_REPO={paths.repo}\n' in run.out
     assert f'YADM_HOOK_WORK={paths.work}\n' in run.out
-    assert f'YADM_ENCRYPT_INCLUDE_FILES=\n' in run.out
+    assert 'YADM_ENCRYPT_INCLUDE_FILES=\n' in run.out
 
     # verify the hook environment contains certain exported functions
     for func in [

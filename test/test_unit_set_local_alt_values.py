@@ -52,12 +52,12 @@ def test_set_local_alt_values(
         assert f"os='{tst_sys}'" in run.out
 
     if override == 'hostname':
-        assert f"host='override'" in run.out
+        assert "host='override'" in run.out
     else:
         assert f"host='{tst_host}'" in run.out
 
     if override == 'user':
-        assert f"user='override'" in run.out
+        assert "user='override'" in run.out
     else:
         assert f"user='{tst_user}'" in run.out
 
