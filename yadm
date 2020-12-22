@@ -1660,7 +1660,7 @@ function invoke_hook() {
   exit_status="$2"
   hook_command="${YADM_HOOKS}/${mode}_$HOOK_COMMAND"
 
-  if [ -x "$hook_command" ] ; then
+  if [ -x "$hook_command" ] || ( [[ $OPERATING_SYSTEM == MINGW* ]] && [ -f "$hook_command" ] ) ; then
     debug "Invoking hook: $hook_command"
 
     # expose some internal data to all hooks
