@@ -127,6 +127,39 @@ def test_escaped(runner, yadm_cmd, paths):
         'a\\ b c\\\td e\\\\f\n') in run.out
 
 
+@pytest.mark.parametrize('condition', ['exec', 'no-exec', 'mingw'])
+def test_executable(runner, paths, condition):
+    """Verify hook must be exectuable"""
+    cmd = 'version'
+    hook = paths.hooks.join(f'pre_{cmd}')
+    hook.write('#!/bin/sh\necho HOOK\n')
+    hook.chmod(0o644)
+    if condition == 'exec':
+        hook.chmod(0o755)
+
+    mingw = 'OPERATING_SYSTEM="MINGWx"' if condition == 'mingw' else ''
+    script = f"""
+        YADM_TEST=1 source {paths.pgm}
+        YADM_HOOKS="{paths.hooks}"
+        HOOK_COMMAND="{cmd}"
+        {mingw}
+        invoke_hook "pre"
+    """
+    run = runner(command=['bash'], inp=script)
+
+    if condition != 'mingw':
+        assert run.success
+        assert run.err == ''
+    else:
+        assert run.failure
+        assert 'Permission denied' in run.err
+
+    if condition == 'exec':
+        assert 'HOOK' in run.out
+    elif condition == 'no-exec':
+        assert 'HOOK' not in run.out
+
+
 def create_hook(paths, name, code):
     """Create hook"""
     hook = paths.hooks.join(name)
