@@ -196,6 +196,28 @@ def test_score_values(
     assert run.out == expected
 
 
+@pytest.mark.parametrize('ext', [None, 'e', 'extension'])
+def test_extensions(runner, yadm, ext):
+    """Verify extensions do not effect scores"""
+    local_user = 'testuser'
+    filename = f'filename##u.{local_user}'
+    if ext:
+        filename += f',{ext}.xyz'
+    expected = ''
+    script = f"""
+        YADM_TEST=1 source {yadm}
+        score=0
+        local_user={local_user}
+        score_file "{filename}"
+        echo "$score"
+    """
+    expected = f'{1000 + CONDITION["user"]["modifier"]}\n'
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert run.out == expected
+
+
 def test_score_values_templates(runner, yadm):
     """Test score results"""
     local_class = 'testclass'
