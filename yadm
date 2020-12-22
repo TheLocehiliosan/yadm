@@ -353,11 +353,11 @@ BEGIN {
   c["user"]     = user
   c["distro"]   = distro
   c["source"]   = source
-  vld           = conditions()
   ifs           = "^{%" blank "*if"
   els           = "^{%" blank "*else" blank "*%}$"
   end           = "^{%" blank "*endif" blank "*%}$"
   skp           = "^{%" blank "*(if|else|endif)"
+  vld           = conditions()
   inc_start     = "^{%" blank "*include" blank "+\"?"
   inc_end       = "\"?" blank "*%}$"
   inc           = inc_start ".+" inc_end
@@ -401,7 +401,7 @@ function replace_vars() {
   }
 }
 function conditions() {
-  pattern = "^{%" blank "*if" blank "*("
+  pattern = ifs blank "*("
   for (label in c) {
     value = c[label]
     gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
@@ -626,80 +626,6 @@ function alt_linking() {
         cp -f "$src" "$tgt"
       else
         ln_relative "$src" "$tgt"
-      fi
-    fi
-  done
-
-}
-
-function alt_past_linking() {
-
-  if [ -z "$local_class" ] ; then
-    match_class="%"
-  else
-    match_class="$local_class"
-  fi
-  match_class="(%|$match_class)"
-  match_system="(%|$local_system)"
-  match_host="(%|$local_host)"
-  match_user="(%|$local_user)"
-
-  # regex for matching "<file>##CLASS.SYSTEM.HOSTNAME.USER"
-  match1="^(.+)##(()|$match_system|$match_system\.$match_host|$match_system\.$match_host\.$match_user)$"
-  match2="^(.+)##($match_class|$match_class\.$match_system|$match_class\.$match_system\.$match_host|$match_class\.$match_system\.$match_host\.$match_user)$"
-
-  # loop over all "tracked" files
-  # for every file which matches the above regex, create a symlink
-  for match in $match1 $match2; do
-    local last_linked=''
-    local IFS=$'\n'
-    # the alt_paths looped over here are a unique sorted list of both files and their immediate parent directory
-    for alt_path in $(for tracked in "${tracked_files[@]}"; do printf "%s\n" "$tracked" "${tracked%/*}"; done | LC_ALL=C sort -u) "${ENCRYPT_INCLUDE_FILES[@]}"; do
-      alt_path="$YADM_BASE/$alt_path"
-      if [ -e "$alt_path" ] ; then
-        if [[ $alt_path =~ $match ]] ; then
-          if [ "$alt_path" != "$last_linked" ] ; then
-            new_link="${BASH_REMATCH[1]}"
-            debug "Linking $alt_path to $new_link"
-            [ -n "$loud" ] && echo "Linking $alt_path to $new_link"
-            if [ "$do_copy" -eq 1 ]; then
-              if [ -L "$new_link" ]; then
-                rm -f "$new_link"
-              fi
-              cp -f "$alt_path" "$new_link"
-            else
-              ln_relative "$alt_path" "$new_link"
-            fi
-            last_linked="$alt_path"
-          fi
-        fi
-      fi
-    done
-  done
-
-  # loop over all "tracked" files
-  # for every file which is a *##yadm.j2 create a real file
-  local match="^(.+)##yadm\\.j2$"
-  for tracked_file in "${tracked_files[@]}" "${ENCRYPT_INCLUDE_FILES[@]}"; do
-    tracked_file="$YADM_BASE/$tracked_file"
-    if [ -e "$tracked_file" ] ; then
-      if [[ $tracked_file =~ $match ]] ; then
-        real_file="${BASH_REMATCH[1]}"
-        if envtpl_available; then
-          debug "Creating $real_file from template $tracked_file"
-          [ -n "$loud" ] && echo "Creating $real_file from template $tracked_file"
-          temp_file="${real_file}.$$.$RANDOM"
-          YADM_CLASS="$local_class"   \
-          YADM_OS="$local_system"     \
-          YADM_HOSTNAME="$local_host" \
-          YADM_USER="$local_user"     \
-          YADM_DISTRO="$local_distro" \
-          "$ENVTPL_PROGRAM" --keep-template "$tracked_file" -o "$temp_file"
-          [ -f "$temp_file" ] && mv -f "$temp_file" "$real_file"
-        else
-          debug "envtpl not available, not creating $real_file from template $tracked_file"
-          [ -n "$loud" ] && echo "envtpl not available, not creating $real_file from template $tracked_file"
-        fi
       fi
     fi
   done
