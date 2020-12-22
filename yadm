@@ -1164,10 +1164,11 @@ Commands:
   yadm transcrypt [OPTIONS]  - Run transcrypt commands for the yadm repo
 
 Files:
-  \$HOME/.config/yadm/config   - yadm's configuration file
-  \$HOME/.config/yadm/repo.git - yadm's Git repository
-  \$HOME/.config/yadm/encrypt  - List of globs used for encrypt/decrypt
-  \$HOME/.config/yadm/archive  - Encrypted data stored here
+  \$HOME/.config/yadm/config        - yadm's configuration file
+  \$HOME/.config/yadm/encrypt       - List of globs to encrypt/decrypt
+  \$HOME/.config/yadm/bootstrap     - Script run via: yadm bootstrap 
+  \$HOME/.local/share/yadm/repo.git - yadm's Git repository
+  \$HOME/.local/share/yadm/archive  - Encrypted data stored here
 
 Use "man yadm" for complete documentation.
 EOF
