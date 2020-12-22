@@ -81,6 +81,7 @@ def test_relative_link(runner, paths, yadm_alt):
 @pytest.mark.usefixtures('ds1_copy')
 @pytest.mark.parametrize('suffix', [
     '##default',
+    '##default,e.txt', '##default,extension.txt',
     '##o.$tst_sys', '##os.$tst_sys',
     '##d.$tst_distro', '##distro.$tst_distro',
     '##c.$tst_class', '##class.$tst_class',
