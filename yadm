@@ -1303,7 +1303,7 @@ function upgrade() {
     echo "No legacy paths found. Upgrade is not necessary"
 
   [ "$repo_updates" -eq 1 ] && \
-    echo "Some files tracked by yadm have been renamed. This changes should probably be commited now."
+    echo "Some files tracked by yadm have been renamed. These changes should probably be commited now."
 
   exit 0
 
