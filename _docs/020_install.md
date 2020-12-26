@@ -56,6 +56,17 @@ yadm is available in the FreeBSD ports. Use `pkg` to install it from a prebuilt 
 pkg install yadm
 ```
 
+## OpenWRT
+
+Install the required dependencies, via
+
+```
+opkg update
+opkg install bash git git-http gnupg coreutils-chmod coreutils-stat
+```
+
+and then install yadm via the download or clone instructions below.
+
 ## Download
 
 You *can* simply download the yadm script and put it into your `$PATH`. Something like this:
