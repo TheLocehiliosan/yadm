@@ -41,7 +41,7 @@ When template processors run, they will be provided the following set of data.
 | -                  | -               | -                          | -                                              |
 | `yadm.class`       | `YADM_CLASS`    | Locally defined yadm class | <code>yadm&nbsp;config&nbsp;local.class</code> |
 | `yadm.distro`      | `YADM_DISTRO`   | Distribution               | <code>lsb_release&nbsp;&#8209;si</code><br/>or <code>/etc/os-release</code> |
-| `yadm.hostname`    | `YADM_HOSTNAME` | Hostname                   | `hostname` (without domain)                    |
+| `yadm.hostname`    | `YADM_HOSTNAME` | Hostname                   | <code>uname&nbsp;&#8209;n</code> (without domain)                    |
 | `yadm.os`          | `YADM_OS`       | Operating system           | <code>uname&nbsp;&#8209;s</code> <sup>*</sup>  |
 | `yadm.user`        | `YADM_USER`     | Current user               | <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>    |
 | `yadm.source`      | `YADM_SOURCE`   | Template filename          | (fully qualified path)                         |
@@ -64,7 +64,7 @@ detailed in the section below.
 esh
 : [esh][esh] is a template processor written in POSIX compliant shell. It allows
 executing shell commands within templates.  This  can  be used  to reference
-your own configurations within templates, for example:
+your own configurations within templates.
 
 j2cli
 : [j2cli][j2cli] (or `j2`) is a Python-based Jinja2 template processor. This
