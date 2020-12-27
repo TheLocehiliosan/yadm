@@ -34,8 +34,8 @@ def test_legacy_warning(tmpdir, runner, yadm, upgrade, override, legacy_path):
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.out == ''
     if legacy_path and (not upgrade) and (not override):
-        assert 'Legacy paths have been detected' in run.out
+        assert 'Legacy paths have been detected' in run.err
     else:
-        assert 'Legacy paths have been detected' not in run.out
+        assert 'Legacy paths have been detected' not in run.err

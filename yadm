@@ -1506,7 +1506,7 @@ function issue_legacy_path_warning() {
     path_list="$path_list    * $legacy_path"$'\n'
   done
 
-  cat <<EOF
+  cat <<EOF >&2
 
 **WARNING**
   Legacy paths have been detected.
