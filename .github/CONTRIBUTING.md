@@ -14,6 +14,7 @@ areas.
 
 To contribute, you can:
 
+* Star the yadm repo, the star count helps others discover yadm.
 * Report [bugs](#reporting-a-bug)
 * Request [features/enhancements](#suggesting-a-feature-or-enhancement)
 * Contribute changes to [code, tests](#contributing-code), and [documentation](#improving-documentation)

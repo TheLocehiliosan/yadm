@@ -15,18 +15,47 @@
 
 [https://yadm.io/][website-link]
 
-[**yadm**][website-link] is a tool for managing [dotfiles][].
+**yadm** is a tool for managing [dotfiles][].
 
 * Based on [Git][], with full range of Git's features
-* Supports system-specific alternative files
-* Encryption of private data using [GnuPG][]
+* Supports system-specific alternative files or templated files
+* Encryption of private data using [GnuPG][], [OpenSSL][], [transcrypt][], or
+  [git-crypt][]
 * Customizable initialization (bootstrapping)
+* Customizable hooks for before and after any operation
 
-Features, usage, examples and installation instructions can be found on the
-[website][website-link].
+Complete features, usage, examples and installation instructions can be found on
+the [yadm.io][website-link] website.
+
+## A very quick tour
+
+    # Initialize a new repository
+    yadm init
+
+    # Clone an existing repository
+    yadm clone <url>
+
+    # Add files/changes
+    yadm add <important file>
+    yadm commit
+
+    # Encrypt your ssh key
+    echo '.ssh/id_rsa' > ~/.config/yadm/encrypt
+    yadm encrypt
+
+    # Later, decrypt your ssh key
+    yadm decrypt
+
+    # Create different files for Linux vs MacOS
+    yadm add path/file.cfg##os.Linux
+    yadm add path/file.cfg##os.Darwin
+
+If you enjoy using yadm, consider adding a star to the repository on GitHub.
+The star count helps others discover yadm.
 
 [Git]: https://git-scm.com/
 [GnuPG]: https://gnupg.org/
+[OpenSSL]: https://www.openssl.org/
 [aur-badge]: https://img.shields.io/aur/version/yadm-git.svg
 [aur-link]: https://aur.archlinux.org/packages/yadm-git
 [dev-pages-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Test%20Site/dev-pages?label=dev-pages
@@ -35,6 +64,7 @@ Features, usage, examples and installation instructions can be found on the
 [develop-date]: https://img.shields.io/github/last-commit/TheLocehiliosan/yadm/develop.svg?label=develop
 [dotfiles]: https://en.wikipedia.org/wiki/Hidden_file_and_hidden_directory
 [gh-pages-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Test%20Site/gh-pages?label=gh-pages
+[git-crypt]: https://github.com/AGWA/git-crypt
 [homebrew-badge]: https://img.shields.io/homebrew/v/yadm.svg
 [homebrew-link]: https://formulae.brew.sh/formula/yadm
 [license-badge]: https://img.shields.io/github/license/TheLocehiliosan/yadm.svg
@@ -46,6 +76,7 @@ Features, usage, examples and installation instructions can be found on the
 [obs-link]: https://software.opensuse.org//download.html?project=home%3ATheLocehiliosan%3Ayadm&package=yadm
 [releases-badge]: https://img.shields.io/github/tag/TheLocehiliosan/yadm.svg?label=latest+release
 [releases-link]: https://github.com/TheLocehiliosan/yadm/releases
+[transcrypt]: https://github.com/elasticdog/transcrypt
 [travis-ci]: https://travis-ci.com/TheLocehiliosan/yadm/branches
 [website-commits]: https://github.com/TheLocehiliosan/yadm/commits/gh-pages
 [website-date]: https://img.shields.io/github/last-commit/TheLocehiliosan/yadm/gh-pages.svg?label=website
