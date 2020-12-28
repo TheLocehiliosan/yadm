@@ -144,3 +144,7 @@ feature_row:
 {% include feature_row id="intro" type="center" %}
 
 {% include feature_row %}
+
+If you enjoy using yadm, consider
+[adding a star to the repository](https://github.com/TheLocehiliosan/yadm)
+on GitHub. The star count helps others discover yadm.
