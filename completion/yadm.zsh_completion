@@ -1,46 +1,164 @@
 #compdef yadm
-_yadm(){
-    local -a _1st_arguments
-     _1st_arguments=(
-        'help:Display yadm command help'
-        'init:Initialize an empty repository'
-        'config:Configure a setting'
-        'list:List tracked files'
-        'alt:Create links for alternates'
-        'bootstrap:Execute $HOME/.config/yadm/bootstrap'
-        'encrypt:Encrypt files'
-        'decrypt:Decrypt files'
-        'perms:Fix perms for private files'
-        'add:git add'
-        'push:git push'
-        'pull:git pull'
-        'diff:git diff'
-        'checkout:git checkout'
-        'co:git co'
-        'commit:git commit'
-        'ci:git ci'
-        'status:git status'
-        'st:git st'
-        'reset:git reset'
-        'log:git log'
-    )
 
-    local context state line expl
-    local -A opt_args
-
-    _arguments '*:: :->subcmds' && return 0
-
-    if (( CURRENT == 1 )); then
-        _describe -t commands "yadm commands" _1st_arguments -V1
-        return
-    fi
-
-    case "$words[1]" in
-        *)
-            _arguments ':filenames:_files'
-        ;;
-    esac
-
+_yadm-alt() {
+    return 0
 }
 
+_yadm-bootstrap() {
+    return 0
+}
+
+_yadm-clone() {
+    _arguments \
+        '(--bootstrap --no-bootstrap)--bootstrap[force bootstrap, without prompt]' \
+        '(--bootstrap --no-bootstrap)--no-bootstrap[prevent bootstrap, without prompt]' \
+        '-b[branch name]:' \
+        '-f[force overwrite of existing repository]' \
+        '-w[work tree path]: :_files -/' \
+        '*:'
+}
+
+_yadm-config() {
+    # TODO: complete config names
+}
+
+_yadm-decrypt() {
+    _arguments \
+        '-l[list files]'
+}
+
+_yadm-encrypt() {
+    return 0
+}
+
+_yadm-enter() {
+    _arguments \
+        ':command: _command_names -e' \
+        '*::arguments: _normal'
+}
+
+_yadm-git-crypt() {
+    # TODO: complete git-crypt options
+}
+
+_yadm-gitconfig() {
+    integer ret=1
+    _call_function ret _git-config
+    return ret
+}
+
+_yadm-help() {
+    return 0
+}
+
+_yadm-init() {
+    _arguments \
+        '-f[force overwrite of existing repository]' \
+        '-w[work tree path]: :_files -/'
+}
+
+_yadm-list() {
+    _arguments \
+        '-a[list all tracked files]'
+}
+
+_yadm-perms() {
+    return 0
+}
+
+_yadm-transcrypt() {
+    integer ret=1
+    _call_function ret _transcrypt
+    return ret
+}
+
+_yadm-upgrade() {
+    return 0
+}
+
+_yadm-version() {
+    return 0
+}
+
+_yadm_commands() {
+    local -a commands
+    commands=(
+        alt:'create links for alternates (yadm)'
+        bootstrap:'execute bootstrap (yadm)'
+        clone:'clone an existing repository (yadm)'
+        config:'configure an yadm setting'
+        decrypt:'decrypt files (yadm)'
+        encrypt:'encrypt files (yadm)'
+        enter:'run sub-shell with GIT variables set'
+        git-crypt:'run git-crypt commands for the yadm repository'
+        gitconfig:'run the git config command'
+        help:'display yadm help information'
+        init:'initialize an empty yadm repository'
+        list:'list files tracked by yadm'
+        perms:'fix perms for private files (yadm)'
+        transcrypt:'run transcrypt commands for the yadm repository'
+        upgrade:'upgrade legacy yadm paths'
+        version:'show yadm version'
+    )
+
+    zstyle ':completion:*:*:yadm:*' user-commands $commands
+
+    integer ret=1
+    _call_function ret _git_commands
+
+    zstyle -d ':completion:*:*:yadm:*' user-commands
+    return ret
+}
+
+_yadm() {
+    local curcontext=$curcontext state line
+    declare -A opt_args
+
+    _arguments -C \
+      '(-Y --yadm-dir)'{-Y,--yadm-dir}'[override the standard yadm directory]: :_files -/' \
+      '--yadm-data[override the standard yadm data directory]: :_files -/' \
+      '--yadm-repo[override the standard repo path]: :_files -/' \
+      '--yadm-config[override the standard config path]: :_files -/' \
+      '--yadm-encrypt[override the standard encrypt path]: :_files -/' \
+      '--yadm-archive[override the standard archive path]: :_files -/' \
+      '--yadm-bootstrap[override the standard bootstrap path]: :_files' \
+      '-d[print debug traces]' \
+      '--help[display yadm help information]' \
+      '--version[show yadm version]' \
+      '(-): :->command' \
+      '(-)*:: :->option-or-argument' && return
+
+    local -a repo_args
+    (( $+opt_args[--yadm-repo] )) && repo_args+=(--yadm-repo "$opt_args[--yadm-repo]")
+    (( $+opt_args[--yadm-data] )) && repo_args+=(--yadm-data "$opt_args[--yadm-data]")
+    local -x GIT_DIR="$(_call_program gitdir yadm "${repo_args[@]}" introspect repo)"
+
+    integer ret=1
+    case $state in
+        (command)
+            _yadm_commands && ret=0
+            ;;
+        (option-or-argument)
+            curcontext=${curcontext%:*:*}:yadm-$words[1]:
+
+            if ! _call_function ret _yadm-$words[1]; then
+                curcontext=${curcontext%:*:*}:git-$words[1]:
+                if ! _call_function ret _git-$words[1]; then
+                    if [[ $words[1] = \!* ]]; then
+                        words[1]=${words[1]##\!}
+                        _normal && ret=0
+                    elif zstyle -T :completion:$curcontext: use-fallback; then
+                        _default && ret=0
+                    else
+                        _message "unknown sub-command: $words[1]"
+                    fi
+                fi
+            fi
+            ;;
+    esac
+
+    return ret
+}
+
+(( $+functions[_git_commands] )) || _git
 _yadm "$@"
