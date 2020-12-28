@@ -39,6 +39,8 @@ docs:
         url: /docs/hooks
   - title: More Help
     children:
+      - title: "Upgrading from Version 2"
+        url: /docs/upgrade_from_2
       - title: "Upgrading from Version 1"
         url: /docs/upgrade_from_1
       - title: "FAQ"
