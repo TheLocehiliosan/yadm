@@ -1,17 +1,18 @@
 ---
 main:
   - title: '
-<a href="https://github.com/TheLocehiliosan/yadm/stargazers">
+<a href="https://github.com/TheLocehiliosan/yadm">
 <img
-src="https://img.shields.io/github/stars/TheLocehiliosan/yadm.svg?style=social"
-alt="Stars">
+src="https://img.shields.io/static/v1?label=Star&message=%20&style=social&logo=github"
+alt="Star">
 </a>
 '
   - title: '
-<a href="https://github.com/TheLocehiliosan/yadm/watchers">
+<a
+href="https://twitter.com/intent/tweet?text=Manage%20your%20dotfiles%20with%20yadm:%20&amp;url=https%3A%2F%2Fyadm.io">
 <img
-src="https://img.shields.io/github/watchers/TheLocehiliosan/yadm.svg?style=social"
-alt="Watchers">
+src="https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fyadm.io"
+alt="Tweet">
 </a>
 '
 docs:
