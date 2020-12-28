@@ -18,6 +18,6 @@ msg Success: Serving jekyll site locally
   --assume-extension \
   --log-level=debug \
   --http-status-ignore 429 \
-  --url-ignore https://twitter.com/TheLocehiliosan \
+  --url-ignore /twitter.com/ \
   _site
 msg Success: Validated site with html-proofer
