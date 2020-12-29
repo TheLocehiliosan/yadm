@@ -1004,13 +1004,17 @@ function enter() {
   require_shell
   require_repo
 
-  shell_opts=""
-  shell_path=""
+  local -a shell_opts
+  local shell_path=""
   if [[ "$SHELL" =~ bash$ ]]; then
-    shell_opts="--norc"
+    shell_opts=("--norc")
     shell_path="\w"
   elif [[ "$SHELL" =~ [cz]sh$ ]]; then
-    shell_opts="-f"
+    shell_opts=("-f")
+    if [[ "$SHELL" =~ zsh$ && "$TERM" = "dumb" ]]; then
+      # Disable ZLE for tramp
+      shell_opts+=("--no-zle")
+    fi
     shell_path="%~"
   fi
 
@@ -1025,7 +1029,7 @@ function enter() {
   [ "${#shell_cmd[@]}" -eq 0 ] && echo "Entering yadm repo"
 
   yadm_prompt="yadm shell ($YADM_REPO) $shell_path > "
-  PROMPT="$yadm_prompt" PS1="$yadm_prompt" "$SHELL" $shell_opts "${shell_cmd[@]}"
+  PROMPT="$yadm_prompt" PS1="$yadm_prompt" "$SHELL" "${shell_opts[@]}" "${shell_cmd[@]}"
   return_code="$?"
 
   if [ "${#shell_cmd[@]}" -eq 0 ]; then
