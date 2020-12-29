@@ -172,8 +172,9 @@ yadm.md: yadm.1
 	@groff -man -Tascii ./yadm.1 | col -bx | sed 's/^[A-Z]/## &/g' | sed '/yadm(1)/d' > yadm.md
 
 .PHONY: contrib
+contrib: SHELL = /bin/bash
 contrib:
-	@echo "CONTRIBUTORS\n" > CONTRIBUTORS
+	@echo -e "CONTRIBUTORS\n" > CONTRIBUTORS
 	@IFS=$$'\n'; for author in $$(git shortlog -ns master gh-pages develop dev-pages | cut -f2); do \
 		git log master gh-pages develop dev-pages \
 			--author="$$author" --format=tformat: --numstat | \
