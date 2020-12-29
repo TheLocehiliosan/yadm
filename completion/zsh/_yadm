@@ -122,7 +122,6 @@ _yadm() {
       '--yadm-encrypt[override the standard encrypt path]: :_files -/' \
       '--yadm-archive[override the standard archive path]: :_files -/' \
       '--yadm-bootstrap[override the standard bootstrap path]: :_files' \
-      '-d[print debug traces]' \
       '--help[display yadm help information]' \
       '--version[show yadm version]' \
       '(-): :->command' \
