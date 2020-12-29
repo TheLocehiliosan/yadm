@@ -63,8 +63,12 @@ def test_enter(runner, yadm_cmd, paths, shell, success):
     'cmd',
     [False, 'cmd', 'cmd-bad-exit'],
     ids=['no-cmd', 'cmd', 'cmd-bad-exit'])
+@pytest.mark.parametrize(
+    'term', ['', 'dumb'],
+    ids=['term-empty', 'term-dumb'])
 @pytest.mark.usefixtures('ds1_copy')
-def test_enter_shell_ops(runner, yadm_cmd, paths, shell, opts, path, cmd):
+def test_enter_shell_ops(runner, yadm_cmd, paths, shell,
+                         opts, path, cmd, term):
     """Enter tests for specific shell options"""
 
     change_exit = '\nfalse' if cmd == 'cmd-bad-exit' else ''
@@ -83,7 +87,11 @@ def test_enter_shell_ops(runner, yadm_cmd, paths, shell, opts, path, cmd):
         enter_cmd += test_cmd
 
     env = os.environ.copy()
+    env['TERM'] = term
     env['SHELL'] = custom_shell
+
+    if shell == 'zsh' and term == 'dumb':
+        opts += ' --no-zle'
 
     run = runner(command=yadm_cmd(*enter_cmd), env=env)
     if cmd == 'cmd-bad-exit':
