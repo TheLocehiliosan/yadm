@@ -207,7 +207,7 @@ these principles when making changes.
     ```
 
 4. Verify you can run the test harness. _(This will require dependencies:
-   `make`, `docker`, and `docker-compose`)_.
+   `make` and `docker`)_.
 
     ```text
     $ make test
