@@ -93,12 +93,8 @@ test:
 		cd /yadm && \
 		py.test -v $(testargs); \
 	else \
-		if command -v "docker-compose" > /dev/null 2>&1; then \
-			docker-compose run --rm testbed make test testargs="$(testargs)"; \
-		else \
-			echo "Sorry, this make test requires docker-compose to be installed."; \
-			false; \
-		fi \
+		$(MAKE) -s require-docker && \
+		docker run --rm -it -v "$(CURDIR):/yadm:ro" $(IMAGE) make test testargs="$(testargs)"; \
 	fi
 
 .PHONY: testhost

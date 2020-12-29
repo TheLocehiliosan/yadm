@@ -1,7 +1,0 @@
----
-version: '3'
-services:
-  testbed:
-    volumes:
-      - .:/yadm:ro
-    image: yadm/testbed:2020-12-21
