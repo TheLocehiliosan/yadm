@@ -1,5 +1,5 @@
 PYTESTS = $(wildcard test/test_*.py)
-IMAGE = yadm/testbed:2020-12-21
+IMAGE = yadm/testbed:2020-12-29
 
 .PHONY: all
 all:

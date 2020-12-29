@@ -13,4 +13,4 @@ jobs:
         run: >-
           docker run -t --rm
           -v "$PWD:/yadm:ro"
-          yadm/testbed:2020-12-21
+          yadm/testbed:2020-12-29
