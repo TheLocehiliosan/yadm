@@ -56,6 +56,11 @@ RUN mkdir /yadm \
   && echo "\t@echo 'Try using a docker parameter like -v \"\$\$PWD:/yadm:ro\"'" >> /yadm/Makefile \
   && echo "\t@false" >> /yadm/Makefile
 
+# Include released versions of yadm to test upgrades
+ADD https://raw.githubusercontent.com/TheLocehiliosan/yadm/1.12.0/yadm /usr/local/bin/yadm-1.12.0
+ADD https://raw.githubusercontent.com/TheLocehiliosan/yadm/2.5.0/yadm /usr/local/bin/yadm-2.5.0
+RUN chmod +x /usr/local/bin/yadm-*
+
 # /yadm will be the work directory for all tests
 # docker commands should mount the local yadm project as /yadm
 WORKDIR /yadm
