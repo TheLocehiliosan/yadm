@@ -61,6 +61,10 @@ ADD https://raw.githubusercontent.com/TheLocehiliosan/yadm/1.12.0/yadm /usr/loca
 ADD https://raw.githubusercontent.com/TheLocehiliosan/yadm/2.5.0/yadm /usr/local/bin/yadm-2.5.0
 RUN chmod +x /usr/local/bin/yadm-*
 
+# Configure git to make it easier to test yadm manually
+RUN git config --system user.email "test@yadm.io" \
+  && git config --system user.name "Yadm Test"
+
 # /yadm will be the work directory for all tests
 # docker commands should mount the local yadm project as /yadm
 WORKDIR /yadm
