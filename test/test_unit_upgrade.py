@@ -46,13 +46,17 @@ def test_upgrade(tmpdir, runner, yadm, condition):
     mock for git. echo will return true, simulating a positive result from "git
     ls-files". Also echo will report the parameters for "git mv".
     """
+    legacy_paths = ('config', 'encrypt', 'bootstrap', 'hooks/pre_cmd')
     home = tmpdir.mkdir('home')
     yadm_dir = home.join('.config/yadm')
     yadm_data = home.join('.local/share/yadm')
+    yadm_legacy = home.join('.yadm')
 
     if condition != 'no-paths':
         yadm_dir.join('repo.git/config').write('test-repo', ensure=True)
         yadm_dir.join('files.gpg').write('files.gpg', ensure=True)
+        for path in legacy_paths:
+            yadm_legacy.join(path).write(path, ensure=True)
 
     mock_git = ""
     if condition in ['tracked', 'submodules']:
@@ -68,6 +72,7 @@ def test_upgrade(tmpdir, runner, yadm, condition):
 
     script = f"""
         YADM_TEST=1 source {yadm}
+        YADM_LEGACY_DIR="{yadm_legacy}"
         YADM_DIR="{yadm_dir}"
         YADM_DATA="{yadm_data}"
         YADM_REPO="{yadm_data}/repo.git"
@@ -89,9 +94,16 @@ def test_upgrade(tmpdir, runner, yadm, condition):
                 f'Moving {yadm_dir.join(lpath)} '
                 f'to {yadm_data.join(npath)}')
             assert expected in run.out
+        for path in legacy_paths:
+            expected = (
+                f'Moving {yadm_legacy.join(path)} '
+                f'to {yadm_dir.join(path)}')
+            assert expected in run.out
         if condition == 'untracked':
             assert 'test-repo' in yadm_data.join('repo.git/config').read()
             assert 'files.gpg' in yadm_data.join('archive').read()
+            for path in legacy_paths:
+                assert path in yadm_dir.join(path).read()
         elif condition in ['tracked', 'submodules']:
             expected = (
                 f'mv {yadm_dir.join("files.gpg")} '
