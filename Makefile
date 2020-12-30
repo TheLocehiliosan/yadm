@@ -94,7 +94,11 @@ test:
 		py.test -v $(testargs); \
 	else \
 		$(MAKE) -s require-docker && \
-		docker run --rm -it -v "$(CURDIR):/yadm:ro" $(IMAGE) make test testargs="$(testargs)"; \
+		docker run \
+			--rm -t$(shell test -t 0 && echo i) \
+			-v "$(CURDIR):/yadm:ro" \
+			$(IMAGE) \
+			make test testargs="$(testargs)"; \
 	fi
 
 .PHONY: .testyadm
