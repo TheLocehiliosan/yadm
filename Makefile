@@ -97,43 +97,42 @@ test:
 		docker run --rm -it -v "$(CURDIR):/yadm:ro" $(IMAGE) make test testargs="$(testargs)"; \
 	fi
 
-.PHONY: testhost
-testhost: version ?= HEAD
-testhost: require-docker
-	@rm -rf /tmp/testhost
+.PHONY: .testyadm
+.testyadm: version ?= HEAD
+.testyadm:
+	@echo "Using yadm version=\"$(version)\""
 	@if [ "$(version)" = "local" ]; then \
-		cp -f yadm /tmp/testhost; \
+		cp -f yadm $@; \
 	else \
-		git show $(version):yadm > /tmp/testhost; \
+		git show $(version):yadm > $@; \
 	fi
-	@chmod a+x /tmp/testhost
-	@echo Starting testhost version=\"$(version)\"
+	@chmod a+x $@
+
+.PHONY: testhost
+testhost: require-docker .testyadm
+	@echo "Starting testhost"
 	@docker run \
 		-w /root \
 		--hostname testhost \
 		--rm -it \
-		-v "/tmp/testhost:/bin/yadm:ro" \
+		-v "$(CURDIR)/.testyadm:/bin/yadm:ro" \
 		$(IMAGE) \
 		bash -l
 
 .PHONY: scripthost
-scripthost: version ?= HEAD
-scripthost: require-docker
-	@rm -rf /tmp/testhost
-	@git show $(version):yadm > /tmp/testhost
-	@chmod a+x /tmp/testhost
-	@echo Starting scripthost version=\"$(version)\" \(recording script\)
+scripthost: require-docker .testyadm
+	@echo "Starting scripthost \(recording script\)"
 	@printf '' > script.gz
 	@docker run \
 		-w /root \
 		--hostname scripthost \
 		--rm -it \
-		-v "$$PWD/script.gz:/script.gz:rw" \
-		-v "/tmp/testhost:/bin/yadm:ro" \
+		-v "$(CURDIR)/script.gz:/script.gz:rw" \
+		-v "$(CURDIR)/.testyadm:/bin/yadm:ro" \
 		$(IMAGE) \
 		bash -c "script /tmp/script -q -c 'bash -l'; gzip < /tmp/script > /script.gz"
 	@echo
-	@echo "Script saved to $$PWD/script.gz"
+	@echo "Script saved to $(CURDIR)/script.gz"
 
 
 .PHONY: testenv
