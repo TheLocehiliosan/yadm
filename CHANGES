@@ -1,3 +1,20 @@
+3.0.0
+  * Support encryption with OpenSSL (#138)
+  * Support "include" directive in built-in template processor (#255)
+  * Support extensions for alternate files and templates (#257)
+  * Improve support for default branches (#231, #232)
+  * Add --version and --help as yadm internal commands (#267)
+  * Improve support for XDG base directory specification
+  * Use XDG_DATA_HOME used for encrypted data and repository (#208)
+  * Default repo is now ~/.local/share/yadm/repo.git
+  * Default encrypted archive is now ~/.local/share/yadm/archive
+  * Improve shell completions (#238, #274, #275)
+  * Remove support for YADM_COMPATIBILITY=1 (#242)
+  * Remove deprecated option cygwin-copy
+  * Fix template mode inheritance on FreeBSD (#243, #246)
+  * Fix hook execution under MinGW (#150)
+  * Improve compatibility with Oil shell (#210)
+
 2.5.0
   * Support for transcrypt (#197)
   * Support ESH templates (#220)
@@ -6,6 +23,7 @@
   * Fix alt processing when worktree is `/` (#198)
   * Assert config directory if missing (#226, #227)
   * Documentation improvements (#229)
+
 2.4.0
   * Support multiple keys in `yadm.gpg-recipient` (#139)
   * Ensure all templates are written atomically (#142)
@@ -15,6 +33,7 @@
   * Improve identification of WSL (#196)
   * Fix troff warnings emitted by man page (#195)
   * Write encrypt-based exclusions during decrypt
+
 2.3.0
   * Support git-crypt (#168)
   * Support specifying a command after `yadm enter`

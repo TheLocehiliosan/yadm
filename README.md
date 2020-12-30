@@ -56,8 +56,8 @@ The star count helps others discover yadm.
 [Git]: https://git-scm.com/
 [GnuPG]: https://gnupg.org/
 [OpenSSL]: https://www.openssl.org/
-[aur-badge]: https://img.shields.io/aur/version/yadm-git.svg
-[aur-link]: https://aur.archlinux.org/packages/yadm-git
+[aur-badge]: https://img.shields.io/aur/version/yadm.svg
+[aur-link]: https://aur.archlinux.org/packages/yadm
 [dev-pages-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Test%20Site/dev-pages?label=dev-pages
 [develop-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Tests/develop?label=develop
 [develop-commits]: https://github.com/TheLocehiliosan/yadm/commits/develop
@@ -72,7 +72,7 @@ The star count helps others discover yadm.
 [master-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Tests/master?label=master
 [master-commits]: https://github.com/TheLocehiliosan/yadm/commits/master
 [master-date]: https://img.shields.io/github/last-commit/TheLocehiliosan/yadm/master.svg?label=master
-[obs-badge]: https://img.shields.io/badge/OBS-v2.5.0-blue
+[obs-badge]: https://img.shields.io/badge/OBS-v3.0.0-blue
 [obs-link]: https://software.opensuse.org//download.html?project=home%3ATheLocehiliosan%3Ayadm&package=yadm
 [releases-badge]: https://img.shields.io/github/tag/TheLocehiliosan/yadm.svg?label=latest+release
 [releases-link]: https://github.com/TheLocehiliosan/yadm/releases

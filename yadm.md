@@ -75,10 +75,11 @@
        clone url
               Clone a remote repository for tracking dotfiles.  After the con-
               tents  of  the remote repository have been fetched, a "merge" of
-              origin/master is attempted.   If  there  are  conflicting  files
-              already  present  in  the  work-tree,  this  merge will fail and
-              instead a "reset" of origin/master will be done, followed  by  a
-              "stash". This "stash" operation will preserve the original data.
+              the remote HEAD branch is attempted.  If there  are  conflicting
+              files already present in the work-tree, this merge will fail and
+              instead a "reset" of the remote HEAD branch will be  done,  fol-
+              lowed  by  a  "stash".  This "stash" operation will preserve the
+              original data.
 
               You can review the stashed conflicts by running the command
 
@@ -91,26 +92,26 @@
               or
                      yadm stash pop
 
-              The  repository  is  stored  in $HOME/.config/yadm/repo.git.  By
-              default, $HOME will be used as the work-tree, but  this  can  be
+              The  repository  is  stored in $HOME/.local/share/yadm/repo.git.
+              By default, $HOME will be used as the work-tree, but this can be
               overridden  with the -w option.  yadm can be forced to overwrite
               an existing repository by providing the -f option.  If you  want
-              to  use  a  branch  other than origin/master, you can specify it
-              using the -b option.  By default yadm will ask the user  if  the
-              bootstrap  program  should  be  run  (if it exists). The options
-              --bootstrap or --no-bootstrap will either force the bootstrap to
-              be  run,  or  prevent  it  from being run, without prompting the
-              user.
+              to  use a branch other than the remote HEAD branch you can spec-
+              ify it using the -b option.  By default yadm will ask  the  user
+              if  the  bootstrap  program  should  be  run (if it exists). The
+              options --bootstrap or  --no-bootstrap  will  either  force  the
+              bootstrap  to  be  run,  or  prevent  it from being run, without
+              prompting the user.
 
        config This command manages  configurations  for  yadm.   This  command
               works exactly the way git-config(1) does.  See the CONFIGURATION
               section for more details.
 
        decrypt
-              Decrypt all files stored in $HOME/.config/yadm/files.gpg.  Files
-              decrypted  will be relative to the configured work-tree (usually
-              $HOME).  Using the -l option will list the files stored  without
-              extracting them.
+              Decrypt all  files  stored  in  $HOME/.local/share/yadm/archive.
+              Files  decrypted  will  be  relative to the configured work-tree
+              (usually $HOME).  Using the -l option will list the files stored
+              without extracting them.
 
        encrypt
               Encrypt  all  files  matching  the patterns found in $HOME/.con-
@@ -138,9 +139,7 @@
                          (tramp-remote-shell "/bin/sh")
                          (tramp-remote-shell-args ("-c"))))
 
-              With  this  config,  use  (magit-status  "/yadm::"). If you find
-              issue with Emacs 27 and  zsh,  trying  running  (setenv  "SHELL"
-              "/bin/bash").
+              With this config, use (magit-status "/yadm::").
 
        git-crypt options
               If  git-crypt  is  installed,  this  command  allows you to pass
@@ -167,7 +166,7 @@
        help   Print a summary of yadm commands.
 
        init   Initialize  a  new, empty repository for tracking dotfiles.  The
-              repository  is  stored   in   $HOME/.config/yadm/repo.git.    By
+              repository is stored  in  $HOME/.local/share/yadm/repo.git.   By
               default,  $HOME  will  be used as the work-tree, but this can be
               overridden with the -w option.  yadm can be forced to  overwrite
               an existing repository by providing the -f option.
@@ -197,63 +196,46 @@
               https://github.com/elasticdog/transcrypt for details.
 
        upgrade
-              Version  2  of  yadm uses a different directory for storing your
-              configurations.  When you start to use version 2 for  the  first
-              time,  you  may  see warnings about moving your data to this new
-              directory.  The easiest way to accomplish  this  is  by  running
-              "yadm  upgrade".   This  command  will start by moving your yadm
-              repo to the new path.  Next it will move any configuration  data
-              to  the new path.  If the configurations are tracked within your
-              yadm repo, this command will "stage" the renaming of those files
-              in the repo's index.  Upgrading will also re-initialize all sub-
-              modules you have added (otherwise they will be broken  when  the
-              repo moves).  After running "yadm upgrade", you should run "yadm
-              status" to review changes which have  been  staged,  and  commit
-              them to your repository.
+              Version  3  of yadm uses a different directory for storing data.
+              When you start to use version 3 for the first time, you may  see
+              warnings about moving your data to this new directory.  The eas-
+              iest way to accomplish this is by running "yadm upgrade".   This
+              command  will  start  by  moving your yadm repo to the new path.
+              Next it will move any archive data.  If the archive  is  tracked
+              within your yadm repo, this command will "stage" the renaming of
+              that file in the repo's index.  Upgrading will also  re-initial-
+              ize all submodules you have added (otherwise they will be broken
+              when the repo moves).  After running "yadm upgrade", you  should
+              run  "yadm status" to review changes which have been staged, and
+              commit them to your repository.
 
-              You can read https://yadm.io/docs/upgrade_from_1 for more infor-
+              You can read https://yadm.io/docs/upgrade_from_2 for more infor-
               mation.
 
        version
               Print the version of yadm.
 
 
-## COMPATIBILITY
-       Beginning with version 2.0.0, yadm introduced a  couple  major  changes
-       which  may  require you to adjust your configurations.  See the upgrade
-       command for help making those adjustments.
-
-       First, yadm now uses the "XDG Base Directory Specification" to find its
-       configurations.  You  can  read https://yadm.io/docs/upgrade_from_1 for
-       more information.
-
-       Second, the naming conventions for alternate files have  been  changed.
-       You can read https://yadm.io/docs/alternates for more information.
-
-       If you want to retain the old functionality, you can set an environment
-       variable, YADM_COMPATIBILITY=1.  Doing so will  automatically  use  the
-       old  yadm  directory,  and process alternates the same as the pre-2.0.0
-       version. This compatibility mode is deprecated, and will be removed  in
-       future  versions.  This mode exists solely for transitioning to the new
-       paths and naming of alternates.
-
-
 ## OPTIONS
-       yadm supports a set of universal options that alter the paths it  uses.
-       The  default paths are documented in the FILES section. Any path speci-
-       fied by these options must be fully qualified. If you  always  want  to
-       override  one  or  more  of  these paths, it may be useful to create an
-       alias for the yadm command.  For example, the following alias could  be
+       yadm  supports a set of universal options that alter the paths it uses.
+       The default paths are documented in the FILES section. Any path  speci-
+       fied  by  these  options must be fully qualified. If you always want to
+       override one or more of these paths, it may  be  useful  to  create  an
+       alias  for the yadm command.  For example, the following alias could be
        used to override the repository directory.
 
               alias yadm='yadm --yadm-repo /alternate/path/to/repo'
 
-       The  following  is  the  full  list  of universal options.  Each option
+       The following is the full  list  of  universal  options.   Each  option
        should be followed by a fully qualified path.
 
        -Y,--yadm-dir
-              Override the yadm directory.  yadm stores its data  relative  to
-              this directory.
+              Override  the  yadm  directory.   yadm stores its configurations
+              relative to this directory.
+
+       --yadm-data
+              Override the yadm data directory.  yadm stores its data relative
+              to this directory.
 
        --yadm-repo
               Override the location of the yadm repository.
@@ -287,10 +269,6 @@
               bolic links.  This might be desirable, because some systems  may
               not properly support symlinks.
 
-              NOTE:  The deprecated yadm.cygwin-copy option used by older ver-
-              sions of yadm has  been  replaced  by  yadm.alt-copy.   The  old
-              option will be removed in the next version of yadm.
-
        yadm.auto-alt
               Disable  the  automatic  linking described in the section ALTER-
               NATES. If disabled, you may still run  "yadm  alt"  manually  to
@@ -310,42 +288,63 @@
               Disable  the automatic creating of private directories described
               in the section PERMISSIONS.
 
+       yadm.cipher
+              Configure which encryption system is used by the encrypt/decrypt
+              commands.  Valid options are "gpg" and "openssl". The default is
+              "gpg".  Detailed information can be found in the section ENCRYP-
+              TION.
+
        yadm.git-program
-              Specify an alternate  program  to  use  instead  of  "git".   By
+              Specify  an  alternate  program  to  use  instead  of "git".  By
               default, the first "git" found in $PATH is used.
 
        yadm.gpg-perms
-              Disable  the permission changes to $HOME/.gnupg/*.  This feature
+              Disable the permission changes to $HOME/.gnupg/*.  This  feature
               is enabled by default.
 
        yadm.gpg-program
-              Specify an alternate  program  to  use  instead  of  "gpg".   By
+              Specify  an  alternate  program  to  use  instead  of "gpg".  By
               default, the first "gpg" found in $PATH is used.
 
        yadm.gpg-recipient
               Asymmetrically encrypt files with a gpg public/private key pair.
-              Provide a "key ID" to specify which public key to encrypt  with.
+              Provide  a "key ID" to specify which public key to encrypt with.
               The key must exist in your public keyrings.  Multiple recipients
-              can be specified (separated by space).  If  left  blank  or  not
-              provided,  symmetric  encryption  is  used  instead.   If set to
-              "ASK", gpg will  interactively  ask  for  recipients.   See  the
-              ENCRYPTION  section  for more details.  This feature is disabled
+              can  be  specified  (separated  by space).  If left blank or not
+              provided, symmetric encryption  is  used  instead.   If  set  to
+              "ASK",  gpg  will  interactively  ask  for  recipients.  See the
+              ENCRYPTION section for more details.  This feature  is  disabled
               by default.
+
+       yadm.openssl-ciphername
+              Specify  which  cipher should be used by openssl.  "aes-256-cbc"
+              is used by default.
+
+       yadm.openssl-old
+              Newer versions of openssl  support  the  pbkdf2  key  derivation
+              function.  This is used by default. If this configuration is set
+              to "true", openssl operations will use options  compatible  with
+              older  versions  of openssl. If you change this option, you will
+              need to recreate your encrypted archive.
+
+       yadm.openssl-program
+              Specify an alternate program to use instead  of  "openssl".   By
+              default, the first "openssl" found in $PATH is used.
 
        yadm.ssh-perms
               Disable the permission changes to $HOME/.ssh/*.  This feature is
               enabled by default.
 
-       The  following  four  "local"  configurations  are  not  stored  in the
+       The following  four  "local"  configurations  are  not  stored  in  the
        $HOME/.config/yadm/config, they are stored in the local repository.
 
 
        local.class
-              Specify a class for the purpose of symlinking  alternate  files.
+              Specify  a  class for the purpose of symlinking alternate files.
               By default, no class will be matched.
 
        local.hostname
-              Override  the  hostname  for the purpose of symlinking alternate
+              Override the hostname for the purpose  of  symlinking  alternate
               files.
 
        local.os
@@ -360,9 +359,9 @@
        to have an automated way of choosing an alternate version of a file for
        a different operating system, host, user, etc.
 
-       yadm  will automatically create a symbolic link to the appropriate ver-
-       sion of a file, when a valid suffix is appended to  the  filename.  The
-       suffix  contains  the  conditions  that must be met for that file to be
+       yadm will automatically create a symbolic link to the appropriate  ver-
+       sion  of  a  file, when a valid suffix is appended to the filename. The
+       suffix contains the conditions that must be met for  that  file  to  be
        used.
 
        The suffix begins with "##", followed by any number of conditions sepa-
@@ -370,9 +369,9 @@
 
          ##<condition>[,<condition>,...]
 
-       Each  condition is an attribute/value pair, separated by a period. Some
-       conditions do not require a "value", and in that case, the  period  and
-       value  can  be  omitted. Most attributes can be abbreviated as a single
+       Each condition is an attribute/value pair, separated by a period.  Some
+       conditions  do  not require a "value", and in that case, the period and
+       value can be omitted. Most attributes can be abbreviated  as  a  single
        letter.
 
          <attribute>[.<value>]
@@ -382,25 +381,25 @@
 
 
        template, t
-              Valid  when  the  value  matches a supported template processor.
+              Valid when the value matches  a  supported  template  processor.
               See the TEMPLATES section for more details.
 
        user, u
-              Valid if the value matches the current user.   Current  user  is
+              Valid  if  the  value matches the current user.  Current user is
               calculated by running id -u -n.
 
        distro, d
-              Valid  if the value matches the distro.  Distro is calculated by
-              running lsb_release -si or by inspecting the  ID  from  /etc/os-
+              Valid if the value matches the distro.  Distro is calculated  by
+              running  lsb_release  -si  or by inspecting the ID from /etc/os-
               release.
 
-       os, o  Valid  if the value matches the OS.  OS is calculated by running
+       os, o  Valid if the value matches the OS.  OS is calculated by  running
               uname -s.
 
        class, c
               Valid if the value matches the local.class configuration.  Class
               must be manually set using yadm config local.class <class>.  See
-              the  CONFIGURATION  section  for  more  details  about   setting
+              the   CONFIGURATION  section  for  more  details  about  setting
               local.class.
 
        hostname, h
@@ -409,6 +408,12 @@
 
        default
               Valid when no other alternate is valid.
+
+       extension, e
+              A special "condition" that doesn't affect the selection process.
+              Its purpose is instead to allow the alternate file to end with a
+              certain  extension  to  e.g.  make editors highlight the content
+              properly.
 
 
        NOTE: The OS for "Windows Subsystem for Linux" is  reported  as  "WSL",
@@ -550,10 +555,11 @@
 
        whatever##template with the following content
 
-         {% if yadm.user == 'harvey' %}
+         {% if yadm.user == "harvey" %}
          config={{yadm.class}}-{{yadm.os}}
          {% else %}
          config=dev-whatever
+         {% include "whatever.extra" %}
          {% endif %}
 
        would  output  a  file named whatever with the following content if the
@@ -561,9 +567,10 @@
 
          config=work-Linux
 
-       and the following otherwise:
+       and the following otherwise (if whatever.extra contains admin=false):
 
          config=dev-whatever
+         admin=false
 
        An equivalent Jinja template  named  whatever##template.j2  would  look
        like:
@@ -572,6 +579,7 @@
          config={{YADM_CLASS}}-{{YADM_OS}}
          {% else -%}
          config=dev-whatever
+         {% include 'whatever.extra' %}
          {% endif -%}
 
        An  equivalent  ESH  templated  named whatever##template.esh would look
@@ -581,6 +589,7 @@
          config=<%= $YADM_CLASS %>-<%= $YADM_OS %>
          <% else -%>
          config=dev-whatever
+         <%+ whatever.extra %>
          <% fi -%>
 
 
@@ -590,7 +599,9 @@
        into a Git repository, which often resides on a public system. yadm can
        make  it  easy  to  encrypt and decrypt a set of files so the encrypted
        version can be maintained in the Git  repository.   This  feature  will
-       only work if the gpg(1) command is available.
+       only work if a supported tool is available.  Both gpg(1) and openssl(1)
+       are supported.  gpg is used by default, but openssl can  be  configured
+       with the yadm.cypher configuration.
 
        To  use  this  feature, a list of patterns must be created and saved as
        $HOME/.config/yadm/encrypt.  This list of patterns should  be  relative
@@ -608,9 +619,9 @@
 
        The yadm encrypt command will find all files matching the patterns, and
        prompt  for  a  password.  Once  a password has confirmed, the matching
-       files will be encrypted and saved as $HOME/.config/yadm/files.gpg.  The
-       patterns  and  files.gpg should be added to the yadm repository so they
-       are available across multiple systems.
+       files will be encrypted and saved  as  $HOME/.local/share/yadm/archive.
+       The  "encrypt"  and "archive" files should be added to the yadm reposi-
+       tory so they are available across multiple systems.
 
        To decrypt these files later, or on another system run yadm decrypt and
        provide  the  correct password.  After files are decrypted, permissions
@@ -627,13 +638,17 @@
        This is to prevent accidentally committing sensitive data to the repos-
        itory.  This can be disabled using the yadm.auto-exclude configuration.
 
-       Using git-crypt
+       Using transcrypt or git-crypt
 
        A completely separate option for encrypting data is to install and  use
-       git-crypt.  Once installed, you can run git-crypt commands for the yadm
-       repo by running yadm git-crypt.  git-crypt enables transparent  encryp-
-       tion  and  decryption  of  files  in  a  git  repository.  You can read
-       https://github.com/AGWA/git-crypt for details.
+       transcrypt  or  git-crypt.   Once installed, you can use these tools by
+       running yadm transcrypt or yadm git-crypt.  These tools enables  trans-
+       parent  encryption and decryption of files in a git repository. See the
+       following web sites for more information:
+
+       - https://github.com/elasticdog/transcrypt
+
+       - https://github.com/AGWA/git-crypt
 
 
 
@@ -643,7 +658,7 @@
        automatically update the permissions of some file  paths.  The  "group"
        and "others" permissions will be removed from the following files:
 
-       - $HOME/.config/yadm/files.gpg
+       - $HOME/.local/share/yadm/archive
 
        - All files matching patterns in $HOME/.config/yadm/encrypt
 
@@ -712,30 +727,40 @@
        a fully qualified path, this directory will  be  $XDG_CONFIG_HOME/yadm.
        Otherwise it will be $HOME/.config/yadm.
 
+       Similarly, yadm's data files are relative to the "yadm data directory".
+       yadm uses the "XDG Base  Directory  Specification"  to  determine  this
+       directory.   If the environment variable $XDG_DATA_HOME is defined as a
+       fully qualified path, this directory will be $XDG_DATA_HOME/yadm.  Oth-
+       erwise it will be $HOME/.local/share/yadm.
+
        The  following  are the default paths yadm uses for its own data.  Most
        of these paths can be altered using universal options.  See the OPTIONS
        section for details.
 
        $HOME/.config/yadm
-              The yadm directory. By default, all data yadm stores is relative
-              to this directory.
+              The yadm directory. By default, all configs yadm stores is rela-
+              tive to this directory.
+
+       $HOME/.local/share/yadm
+              The yadm data directory. By default, all  data  yadm  stores  is
+              relative to this directory.
 
        $YADM_DIR/config
               Configuration file for yadm.
 
        $YADM_DIR/alt
-              This is a directory to keep  "alternate  files"  without  having
-              them  side-by-side  with the resulting symlink or processed tem-
-              plate. Alternate files placed in this directory will be  created
+              This  is  a  directory  to keep "alternate files" without having
+              them side-by-side with the resulting symlink or  processed  tem-
+              plate.  Alternate files placed in this directory will be created
               relative to $HOME instead.
 
-       $YADM_DIR/repo.git
+       $YADM_DATA/repo.git
               Git repository used by yadm.
 
        $YADM_DIR/encrypt
               List of globs used for encrypt/decrypt
 
-       $YADM_DIR/files.gpg
+       $YADM_DATA/archive
               All files encrypted with yadm encrypt are stored in this file.
 
 
@@ -755,7 +780,7 @@
        echo .ssh/*.key >> $HOME/.config/yadm/encrypt
               Add a new pattern to the list of encrypted files
 
-       yadm encrypt ; yadm add ~/.config/yadm/files.gpg ; yadm commit
+       yadm encrypt ; yadm add ~/.local/share/yadm/archive ; yadm commit
               Commit a new set of encrypted files
 
 
@@ -770,7 +795,7 @@
 
 
 ## SEE ALSO
-       git(1), gpg(1)
+       git(1), gpg(1) openssl(1) transcrypt(1) git-crypt(1)
 
        https://yadm.io/
 
