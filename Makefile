@@ -146,6 +146,10 @@ testenv:
 	python3 -m venv --clear testenv
 	testenv/bin/pip3 install --upgrade pip setuptools
 	testenv/bin/pip3 install --upgrade -r test/requirements.txt;
+	@for v in $$(sed -rn -e 's:.*/yadm-([0-9.]+)$$:\1:p' test/Dockerfile); do \
+		git show $$v:yadm > testenv/bin/yadm-$$v; \
+		chmod +x testenv/bin/yadm-$$v; \
+	done
 	@echo
 	@echo 'To activate this test environment type:'
 	@echo '  source testenv/bin/activate'
