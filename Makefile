@@ -83,7 +83,7 @@ usage:
 # Make it possible to run make specifying a py.test test file
 .PHONY: $(PYTESTS)
 $(PYTESTS):
-	@$(MAKE) test testargs="-k $@ $(testargs)"
+	@$(MAKE) test testargs="$@ $(testargs)"
 %.py:
 	@$(MAKE) test testargs="-k $@ $(testargs)"
 
