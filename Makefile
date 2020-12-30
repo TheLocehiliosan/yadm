@@ -26,14 +26,15 @@ usage:
 	@echo '      HEAD revision of yadm will be used unless "version" is'
 	@echo '      specified. "version" can be set to any commit, branch, tag, etc.'
 	@echo '      The targeted "version" will be retrieved from the repo, and'
-	@echo '      linked into the container as a local volume.'
+	@echo '      linked into the container as a local volume. Setting version to'
+	@echo '      "local" uses yadm from the current working tree.'
 	@echo
 	@echo '  make scripthost [version=VERSION]'
 	@echo '    - Create an ephemeral container for demonstrating a bug. After'
 	@echo '      exiting the shell, a log of the commands used to illustrate the'
 	@echo '      problem will be written to the file "script.txt". This file can'
 	@echo '      be useful to developers to make a repeatable test for the'
-	@echo '      problem.'
+	@echo '      problem. The version parameter works as for "testhost" above.'
 	@echo
 	@echo 'LINTING'
 	@echo
