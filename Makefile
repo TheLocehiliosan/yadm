@@ -144,10 +144,11 @@ scripthost: require-docker .testyadm
 testenv:
 	@echo 'Creating a local virtual environment in "testenv/"'
 	@echo
+	@rm -rf testenv
 	python3 -m venv --clear testenv
 	testenv/bin/pip3 install --upgrade pip setuptools
 	testenv/bin/pip3 install --upgrade -r test/requirements.txt;
-	@for v in $$(sed -rn -e 's:.*/yadm-([0-9.]+)$$:\1:p' test/Dockerfile); do \
+	@for v in $$(sed -En -e 's:.*/yadm-([0-9.]+)$$:\1:p' test/Dockerfile); do \
 		git show $$v:yadm > testenv/bin/yadm-$$v; \
 		chmod +x testenv/bin/yadm-$$v; \
 	done
