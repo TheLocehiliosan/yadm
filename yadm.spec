@@ -29,7 +29,7 @@ encrypted before they are included in the repository.
 
 # this is done to allow paths other than yadm-x.x.x (for example, when building
 # from branches instead of release tags)
-cd *yadm-*
+test -f yadm || cd *yadm-*
 
 %{__mkdir} -p %{buildroot}%{_bindir}
 %{__cp}  yadm %{buildroot}%{_bindir}
