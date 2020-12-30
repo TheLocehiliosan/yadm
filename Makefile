@@ -26,14 +26,15 @@ usage:
 	@echo '      HEAD revision of yadm will be used unless "version" is'
 	@echo '      specified. "version" can be set to any commit, branch, tag, etc.'
 	@echo '      The targeted "version" will be retrieved from the repo, and'
-	@echo '      linked into the container as a local volume.'
+	@echo '      linked into the container as a local volume. Setting version to'
+	@echo '      "local" uses yadm from the current working tree.'
 	@echo
 	@echo '  make scripthost [version=VERSION]'
 	@echo '    - Create an ephemeral container for demonstrating a bug. After'
 	@echo '      exiting the shell, a log of the commands used to illustrate the'
 	@echo '      problem will be written to the file "script.txt". This file can'
 	@echo '      be useful to developers to make a repeatable test for the'
-	@echo '      problem.'
+	@echo '      problem. The version parameter works as for "testhost" above.'
 	@echo
 	@echo 'LINTING'
 	@echo
@@ -82,7 +83,7 @@ usage:
 # Make it possible to run make specifying a py.test test file
 .PHONY: $(PYTESTS)
 $(PYTESTS):
-	@$(MAKE) test testargs="-k $@ $(testargs)"
+	@$(MAKE) test testargs="$@ $(testargs)"
 %.py:
 	@$(MAKE) test testargs="-k $@ $(testargs)"
 
@@ -94,46 +95,49 @@ test:
 		py.test -v $(testargs); \
 	else \
 		$(MAKE) -s require-docker && \
-		docker run --rm -it -v "$(CURDIR):/yadm:ro" $(IMAGE) make test testargs="$(testargs)"; \
+		docker run \
+			--rm -t$(shell test -t 0 && echo i) \
+			-v "$(CURDIR):/yadm:ro" \
+			$(IMAGE) \
+			make test testargs="$(testargs)"; \
 	fi
 
-.PHONY: testhost
-testhost: version ?= HEAD
-testhost: require-docker
-	@rm -rf /tmp/testhost
+.PHONY: .testyadm
+.testyadm: version ?= HEAD
+.testyadm:
+	@echo "Using yadm version=\"$(version)\""
 	@if [ "$(version)" = "local" ]; then \
-		cp -f yadm /tmp/testhost; \
+		cp -f yadm $@; \
 	else \
-		git show $(version):yadm > /tmp/testhost; \
+		git show $(version):yadm > $@; \
 	fi
-	@chmod a+x /tmp/testhost
-	@echo Starting testhost version=\"$(version)\"
+	@chmod a+x $@
+
+.PHONY: testhost
+testhost: require-docker .testyadm
+	@echo "Starting testhost"
 	@docker run \
 		-w /root \
 		--hostname testhost \
 		--rm -it \
-		-v "/tmp/testhost:/bin/yadm:ro" \
+		-v "$(CURDIR)/.testyadm:/bin/yadm:ro" \
 		$(IMAGE) \
 		bash -l
 
 .PHONY: scripthost
-scripthost: version ?= HEAD
-scripthost: require-docker
-	@rm -rf /tmp/testhost
-	@git show $(version):yadm > /tmp/testhost
-	@chmod a+x /tmp/testhost
-	@echo Starting scripthost version=\"$(version)\" \(recording script\)
+scripthost: require-docker .testyadm
+	@echo "Starting scripthost \(recording script\)"
 	@printf '' > script.gz
 	@docker run \
 		-w /root \
 		--hostname scripthost \
 		--rm -it \
-		-v "$$PWD/script.gz:/script.gz:rw" \
-		-v "/tmp/testhost:/bin/yadm:ro" \
+		-v "$(CURDIR)/script.gz:/script.gz:rw" \
+		-v "$(CURDIR)/.testyadm:/bin/yadm:ro" \
 		$(IMAGE) \
 		bash -c "script /tmp/script -q -c 'bash -l'; gzip < /tmp/script > /script.gz"
 	@echo
-	@echo "Script saved to $$PWD/script.gz"
+	@echo "Script saved to $(CURDIR)/script.gz"
 
 
 .PHONY: testenv
@@ -143,6 +147,10 @@ testenv:
 	python3 -m venv --clear testenv
 	testenv/bin/pip3 install --upgrade pip setuptools
 	testenv/bin/pip3 install --upgrade -r test/requirements.txt;
+	@for v in $$(sed -rn -e 's:.*/yadm-([0-9.]+)$$:\1:p' test/Dockerfile); do \
+		git show $$v:yadm > testenv/bin/yadm-$$v; \
+		chmod +x testenv/bin/yadm-$$v; \
+	done
 	@echo
 	@echo 'To activate this test environment type:'
 	@echo '  source testenv/bin/activate'

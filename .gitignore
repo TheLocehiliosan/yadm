@@ -2,5 +2,6 @@
 .jekyll-metadata
 .pytest_cache
 .sass-cache
+.testyadm
 _site
 testenv
