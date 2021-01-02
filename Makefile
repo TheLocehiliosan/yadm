@@ -23,11 +23,10 @@ usage:
 	@echo
 	@echo '  make testhost [version=VERSION]'
 	@echo '    - Create an ephemeral container for doing adhoc yadm testing. The'
-	@echo '      HEAD revision of yadm will be used unless "version" is'
+	@echo '      working copy version of yadm will be used unless "version" is'
 	@echo '      specified. "version" can be set to any commit, branch, tag, etc.'
 	@echo '      The targeted "version" will be retrieved from the repo, and'
-	@echo '      linked into the container as a local volume. Setting version to'
-	@echo '      "local" uses yadm from the current working tree.'
+	@echo '      linked into the container as a local volume.'
 	@echo
 	@echo '  make scripthost [version=VERSION]'
 	@echo '    - Create an ephemeral container for demonstrating a bug. After'
@@ -103,13 +102,15 @@ test:
 	fi
 
 .PHONY: .testyadm
-.testyadm: version ?= HEAD
+.testyadm: version ?= local
 .testyadm:
-	@echo "Using yadm version=\"$(version)\""
+	@rm -f $@
 	@if [ "$(version)" = "local" ]; then \
-		cp -f yadm $@; \
+		ln -sf yadm $@; \
+		echo "Using local yadm ($$(git describe --tags --dirty))"; \
 	else \
 		git show $(version):yadm > $@; \
+		echo "Using yadm version $$(git describe --tags $(version))"; \
 	fi
 	@chmod a+x $@
 
