@@ -60,10 +60,11 @@ def test_init(
     else:
         assert run.success
         assert 'Initialized empty shared Git repository' in run.out
-        assert run.err == ''
 
         if repo_present:
             assert not old_repo.isfile(), 'Original repo still exists'
+        else:
+            assert run.err == ''
 
         if alt_work:
             assert repo_config('core.worktree') == paths.work

@@ -747,6 +747,7 @@ function clone() {
   # remove existing if forcing the clone to happen anyway
   [ -d "$YADM_REPO" ] && {
     debug "Removing existing repo prior to clone"
+    "$GIT_PROGRAM" -C "$YADM_WORK" submodule deinit -f --all
     rm -rf "$YADM_REPO"
   }
 
@@ -1129,6 +1130,7 @@ function init() {
   # remove existing if forcing the init to happen anyway
   [ -d "$YADM_REPO" ] && {
     debug "Removing existing repo prior to init"
+    "$GIT_PROGRAM" -C "$YADM_WORK" submodule deinit -f --all
     rm -rf "$YADM_REPO"
   }
 
