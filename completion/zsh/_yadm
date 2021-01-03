@@ -19,10 +19,12 @@ _yadm-clone() {
     _arguments \
         '(--bootstrap --no-bootstrap)--bootstrap[force bootstrap, without prompt]' \
         '(--bootstrap --no-bootstrap)--no-bootstrap[prevent bootstrap, without prompt]' \
-        '-b[branch name]:' \
         '-f[force overwrite of existing repository]' \
-        '-w[work tree path]: :_files -/' \
-        '*:'
+        '-w[yadm work tree path]: :_files -/'
+
+    local curcontext="${curcontext%:*:*}:git:"
+
+    words=("git" "${words[@]}") CURRENT=$((CURRENT + 1)) service=git _git
 }
 
 _yadm-config() {
