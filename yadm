@@ -35,6 +35,7 @@ YADM_ENCRYPT="encrypt"
 YADM_BOOTSTRAP="bootstrap"
 YADM_HOOKS="hooks"
 YADM_ALT="alt"
+YADM_CHECK_CONDITION="check_condition"
 
 # these are the default paths relative to YADM_DATA
 YADM_REPO="repo.git"
@@ -177,6 +178,7 @@ function score_file() {
   fi
 
   score=0
+  declare -gA external_cache
   IFS=',' read -ra fields <<< "$conditions"
   for field in "${fields[@]}"; do
     label=${field%%.*}
@@ -226,6 +228,22 @@ function score_file() {
         score=0
         return
       fi
+    elif [[ "$label" =~ ^(x|external)$ ]]; then
+        if [[ -z "${external_cache[x$value]:-}" ]]; then
+            if [[ -x "$YADM_CHECK_CONDITION" ]]; then
+                "$YADM_CHECK_CONDITION" "$value"
+                external_cache[x$value]=$?
+            else
+                debug "No program found to check condition for $src"
+                [ -n "$loud" ] && echo "No program found to check condition for $src"
+            fi
+        fi
+        if [[ ${external_cache[x$value]:-1} -eq 0 ]]; then
+            score=$((score + 32))
+        else
+            score=0
+            return
+        fi
     # templates
     elif [[ "$label" =~ ^(t|template|yadm)$ ]]; then
       score=0
@@ -1630,6 +1648,7 @@ function configure_paths() {
   YADM_BOOTSTRAP="$YADM_DIR/$YADM_BOOTSTRAP"
   YADM_HOOKS="$YADM_DIR/$YADM_HOOKS"
   YADM_ALT="$YADM_DIR/$YADM_ALT"
+  YADM_CHECK_CONDITION="$YADM_DIR/$YADM_CHECK_CONDITION"
 
   # change paths to be relative to YADM_DATA
   YADM_REPO="$YADM_DATA/$YADM_REPO"
