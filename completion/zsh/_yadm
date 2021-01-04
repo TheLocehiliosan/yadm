@@ -1,5 +1,10 @@
 #compdef yadm
 
+# This completion tries to fallback to git's completion for git commands.
+# It handles two different types of fallbacks:
+#  - The git completion shipped with git.
+#  - The git completion shipped with zsh.
+
 _yadm-alt() {
     return 0
 }
@@ -41,12 +46,6 @@ _yadm-git-crypt() {
     # TODO: complete git-crypt options
 }
 
-_yadm-gitconfig() {
-    integer ret=1
-    _call_function ret _git-config
-    return ret
-}
-
 _yadm-help() {
     return 0
 }
@@ -67,9 +66,9 @@ _yadm-perms() {
 }
 
 _yadm-transcrypt() {
-    integer ret=1
-    _call_function ret _transcrypt
-    return ret
+    integer _ret=1
+    _call_function _ret _transcrypt
+    return _ret
 }
 
 _yadm-upgrade() {
@@ -101,18 +100,35 @@ _yadm_commands() {
         version:'show yadm version'
     )
 
-    zstyle ':completion:*:*:yadm:*' user-commands $commands
+    integer _ret=1
 
-    integer ret=1
-    _call_function ret _git_commands
+    if (( $+functions[_git_commands] )); then
+        zstyle ':completion:*:*:yadm:*' user-commands $commands
+        _call_function _ret _git_commands
+        zstyle -d ':completion:*:*:yadm:*' user-commands
+    else
+        local curcontext=${curcontext%:*:*}:git:
+        _tags common-commands alias-commands all-commands
+        while _tags; do
+            _requested common-commands && __git_zsh_cmd_common
+            _requested alias-commands && __git_zsh_cmd_alias
+            _requested all-commands && __git_zsh_cmd_all
+            let _ret || break
+        done
+        _describe "yadm commands" commands
+    fi
 
-    zstyle -d ':completion:*:*:yadm:*' user-commands
-    return ret
+    return _ret
 }
 
 _yadm() {
-    local curcontext=$curcontext state line
+    local curcontext=$curcontext state state_descr line
     declare -A opt_args
+
+    local -a orig_words=( ${words[@]} )
+    local cur=${words[CURRENT]}
+    local prev=${words[CURRENT-1]}
+    let cword=CURRENT-1
 
     _arguments -C \
       '(-Y --yadm-dir)'{-Y,--yadm-dir}'[override the standard yadm directory]: :_files -/' \
@@ -131,33 +147,55 @@ _yadm() {
     (( $+opt_args[--yadm-repo] )) && repo_args+=(--yadm-repo "$opt_args[--yadm-repo]")
     (( $+opt_args[--yadm-data] )) && repo_args+=(--yadm-data "$opt_args[--yadm-data]")
     local -x GIT_DIR="$(_call_program gitdir yadm "${repo_args[@]}" introspect repo)"
+    local __git_dir="$GIT_DIR"
 
-    integer ret=1
+    integer _ret=1
     case $state in
         (command)
-            _yadm_commands && ret=0
+            _yadm_commands && _ret=0
             ;;
         (option-or-argument)
-            curcontext=${curcontext%:*:*}:yadm-$words[1]:
+            local command=$words[1]
 
-            if ! _call_function ret _yadm-$words[1]; then
-                curcontext=${curcontext%:*:*}:git-$words[1]:
-                if ! _call_function ret _git-$words[1]; then
-                    if [[ $words[1] = \!* ]]; then
-                        words[1]=${words[1]##\!}
-                        _normal && ret=0
-                    elif zstyle -T :completion:$curcontext: use-fallback; then
-                        _default && ret=0
-                    else
-                        _message "unknown sub-command: $words[1]"
+            # First try to complete yadm commands
+            curcontext=${curcontext%:*:*}:yadm-$command:
+            if ! _call_function _ret _yadm-$command; then
+                # Translate gitconfig to use the regular completion for config
+                [[ $command = "gitconfig" ]] && command=config
+
+                # If is wasn't a valid command, try git's completion if available
+                if (( $+functions[__git_zsh_bash_func] )); then
+                    words=( ${orig_words[@]} )
+                    curcontext=${curcontext%:*:*}:git:
+
+                    __git_zsh_bash_func $command
+                    let _ret && _default && _ret=0
+                else
+                    # If git's completion wasn't available, try zsh's
+                    curcontext=${curcontext%:*:*}:git-$command:
+                    if ! _call_function _ret _git-$command; then
+                        if [[ $words[1] = \!* ]]; then
+                            words[1]=${words[1]##\!}
+                            _normal && _ret=0
+                        elif zstyle -T :completion:$curcontext: use-fallback; then
+                            _default && _ret=0
+                        else
+                            _message "unknown sub-command: $command"
+                        fi
                     fi
                 fi
             fi
             ;;
     esac
 
-    return ret
+    return _ret
 }
 
-(( $+functions[_git_commands] )) || _git
-_yadm "$@"
+# Ignore call from _git when using git's completion
+__yadm_zsh_main() {
+    _ret=0
+}
+
+# __git_zsh_bash_func comes from git's completion and _git_commands from zsh's
+(( $+functions[__git_zsh_bash_func] + $+functions[_git_commands] )) || _git
+_yadm
