@@ -59,12 +59,16 @@ def test_upgrade(tmpdir, runner, yadm, condition):
             yadm_legacy.join(path).write(path, ensure=True)
 
     mock_git = ""
-    if condition in ['tracked', 'submodules']:
+    if condition != 'no-paths':
         mock_git = f'''
             function git() {{
                 echo "$@"
-                if [[ "$*" == *.gitmodules* ]]; then
-                    return { '0' if condition == 'submodules' else '1' }
+                if [[ "$*" = *"submodule status" ]]; then
+                    { 'echo " 1234567 mymodule (1.0)"'
+                        if condition == 'submodules' else ':' }
+                fi
+                if [[ "$*" = *ls-files* ]]; then
+                    return { 1 if condition == 'untracked' else 0 }
                 fi
                 return 0
             }}
@@ -111,8 +115,9 @@ def test_upgrade(tmpdir, runner, yadm, condition):
             assert expected in run.out
             assert 'files tracked by yadm have been renamed' in run.out
             if condition == 'submodules':
-                assert 'submodule deinit -f .' in run.out
-                assert 'submodule update --init --recursive' in run.out
+                assert 'submodule deinit -- mymodule' in run.out
+                assert 'submodule update --init --recursive -- mymodule' \
+                    in run.out
             else:
-                assert 'submodule deinit -f .' not in run.out
+                assert 'submodule deinit' not in run.out
                 assert 'submodule update --init --recursive' not in run.out

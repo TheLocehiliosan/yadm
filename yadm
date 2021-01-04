@@ -122,7 +122,7 @@ function main() {
           -d) # used by all commands
             DEBUG="YES"
           ;;
-          -f) # used by init() and clone()
+          -f) # used by init(), clone() and upgrade()
             FORCE="YES"
           ;;
           -l) # used by decrypt()
@@ -1296,7 +1296,7 @@ function perms() {
 function upgrade() {
 
   local actions_performed=0
-  local repo_moved=0
+  local -a submodules
   local repo_updates=0
 
   [[ -n "${YADM_OVERRIDE_REPO}${YADM_OVERRIDE_ARCHIVE}" || "$YADM_DATA" = "$YADM_DIR" ]] && \
@@ -1315,8 +1315,27 @@ function upgrade() {
       error_out "Unable to upgrade. '$YADM_REPO' already exists. Refusing to overwrite it."
     else
       actions_performed=1
-      repo_moved=1
       echo "Moving $LEGACY_REPO to $YADM_REPO"
+
+      export GIT_DIR="$LEGACY_REPO"
+
+      # Must absorb git dirs, otherwise deinit below will fail for modules that have
+      # been cloned first and then added as a submodule.
+      "$GIT_PROGRAM" submodule absorbgitdirs
+
+      while read -r sha submodule rest; do
+          if [[ "$sha" = -* ]]; then
+              continue
+          fi
+          "$GIT_PROGRAM" -C "$YADM_WORK" submodule deinit ${FORCE:+-f} -- "$submodule" || {
+              for other in "${submodules[@]}"; do
+                  "$GIT_PROGRAM" -C "$YADM_WORK" submodule update --init --recursive -- "$other"
+              done
+              error_out "Unable to upgrade. Could not deinit submodule $submodule"
+          }
+          submodules+=("$submodule")
+      done < <("$GIT_PROGRAM" -C "$YADM_WORK" submodule status)
+
       assert_parent "$YADM_REPO"
       mv "$LEGACY_REPO" "$YADM_REPO"
     fi
@@ -1366,13 +1385,9 @@ function upgrade() {
   done
 
   # handle submodules, which need to be reinitialized
-  if [ "$repo_moved" -ne 0 ]; then
-    cd_work "Upgrade submodules"
-    if "$GIT_PROGRAM" ls-files --error-unmatch .gitmodules &> /dev/null; then
-      "$GIT_PROGRAM" submodule deinit -f .
-      "$GIT_PROGRAM" submodule update --init --recursive
-    fi
-  fi
+  for submodule in "${submodules[@]}"; do
+      "$GIT_PROGRAM" -C "$YADM_WORK" submodule update --init --recursive -- "$submodule"
+  done
 
   [ "$actions_performed" -eq 0 ] && \
     echo "No legacy paths found. Upgrade is not necessary"
@@ -1610,7 +1625,7 @@ function issue_legacy_path_warning() {
 
   To remove this warning do one of the following:
     * Run "yadm upgrade" to move the yadm data to the new paths. (RECOMMENDED)
-    * Manually move yadm data to new default paths.
+    * Manually move yadm data to new default paths and reinit any submodules.
     * Specify your preferred paths with --yadm-data and --yadm-archive each execution.
 
   Legacy paths detected:
