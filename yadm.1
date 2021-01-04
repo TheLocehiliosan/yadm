@@ -61,6 +61,7 @@ list
 .BR yadm " transcrypt [ options ]
 
 .BR yadm " upgrade
+.RB [ -f ]
 
 .BR yadm " introspect
 .I category
@@ -297,8 +298,15 @@ This command will start by moving your yadm repo to the new path.
 Next it will move any archive data.
 If the archive is tracked within your yadm repo, this command will
 "stage" the renaming of that file in the repo's index.
-Upgrading will also re-initialize all submodules you have added (otherwise they
-will be broken when the repo moves).
+
+Upgrading will attempt to de-initialize and re-initialize your submodules. If
+your submodules cannot be de-initialized, the upgrade will fail. The most
+common reason submodules will fail to de-initialize is because they have local
+modifications. If you are willing to lose the local modifications to those
+submodules, you can use the
+.B -f
+option with the "upgrade" command to force the de-initialization.
+
 After running "yadm upgrade", you should run "yadm status" to review changes
 which have been staged, and commit them to your repository.
 
