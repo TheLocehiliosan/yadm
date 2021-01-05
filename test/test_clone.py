@@ -58,14 +58,14 @@ def test_clone(
     if not good_remote:
         # clone should fail
         assert run.failure
-        assert run.err != ''
-        assert 'Unable to fetch origin' in run.out
+        assert run.out != ''
+        assert 'Unable to fetch origin' in run.err
         assert not paths.repo.exists()
     elif repo_exists and not force:
         # can't overwrite data
         assert run.failure
-        assert run.err == ''
-        assert 'Git repo already exists' in run.out
+        assert run.out == ''
+        assert 'Git repo already exists' in run.err
     else:
         # clone should succeed, and repo should be configured properly
         assert successful_clone(run, paths, repo_config)
@@ -297,8 +297,8 @@ def test_alternate_branch(runner, paths, yadm_cmd, repo_config, branch):
 
     if branch == 'invalid':
         assert run.failure
-        assert 'ERROR: Clone failed' in run.out
-        assert f"'origin/{branch}' does not exist in {remote_url}" in run.out
+        assert 'ERROR: Clone failed' in run.err
+        assert f"'origin/{branch}' does not exist in {remote_url}" in run.err
     else:
         assert successful_clone(run, paths, repo_config)
 
@@ -344,8 +344,8 @@ def test_no_repo(runner, yadm_cmd, ):
     """Test cloning without specifying a repo"""
     run = runner(command=yadm_cmd('clone'))
     assert run.failure
-    assert run.err == ''
-    assert 'ERROR: No repository provided' in run.out
+    assert run.out == ''
+    assert 'ERROR: No repository provided' in run.err
 
 
 def verify_head(paths, branch):

@@ -212,7 +212,7 @@ def test_symmetric_encrypt(
         assert run.err == ''
 
     if missing_encrypt:
-        assert 'does not exist' in run.out
+        assert 'does not exist' in run.err
     elif bad_phrase:
         assert 'Invalid passphrase' in run.err
     else:
@@ -313,7 +313,7 @@ def test_asymmetric_encrypt(
             runner, gnupg, paths.archive, encrypt_targets)
     else:
         assert run.failure
-        assert 'Unable to write' in run.out
+        assert 'Unable to write' in run.out if expect else run.err
 
     if ask:
         assert 'Enter the user ID' in run.out
@@ -380,7 +380,7 @@ def test_asymmetric_decrypt(
                 assert paths.work.join(filename).read() == filename
     else:
         assert run.failure
-        assert 'Unable to extract encrypted files' in run.out
+        assert 'Unable to extract encrypted files' in run.err
 
 
 @pytest.mark.parametrize(

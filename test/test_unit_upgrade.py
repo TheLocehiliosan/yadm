@@ -29,12 +29,11 @@ def test_upgrade_errors(tmpdir, runner, yadm, condition):
     """
     run = runner(command=['bash'], inp=script)
     assert run.failure
-    assert run.err == ''
-    assert 'Unable to upgrade' in run.out
+    assert 'Unable to upgrade' in run.err
     if condition in ['override', 'equal']:
-        assert 'Paths have been overridden' in run.out
-    if condition == 'existing_repo':
-        assert 'already exists' in run.out
+        assert 'Paths have been overridden' in run.err
+    elif condition == 'existing_repo':
+        assert 'already exists' in run.err
 
 
 @pytest.mark.parametrize(

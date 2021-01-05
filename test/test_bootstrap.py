@@ -27,5 +27,9 @@ def test_bootstrap(
         paths.bootstrap.chmod(0o775)
     run = runner(command=yadm_cmd('bootstrap'))
     assert run.code == code
-    assert run.err == ''
-    assert expect in run.out
+    if exists and executable:
+        assert run.err == ''
+        assert expect in run.out
+    else:
+        assert expect in run.err
+        assert run.out == ''

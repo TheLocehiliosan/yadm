@@ -42,7 +42,7 @@ def test_ext_encryption(runner, yadm, paths, tmpdir, crypt, cmd, var):
         else:
             assert run.success
         assert run.out.strip() == 'ext-crypt ran'
+        assert run.err == ''
     else:
         assert run.failure
-        assert f"command '{pgm}' cannot be located" in run.out
-    assert run.err == ''
+        assert f"command '{pgm}' cannot be located" in run.err

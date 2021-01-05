@@ -7,5 +7,5 @@ def test_clean_command(runner, yadm_cmd):
     # do nothing, this is a dangerous Git command when managing dot files
     # report the command as disabled and exit as a failure
     assert run.failure
-    assert run.err == ''
-    assert 'disabled' in run.out
+    assert run.out == ''
+    assert 'disabled' in run.err

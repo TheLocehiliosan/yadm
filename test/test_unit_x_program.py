@@ -34,7 +34,6 @@ def test_x_program(
     """
     run = runner(command=['bash'], inp=script)
     assert run.success == success
-    assert run.err == ''
 
     # [GIT,GPG]_PROGRAM set correctly
     if value == 'program':
@@ -44,4 +43,6 @@ def test_x_program(
 
     # error reported about bad config
     if match:
-        assert match in run.out
+        assert match in run.err
+    else:
+        assert run.err == ''
