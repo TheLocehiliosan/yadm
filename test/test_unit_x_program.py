@@ -27,7 +27,8 @@ def test_x_program(
     # test require_[git,gpg]
     script = f"""
         YADM_TEST=1 source {paths.pgm}
-        YADM_CONFIG="{paths.config}"
+        YADM_OVERRIDE_CONFIG="{paths.config}"
+        configure_paths
         require_{program}
         echo ${program.upper()}_PROGRAM
     """
