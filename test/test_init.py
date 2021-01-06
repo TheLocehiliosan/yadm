@@ -52,15 +52,15 @@ def test_init(
 
     # run init
     run = runner(yadm_cmd(*args), env={'HOME': home})
-    assert run.err == ''
 
     if repo_present and not force:
         assert run.failure
-        assert 'repo already exists' in run.out
+        assert 'repo already exists' in run.err
         assert old_repo.isfile(), 'Missing original repo'
     else:
         assert run.success
         assert 'Initialized empty shared Git repository' in run.out
+        assert run.err == ''
 
         if repo_present:
             assert not old_repo.isfile(), 'Original repo still exists'

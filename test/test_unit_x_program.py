@@ -27,13 +27,13 @@ def test_x_program(
     # test require_[git,gpg]
     script = f"""
         YADM_TEST=1 source {paths.pgm}
-        YADM_CONFIG="{paths.config}"
+        YADM_OVERRIDE_CONFIG="{paths.config}"
+        configure_paths
         require_{program}
         echo ${program.upper()}_PROGRAM
     """
     run = runner(command=['bash'], inp=script)
     assert run.success == success
-    assert run.err == ''
 
     # [GIT,GPG]_PROGRAM set correctly
     if value == 'program':
@@ -43,4 +43,6 @@ def test_x_program(
 
     # error reported about bad config
     if match:
-        assert match in run.out
+        assert match in run.err
+    else:
+        assert run.err == ''

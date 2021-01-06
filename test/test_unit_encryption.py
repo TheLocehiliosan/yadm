@@ -51,14 +51,14 @@ def test_encrypt_decrypt(runner, paths, cipher, mode):
     """
     run = runner(command=['bash'], inp=script)
 
-    assert run.err == ''
     if cipher != 'bad':
         assert run.success
         assert run.out.startswith(cipher)
         assert str(paths.archive) in run.out
+        assert run.err == ''
     else:
         assert run.failure
-        assert 'Unknown cipher' in run.out
+        assert 'Unknown cipher' in run.err
 
 
 @pytest.mark.parametrize('condition', ['default', 'override'])

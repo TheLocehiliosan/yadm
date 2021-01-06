@@ -1745,7 +1745,7 @@ function debug() {
 
 function error_out() {
 
-  echo_e "ERROR: $*"
+  echo_e "ERROR: $*" >&2
   exit_with_hook 1
 
 }

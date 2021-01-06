@@ -85,6 +85,7 @@ def run_test(runner, paths, args, expected_matches, expected_code=0):
     """
     run = runner(command=['bash'], inp=script)
     assert run.code == expected_code
-    assert run.err == ''
+    assert run.success == (run.code == 0)
+    assert (run.err if run.success else run.out) == ''
     for match in expected_matches:
-        assert match in run.out
+        assert match in run.out if run.success else run.err

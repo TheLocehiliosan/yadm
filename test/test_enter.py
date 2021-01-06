@@ -35,13 +35,13 @@ def test_enter(runner, yadm_cmd, paths, shell, success):
 
     run = runner(command=yadm_cmd('enter'), env=env)
     assert run.success == success
-    assert run.err == ''
     prompt = f'yadm shell ({paths.repo})'
     if success:
         assert run.out.startswith('Entering yadm repo')
         assert run.out.rstrip().endswith('Leaving yadm repo')
-    if not success:
-        assert 'does not refer to an executable' in run.out
+        assert run.err == ''
+    else:
+        assert 'does not refer to an executable' in run.err
     if 'env' in shell:
         assert f'GIT_DIR={paths.repo}' in run.out
         assert f'GIT_WORK_TREE={paths.work}' in run.out

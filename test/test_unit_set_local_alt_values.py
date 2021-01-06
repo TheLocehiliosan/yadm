@@ -67,6 +67,7 @@ def test_distro(runner, yadm):
 
     script = f"""
         YADM_TEST=1 source {yadm}
+        function config() {{ echo "$1"; }}
         function query_distro() {{ echo "testdistro"; }}
         set_local_alt_values
         echo "distro='$local_distro'"
