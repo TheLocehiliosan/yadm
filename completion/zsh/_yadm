@@ -1,9 +1,11 @@
 #compdef yadm
 
 # This completion tries to fallback to git's completion for git commands.
-# It handles two different types of fallbacks:
-#  - The git completion shipped with git.
-#  - The git completion shipped with zsh.
+
+zstyle -T ':completion:*:yadm:argument-1:descriptions:' format && \
+    zstyle ':completion:*:yadm:argument-1:descriptions' format '%d:'
+zstyle -T ':completion:*:yadm:*:yadm' group-name && \
+    zstyle ':completion:*:yadm:*:yadm' group-name ''
 
 _yadm-alt() {
     return 0
@@ -72,7 +74,9 @@ _yadm-transcrypt() {
 }
 
 _yadm-upgrade() {
-    return 0
+    _arguments \
+        '-f[force deinit of submodules]' \
+        ': '
 }
 
 _yadm-version() {
@@ -80,55 +84,39 @@ _yadm-version() {
 }
 
 _yadm_commands() {
-    local -a commands
-    commands=(
-        alt:'create links for alternates (yadm)'
-        bootstrap:'execute bootstrap (yadm)'
-        clone:'clone an existing repository (yadm)'
+    local -a commands=(
+        alt:'create links for alternates'
+        bootstrap:'execute bootstrap'
+        clone:'clone an existing yadm repository'
         config:'configure an yadm setting'
-        decrypt:'decrypt files (yadm)'
-        encrypt:'encrypt files (yadm)'
+        decrypt:'decrypt files'
+        encrypt:'encrypt files'
         enter:'run sub-shell with GIT variables set'
         git-crypt:'run git-crypt commands for the yadm repository'
         gitconfig:'run the git config command'
         help:'display yadm help information'
         init:'initialize an empty yadm repository'
         list:'list files tracked by yadm'
-        perms:'fix perms for private files (yadm)'
+        perms:'fix perms for private files'
         transcrypt:'run transcrypt commands for the yadm repository'
         upgrade:'upgrade legacy yadm paths'
         version:'show yadm version'
     )
 
-    integer _ret=1
+    local oldcontext="$curcontext"
+    local curcontext="${curcontext%:*:*}:git:"
 
-    if (( $+functions[_git_commands] )); then
-        zstyle ':completion:*:*:yadm:*' user-commands $commands
-        _call_function _ret _git_commands
-        zstyle -d ':completion:*:*:yadm:*' user-commands
-    else
-        local curcontext=${curcontext%:*:*}:git:
-        _tags common-commands alias-commands all-commands
-        while _tags; do
-            _requested common-commands && __git_zsh_cmd_common
-            _requested alias-commands && __git_zsh_cmd_alias
-            _requested all-commands && __git_zsh_cmd_all
-            let _ret || break
-        done
-        _describe "yadm commands" commands
-    fi
+    words=("git" "${words[-1]}") CURRENT=2 service=git _git
 
-    return _ret
+    curcontext="$oldcontext"
+    _describe -t yadm "yadm commands" commands
+
+    return 0
 }
 
 _yadm() {
     local curcontext=$curcontext state state_descr line
     declare -A opt_args
-
-    local -a orig_words=( ${words[@]} )
-    local cur=${words[CURRENT]}
-    local prev=${words[CURRENT-1]}
-    let cword=CURRENT-1
 
     _arguments -C \
       '(-Y --yadm-dir)'{-Y,--yadm-dir}'[override the standard yadm directory]: :_files -/' \
@@ -147,7 +135,7 @@ _yadm() {
     (( $+opt_args[--yadm-repo] )) && repo_args+=(--yadm-repo "$opt_args[--yadm-repo]")
     (( $+opt_args[--yadm-data] )) && repo_args+=(--yadm-data "$opt_args[--yadm-data]")
     local -x GIT_DIR="$(_call_program gitdir yadm "${repo_args[@]}" introspect repo)"
-    local __git_dir="$GIT_DIR"
+    [[ -z "$GIT_DIR" ]] && return 1
 
     integer _ret=1
     case $state in
@@ -155,35 +143,17 @@ _yadm() {
             _yadm_commands && _ret=0
             ;;
         (option-or-argument)
-            local command=$words[1]
+            curcontext=${curcontext%:*:*}:yadm-${words[1]}:
+            if ! _call_function _ret _yadm-${words[1]}; then
 
-            # First try to complete yadm commands
-            curcontext=${curcontext%:*:*}:yadm-$command:
-            if ! _call_function _ret _yadm-$command; then
                 # Translate gitconfig to use the regular completion for config
-                [[ $command = "gitconfig" ]] && command=config
+                [[ ${words[1]} = "gitconfig" ]] && words[1]=config
 
-                # If is wasn't a valid command, try git's completion if available
-                if (( $+functions[__git_zsh_bash_func] )); then
-                    words=( ${orig_words[@]} )
-                    curcontext=${curcontext%:*:*}:git:
+                words=("git" "${(@)words}")
+                CURRENT=$(( CURRENT + 1 ))
 
-                    __git_zsh_bash_func $command
-                    let _ret && _default && _ret=0
-                else
-                    # If git's completion wasn't available, try zsh's
-                    curcontext=${curcontext%:*:*}:git-$command:
-                    if ! _call_function _ret _git-$command; then
-                        if [[ $words[1] = \!* ]]; then
-                            words[1]=${words[1]##\!}
-                            _normal && _ret=0
-                        elif zstyle -T :completion:$curcontext: use-fallback; then
-                            _default && _ret=0
-                        else
-                            _message "unknown sub-command: $command"
-                        fi
-                    fi
-                fi
+                curcontext=${curcontext%:*:*}:git:
+                service=git _git && _ret=0
             fi
             ;;
     esac
@@ -191,11 +161,4 @@ _yadm() {
     return _ret
 }
 
-# Ignore call from _git when using git's completion
-__yadm_zsh_main() {
-    _ret=0
-}
-
-# __git_zsh_bash_func comes from git's completion and _git_commands from zsh's
-(( $+functions[__git_zsh_bash_func] + $+functions[_git_commands] )) || _git
-_yadm
+(( $+functions[_git] )) && _yadm
