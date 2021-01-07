@@ -1323,7 +1323,10 @@ function upgrade() {
       # been cloned first and then added as a submodule.
       "$GIT_PROGRAM" submodule absorbgitdirs
 
+      local submodule_status
+      submodule_status=$("$GIT_PROGRAM" -C "$YADM_WORK" submodule status)
       while read -r sha submodule rest; do
+          [ "$submodule" == "" ] && continue
           if [[ "$sha" = -* ]]; then
               continue
           fi
@@ -1334,7 +1337,7 @@ function upgrade() {
               error_out "Unable to upgrade. Could not deinit submodule $submodule"
           }
           submodules+=("$submodule")
-      done < <("$GIT_PROGRAM" -C "$YADM_WORK" submodule status)
+      done <<< "$submodule_status"
 
       assert_parent "$YADM_REPO"
       mv "$LEGACY_REPO" "$YADM_REPO"
