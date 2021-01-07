@@ -1,3 +1,6 @@
+3.0.2
+  * Fix parsing by sh (#299)
+
 3.0.1
   * Improve handling of submodules at upgrade (#284, #285, #293)
   * Improve Zsh completions (#292, #298)

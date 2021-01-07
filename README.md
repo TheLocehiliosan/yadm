@@ -72,7 +72,7 @@ The star count helps others discover yadm.
 [master-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Tests/master?label=master
 [master-commits]: https://github.com/TheLocehiliosan/yadm/commits/master
 [master-date]: https://img.shields.io/github/last-commit/TheLocehiliosan/yadm/master.svg?label=master
-[obs-badge]: https://img.shields.io/badge/OBS-v3.0.1-blue
+[obs-badge]: https://img.shields.io/badge/OBS-v3.0.2-blue
 [obs-link]: https://software.opensuse.org//download.html?project=home%3ATheLocehiliosan%3Ayadm&package=yadm
 [releases-badge]: https://img.shields.io/github/tag/TheLocehiliosan/yadm.svg?label=latest+release
 [releases-link]: https://github.com/TheLocehiliosan/yadm/releases
