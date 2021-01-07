@@ -36,7 +36,7 @@
 
        yadm transcrypt [ options ]
 
-       yadm upgrade
+       yadm upgrade [-f]
 
        yadm introspect category
 
@@ -203,11 +203,19 @@
               command  will  start  by  moving your yadm repo to the new path.
               Next it will move any archive data.  If the archive  is  tracked
               within your yadm repo, this command will "stage" the renaming of
-              that file in the repo's index.  Upgrading will also  re-initial-
-              ize all submodules you have added (otherwise they will be broken
-              when the repo moves).  After running "yadm upgrade", you  should
-              run  "yadm status" to review changes which have been staged, and
-              commit them to your repository.
+              that file in the repo's index.
+
+              Upgrading will attempt to de-initialize and  re-initialize  your
+              submodules.  If  your  submodules  cannot be de-initialized, the
+              upgrade will fail. The most common reason submodules  will  fail
+              to  de-initialize  is  because they have local modifications. If
+              you are willing to lose the local modifications to those submod-
+              ules,  you  can  use the -f option with the "upgrade" command to
+              force the de-initialization.
+
+              After running "yadm upgrade", you should run  "yadm  status"  to
+              review  changes  which have been staged, and commit them to your
+              repository.
 
               You can read https://yadm.io/docs/upgrade_from_2 for more infor-
               mation.

@@ -1,3 +1,8 @@
+3.0.1
+  * Improve handling of submodules at upgrade (#284, #285, #293)
+  * Improve Zsh completions (#292, #298)
+  * Use stderr for error messages (#297)
+
 3.0.0
   * Support encryption with OpenSSL (#138)
   * Support "include" directive in built-in template processor (#255)
