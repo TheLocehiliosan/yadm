@@ -4,6 +4,7 @@ import os
 FILE_MODE = 0o754
 
 LOCAL_CLASS = "esh_Test+@-!^Class"
+LOCAL_CLASS2 = "esh_Test+@-|^2nd_Class withSpace"
 LOCAL_SYSTEM = "esh_Test+@-!^System"
 LOCAL_HOST = "esh_Test+@-!^Host"
 LOCAL_USER = "esh_Test+@-!^User"
@@ -24,6 +25,10 @@ Included section for class = <%=$YADM_CLASS%> (<%=$YADM_CLASS%> repeated)
 <% if [ "$YADM_CLASS" = "wrongclass2" ]; then -%>
 wrong class 2
 <% fi -%>
+<% echo "$YADM_CLASSES" | while IFS='' read cls; do
+   if [ "$cls" = "{LOCAL_CLASS2}" ]; then -%>
+Included section for second class
+<% fi; done -%>
 <% if [ "$YADM_OS" = "wrongos1" ]; then -%>
 wrong os 1
 <% fi -%>
@@ -70,6 +75,7 @@ esh host   = >{LOCAL_HOST}<
 esh user   = >{LOCAL_USER}<
 esh distro = >{LOCAL_DISTRO}<
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
+Included section for second class
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
@@ -89,6 +95,7 @@ def test_template_esh(runner, yadm, tmpdir):
     script = f"""
         YADM_TEST=1 source {yadm}
         local_class="{LOCAL_CLASS}"
+        local_classes=("{LOCAL_CLASS2}" "{LOCAL_CLASS}")
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"
         local_user="{LOCAL_USER}"
