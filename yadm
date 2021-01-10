@@ -413,13 +413,13 @@ function replace_vars() {
   }
 }
 function conditions() {
-  pattern = ifs blank "*("
+  pattern = ifs blank "+("
   for (label in c) {
     value = c[label]
     gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
     pattern = sprintf("%syadm\\.%s" blank "*==" blank "*\"%s\"|", pattern, label, value)
   }
-  sub(/\|$/,")",pattern)
+  sub(/\|$/, ")" blank "*%}$", pattern)
   return pattern
 }
 EOF
