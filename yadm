@@ -1872,7 +1872,6 @@ function parse_encrypt() {
   ENCRYPT_INCLUDE_FILES=()
   ENCRYPT_EXCLUDE_FILES=()
   FINAL_INCLUDE=()
-  ENCRYPT_INCLUDE_FILES=()
 
   if [ ! -f "$YADM_ENCRYPT" ] ; then
     return
