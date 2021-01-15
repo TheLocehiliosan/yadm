@@ -71,11 +71,11 @@ files are managed by yadm's repository:
     $HOME/path/example.txt##os.Linux,hostname.host1
     $HOME/path/example.txt##os.Linux,hostname.host2
 
-If running on a Macbook named `host2`, yadm will create a symbolic link which looks like this:
+If running on a MacBook named `host2`, yadm will create a symbolic link which looks like this:
 
 `$HOME/path/example.txt` → `$HOME/path/example.txt##os.Darwin,hostname.host2`
 
-However, on another Mackbook named `host3`, yadm will create a symbolic link which looks like this:
+However, on another MacBook named `host3`, yadm will create a symbolic link which looks like this:
 
 `$HOME/path/example.txt` → `$HOME/path/example.txt##os.Darwin`
 
