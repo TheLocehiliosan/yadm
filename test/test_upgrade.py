@@ -53,8 +53,8 @@ def test_upgrade(tmpdir, runner, versions, submodule):
     if submodule:
         # When upgrading via 2.5.0 we can't have a submodule that's been added
         # after being cloned as 2.5.0 fails the upgrade in that case.
-        can_upgraded_cloned_submodule = '2.5.0' not in versions[1:]
-        if can_upgraded_cloned_submodule:
+        can_upgrade_cloned_submodule = '2.5.0' not in versions[1:]
+        if can_upgrade_cloned_submodule:
             # Check out a repo and then add it as a submodule
             run = runner(['git', '-C', str(home), 'clone', str(ext_repo), 'b'])
             assert run.success
@@ -92,7 +92,7 @@ def test_upgrade(tmpdir, runner, versions, submodule):
         run = run_version(version, 'upgrade', check_stderr=not submodule)
         if submodule:
             lines = run.err.splitlines()
-            if can_upgraded_cloned_submodule:
+            if can_upgrade_cloned_submodule:
                 assert 'Migrating git directory of' in lines[0]
                 assert str(home.join('b/.git')) in lines[1]
                 assert str(yadm_dir.join('repo.git/modules/b')) in lines[2]
@@ -108,7 +108,7 @@ def test_upgrade(tmpdir, runner, versions, submodule):
     assert run.out == 'some data'
 
     if submodule:
-        if can_upgraded_cloned_submodule:
+        if can_upgrade_cloned_submodule:
             assert home.join('b/afile').read() == 'some data'
         assert home.join('a/afile').read() == 'some data'
         assert home.join('c/afile').read() == 'some data'
