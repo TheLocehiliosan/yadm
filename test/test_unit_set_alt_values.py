@@ -1,4 +1,4 @@
-"""Unit tests: set_local_alt_values"""
+"""Unit tests: set_alt_values"""
 import pytest
 import utils
 
@@ -20,18 +20,18 @@ import utils
         ]
     )
 @pytest.mark.usefixtures('ds1_copy')
-def test_set_local_alt_values(
+def test_set_alt_values(
         runner, yadm, paths, tst_sys, tst_host, tst_user, override):
     """Use issue_legacy_path_warning"""
     script = f"""
         YADM_TEST=1 source {yadm} &&
         set_operating_system &&
         YADM_DIR={paths.yadm} YADM_DATA={paths.data} configure_paths &&
-        set_local_alt_values
-        echo "class='$local_class'"
-        echo "os='$local_system'"
-        echo "host='$local_host'"
-        echo "user='$local_user'"
+        set_alt_values
+        echo "class='$YADM_CLASS'"
+        echo "os='$YADM_OS'"
+        echo "host='$YADM_HOSTNAME'"
+        echo "user='$YADM_USER'"
     """
 
     if override:
@@ -69,8 +69,8 @@ def test_distro(runner, yadm):
         YADM_TEST=1 source {yadm}
         function config() {{ echo "$1"; }}
         function query_distro() {{ echo "testdistro"; }}
-        set_local_alt_values
-        echo "distro='$local_distro'"
+        set_alt_values
+        echo "distro='$YADM_DISTRO'"
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
