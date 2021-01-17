@@ -112,7 +112,9 @@ to "false".
 .B bootstrap
 Execute
 .I $HOME/.config/yadm/bootstrap
-if it exists.
+if it exists. The variables that are set when processing Jinja or ESH templates
+(see the TEMPLATES section) are set in the environment (except for
+.IR YADM_SOURCE ).
 .TP
 .BI clone " url
 Clone a remote repository for tracking dotfiles.
@@ -876,7 +878,10 @@ will never be run. This allows one to "short-circuit" any operation using a
 .I pre_
 hook.
 
-Hooks have the following environment variables available to them at runtime:
+Hooks have the following variables, plus the variables set when processing
+Jinja or ESH templates (see the TEMPLATES section), available to them as
+environment variables at runtime (except for
+.IR YADM_SOURCE ).
 .TP
 .B YADM_HOOK_COMMAND
 The command which triggered the hook
