@@ -62,6 +62,7 @@ ENCRYPT_INCLUDE_FILES="unparsed"
 
 LEGACY_WARNING_ISSUED=0
 INVALID_ALT=()
+ALT_VALUES_SET="${YADM_TEST:-0}"
 
 GPG_OPTS=()
 OPENSSL_OPTS=()
@@ -584,6 +585,9 @@ function remove_stale_links() {
 
 function set_alt_values() {
 
+  [[ $ALT_VALUES_SET = 1 ]] && return
+  ALT_VALUES_SET=1
+
   export YADM_CLASS
   export YADM_OS
   export YADM_HOSTNAME
@@ -679,6 +683,8 @@ function bootstrap() {
 
   # GIT_DIR should not be set for user's bootstrap code
   unset GIT_DIR
+
+  set_alt_values
 
   echo "Executing $YADM_BOOTSTRAP"
   exec "$YADM_BOOTSTRAP"
@@ -1783,6 +1789,8 @@ function invoke_hook() {
     export -f relative_path
     export -f unix_path
     export -f mixed_path
+
+    set_alt_values
 
     "$hook_command"
     hook_status=$?

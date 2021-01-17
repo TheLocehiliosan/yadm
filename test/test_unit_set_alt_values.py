@@ -27,7 +27,7 @@ def test_set_alt_values(
         YADM_TEST=1 source {yadm} &&
         set_operating_system &&
         YADM_DIR={paths.yadm} YADM_DATA={paths.data} configure_paths &&
-        set_alt_values
+        ALT_VALUES_SET=0 set_alt_values
         echo "class='$YADM_CLASS'"
         echo "os='$YADM_OS'"
         echo "host='$YADM_HOSTNAME'"
@@ -69,7 +69,7 @@ def test_distro(runner, yadm):
         YADM_TEST=1 source {yadm}
         function config() {{ echo "$1"; }}
         function query_distro() {{ echo "testdistro"; }}
-        set_alt_values
+        ALT_VALUES_SET=0 set_alt_values
         echo "distro='$YADM_DISTRO'"
     """
     run = runner(command=['bash'], inp=script)
