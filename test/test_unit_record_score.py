@@ -2,11 +2,6 @@
 import pytest
 
 INIT_VARS = """
-    score=0
-    local_class=testclass
-    local_system=testsystem
-    local_host=testhost
-    local_user=testuser
     alt_scores=()
     alt_targets=()
     alt_sources=()

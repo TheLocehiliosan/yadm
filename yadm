@@ -190,42 +190,42 @@ function score_file() {
       score=$((score + 0))
     # variable conditions
     elif [[ "$label" =~ ^(a|arch|architecture)$ ]]; then
-      if [ "$value" = "$local_arch" ]; then
+      if [ "$value" = "$YADM_ARCH" ]; then
         score=$((score + 1))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(o|os)$ ]]; then
-      if [ "$value" = "$local_system" ]; then
+      if [ "$value" = "$YADM_OS" ]; then
         score=$((score + 2))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
-      if [ "$value" = "$local_distro" ]; then
+      if [ "$value" = "$YADM_DISTRO" ]; then
         score=$((score + 4))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(c|class)$ ]]; then
-      if [ "$value" = "$local_class" ]; then
+      if [ "$value" = "$YADM_CLASS" ]; then
         score=$((score + 8))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(h|hostname)$ ]]; then
-      if [ "$value" = "$local_host" ]; then
+      if [ "$value" = "$YADM_HOSTNAME" ]; then
         score=$((score + 16))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(u|user)$ ]]; then
-      if [ "$value" = "$local_user" ]; then
+      if [ "$value" = "$YADM_USER" ]; then
         score=$((score + 32))
       else
         score=0
@@ -367,7 +367,7 @@ BEGIN {
   c["class"]    = class
   c["arch"]     = arch
   c["os"]       = os
-  c["hostname"] = host
+  c["hostname"] = hostname
   c["user"]     = user
   c["distro"]   = distro
   c["source"]   = source
@@ -431,12 +431,12 @@ function conditions() {
 EOF
 
   "${AWK_PROGRAM[0]}" \
-    -v class="$local_class" \
-    -v arch="$local_arch" \
-    -v os="$local_system" \
-    -v host="$local_host" \
-    -v user="$local_user" \
-    -v distro="$local_distro" \
+    -v class="$YADM_CLASS" \
+    -v arch="$YADM_ARCH" \
+    -v os="$YADM_OS" \
+    -v hostname="$YADM_HOSTNAME" \
+    -v user="$YADM_USER" \
+    -v distro="$YADM_DISTRO" \
     -v source="$input" \
     -v source_dir="$(dirname "$input")" \
     "$awk_pgm" \
@@ -450,13 +450,7 @@ function template_j2cli() {
   output="$2"
   temp_file="${output}.$$.$RANDOM"
 
-  YADM_CLASS="$local_class"   \
-  YADM_ARCH="$local_arch"     \
-  YADM_OS="$local_system"     \
-  YADM_HOSTNAME="$local_host" \
-  YADM_USER="$local_user"     \
-  YADM_DISTRO="$local_distro" \
-  YADM_SOURCE="$input"        \
+  YADM_SOURCE="$input" \
   "$J2CLI_PROGRAM" "$input" -o "$temp_file"
 
   move_file "$input" "$output" "$temp_file"
@@ -467,13 +461,7 @@ function template_envtpl() {
   output="$2"
   temp_file="${output}.$$.$RANDOM"
 
-  YADM_CLASS="$local_class"   \
-  YADM_ARCH="$local_arch"     \
-  YADM_OS="$local_system"     \
-  YADM_HOSTNAME="$local_host" \
-  YADM_USER="$local_user"     \
-  YADM_DISTRO="$local_distro" \
-  YADM_SOURCE="$input"        \
+  YADM_SOURCE="$input" \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
 
   move_file "$input" "$output" "$temp_file"
@@ -484,14 +472,8 @@ function template_esh() {
   output="$2"
   temp_file="${output}.$$.$RANDOM"
 
-  "$ESH_PROGRAM" -o "$temp_file" "$input" \
-  YADM_CLASS="$local_class"   \
-  YADM_ARCH="$local_arch"     \
-  YADM_OS="$local_system"     \
-  YADM_HOSTNAME="$local_host" \
-  YADM_USER="$local_user"     \
-  YADM_DISTRO="$local_distro" \
-  YADM_SOURCE="$input"
+  YADM_SOURCE="$input" \
+  "$ESH_PROGRAM" -o "$temp_file" "$input"
 
   move_file "$input" "$output" "$temp_file"
 }
@@ -520,13 +502,7 @@ function alt() {
   parse_encrypt
 
   # gather values for processing alternates
-  local local_class
-  local local_arch
-  local local_system
-  local local_host
-  local local_user
-  local local_distro
-  set_local_alt_values
+  set_alt_values
 
   # only be noisy if the "alt" command was run directly
   local loud=
@@ -618,32 +594,39 @@ function remove_stale_links() {
   fi
 }
 
-function set_local_alt_values() {
+function set_alt_values() {
 
-  local_class="$(config local.class)"
+  export YADM_CLASS
+  export YADM_ARCH
+  export YADM_OS
+  export YADM_HOSTNAME
+  export YADM_USER
+  export YADM_DISTRO
 
-  local_arch="$(config local.arch)"
-  if [ -z "$local_arch" ] ; then
-    local_arch=$(uname -m)
+  YADM_CLASS="$(config local.class)"
+
+  YADM_ARCH="$(config local.arch)"
+  if [ -z "$YADM_ARCH" ] ; then
+    YADM_ARCH=$(uname -m)
   fi
 
-  local_system="$(config local.os)"
-  if [ -z "$local_system" ] ; then
-    local_system="$OPERATING_SYSTEM"
+  YADM_OS="$(config local.os)"
+  if [ -z "$YADM_OS" ] ; then
+    YADM_OS="$OPERATING_SYSTEM"
   fi
 
-  local_host="$(config local.hostname)"
-  if [ -z "$local_host" ] ; then
-    local_host=$(uname -n)
-    local_host=${local_host%%.*} # trim any domain from hostname
+  YADM_HOSTNAME="$(config local.hostname)"
+  if [ -z "$YADM_HOSTNAME" ] ; then
+    YADM_HOSTNAME=$(uname -n)
+    YADM_HOSTNAME=${YADM_HOSTNAME%%.*} # trim any domain from hostname
   fi
 
-  local_user="$(config local.user)"
-  if [ -z "$local_user" ] ; then
-    local_user=$(id -u -n)
+  YADM_USER="$(config local.user)"
+  if [ -z "$YADM_USER" ] ; then
+    YADM_USER=$(id -u -n)
   fi
 
-  local_distro="$(query_distro)"
+  YADM_DISTRO="$(query_distro)"
 
 }
 
