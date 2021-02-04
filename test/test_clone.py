@@ -58,8 +58,8 @@ def test_clone(
     if not good_remote:
         # clone should fail
         assert run.failure
-        assert run.out != ''
-        assert 'Unable to fetch origin' in run.err
+        assert run.out == ''
+        assert 'Unable to clone the repository' in run.err
         assert not paths.repo.exists()
     elif repo_exists and not force:
         # can't overwrite data
@@ -76,8 +76,7 @@ def test_clone(
         # ensure conflicts are handled properly
         if conflicts:
             assert 'NOTE' in run.out
-            assert 'Merging origin/master failed' in run.out
-            assert 'Conflicts preserved' in run.out
+            assert 'Local files with content that differs' in run.out
 
         # confirm correct Git origin
         run = runner(
@@ -89,23 +88,16 @@ def test_clone(
 
         # ensure conflicts are really preserved
         if conflicts:
-            # test to see if the work tree is actually "clean"
+            # test that the conflicts are preserved in the work tree
             run = runner(
                 command=yadm_cmd('status', '-uno', '--porcelain'),
                 cwd=paths.work)
             assert run.success
             assert run.err == ''
-            assert run.out == '', 'worktree has unexpected changes'
+            assert str(ds1.tracked[0].path) in run.out
 
-            # test to see if the conflicts are stashed
-            run = runner(command=yadm_cmd('stash', 'list'), cwd=paths.work)
-            assert run.success
-            assert run.err == ''
-            assert 'Conflicts preserved' in run.out, 'conflicts not stashed'
-
-            # verify content of the stashed conflicts
-            run = runner(
-                command=yadm_cmd('stash', 'show', '-p'), cwd=paths.work)
+            # verify content of the conflicts
+            run = runner(command=yadm_cmd('diff'), cwd=paths.work)
             assert run.success
             assert run.err == ''
             assert '\n+conflict' in run.out, 'conflicts not stashed'
@@ -242,20 +234,20 @@ def test_clone_perms(
             f'initial private dir perms drwxrwxrwx.+.{private_type}',
             run.out)
         assert re.search(
-            f'pre-merge private dir perms drwxrwxrwx.+.{private_type}',
+            f'pre-checkout private dir perms drwxrwxrwx.+.{private_type}',
             run.out)
         assert re.search(
-            f'post-merge private dir perms drwxrwxrwx.+.{private_type}',
+            f'post-checkout private dir perms drwxrwxrwx.+.{private_type}',
             run.out)
     else:
         # private directories which are created, should be done prior to
-        # merging, and with secure permissions.
+        # checkout, and with secure permissions.
         assert 'initial private dir perms' not in run.out
         assert re.search(
-            f'pre-merge private dir perms drwx------.+.{private_type}',
+            f'pre-checkout private dir perms drwx------.+.{private_type}',
             run.out)
         assert re.search(
-            f'post-merge private dir perms drwx------.+.{private_type}',
+            f'post-checkout private dir perms drwx------.+.{private_type}',
             run.out)
 
     # standard perms still apply afterwards unless disabled with auto.perms
@@ -297,8 +289,8 @@ def test_alternate_branch(runner, paths, yadm_cmd, repo_config, branch):
 
     if branch == 'invalid':
         assert run.failure
-        assert 'ERROR: Clone failed' in run.err
-        assert f"'origin/{branch}' does not exist in {remote_url}" in run.err
+        assert 'ERROR: Unable to clone the repository' in run.err
+        assert f"Remote branch {branch} not found in upstream" in run.err
     else:
         assert successful_clone(run, paths, repo_config)
 
@@ -321,7 +313,6 @@ def test_alternate_branch(runner, paths, yadm_cmd, repo_config, branch):
 def successful_clone(run, paths, repo_config, expected_code=0):
     """Assert clone is successful"""
     assert run.code == expected_code
-    assert 'Initialized' in run.out
     assert oct(paths.repo.stat().mode).endswith('00'), 'Repo is not secured'
     assert repo_config('core.bare') == 'false'
     assert repo_config('status.showUntrackedFiles') == 'no'
@@ -342,10 +333,11 @@ def remote(paths, ds1_repo_copy):
 
 def test_no_repo(runner, yadm_cmd, ):
     """Test cloning without specifying a repo"""
-    run = runner(command=yadm_cmd('clone'))
+    run = runner(command=yadm_cmd('clone', '-f'))
     assert run.failure
     assert run.out == ''
-    assert 'ERROR: No repository provided' in run.err
+    assert 'ERROR: Unable to clone the repository' in run.err
+    assert 'repository \'repo.git\' does not exist' in run.err
 
 
 def verify_head(paths, branch):
