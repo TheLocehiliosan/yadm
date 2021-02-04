@@ -752,7 +752,8 @@ function clone() {
   }
 
   local wc
-  wc="$(mktemp -d)" || error_out "Unable to create temporary directory"
+  wc="$(mk_tmp_dir)"
+  [ -d "$wc" ] || error_out "Unable to create temporary directory"
 
   # first clone without checkout
   debug "Doing an initial clone of the repository"
@@ -2030,6 +2031,12 @@ function copy_perms {
   mode=$(get_mode "$source")
   [ -n "$mode" ] && chmod "$mode" "$dest"
   return 0
+}
+
+function mk_tmp_dir {
+  local tempdir="$YADM_DATA/tmp.$$.$RANDOM"
+  assert_parent "$tempdir/"
+  echo "$tempdir"
 }
 
 # ****** Prerequisites Functions ******
