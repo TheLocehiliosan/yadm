@@ -100,7 +100,7 @@ def test_clone(
             run = runner(command=yadm_cmd('diff'), cwd=paths.work)
             assert run.success
             assert run.err == ''
-            assert '\n+conflict' in run.out, 'conflicts not stashed'
+            assert '\n+conflict' in run.out, 'conflict overwritten'
 
     # another force-related assertion
     if old_repo:
