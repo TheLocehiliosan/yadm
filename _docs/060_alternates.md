@@ -40,6 +40,9 @@ be omitted. Most attributes can be abbreviated as a single letter.
 The OS for "Windows Subsystem for Linux" is reported as "WSL", even though uname identifies as "Linux".
 <br/>
 *
+The OS for Linux-like runtimes for Windows (e.g. MinGW, Cygwin) is obtained by running `uname -o`.
+<br/>
+*
 If `lsb_release` is not available, "distro" will be the ID specified in `/etc/os-release`.
 </sup></sub>
 
