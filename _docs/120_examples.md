@@ -16,7 +16,6 @@ list.
 * [cschooley/dotfiles](https://github.com/cschooley/dotfiles)
 * [esphen/dotfiles](https://github.com/esphen/dotfiles)
 * [gverilla/dotfiles](https://github.com/gverilla/dotfiles)
-* [mago0/dotfiles](https://github.com/mago0/dotfiles)
 * [mes5k/dotfiles](https://github.com/mes5k/dotfiles)
 * [overclockedllama/dotfiles](https://github.com/overclockedllama/dotfiles)
 * [pendowski/dotfiles](https://github.com/pendowski/dotfiles)
