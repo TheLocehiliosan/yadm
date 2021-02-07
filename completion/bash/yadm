@@ -1,10 +1,12 @@
 # test if git completion is missing, but loader exists, attempt to load
-if ! declare -F _git > /dev/null && declare -F _completion_loader > /dev/null; then
-  _completion_loader git
+if ! declare -F _git > /dev/null && ! declare -F __git_wrap__git_main > /dev/null; then
+  if declare -F _completion_loader > /dev/null; then
+    _completion_loader git
+  fi
 fi
 
 # only operate if git completion is present
-if declare -F _git > /dev/null; then
+if declare -F _git > /dev/null || declare -F __git_wrap__git_main > /dev/null; then
 
   _yadm() {
 
@@ -66,7 +68,11 @@ if declare -F _git > /dev/null; then
     if [[ " ${yadm_switches[*]} " != *" $penultimate "* ]]; then
       # TODO: somehow solve the problem with [--yadm-xxx option] being
       #       incompatible with what git expects, namely [--arg=option]
-      _git
+      if declare -F _git > /dev/null; then
+        _git
+      else
+        __git_wrap__git_main
+      fi
     fi
     if [[ "$current" =~ ^- ]]; then
       local matching
