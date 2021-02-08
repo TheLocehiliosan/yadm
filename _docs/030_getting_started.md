@@ -22,10 +22,10 @@ Clone your existing repo using yadm.
     yadm clone <url>
     yadm status
 
-The `clone` command will attempt to `merge` your existing repository, but if it
-fails, it will `stash` any conflicting data. See
-[this question](faq#i-just-cloned-my-repository-and-conflicting-data-was-overwritten-why)
-in the FAQ if you need help.
+The `clone` command will attempt to check out all files that exist in the
+repository. If a file already exists locally and has content that differs from
+the one in the repository, the local file will be left unmodified and you'll
+have to review and resolve the differences.
 
 ---
 
