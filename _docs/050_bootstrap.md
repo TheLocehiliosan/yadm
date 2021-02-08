@@ -167,6 +167,16 @@ if command -v vim >/dev/null 2>&1; then
 fi
 ```
 
+### Bootstrap directory
+
+By installing this [contributed bootstrap][bootstrap.d] script as the bootstrap
+program, it is possible to split the bootstrap process into separate
+scripts. Each script is placed in `$HOME/.config/yadm/bootstrap.d` and it is
+possible to use the [alternate files](/docs/alternates) system to control which
+systems that a specific bootstrap step is executed on.
+
+[bootstrap.d]: https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/contrib/bootstrap/bootstrap-in-dir
+
 ---
 
 _If you have suggestions for useful bootstrapping logic, let me know..._
