@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck shell=bash
 # yadm - Yet Another Dotfiles Manager
 # Copyright (C) 2015-2021 Tim Byrne
 
@@ -16,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# shellcheck shell=bash
 # execute script with bash (shebang line is /bin/sh for portability)
 if [ -z "$BASH_VERSION" ]; then
   [ "$YADM_TEST" != 1 ] && exec bash "$0" "$@"
