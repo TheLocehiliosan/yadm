@@ -1826,9 +1826,7 @@ function parse_encrypt() {
   ENCRYPT_EXCLUDE_FILES=()
   FINAL_INCLUDE=()
 
-  if [ ! -f "$YADM_ENCRYPT" ] ; then
-    return
-  fi
+  [ -f "$YADM_ENCRYPT" ] || return
 
   cd_work "Parsing encrypt" || return
 
