@@ -1,4 +1,5 @@
 #!/bin/sh
+# shellcheck shell=bash
 # yadm - Yet Another Dotfiles Manager
 # Copyright (C) 2015-2021 Tim Byrne
 
