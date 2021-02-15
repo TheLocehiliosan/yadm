@@ -45,13 +45,18 @@ def test_init(
 
     # command args
     args = ['init']
+    cwd = None
     if alt_work:
-        args.extend(['-w', paths.work])
+        if force:
+            cwd = paths.work.dirname
+            args.extend(['-w', paths.work.basename])
+        else:
+            args.extend(['-w', paths.work])
     if force:
         args.append('-f')
 
     # run init
-    run = runner(yadm_cmd(*args), env={'HOME': home})
+    run = runner(yadm_cmd(*args), env={'HOME': home}, cwd=cwd)
 
     if repo_present and not force:
         assert run.failure

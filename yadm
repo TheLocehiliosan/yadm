@@ -130,10 +130,7 @@ function main() {
             [[ "$YADM_COMMAND" =~ ^(clone|config)$ ]] && YADM_ARGS+=("$1")
           ;;
           -w) # used by init() and clone()
-            if [[ ! "$2" =~ ^/ ]] ; then
-              error_out "You must specify a fully qualified work tree"
-            fi
-            YADM_WORK="$2"
+            YADM_WORK="$(qualify_path "$2" "work tree")"
             shift
           ;;
           *) # any unhandled arguments
@@ -1457,52 +1454,31 @@ function process_global_args() {
     key="$1"
     case $key in
       -Y|--yadm-dir) # override the standard YADM_DIR
-        if [[ ! "$2" =~ ^/ ]] ; then
-          error_out "You must specify a fully qualified yadm directory"
-        fi
-        YADM_DIR="$2"
+        YADM_DIR="$(qualify_path "$2" "yadm")"
         shift
       ;;
       --yadm-data) # override the standard YADM_DATA
-        if [[ ! "$2" =~ ^/ ]] ; then
-          error_out "You must specify a fully qualified yadm data directory"
-        fi
-        YADM_DATA="$2"
+        YADM_DATA="$(qualify_path "$2" "data")"
         shift
       ;;
       --yadm-repo) # override the standard YADM_REPO
-        if [[ ! "$2" =~ ^/ ]] ; then
-          error_out "You must specify a fully qualified repo path"
-        fi
-        YADM_OVERRIDE_REPO="$2"
+        YADM_OVERRIDE_REPO="$(qualify_path "$2" "repo")"
         shift
       ;;
       --yadm-config) # override the standard YADM_CONFIG
-        if [[ ! "$2" =~ ^/ ]] ; then
-          error_out "You must specify a fully qualified config path"
-        fi
-        YADM_OVERRIDE_CONFIG="$2"
+        YADM_OVERRIDE_CONFIG="$(qualify_path "$2" "config")"
         shift
       ;;
       --yadm-encrypt) # override the standard YADM_ENCRYPT
-        if [[ ! "$2" =~ ^/ ]] ; then
-          error_out "You must specify a fully qualified encrypt path"
-        fi
-        YADM_OVERRIDE_ENCRYPT="$2"
+        YADM_OVERRIDE_ENCRYPT="$(qualify_path "$2" "encrypt")"
         shift
       ;;
       --yadm-archive) # override the standard YADM_ARCHIVE
-        if [[ ! "$2" =~ ^/ ]] ; then
-          error_out "You must specify a fully qualified archive path"
-        fi
-        YADM_OVERRIDE_ARCHIVE="$2"
+        YADM_OVERRIDE_ARCHIVE="$(qualify_path "$2" "archive")"
         shift
       ;;
       --yadm-bootstrap) # override the standard YADM_BOOTSTRAP
-        if [[ ! "$2" =~ ^/ ]] ; then
-          error_out "You must specify a fully qualified bootstrap path"
-        fi
-        YADM_OVERRIDE_BOOTSTRAP="$2"
+        YADM_OVERRIDE_BOOTSTRAP="$(qualify_path "$2" "bootstrap")"
         shift
       ;;
       *) # main arguments are kept intact
@@ -1512,6 +1488,20 @@ function process_global_args() {
     shift
   done
 
+}
+
+function qualify_path() {
+    local path="$1"
+    if [[ -z "$path" ]]; then
+        error_out "You can't specify an empty $2 path"
+    fi
+
+    if [[ "$path" = "." ]]; then
+        path="$PWD"
+    elif [[ "$path" != /* ]]; then
+        path="$PWD/${path#./}"
+    fi
+    echo "$path"
 }
 
 function set_yadm_dirs() {

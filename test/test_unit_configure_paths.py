@@ -32,26 +32,30 @@ YDATA = '.local/share/yadm'
         'override archive',
         'override bootstrap',
     ])
-def test_config(runner, paths, override, expect):
+@pytest.mark.parametrize(
+    'path', ['.', './override', 'override', '.override', '/override'], ids=[
+        'cwd', './relative', 'relative', 'hidden relative', 'absolute'
+    ])
+def test_config(runner, paths, override, expect, path):
     """Test configure_paths"""
-    opath = 'override'
-    matches = match_map()
-    args = []
+    if path.startswith('/'):
+        expected_path = path
+    else:
+        expected_path = str(paths.root.join(path))
+
+    args = [override, path] if override else []
+
     if override == '-Y':
-        matches = match_map('/' + opath)
-    if override == '--yadm-data':
-        matches = match_map(None, '/' + opath)
+        matches = match_map(expected_path)
+    elif override == '--yadm-data':
+        matches = match_map(None, expected_path)
+    else:
+        matches = match_map()
 
-    if override:
-        args = [override, '/' + opath]
-        for ekey in expect.keys():
-            matches[ekey] = f'{expect[ekey]}="/{opath}"'
-        run_test(
-            runner, paths,
-            [override, opath],
-            ['must specify a fully qualified'], 1)
+    for ekey in expect.keys():
+        matches[ekey] = f'{expect[ekey]}="{expected_path}"'
 
-    run_test(runner, paths, args, matches.values(), 0)
+    run_test(runner, paths, args, matches.values(), cwd=str(paths.root))
 
 
 def match_map(yadm_dir=None, yadm_data=None):
@@ -71,7 +75,7 @@ def match_map(yadm_dir=None, yadm_data=None):
         }
 
 
-def run_test(runner, paths, args, expected_matches, expected_code=0):
+def run_test(runner, paths, args, expected_matches, cwd=None):
     """Run proces global args, and run configure_paths"""
     argstring = ' '.join(['"'+a+'"' for a in args])
     script = f"""
@@ -83,9 +87,8 @@ def run_test(runner, paths, args, expected_matches, expected_code=0):
         configure_paths
         declare -p | grep -E '(YADM|GIT)_'
     """
-    run = runner(command=['bash'], inp=script)
-    assert run.code == expected_code
-    assert run.success == (run.code == 0)
-    assert (run.err if run.success else run.out) == ''
+    run = runner(command=['bash'], inp=script, cwd=cwd)
+    assert run.success
+    assert run.err == ''
     for match in expected_matches:
-        assert match in run.out if run.success else run.err
+        assert match in run.out
