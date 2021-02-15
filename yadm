@@ -1492,11 +1492,11 @@ function process_global_args() {
 
 function qualify_path() {
     local path="$1"
-    if [[ -z "$path" ]]; then
+    if [ -z "$path" ]; then
         error_out "You can't specify an empty $2 path"
     fi
 
-    if [[ "$path" = "." ]]; then
+    if [ "$path" = "." ]; then
         path="$PWD"
     elif [[ "$path" != /* ]]; then
         path="$PWD/${path#./}"
