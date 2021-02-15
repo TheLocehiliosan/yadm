@@ -1824,6 +1824,11 @@ function parse_encrypt() {
 
   ENCRYPT_INCLUDE_FILES=()
   ENCRYPT_EXCLUDE_FILES=()
+  FINAL_INCLUDE=()
+
+  if [ ! -f "$YADM_ENCRYPT" ] ; then
+    return
+  fi
 
   cd_work "Parsing encrypt" || return
 
@@ -1836,47 +1841,44 @@ function parse_encrypt() {
   shopt -s globstar &> /dev/null
 
   exclude_pattern="^!(.+)"
-  if [ -f "$YADM_ENCRYPT" ] ; then
-    # parse both included/excluded
-    while IFS='' read -r line || [ -n "$line" ]; do
-      if [[ ! $line =~ ^# && ! $line =~ ^[[:blank:]]*$ ]] ; then
-        local IFS=$'\n'
-        for pattern in $line; do
-          if [[ "$pattern" =~ $exclude_pattern ]]; then
-            for ex_file in ${BASH_REMATCH[1]}; do
-              if [ -e "$ex_file" ]; then
-                ENCRYPT_EXCLUDE_FILES+=("$ex_file")
-              fi
-            done
-          else
-            for in_file in $pattern; do
-              if [ -e "$in_file" ]; then
-                ENCRYPT_INCLUDE_FILES+=("$in_file")
-              fi
-            done
-          fi
-        done
-      fi
-    done < "$YADM_ENCRYPT"
-
-    # remove excludes from the includes
-    #(SC2068 is disabled because in this case, we desire globbing)
-    FINAL_INCLUDE=()
-    #shellcheck disable=SC2068
-    for included in "${ENCRYPT_INCLUDE_FILES[@]}"; do
-      skip=
-      #shellcheck disable=SC2068
-      for ex_file in ${ENCRYPT_EXCLUDE_FILES[@]}; do
-        [ "$included" == "$ex_file" ] && { skip=1; break; }
+  # parse both included/excluded
+  while IFS='' read -r line || [ -n "$line" ]; do
+    if [[ ! $line =~ ^# && ! $line =~ ^[[:blank:]]*$ ]] ; then
+      local IFS=$'\n'
+      for pattern in $line; do
+        if [[ "$pattern" =~ $exclude_pattern ]]; then
+          for ex_file in ${BASH_REMATCH[1]}; do
+            if [ -e "$ex_file" ]; then
+              ENCRYPT_EXCLUDE_FILES+=("$ex_file")
+            fi
+          done
+        else
+          for in_file in $pattern; do
+            if [ -e "$in_file" ]; then
+              ENCRYPT_INCLUDE_FILES+=("$in_file")
+            fi
+          done
+        fi
       done
-      [ -n "$skip" ] || FINAL_INCLUDE+=("$included")
-    done
+    fi
+  done < "$YADM_ENCRYPT"
 
-    # sort the encrypted files
-    #shellcheck disable=SC2207
-    IFS=$'\n' ENCRYPT_INCLUDE_FILES=($(LC_ALL=C sort <<<"${FINAL_INCLUDE[*]}"))
-    unset IFS
-  fi
+  # remove excludes from the includes
+  #(SC2068 is disabled because in this case, we desire globbing)
+  #shellcheck disable=SC2068
+  for included in "${ENCRYPT_INCLUDE_FILES[@]}"; do
+    skip=
+    #shellcheck disable=SC2068
+    for ex_file in ${ENCRYPT_EXCLUDE_FILES[@]}; do
+      [ "$included" == "$ex_file" ] && { skip=1; break; }
+    done
+    [ -n "$skip" ] || FINAL_INCLUDE+=("$included")
+  done
+
+  # sort the encrypted files
+  #shellcheck disable=SC2207
+  IFS=$'\n' ENCRYPT_INCLUDE_FILES=($(LC_ALL=C sort <<<"${FINAL_INCLUDE[*]}"))
+  unset IFS
 
   if [ "$unset_globstar" = "1" ]; then
     shopt -u globstar &> /dev/null
