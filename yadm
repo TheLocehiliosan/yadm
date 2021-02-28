@@ -433,10 +433,7 @@ EOF
     "$awk_pgm" \
     "$input" > "$temp_file" || rm -f "$temp_file"
 
-  if [ -f "$temp_file" ] ; then
-    copy_perms "$input" "$temp_file"
-    mv -f "$temp_file" "$output"
-  fi
+  move_file "$input" "$output" "$temp_file"
 }
 
 function template_j2cli() {
@@ -452,10 +449,7 @@ function template_j2cli() {
   YADM_SOURCE="$input"        \
   "$J2CLI_PROGRAM" "$input" -o "$temp_file"
 
-  if [ -f "$temp_file" ] ; then
-    copy_perms "$input" "$temp_file"
-    mv -f "$temp_file" "$output"
-  fi
+  move_file "$input" "$output" "$temp_file"
 }
 
 function template_envtpl() {
@@ -471,10 +465,7 @@ function template_envtpl() {
   YADM_SOURCE="$input"        \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
 
-  if [ -f "$temp_file" ] ; then
-    copy_perms "$input" "$temp_file"
-    mv -f "$temp_file" "$output"
-  fi
+  move_file "$input" "$output" "$temp_file"
 }
 
 function template_esh() {
@@ -490,9 +481,27 @@ function template_esh() {
   YADM_DISTRO="$local_distro" \
   YADM_SOURCE="$input"
 
-  if [ -f "$temp_file" ] ; then
-    copy_perms "$input" "$temp_file"
-    mv -f "$temp_file" "$output"
+  move_file "$input" "$output" "$temp_file"
+}
+
+function move_file() {
+  local input=$1
+  local output=$2
+  local temp_file=$3
+
+  if [ ! -f "$temp_file" ] ; then
+    return 0
+  fi
+
+  local read_only
+  copy_perms "$input" "$temp_file"
+  if [[ -e "$output" && ! -w "$output" ]]; then
+    read_only=1
+    chmod u+w "$output"
+  fi
+  mv -f "$temp_file" "$output"
+  if [ -n "$read_only" ]; then
+    chmod u-w "$output"
   fi
 }
 
