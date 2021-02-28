@@ -353,7 +353,7 @@ function template_default() {
 
   # the explicit "space + tab" character class used below is used because not
   # all versions of awk seem to support the POSIX character classes [[:blank:]]
-  awk_pgm=$(cat << "EOF"
+  read -r -d '' awk_pgm << "EOF"
 # built-in default template processor
 BEGIN {
   blank         = "[ 	]"
@@ -421,7 +421,6 @@ function conditions() {
   return pattern
 }
 EOF
-  )
 
   "${AWK_PROGRAM[0]}" \
     -v class="$local_class" \
@@ -557,7 +556,8 @@ function report_invalid_alts() {
   for invalid in "${INVALID_ALT[@]}"; do
     path_list="$path_list    * $invalid"$'\n'
   done
-  cat <<EOF >&2
+  local msg
+  IFS='' read -r -d '' msg <<EOF
 
 **WARNING**
   Invalid alternates have been detected.
@@ -579,6 +579,7 @@ function report_invalid_alts() {
 ${path_list}
 ***********
 EOF
+    printf '%s\n' "$msg" >&2
 }
 
 function remove_stale_links() {
@@ -790,7 +791,8 @@ function clone() {
       done
 
       if [ -n "$("$GIT_PROGRAM" ls-files --modified)" ]; then
-          cat <<EOF
+        local msg
+        IFS='' read -r -d '' msg <<EOF
 **NOTE**
   Local files with content that differs from the ones just
   cloned were found in $YADM_WORK. They have been left
@@ -800,6 +802,7 @@ function clone() {
   If you know what you're doing, and want to overwrite the
   tracked files, consider 'yadm checkout "$YADM_WORK"'.
 EOF
+        printf '%s\n' "$msg"
       fi
 
       [ -n "$DEBUG" ] && display_private_perms "post-checkout"
@@ -826,11 +829,13 @@ function config() {
       echo "  ${supported_config}"
     done
     echo
-    cat << EOF
+    local msg
+    read -r -d '' msg << EOF
 Please read the CONFIGURATION section in the man
 page for more details about configurations, and
 how to adjust them.
 EOF
+    printf '%s\n' "$msg"
   elif [ "$use_repo_config" -eq 1 ]; then
 
     require_repo
@@ -1081,7 +1086,8 @@ function git_command() {
 
 function help() {
 
-  cat << EOF
+  local msg
+  IFS='' read -r -d '' msg << EOF
 Usage: yadm <command> [options...]
 
 Manage dotfiles maintained in a Git repository. Manage alternate files
@@ -1108,13 +1114,13 @@ Commands:
 Files:
   \$HOME/.config/yadm/config        - yadm's configuration file
   \$HOME/.config/yadm/encrypt       - List of globs to encrypt/decrypt
-  \$HOME/.config/yadm/bootstrap     - Script run via: yadm bootstrap 
+  \$HOME/.config/yadm/bootstrap     - Script run via: yadm bootstrap
   \$HOME/.local/share/yadm/repo.git - yadm's Git repository
   \$HOME/.local/share/yadm/archive  - Encrypted data stored here
 
 Use "man yadm" for complete documentation.
 EOF
-
+  printf '%s\n' "$msg"
   exit_with_hook 1
 
 }
@@ -1151,7 +1157,8 @@ function introspect() {
 }
 
 function introspect_commands() {
-  cat <<-EOF
+  local msg
+  read -r -d '' msg <<-EOF
 alt
 bootstrap
 clean
@@ -1171,10 +1178,12 @@ transcrypt
 upgrade
 version
 EOF
+  printf '%s' "$msg"
 }
 
 function introspect_configs() {
-  cat <<-EOF
+  local msg
+  read -r -d '' msg <<-EOF
 local.class
 local.hostname
 local.os
@@ -1194,6 +1203,7 @@ yadm.openssl-old
 yadm.openssl-program
 yadm.ssh-perms
 EOF
+  printf '%s' "$msg"
 }
 
 function introspect_repo() {
@@ -1201,7 +1211,8 @@ function introspect_repo() {
 }
 
 function introspect_switches() {
-  cat <<-EOF
+  local msg
+  read -r -d '' msg <<-EOF
 --yadm-archive
 --yadm-bootstrap
 --yadm-config
@@ -1211,6 +1222,7 @@ function introspect_switches() {
 --yadm-repo
 -Y
 EOF
+  printf '%s' "$msg"
 }
 
 function list() {
@@ -1564,7 +1576,8 @@ function issue_legacy_path_warning() {
     path_list="$path_list    * $legacy_path"$'\n'
   done
 
-  cat <<EOF >&2
+  local msg
+  IFS='' read -r -d '' msg <<EOF
 
 **WARNING**
   Legacy paths have been detected.
@@ -1588,7 +1601,7 @@ function issue_legacy_path_warning() {
 ${path_list}
 ***********
 EOF
-
+  printf '%s\n' "$msg" >&2
 LEGACY_WARNING_ISSUED=1
 
 }
@@ -1664,13 +1677,11 @@ function configure_repo() {
 
 function set_operating_system() {
 
-  local proc_version
-  proc_version=$(cat "$PROC_VERSION" 2>/dev/null)
-  if [[ "$proc_version" =~ [Mm]icrosoft ]]; then
+  if [[ "$(<$PROC_VERSION)" =~ [Mm]icrosoft ]]; then
     OPERATING_SYSTEM="WSL"
   else
     OPERATING_SYSTEM=$(uname -s)
-  fi
+  fi 2>/dev/null
 
   case "$OPERATING_SYSTEM" in
     CYGWIN*|MINGW*|MSYS*)
