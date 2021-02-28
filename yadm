@@ -489,20 +489,15 @@ function move_file() {
   local output=$2
   local temp_file=$3
 
-  if [ ! -f "$temp_file" ] ; then
-    return 0
-  fi
+  [ ! -f "$temp_file" ] && return
 
-  local read_only
-  copy_perms "$input" "$temp_file"
-  if [[ -e "$output" && ! -w "$output" ]]; then
-    read_only=1
-    chmod u+w "$output"
-  fi
+  # if the output files already exists as read-only, change it to be writable.
+  # there are some environments in which a read-only file will prevent the move
+  # from being successful.
+  [[ -e "$output" && ! -w "$output" ]] && chmod u+w "$output"
+
   mv -f "$temp_file" "$output"
-  if [ -n "$read_only" ]; then
-    chmod u-w "$output"
-  fi
+  copy_perms "$input" "$output"
 }
 
 # ****** yadm Commands ******

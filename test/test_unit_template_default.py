@@ -127,6 +127,12 @@ def test_template_default(runner, yadm, tmpdir):
     input_file.chmod(FILE_MODE)
     output_file = tmpdir.join('output')
 
+    # ensure overwrite works when file exists as read-only (there is some
+    # special processing when this is encountered because some environments do
+    # not properly overwrite read-only files)
+    output_file.write('existing')
+    output_file.chmod(0o400)
+
     script = f"""
         YADM_TEST=1 source {yadm}
         set_awk
