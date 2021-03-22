@@ -116,32 +116,12 @@ if it exists.
 .TP
 .BI clone " url
 Clone a remote repository for tracking dotfiles.
-After the contents of the remote repository have been fetched, a "merge" of
+After the contents of the remote repository have been fetched, a "check out" of
 the remote HEAD branch is attempted.
 If there are conflicting files already present in the
 .IR work-tree ,
-this merge will fail and instead a "reset" of the remote HEAD branch
-will be done, followed by a "stash". This "stash" operation will preserve the
-original data.
-
-You can review the stashed conflicts by running the command
-
-.RS
-.RS
-yadm stash show -p
-.RE
-
-from within your
-.I $HOME
-directory. If you want to restore the stashed data, you can run
-
-.RS
-yadm stash apply
-.RE
-or
-.RS
-yadm stash pop
-.RE
+the local version will be left unmodified and you'll have to review and resolv
+the difference.
 
 The repository is stored in
 .IR $HOME/.local/share/yadm/repo.git .
