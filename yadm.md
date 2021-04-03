@@ -74,23 +74,11 @@
 
        clone url
               Clone a remote repository for tracking dotfiles.  After the con-
-              tents  of  the remote repository have been fetched, a "merge" of
-              the remote HEAD branch is attempted.  If there  are  conflicting
-              files already present in the work-tree, this merge will fail and
-              instead a "reset" of the remote HEAD branch will be  done,  fol-
-              lowed  by  a  "stash".  This "stash" operation will preserve the
-              original data.
-
-              You can review the stashed conflicts by running the command
-
-                     yadm stash show -p
-
-              from within your $HOME directory. If you  want  to  restore  the
-              stashed data, you can run
-
-                     yadm stash apply
-              or
-                     yadm stash pop
+              tents  of the remote repository have been fetched, a "check out"
+              of the remote HEAD branch is attempted.  If there are  conflict-
+              ing  files  already  present in the work-tree, the local version
+              will be left unmodified and you'll have to  review  and  resolve
+              the difference.
 
               The  repository  is  stored in $HOME/.local/share/yadm/repo.git.
               By default, $HOME will be used as the work-tree, but this can be
@@ -235,7 +223,7 @@
               alias yadm='yadm --yadm-repo /alternate/path/to/repo'
 
        The following is the full  list  of  universal  options.   Each  option
-       should be followed by a fully qualified path.
+       should be followed by a path.
 
        -Y,--yadm-dir
               Override  the  yadm  directory.   yadm stores its configurations

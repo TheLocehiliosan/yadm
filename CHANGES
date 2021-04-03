@@ -1,3 +1,12 @@
+3.1.0
+  * Use `git clone` directly during clone (#289, #323)
+  * Fix compatibility bug with Git completions (#318, #321)
+  * Support relative paths for --yadm-* and -w (#301)
+  * Improve parsing of if-statement in default template (#303)
+  * Read files without running cat in subshells (#317)
+  * Improve portability of updating read-only files (#320)
+  * Various code improvements (#306, #307, #311)
+
 3.0.2
   * Fix parsing by sh (#299)
 

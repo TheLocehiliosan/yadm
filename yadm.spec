@@ -1,7 +1,7 @@
 %{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
 Name: yadm
 Summary: Yet Another Dotfiles Manager
-Version: 3.0.2
+Version: 3.1.0
 Group: Development/Tools
 Release: 1%{?dist}
 URL: https://yadm.io
