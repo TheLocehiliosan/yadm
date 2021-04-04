@@ -22,6 +22,7 @@ def test_bootstrap(
         paths.bootstrap.write(
             '#!/bin/bash\n'
             f'echo {expect}\n'
+            f'[[ $(id -un) = $YADM_USER ]] && echo "user is set"\n'
             f'exit {code}\n'
         )
         paths.bootstrap.chmod(0o775)
@@ -30,6 +31,7 @@ def test_bootstrap(
     if exists and executable:
         assert run.err == ''
         assert expect in run.out
+        assert 'user is set' in run.out
     else:
         assert expect in run.err
         assert run.out == ''

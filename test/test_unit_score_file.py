@@ -6,7 +6,7 @@ CONDITION = {
         'labels': ['default'],
         'modifier': 0,
         },
-    'system': {
+    'os': {
         'labels': ['o', 'os'],
         'modifier': 1,
         },
@@ -44,9 +44,9 @@ def calculate_score(filename):
             label, value = condition.split('.', 1)
         if label in CONDITION['default']['labels']:
             score += 1000
-        elif label in CONDITION['system']['labels']:
-            if value == 'testsystem':
-                score += 1000 + CONDITION['system']['modifier']
+        elif label in CONDITION['os']['labels']:
+            if value == 'testos':
+                score += 1000 + CONDITION['os']['modifier']
             else:
                 score = 0
                 break
@@ -83,7 +83,7 @@ def calculate_score(filename):
 @pytest.mark.parametrize(
     'default', ['default', None], ids=['default', 'no-default'])
 @pytest.mark.parametrize(
-    'system', ['system', None], ids=['system', 'no-system'])
+    'system', ['os', None], ids=['os', 'no-os'])
 @pytest.mark.parametrize(
     'distro', ['distro', None], ids=['distro', 'no-distro'])
 @pytest.mark.parametrize(
@@ -97,9 +97,9 @@ def test_score_values(
     """Test score results"""
     # pylint: disable=too-many-branches
     local_class = 'testclass'
-    local_system = 'testsystem'
+    local_os = 'testos'
     local_distro = 'testdistro'
-    local_host = 'testhost'
+    local_hostname = 'testhost'
     local_user = 'testuser'
     filenames = {'filename##': 0}
 
@@ -120,7 +120,7 @@ def test_score_values(
                         newfile += ','
                     newfile += '.'.join([
                         label,
-                        local_system if match else 'badsys'
+                        local_os if match else 'bados'
                         ])
                     filenames[newfile] = calculate_score(newfile)
     if distro:
@@ -156,7 +156,7 @@ def test_score_values(
                         newfile += ','
                     newfile += '.'.join([
                         label,
-                        local_host if match else 'badhost'
+                        local_hostname if match else 'badhost'
                         ])
                     filenames[newfile] = calculate_score(newfile)
     if user:
@@ -175,11 +175,11 @@ def test_score_values(
     script = f"""
         YADM_TEST=1 source {yadm}
         score=0
-        local_class={local_class}
-        local_system={local_system}
-        local_distro={local_distro}
-        local_host={local_host}
-        local_user={local_user}
+        YADM_CLASS={local_class}
+        YADM_OS={local_os}
+        YADM_DISTRO={local_distro}
+        YADM_HOSTNAME={local_hostname}
+        YADM_USER={local_user}
     """
     expected = ''
     for filename in filenames:
@@ -207,7 +207,7 @@ def test_extensions(runner, yadm, ext):
     script = f"""
         YADM_TEST=1 source {yadm}
         score=0
-        local_user={local_user}
+        YADM_USER={local_user}
         score_file "{filename}"
         echo "$score"
     """
@@ -221,9 +221,9 @@ def test_extensions(runner, yadm, ext):
 def test_score_values_templates(runner, yadm):
     """Test score results"""
     local_class = 'testclass'
-    local_system = 'testsystem'
+    local_os = 'testos'
     local_distro = 'testdistro'
-    local_host = 'testhost'
+    local_hostname = 'testhost'
     local_user = 'testuser'
     filenames = {'filename##': 0}
 
@@ -238,11 +238,11 @@ def test_score_values_templates(runner, yadm):
     script = f"""
         YADM_TEST=1 source {yadm}
         score=0
-        local_class={local_class}
-        local_system={local_system}
-        local_distro={local_distro}
-        local_host={local_host}
-        local_user={local_user}
+        YADM_CLASS={local_class}
+        YADM_OS={local_os}
+        YADM_DISTRO={local_distro}
+        YADM_HOSTNAME={local_hostname}
+        YADM_USER={local_user}
     """
     expected = ''
     for filename in filenames:
