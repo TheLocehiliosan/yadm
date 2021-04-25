@@ -34,7 +34,10 @@ def test_set_local_alt_values(
         echo "user='$local_user'"
     """
 
-    if override:
+    if override == 'class':
+        utils.set_local(paths, override, 'first')
+        utils.set_local(paths, override, 'override', add=True)
+    elif override:
         utils.set_local(paths, override, 'override')
 
     run = runner(command=['bash'], inp=script)

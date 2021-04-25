@@ -21,11 +21,12 @@ INCLUDE_DIRS = ['', 'test alt']
 INCLUDE_CONTENT = '8780846c02e34c930d0afd127906668f'
 
 
-def set_local(paths, variable, value):
+def set_local(paths, variable, value, add=False):
     """Set local override"""
+    add = "--add" if add else ""
     os.system(
         f'GIT_DIR={str(paths.repo)} '
-        f'git config --local "local.{variable}" "{value}"'
+        f'git config --local {add} "local.{variable}" "{value}"'
     )
 
 
