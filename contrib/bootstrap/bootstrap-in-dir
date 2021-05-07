@@ -14,7 +14,7 @@ if [[ ! -d "$BOOTSTRAP_D" ]]; then
     exit 1
 fi
 
-find "$BOOTSTRAP_D" -type f | sort | while IFS= read -r bootstrap; do
+find -L "$BOOTSTRAP_D" -type f | sort | while IFS= read -r bootstrap; do
     if [[ -x "$bootstrap" && ! "$bootstrap" =~ "##" && ! "$bootstrap" =~ "~$" ]]; then
         if ! "$bootstrap"; then
             echo "Error: bootstrap '$bootstrap' failed" >&2
