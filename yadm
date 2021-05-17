@@ -865,7 +865,10 @@ function _set_gpg_options() {
   if [ "$gpg_key" = "ASK" ]; then
     GPG_OPTS=("--no-default-recipient" "-e")
   elif [ "$gpg_key" != "" ]; then
-    GPG_OPTS=("-e" "-r $gpg_key")
+    GPG_OPTS=("-e")
+    for key in $gpg_key; do
+      GPG_OPTS+=("-r $key")
+    done
   else
     GPG_OPTS=("-c")
   fi

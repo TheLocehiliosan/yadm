@@ -326,7 +326,7 @@ def test_multi_key(runner, yadm_cmd, gnupg):
 
     # specify two encryption recipient
     os.system(' '.join(yadm_cmd(
-        'config', 'yadm.gpg-recipient', f'"{KEY_NAME} second-key"')))
+        'config', 'yadm.gpg-recipient', f'"second-key {KEY_NAME}"')))
 
     env = os.environ.copy()
     env['GNUPGHOME'] = gnupg.home
