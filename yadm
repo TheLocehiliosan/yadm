@@ -767,8 +767,8 @@ function clone() {
       rm -rf "$YADM_REPO" "$wc"
       error_out "Unable to clone the repository"
   }
-  rm -rf "$wc"
   configure_repo
+  rm -rf "$wc"
 
   # then reset the index as the --no-checkout flag makes the index empty
   "$GIT_PROGRAM" reset --quiet -- .
