@@ -1,3 +1,8 @@
+3.1.1
+  * Fix clone support for older versions of Git (#348)
+  * Fix support for multiple GPG recipients (#342)
+  * Find symlinks in bootstrap-in-dir (#340)
+
 3.1.0
   * Use `git clone` directly during clone (#289, #323)
   * Fix compatibility bug with Git completions (#318, #321)
