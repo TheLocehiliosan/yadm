@@ -3,7 +3,7 @@
 [![Latest Version][releases-badge]][releases-link]
 [![Homebrew Version][homebrew-badge]][homebrew-link]
 [![OBS Version][obs-badge]][obs-link]
-[![Arch Version][aur-badge]][aur-link]
+[![Arch Version][arch-badge]][arch-link]
 [![License][license-badge]][license-link]<br />
 [![Master Update][master-date]][master-commits]
 [![Develop Update][develop-date]][develop-commits]
@@ -56,8 +56,8 @@ The star count helps others discover yadm.
 [Git]: https://git-scm.com/
 [GnuPG]: https://gnupg.org/
 [OpenSSL]: https://www.openssl.org/
-[aur-badge]: https://img.shields.io/aur/version/yadm.svg
-[aur-link]: https://aur.archlinux.org/packages/yadm
+[arch-badge]: https://img.shields.io/archlinux/v/community/any/yadm
+[arch-link]: https://archlinux.org/packages/community/any/yadm/
 [dev-pages-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Test%20Site/dev-pages?label=dev-pages
 [develop-badge]: https://img.shields.io/github/workflow/status/TheLocehiliosan/yadm/Tests/develop?label=develop
 [develop-commits]: https://github.com/TheLocehiliosan/yadm/commits/develop
