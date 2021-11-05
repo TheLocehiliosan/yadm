@@ -450,7 +450,7 @@
        $HOME/path/example.txt    ->    $HOME/path/example.txt##os.Darwin,host-
        name.host2
 
-       However, on another Mackbook named "host3", yadm will create a symbolic
+       However, on another Macbook named "host3", yadm will create a symbolic
        link which looks like this:
 
        $HOME/path/example.txt -> $HOME/path/example.txt##os.Darwin
