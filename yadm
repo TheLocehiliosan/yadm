@@ -99,7 +99,7 @@ function main() {
 
   # parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|--help|init|introspect|list|perms|transcrypt|upgrade|version|--version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|--help|init|introspect|list|perms|transcrypt|upgrade|version|verify|--version)$"
   if [ -z "$*" ] ; then
     # no argumnts will result in help()
     help
@@ -1398,6 +1398,41 @@ function version() {
   echo "yadm $VERSION"
   exit_with_hook 0
 
+}
+
+function verify() {
+  #verify internal yadm variables
+  local local_class
+  local local_system
+  local local_host
+  local local_user
+  local local_distro
+  set_local_alt_values
+
+  while [[ $# -gt 0 ]] ; do
+    case "$1" in
+      -o|--os)
+	echo "$local_system"
+	;;
+      -d|--distro)
+	echo "$local_distro"
+	;;
+      -u|--user)
+	echo "$local_user"
+	;;
+      -h|--host)
+	echo "$local_host"
+	;;
+      -c|--class)
+	echo "$local_class"
+	;;
+      *)
+	#do nothing.
+	;;
+    esac
+    shift
+  done
+  
 }
 
 # ****** Utility Functions ******
