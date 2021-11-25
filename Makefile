@@ -192,9 +192,9 @@ install:
 	@[ -n "$(PREFIX)" ] || { echo "PREFIX is not set"; exit 1; }
 	@{\
 		set -e                                               ;\
-		bin="$(PREFIX)/bin"                                  ;\
-		doc="$(PREFIX)/share/doc/yadm"                       ;\
-		man="$(PREFIX)/share/man/man1"                       ;\
+		bin="$(DESTDIR)$(PREFIX)/bin"                        ;\
+		doc="$(DESTDIR)$(PREFIX)/share/doc/yadm"             ;\
+		man="$(DESTDIR)$(PREFIX)/share/man/man1"             ;\
 		install -d "$$bin" "$$doc" "$$man"                   ;\
 		install -m 0755 yadm "$$bin"                         ;\
 		install -m 0644 yadm.1 "$$man"                       ;\
