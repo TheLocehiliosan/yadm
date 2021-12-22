@@ -10,11 +10,16 @@ jobs:
       - uses: actions/stale@v4
         with:
           close-issue-message: >-
-            This issue was closed because it has been stalled for 5 days with
-            no activity.
+            This issue was closed because it has been labeled as stale for 7
+            days with no activity.
           days-before-close: 7
           days-before-stale: 60
+          exempt-all-assignees: true
+          exempt-issue-labels: in develop
+          exempt-pr-labels: in develop
+          stale-issue-label: stale
           stale-issue-message: >-
-            This issue is stale because it has been open 60 days with no
-            activity. Remove stale label or comment or this will be closed in 7
-            days.
+            This issue has been labeled as stale because it has been open 60
+            days with no activity. Remove stale label or comment or this will
+            be closed in 7 days.
+          stale-pr-label: stale
