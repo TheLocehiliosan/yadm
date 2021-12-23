@@ -365,6 +365,7 @@ function template_default() {
 BEGIN {
   blank         = "[ 	]"
   c["class"]    = class
+  c["arch"]     = arch
   c["os"]       = os
   c["hostname"] = host
   c["user"]     = user
