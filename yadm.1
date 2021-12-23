@@ -478,6 +478,21 @@ Valid if the value matches the current user.
 Current user is calculated by running
 .BR "id -u -n" .
 .TP
+.BR hostname , " h
+Valid if the value matches the short hostname.
+Hostname is calculated by running
+.BR "uname -n" ,
+and trimming off any domain.
+.TP
+.BR class , " c
+Valid if the value matches the
+.B local.class
+configuration.
+Class must be manually set using
+.BR "yadm config local.class <class>" .
+See the CONFIGURATION section for more details about setting
+.BR local.class .
+.TP
 .BR distro , " d
 Valid if the value matches the distro.
 Distro is calculated by running
@@ -494,21 +509,6 @@ OS is calculated by running
 Valid if the value matches the architecture.
 Architecture is calculated by running
 .BR "uname -m" .
-.TP
-.BR class , " c
-Valid if the value matches the
-.B local.class
-configuration.
-Class must be manually set using
-.BR "yadm config local.class <class>" .
-See the CONFIGURATION section for more details about setting
-.BR local.class .
-.TP
-.BR hostname , " h
-Valid if the value matches the short hostname.
-Hostname is calculated by running
-.BR "uname -n" ,
-and trimming off any domain.
 .TP
 .B default
 Valid when no other alternate is valid.
