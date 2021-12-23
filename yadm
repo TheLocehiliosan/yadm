@@ -486,6 +486,7 @@ function template_esh() {
 
   "$ESH_PROGRAM" -o "$temp_file" "$input" \
   YADM_CLASS="$local_class"   \
+  YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
