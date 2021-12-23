@@ -5,6 +5,7 @@ import pytest
 FILE_MODE = 0o754
 
 LOCAL_CLASS = "j2_Test+@-!^Class"
+LOCAL_ARCH = "j2_Test+@-!^Arch"
 LOCAL_SYSTEM = "j2_Test+@-!^System"
 LOCAL_HOST = "j2_Test+@-!^Host"
 LOCAL_USER = "j2_Test+@-!^User"
@@ -12,6 +13,7 @@ LOCAL_DISTRO = "j2_Test+@-!^Distro"
 TEMPLATE = f'''
 start of template
 j2 class  = >{{{{YADM_CLASS}}}}<
+j2 arch   = >{{{{YADM_ARCH}}}}<
 j2 os     = >{{{{YADM_OS}}}}<
 j2 host   = >{{{{YADM_HOSTNAME}}}}<
 j2 user   = >{{{{YADM_USER}}}}<
@@ -24,6 +26,15 @@ Included section for class = {{{{YADM_CLASS}}}} ({{{{YADM_CLASS}}}} repeated)
 {{%- endif %}}
 {{%- if YADM_CLASS == "wrongclass2" %}}
 wrong class 2
+{{%- endif %}}
+{{%- if YADM_ARCH == "wrongarch1" %}}
+wrong arch 1
+{{%- endif %}}
+{{%- if YADM_ARCH == "{LOCAL_ARCH}" %}}
+Included section for arch = {{{{YADM_ARCH}}}} ({{{{YADM_ARCH}}}} repeated)
+{{%- endif %}}
+{{%- if YADM_ARCH == "wrongarch2" %}}
+wrong arch 2
 {{%- endif %}}
 {{%- if YADM_OS == "wrongos1" %}}
 wrong os 1
@@ -66,11 +77,13 @@ end of template
 EXPECTED = f'''
 start of template
 j2 class  = >{LOCAL_CLASS}<
+j2 arch   = >{LOCAL_ARCH}<
 j2 os     = >{LOCAL_SYSTEM}<
 j2 host   = >{LOCAL_HOST}<
 j2 user   = >{LOCAL_USER}<
 j2 distro = >{LOCAL_DISTRO}<
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
+Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
@@ -97,6 +110,7 @@ def test_template_j2(runner, yadm, tmpdir, processor):
     script = f"""
         YADM_TEST=1 source {yadm}
         local_class="{LOCAL_CLASS}"
+        local_arch="{LOCAL_ARCH}"
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"
         local_user="{LOCAL_USER}"

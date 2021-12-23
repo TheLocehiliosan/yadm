@@ -5,6 +5,7 @@ FILE_MODE = 0o754
 
 # these values are also testing the handling of bizarre characters
 LOCAL_CLASS = "default_Test+@-!^Class"
+LOCAL_ARCH = "default_Test+@-!^Arch"
 LOCAL_SYSTEM = "default_Test+@-!^System"
 LOCAL_HOST = "default_Test+@-!^Host"
 LOCAL_USER = "default_Test+@-!^User"
@@ -12,6 +13,7 @@ LOCAL_DISTRO = "default_Test+@-!^Distro"
 TEMPLATE = f'''
 start of template
 default class  = >{{{{yadm.class}}}}<
+default arch   = >{{{{yadm.arch}}}}<
 default os     = >{{{{yadm.os}}}}<
 default host   = >{{{{yadm.hostname}}}}<
 default user   = >{{{{yadm.user}}}}<
@@ -32,6 +34,15 @@ Should not be included...
 {{% endif %}}
 {{% if yadm.class == "wrongclass2" %}}
 wrong class 2
+{{% endif %}}
+{{% if yadm.arch == "wrongarch1" %}}
+wrong arch 1
+{{% endif %}}
+{{% if yadm.arch == "{LOCAL_ARCH}" %}}
+Included section for arch = {{{{yadm.arch}}}} ({{{{yadm.arch}}}} repeated)
+{{% endif %}}
+{{% if yadm.arch == "wrongarch2" %}}
+wrong arch 2
 {{% endif %}}
 {{% if yadm.os == "wrongos1" %}}
 wrong os 1
@@ -74,6 +85,7 @@ end of template
 EXPECTED = f'''
 start of template
 default class  = >{LOCAL_CLASS}<
+default arch   = >{LOCAL_ARCH}<
 default os     = >{LOCAL_SYSTEM}<
 default host   = >{LOCAL_HOST}<
 default user   = >{LOCAL_USER}<
@@ -81,6 +93,7 @@ default distro = >{LOCAL_DISTRO}<
 Included section from else
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Multiple lines
+Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
@@ -137,6 +150,7 @@ def test_template_default(runner, yadm, tmpdir):
         YADM_TEST=1 source {yadm}
         set_awk
         local_class="{LOCAL_CLASS}"
+        local_arch="{LOCAL_ARCH}"
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"
         local_user="{LOCAL_USER}"

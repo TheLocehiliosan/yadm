@@ -4,6 +4,7 @@ import os
 FILE_MODE = 0o754
 
 LOCAL_CLASS = "esh_Test+@-!^Class"
+LOCAL_ARCH = "esh_Test+@-!^Arch"
 LOCAL_SYSTEM = "esh_Test+@-!^System"
 LOCAL_HOST = "esh_Test+@-!^Host"
 LOCAL_USER = "esh_Test+@-!^User"
@@ -11,6 +12,7 @@ LOCAL_DISTRO = "esh_Test+@-!^Distro"
 TEMPLATE = f'''
 start of template
 esh class  = ><%=$YADM_CLASS%><
+esh arch   = ><%=$YADM_ARCH%><
 esh os     = ><%=$YADM_OS%><
 esh host   = ><%=$YADM_HOSTNAME%><
 esh user   = ><%=$YADM_USER%><
@@ -23,6 +25,15 @@ Included section for class = <%=$YADM_CLASS%> (<%=$YADM_CLASS%> repeated)
 <% fi -%>
 <% if [ "$YADM_CLASS" = "wrongclass2" ]; then -%>
 wrong class 2
+<% fi -%>
+<% if [ "$YADM_ARCH" = "wrongarch1" ]; then -%>
+wrong arch 1
+<% fi -%>
+<% if [ "$YADM_ARCH" = "{LOCAL_ARCH}" ]; then -%>
+Included section for arch = <%=$YADM_ARCH%> (<%=$YADM_ARCH%> repeated)
+<% fi -%>
+<% if [ "$YADM_ARCH" = "wrongarch2" ]; then -%>
+wrong arch 2
 <% fi -%>
 <% if [ "$YADM_OS" = "wrongos1" ]; then -%>
 wrong os 1
@@ -65,11 +76,13 @@ end of template
 EXPECTED = f'''
 start of template
 esh class  = >{LOCAL_CLASS}<
+esh arch   = >{LOCAL_ARCH}<
 esh os     = >{LOCAL_SYSTEM}<
 esh host   = >{LOCAL_HOST}<
 esh user   = >{LOCAL_USER}<
 esh distro = >{LOCAL_DISTRO}<
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
+Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
@@ -95,6 +108,7 @@ def test_template_esh(runner, yadm, tmpdir):
     script = f"""
         YADM_TEST=1 source {yadm}
         local_class="{LOCAL_CLASS}"
+        local_arch="{LOCAL_ARCH}"
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"
         local_user="{LOCAL_USER}"
