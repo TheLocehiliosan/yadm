@@ -837,7 +837,7 @@ EOF
 function config() {
 
   use_repo_config=0
-  local_options="^local\.(class|os|hostname|user)$"
+  local_options="^local\.(class|arch|os|hostname|user)$"
   for option in "$@"; do
     [[ "$option" =~ $local_options ]] && use_repo_config=1
   done

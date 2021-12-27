@@ -7,6 +7,7 @@ import utils
     'override', [
         False,
         'class',
+        'arch',
         'os',
         'hostname',
         'user',
@@ -14,6 +15,7 @@ import utils
     ids=[
         'no-override',
         'override-class',
+        'override-arch',
         'override-os',
         'override-hostname',
         'override-user',
@@ -21,7 +23,7 @@ import utils
     )
 @pytest.mark.usefixtures('ds1_copy')
 def test_set_local_alt_values(
-        runner, yadm, paths, tst_sys, tst_host, tst_user, override):
+        runner, yadm, paths, tst_arch, tst_sys, tst_host, tst_user, override):
     """Use issue_legacy_path_warning"""
     script = f"""
         YADM_TEST=1 source {yadm} &&
@@ -29,6 +31,7 @@ def test_set_local_alt_values(
         YADM_DIR={paths.yadm} YADM_DATA={paths.data} configure_paths &&
         set_local_alt_values
         echo "class='$local_class'"
+        echo "arch='$local_arch'"
         echo "os='$local_system'"
         echo "host='$local_host'"
         echo "user='$local_user'"
@@ -45,6 +48,11 @@ def test_set_local_alt_values(
         assert "class='override'" in run.out
     else:
         assert "class=''" in run.out
+
+    if override == 'arch':
+        assert "arch='override'" in run.out
+    else:
+        assert f"arch='{tst_arch}'" in run.out
 
     if override == 'os':
         assert "os='override'" in run.out
