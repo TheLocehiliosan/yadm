@@ -6,8 +6,8 @@ FILE_MODE = 0o754
 
 LOCAL_CLASS = "j2_Test+@-!^Class"
 LOCAL_ARCH = "j2_Test+@-!^Arch"
-LOCAL_SYSTEM = "j2_Test+@-!^System"
-LOCAL_HOST = "j2_Test+@-!^Host"
+LOCAL_OS = "j2_Test+@-!^System"
+LOCAL_HOSTNAME = "j2_Test+@-!^Host"
 LOCAL_USER = "j2_Test+@-!^User"
 LOCAL_DISTRO = "j2_Test+@-!^Distro"
 TEMPLATE = f'''
@@ -39,7 +39,7 @@ wrong arch 2
 {{%- if YADM_OS == "wrongos1" %}}
 wrong os 1
 {{%- endif %}}
-{{%- if YADM_OS == "{LOCAL_SYSTEM}" %}}
+{{%- if YADM_OS == "{LOCAL_OS}" %}}
 Included section for os = {{{{YADM_OS}}}} ({{{{YADM_OS}}}} repeated)
 {{%- endif %}}
 {{%- if YADM_OS == "wrongos2" %}}
@@ -48,7 +48,7 @@ wrong os 2
 {{%- if YADM_HOSTNAME == "wronghost1" %}}
 wrong host 1
 {{%- endif %}}
-{{%- if YADM_HOSTNAME == "{LOCAL_HOST}" %}}
+{{%- if YADM_HOSTNAME == "{LOCAL_HOSTNAME}" %}}
 Included section for host = {{{{YADM_HOSTNAME}}}} ({{{{YADM_HOSTNAME}}}} again)
 {{%- endif %}}
 {{%- if YADM_HOSTNAME == "wronghost2" %}}
@@ -78,14 +78,14 @@ EXPECTED = f'''
 start of template
 j2 class  = >{LOCAL_CLASS}<
 j2 arch   = >{LOCAL_ARCH}<
-j2 os     = >{LOCAL_SYSTEM}<
-j2 host   = >{LOCAL_HOST}<
+j2 os     = >{LOCAL_OS}<
+j2 host   = >{LOCAL_HOSTNAME}<
 j2 user   = >{LOCAL_USER}<
 j2 distro = >{LOCAL_DISTRO}<
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
-Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
-Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
+Included section for os = {LOCAL_OS} ({LOCAL_OS} repeated)
+Included section for host = {LOCAL_HOSTNAME} ({LOCAL_HOSTNAME} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
 Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
 end of template
@@ -109,12 +109,12 @@ def test_template_j2(runner, yadm, tmpdir, processor):
 
     script = f"""
         YADM_TEST=1 source {yadm}
-        local_class="{LOCAL_CLASS}"
-        local_arch="{LOCAL_ARCH}"
-        local_system="{LOCAL_SYSTEM}"
-        local_host="{LOCAL_HOST}"
-        local_user="{LOCAL_USER}"
-        local_distro="{LOCAL_DISTRO}"
+        export YADM_CLASS="{LOCAL_CLASS}"
+        export YADM_ARCH="{LOCAL_ARCH}"
+        export YADM_OS="{LOCAL_OS}"
+        export YADM_HOSTNAME="{LOCAL_HOSTNAME}"
+        export YADM_USER="{LOCAL_USER}"
+        export YADM_DISTRO="{LOCAL_DISTRO}"
         template_{processor} "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)

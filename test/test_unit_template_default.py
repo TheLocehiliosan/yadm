@@ -6,8 +6,8 @@ FILE_MODE = 0o754
 # these values are also testing the handling of bizarre characters
 LOCAL_CLASS = "default_Test+@-!^Class"
 LOCAL_ARCH = "default_Test+@-!^Arch"
-LOCAL_SYSTEM = "default_Test+@-!^System"
-LOCAL_HOST = "default_Test+@-!^Host"
+LOCAL_OS = "default_Test+@-!^System"
+LOCAL_HOSTNAME = "default_Test+@-!^Host"
 LOCAL_USER = "default_Test+@-!^User"
 LOCAL_DISTRO = "default_Test+@-!^Distro"
 TEMPLATE = f'''
@@ -47,7 +47,7 @@ wrong arch 2
 {{% if yadm.os == "wrongos1" %}}
 wrong os 1
 {{% endif %}}
-{{% if yadm.os == "{LOCAL_SYSTEM}" %}}
+{{% if yadm.os == "{LOCAL_OS}" %}}
 Included section for os = {{{{yadm.os}}}} ({{{{yadm.os}}}} repeated)
 {{% endif %}}
 {{% if yadm.os == "wrongos2" %}}
@@ -56,7 +56,7 @@ wrong os 2
 {{% if yadm.hostname == "wronghost1" %}}
 wrong host 1
 {{% endif %}}
-{{% if yadm.hostname == "{LOCAL_HOST}" %}}
+{{% if yadm.hostname == "{LOCAL_HOSTNAME}" %}}
 Included section for host = {{{{yadm.hostname}}}} ({{{{yadm.hostname}}}} again)
 {{% endif %}}
 {{% if yadm.hostname == "wronghost2" %}}
@@ -86,16 +86,16 @@ EXPECTED = f'''
 start of template
 default class  = >{LOCAL_CLASS}<
 default arch   = >{LOCAL_ARCH}<
-default os     = >{LOCAL_SYSTEM}<
-default host   = >{LOCAL_HOST}<
+default os     = >{LOCAL_OS}<
+default host   = >{LOCAL_HOSTNAME}<
 default user   = >{LOCAL_USER}<
 default distro = >{LOCAL_DISTRO}<
 Included section from else
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Multiple lines
 Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
-Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
-Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
+Included section for os = {LOCAL_OS} ({LOCAL_OS} repeated)
+Included section for host = {LOCAL_HOSTNAME} ({LOCAL_HOSTNAME} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
 Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
 end of template
@@ -149,12 +149,12 @@ def test_template_default(runner, yadm, tmpdir):
     script = f"""
         YADM_TEST=1 source {yadm}
         set_awk
-        local_class="{LOCAL_CLASS}"
-        local_arch="{LOCAL_ARCH}"
-        local_system="{LOCAL_SYSTEM}"
-        local_host="{LOCAL_HOST}"
-        local_user="{LOCAL_USER}"
-        local_distro="{LOCAL_DISTRO}"
+        YADM_CLASS="{LOCAL_CLASS}"
+        YADM_ARCH="{LOCAL_ARCH}"
+        YADM_OS="{LOCAL_OS}"
+        YADM_HOSTNAME="{LOCAL_HOSTNAME}"
+        YADM_USER="{LOCAL_USER}"
+        YADM_DISTRO="{LOCAL_DISTRO}"
         template_default "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)
@@ -193,7 +193,7 @@ def test_include(runner, yadm, tmpdir):
     basic_file = tmpdir.join('basic')
     basic_file.write(INCLUDE_BASIC)
 
-    variables_file = tmpdir.join(f'variables.{LOCAL_SYSTEM}')
+    variables_file = tmpdir.join(f'variables.{LOCAL_OS}')
     variables_file.write(INCLUDE_VARIABLES)
 
     nested_file = tmpdir.join('dir').join('nested')
@@ -207,8 +207,8 @@ def test_include(runner, yadm, tmpdir):
     script = f"""
         YADM_TEST=1 source {yadm}
         set_awk
-        local_class="{LOCAL_CLASS}"
-        local_system="{LOCAL_SYSTEM}"
+        YADM_CLASS="{LOCAL_CLASS}"
+        YADM_OS="{LOCAL_OS}"
         template_default "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)
