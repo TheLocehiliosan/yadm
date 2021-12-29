@@ -170,8 +170,8 @@ function score_file() {
   tgt="${src%%##*}"
   conditions="${src#*##}"
 
-  if [ "${tgt#$YADM_ALT/}" != "${tgt}" ]; then
-    tgt="${YADM_BASE}/${tgt#$YADM_ALT/}"
+  if [ "${tgt#"$YADM_ALT/"}" != "${tgt}" ]; then
+    tgt="${YADM_BASE}/${tgt#"$YADM_ALT/"}"
   fi
 
   score=0
@@ -552,8 +552,8 @@ function alt() {
     if [[ $possible_alt =~ .\#\#. ]]; then
       base_alt="${possible_alt%%##*}"
       yadm_alt="${YADM_BASE}/${base_alt}"
-      if [ "${yadm_alt#$YADM_ALT/}" != "${yadm_alt}" ]; then
-        base_alt="${yadm_alt#$YADM_ALT/}"
+      if [ "${yadm_alt#"$YADM_ALT/"}" != "${yadm_alt}" ]; then
+        base_alt="${yadm_alt#"$YADM_ALT/"}"
       fi
       possible_alts+=("$YADM_BASE/${base_alt}")
     fi
@@ -1382,7 +1382,7 @@ function upgrade() {
   ;
   do
     if [ -e "$legacy_path" ]; then
-      new_filename=${legacy_path#$YADM_LEGACY_DIR/}
+      new_filename="${legacy_path#"$YADM_LEGACY_DIR/"}"
       new_filename="$YADM_DIR/$new_filename"
       actions_performed=1
       echo "Moving $legacy_path to $new_filename"
@@ -1946,7 +1946,7 @@ function relative_path() {
   result=""
 
   count=0
-  while [ "${full#$common_part}" == "${full}" ]; do
+  while [ "${full#"$common_part"}" == "${full}" ]; do
       [ "$count" = "500" ] && return # this is a failsafe
       # no match, means that candidate common part is not correct
       # go up one level (reduce common part)
@@ -1967,7 +1967,7 @@ function relative_path() {
 
   # since we now have identified the common part,
   # compute the non-common part
-  forward_part="${full#$common_part}"
+  forward_part="${full#"$common_part"}"
 
   # and now stick all parts together
   if [[ -n $result ]] && [[ -n $forward_part ]]; then
