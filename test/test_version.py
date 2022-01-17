@@ -29,8 +29,10 @@ def test_semantic_version(expected_version):
 @pytest.mark.parametrize('cmd', ['--version', 'version'])
 def test_reported_version(
         runner, yadm_cmd, cmd, expected_version):
-    """Report correct version, include git version"""
+    """Report correct version and bash/git versions"""
     run = runner(command=yadm_cmd(cmd))
     assert run.success
     assert run.err == ''
-    assert run.out.startswith(f'yadm version {expected_version}\ngit version')
+    assert 'bash version' in run.out
+    assert 'git version' in run.out
+    assert run.out.endswith(f'\nyadm version {expected_version}\n')

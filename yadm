@@ -1413,8 +1413,9 @@ function upgrade() {
 
 function version() {
 
+  echo "bash version $BASH_VERSION"
+  printf " "; "$GIT_PROGRAM" --version
   echo "yadm version $VERSION"
-  "$GIT_PROGRAM" --version
   exit_with_hook 0
 
 }
