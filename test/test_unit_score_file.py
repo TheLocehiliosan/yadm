@@ -18,17 +18,21 @@ CONDITION = {
         'labels': ['d', 'distro'],
         'modifier': 4,
         },
+    'distro_family': {
+        'labels': ['f', 'distro_family'],
+        'modifier': 8,
+        },
     'class': {
         'labels': ['c', 'class'],
-        'modifier': 8,
+        'modifier': 16,
         },
     'hostname': {
         'labels': ['h', 'hostname'],
-        'modifier': 16,
+        'modifier': 32,
         },
     'user': {
         'labels': ['u', 'user'],
-        'modifier': 32,
+        'modifier': 64,
         },
     }
 TEMPLATE_LABELS = ['t', 'template', 'yadm']

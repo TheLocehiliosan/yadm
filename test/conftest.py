@@ -69,6 +69,17 @@ def tst_distro(runner):
 
 
 @pytest.fixture(scope='session')
+def tst_distro_family(runner):
+    """Test session's distro_family"""
+    family = ''
+    with contextlib.suppress(Exception):
+        run = runner(command=[
+            'grep', '-oP', r'ID_LIKE=\K.+', '/etc/os-release'], report=False)
+        family = run.out.strip()
+    return family
+
+
+@pytest.fixture(scope='session')
 def tst_sys():
     """Test session's uname value"""
     return platform.system()

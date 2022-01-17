@@ -70,17 +70,20 @@ def test_set_local_alt_values(
         assert f"user='{tst_user}'" in run.out
 
 
-def test_distro(runner, yadm):
-    """Assert that local_distro is set"""
+def test_distro_and_family(runner, yadm):
+    """Assert that local_distro/local_distro_family are set"""
 
     script = f"""
         YADM_TEST=1 source {yadm}
         function config() {{ echo "$1"; }}
         function query_distro() {{ echo "testdistro"; }}
+        function query_distro_family() {{ echo "testfamily"; }}
         set_local_alt_values
         echo "distro='$local_distro'"
+        echo "distro_family='$local_distro_family'"
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
-    assert run.out.strip() == "distro='testdistro'"
+    assert "distro='testdistro'" in run.out
+    assert "distro_family='testfamily'" in run.out

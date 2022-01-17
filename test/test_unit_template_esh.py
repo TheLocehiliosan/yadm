@@ -9,14 +9,16 @@ LOCAL_SYSTEM = "esh_Test+@-!^System"
 LOCAL_HOST = "esh_Test+@-!^Host"
 LOCAL_USER = "esh_Test+@-!^User"
 LOCAL_DISTRO = "esh_Test+@-!^Distro"
+LOCAL_DISTRO_FAMILY = "esh_Test+@-!^Family"
 TEMPLATE = f'''
 start of template
-esh class  = ><%=$YADM_CLASS%><
-esh arch   = ><%=$YADM_ARCH%><
-esh os     = ><%=$YADM_OS%><
-esh host   = ><%=$YADM_HOSTNAME%><
-esh user   = ><%=$YADM_USER%><
-esh distro = ><%=$YADM_DISTRO%><
+esh class         = ><%=$YADM_CLASS%><
+esh arch          = ><%=$YADM_ARCH%><
+esh os            = ><%=$YADM_OS%><
+esh host          = ><%=$YADM_HOSTNAME%><
+esh user          = ><%=$YADM_USER%><
+esh distro        = ><%=$YADM_DISTRO%><
+esh distro_family = ><%=$YADM_DISTRO_FAMILY%><
 <% if [ "$YADM_CLASS" = "wrongclass1" ]; then -%>
 wrong class 1
 <% fi -%>
@@ -71,22 +73,35 @@ Included section for distro = <%=$YADM_DISTRO%> (<%=$YADM_DISTRO%> again)
 <% if [ "$YADM_DISTRO" = "wrongdistro2" ]; then -%>
 wrong distro 2
 <% fi -%>
+<% if [ "$YADM_DISTRO_FAMILY" = "wrongfamily1" ]; then -%>
+wrong family 1
+<% fi -%>
+<% if [ "$YADM_DISTRO_FAMILY" = "{LOCAL_DISTRO_FAMILY}" ]; then -%>
+Included section for distro_family = \
+<%=$YADM_DISTRO_FAMILY%> (<%=$YADM_DISTRO_FAMILY%> again)
+<% fi -%>
+<% if [ "$YADM_DISTRO" = "wrongfamily2" ]; then -%>
+wrong family 2
+<% fi -%>
 end of template
 '''
 EXPECTED = f'''
 start of template
-esh class  = >{LOCAL_CLASS}<
-esh arch   = >{LOCAL_ARCH}<
-esh os     = >{LOCAL_SYSTEM}<
-esh host   = >{LOCAL_HOST}<
-esh user   = >{LOCAL_USER}<
-esh distro = >{LOCAL_DISTRO}<
+esh class         = >{LOCAL_CLASS}<
+esh arch          = >{LOCAL_ARCH}<
+esh os            = >{LOCAL_SYSTEM}<
+esh host          = >{LOCAL_HOST}<
+esh user          = >{LOCAL_USER}<
+esh distro        = >{LOCAL_DISTRO}<
+esh distro_family = >{LOCAL_DISTRO_FAMILY}<
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
 Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
+Included section for distro_family = \
+{LOCAL_DISTRO_FAMILY} ({LOCAL_DISTRO_FAMILY} again)
 end of template
 '''
 
@@ -113,6 +128,7 @@ def test_template_esh(runner, yadm, tmpdir):
         local_host="{LOCAL_HOST}"
         local_user="{LOCAL_USER}"
         local_distro="{LOCAL_DISTRO}"
+        local_distro_family="{LOCAL_DISTRO_FAMILY}"
         template_esh "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)

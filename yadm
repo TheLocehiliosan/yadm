@@ -210,23 +210,30 @@ function score_file() {
         score=0
         return
       fi
+    elif [[ "$label" =~ ^(f|distro_family)$ ]]; then
+      if [ "$value" = "$local_distro_family" ]; then
+        score=$((score + 8))
+      else
+        score=0
+        return
+      fi
     elif [[ "$label" =~ ^(c|class)$ ]]; then
       if [ "$value" = "$local_class" ]; then
-        score=$((score + 8))
+        score=$((score + 16))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(h|hostname)$ ]]; then
       if [ "$value" = "$local_host" ]; then
-        score=$((score + 16))
+        score=$((score + 32))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(u|user)$ ]]; then
       if [ "$value" = "$local_user" ]; then
-        score=$((score + 32))
+        score=$((score + 64))
       else
         score=0
         return
@@ -363,24 +370,25 @@ function template_default() {
   read -r -d '' awk_pgm << "EOF"
 # built-in default template processor
 BEGIN {
-  blank         = "[ 	]"
-  c["class"]    = class
-  c["arch"]     = arch
-  c["os"]       = os
-  c["hostname"] = host
-  c["user"]     = user
-  c["distro"]   = distro
-  c["source"]   = source
-  ifs           = "^{%" blank "*if"
-  els           = "^{%" blank "*else" blank "*%}$"
-  end           = "^{%" blank "*endif" blank "*%}$"
-  skp           = "^{%" blank "*(if|else|endif)"
-  vld           = conditions()
-  inc_start     = "^{%" blank "*include" blank "+\"?"
-  inc_end       = "\"?" blank "*%}$"
-  inc           = inc_start ".+" inc_end
-  prt           = 1
-  err           = 0
+  blank              = "[ 	]"
+  c["class"]         = class
+  c["arch"]          = arch
+  c["os"]            = os
+  c["hostname"]      = host
+  c["user"]          = user
+  c["distro"]        = distro
+  c["distro_family"] = distro_family
+  c["source"]        = source
+  ifs                = "^{%" blank "*if"
+  els                = "^{%" blank "*else" blank "*%}$"
+  end                = "^{%" blank "*endif" blank "*%}$"
+  skp                = "^{%" blank "*(if|else|endif)"
+  vld                = conditions()
+  inc_start          = "^{%" blank "*include" blank "+\"?"
+  inc_end            = "\"?" blank "*%}$"
+  inc                = inc_start ".+" inc_end
+  prt                = 1
+  err                = 0
 }
 END { exit err }
 { replace_vars() } # variable replacements
@@ -437,6 +445,7 @@ EOF
     -v host="$local_host" \
     -v user="$local_user" \
     -v distro="$local_distro" \
+    -v distro_family="$local_distro_family" \
     -v source="$input" \
     -v source_dir="$(dirname "$input")" \
     "$awk_pgm" \
@@ -456,6 +465,7 @@ function template_j2cli() {
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
   "$J2CLI_PROGRAM" "$input" -o "$temp_file"
 
@@ -473,6 +483,7 @@ function template_envtpl() {
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
 
@@ -491,6 +502,7 @@ function template_esh() {
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"
 
   move_file "$input" "$output" "$temp_file"
@@ -526,6 +538,7 @@ function alt() {
   local local_host
   local local_user
   local local_distro
+  local local_distro_family
   set_local_alt_values
 
   # only be noisy if the "alt" command was run directly
@@ -644,6 +657,7 @@ function set_local_alt_values() {
   fi
 
   local_distro="$(query_distro)"
+  local_distro_family="$(query_distro_family)"
 
 }
 
@@ -1484,6 +1498,20 @@ function query_distro() {
     done < "$OS_RELEASE"
   fi
   echo "$distro"
+}
+
+function query_distro_family() {
+  family=""
+  if [ -f "$OS_RELEASE" ]; then
+    while IFS='' read -r line || [ -n "$line" ]; do
+      if [[ "$line" = ID_LIKE=* ]]; then
+        family="${line#ID_LIKE=}"
+        family="${family//\"}"
+        break
+      fi
+    done < "$OS_RELEASE"
+  fi
+  echo "$family"
 }
 
 function process_global_args() {

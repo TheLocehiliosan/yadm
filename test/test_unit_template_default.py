@@ -10,14 +10,16 @@ LOCAL_SYSTEM = "default_Test+@-!^System"
 LOCAL_HOST = "default_Test+@-!^Host"
 LOCAL_USER = "default_Test+@-!^User"
 LOCAL_DISTRO = "default_Test+@-!^Distro"
+LOCAL_DISTRO_FAMILY = "default_Test+@-!^Family"
 TEMPLATE = f'''
 start of template
-default class  = >{{{{yadm.class}}}}<
-default arch   = >{{{{yadm.arch}}}}<
-default os     = >{{{{yadm.os}}}}<
-default host   = >{{{{yadm.hostname}}}}<
-default user   = >{{{{yadm.user}}}}<
-default distro = >{{{{yadm.distro}}}}<
+default class         = >{{{{yadm.class}}}}<
+default arch          = >{{{{yadm.arch}}}}<
+default os            = >{{{{yadm.os}}}}<
+default host          = >{{{{yadm.hostname}}}}<
+default user          = >{{{{yadm.user}}}}<
+default distro        = >{{{{yadm.distro}}}}<
+default distro_family = >{{{{yadm.distro_family}}}}<
 {{% if yadm.class == "else1" %}}
 wrong else 1
 {{% else %}}
@@ -80,16 +82,27 @@ Included section for distro = {{{{yadm.distro}}}} ({{{{yadm.distro}}}} again)
 {{% if yadm.distro == "wrongdistro2" %}}
 wrong distro 2
 {{% endif %}}
+{{% if yadm.distro_family == "wrongfamily1" %}}
+wrong family 1
+{{% endif %}}
+{{% if yadm.distro_family == "{LOCAL_DISTRO_FAMILY}" %}}
+Included section for distro_family = \
+{{{{yadm.distro_family}}}} ({{{{yadm.distro_family}}}} again)
+{{% endif %}}
+{{% if yadm.distro_family == "wrongfamily2" %}}
+wrong family 2
+{{% endif %}}
 end of template
 '''
 EXPECTED = f'''
 start of template
-default class  = >{LOCAL_CLASS}<
-default arch   = >{LOCAL_ARCH}<
-default os     = >{LOCAL_SYSTEM}<
-default host   = >{LOCAL_HOST}<
-default user   = >{LOCAL_USER}<
-default distro = >{LOCAL_DISTRO}<
+default class         = >{LOCAL_CLASS}<
+default arch          = >{LOCAL_ARCH}<
+default os            = >{LOCAL_SYSTEM}<
+default host          = >{LOCAL_HOST}<
+default user          = >{LOCAL_USER}<
+default distro        = >{LOCAL_DISTRO}<
+default distro_family = >{LOCAL_DISTRO_FAMILY}<
 Included section from else
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Multiple lines
@@ -98,6 +111,8 @@ Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
 Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
 Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
+Included section for distro_family = \
+{LOCAL_DISTRO_FAMILY} ({LOCAL_DISTRO_FAMILY} again)
 end of template
 '''
 
@@ -155,6 +170,7 @@ def test_template_default(runner, yadm, tmpdir):
         local_host="{LOCAL_HOST}"
         local_user="{LOCAL_USER}"
         local_distro="{LOCAL_DISTRO}"
+        local_distro_family="{LOCAL_DISTRO_FAMILY}"
         template_default "{input_file}" "{output_file}"
     """
     run = runner(command=['bash'], inp=script)
