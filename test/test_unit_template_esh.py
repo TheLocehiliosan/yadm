@@ -23,7 +23,7 @@ esh distro_family = ><%=$YADM_DISTRO_FAMILY%><
 wrong class 1
 <% fi -%>
 <% if [ "$YADM_CLASS" = "{LOCAL_CLASS}" ]; then -%>
-Included section for class = <%=$YADM_CLASS%> (<%=$YADM_CLASS%> repeated)
+Included esh section for class = <%=$YADM_CLASS%> (<%=$YADM_CLASS%> repeated)
 <% fi -%>
 <% if [ "$YADM_CLASS" = "wrongclass2" ]; then -%>
 wrong class 2
@@ -32,7 +32,7 @@ wrong class 2
 wrong arch 1
 <% fi -%>
 <% if [ "$YADM_ARCH" = "{LOCAL_ARCH}" ]; then -%>
-Included section for arch = <%=$YADM_ARCH%> (<%=$YADM_ARCH%> repeated)
+Included esh section for arch = <%=$YADM_ARCH%> (<%=$YADM_ARCH%> repeated)
 <% fi -%>
 <% if [ "$YADM_ARCH" = "wrongarch2" ]; then -%>
 wrong arch 2
@@ -41,7 +41,7 @@ wrong arch 2
 wrong os 1
 <% fi -%>
 <% if [ "$YADM_OS" = "{LOCAL_SYSTEM}" ]; then -%>
-Included section for os = <%=$YADM_OS%> (<%=$YADM_OS%> repeated)
+Included esh section for os = <%=$YADM_OS%> (<%=$YADM_OS%> repeated)
 <% fi -%>
 <% if [ "$YADM_OS" = "wrongos2" ]; then -%>
 wrong os 2
@@ -50,7 +50,7 @@ wrong os 2
 wrong host 1
 <% fi -%>
 <% if [ "$YADM_HOSTNAME" = "{LOCAL_HOST}" ]; then -%>
-Included section for host = <%=$YADM_HOSTNAME%> (<%=$YADM_HOSTNAME%> again)
+Included esh section for host = <%=$YADM_HOSTNAME%> (<%=$YADM_HOSTNAME%> again)
 <% fi -%>
 <% if [ "$YADM_HOSTNAME" = "wronghost2" ]; then -%>
 wrong host 2
@@ -59,7 +59,7 @@ wrong host 2
 wrong user 1
 <% fi -%>
 <% if [ "$YADM_USER" = "{LOCAL_USER}" ]; then -%>
-Included section for user = <%=$YADM_USER%> (<%=$YADM_USER%> repeated)
+Included esh section for user = <%=$YADM_USER%> (<%=$YADM_USER%> repeated)
 <% fi -%>
 <% if [ "$YADM_USER" = "wronguser2" ]; then -%>
 wrong user 2
@@ -68,7 +68,7 @@ wrong user 2
 wrong distro 1
 <% fi -%>
 <% if [ "$YADM_DISTRO" = "{LOCAL_DISTRO}" ]; then -%>
-Included section for distro = <%=$YADM_DISTRO%> (<%=$YADM_DISTRO%> again)
+Included esh section for distro = <%=$YADM_DISTRO%> (<%=$YADM_DISTRO%> again)
 <% fi -%>
 <% if [ "$YADM_DISTRO" = "wrongdistro2" ]; then -%>
 wrong distro 2
@@ -77,7 +77,7 @@ wrong distro 2
 wrong family 1
 <% fi -%>
 <% if [ "$YADM_DISTRO_FAMILY" = "{LOCAL_DISTRO_FAMILY}" ]; then -%>
-Included section for distro_family = \
+Included esh section for distro_family = \
 <%=$YADM_DISTRO_FAMILY%> (<%=$YADM_DISTRO_FAMILY%> again)
 <% fi -%>
 <% if [ "$YADM_DISTRO" = "wrongfamily2" ]; then -%>
@@ -94,13 +94,13 @@ esh host          = >{LOCAL_HOST}<
 esh user          = >{LOCAL_USER}<
 esh distro        = >{LOCAL_DISTRO}<
 esh distro_family = >{LOCAL_DISTRO_FAMILY}<
-Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
-Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
-Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
-Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
-Included section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
-Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
-Included section for distro_family = \
+Included esh section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
+Included esh section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
+Included esh section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
+Included esh section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
+Included esh section for user = {LOCAL_USER} ({LOCAL_USER} repeated)
+Included esh section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
+Included esh section for distro_family = \
 {LOCAL_DISTRO_FAMILY} ({LOCAL_DISTRO_FAMILY} again)
 end of template
 '''
