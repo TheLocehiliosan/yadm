@@ -5,6 +5,7 @@ FILE_MODE = 0o754
 
 # these values are also testing the handling of bizarre characters
 LOCAL_CLASS = "default_Test+@-!^Class"
+LOCAL_CLASS2 = "default_Test+@-|^2nd_Class withSpace"
 LOCAL_ARCH = "default_Test+@-!^Arch"
 LOCAL_SYSTEM = "default_Test+@-!^System"
 LOCAL_HOST = "default_Test+@-!^Host"
@@ -33,6 +34,9 @@ Included section for class = {{{{yadm.class}}}} ({{{{yadm.class}}}} repeated)
 Multiple lines
 {{% else %}}
 Should not be included...
+{{% endif %}}
+{{% if yadm.class == "{LOCAL_CLASS2}" %}}
+Included section for second class
 {{% endif %}}
 {{% if yadm.class == "wrongclass2" %}}
 wrong class 2
@@ -106,6 +110,7 @@ default distro_family = >{LOCAL_DISTRO_FAMILY}<
 Included section from else
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Multiple lines
+Included section for second class
 Included section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
 Included section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
@@ -165,6 +170,7 @@ def test_template_default(runner, yadm, tmpdir):
         YADM_TEST=1 source {yadm}
         set_awk
         local_class="{LOCAL_CLASS}"
+        local_classes=("{LOCAL_CLASS2}" "{LOCAL_CLASS}")
         local_arch="{LOCAL_ARCH}"
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"

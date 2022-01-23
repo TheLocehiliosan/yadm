@@ -4,6 +4,7 @@ import os
 FILE_MODE = 0o754
 
 LOCAL_CLASS = "esh_Test+@-!^Class"
+LOCAL_CLASS2 = "esh_Test+@-|^2nd_Class withSpace"
 LOCAL_ARCH = "esh_Test+@-!^Arch"
 LOCAL_SYSTEM = "esh_Test+@-!^System"
 LOCAL_HOST = "esh_Test+@-!^Host"
@@ -28,6 +29,10 @@ Included esh section for class = <%=$YADM_CLASS%> (<%=$YADM_CLASS%> repeated)
 <% if [ "$YADM_CLASS" = "wrongclass2" ]; then -%>
 wrong class 2
 <% fi -%>
+<% echo "$YADM_CLASSES" | while IFS='' read cls; do
+   if [ "$cls" = "{LOCAL_CLASS2}" ]; then -%>
+Included esh section for second class
+<% fi; done -%>
 <% if [ "$YADM_ARCH" = "wrongarch1" ]; then -%>
 wrong arch 1
 <% fi -%>
@@ -95,6 +100,7 @@ esh user          = >{LOCAL_USER}<
 esh distro        = >{LOCAL_DISTRO}<
 esh distro_family = >{LOCAL_DISTRO_FAMILY}<
 Included esh section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
+Included esh section for second class
 Included esh section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
 Included esh section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included esh section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
@@ -123,6 +129,7 @@ def test_template_esh(runner, yadm, tmpdir):
     script = f"""
         YADM_TEST=1 source {yadm}
         local_class="{LOCAL_CLASS}"
+        local_classes=("{LOCAL_CLASS2}" "{LOCAL_CLASS}")
         local_arch="{LOCAL_ARCH}"
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"

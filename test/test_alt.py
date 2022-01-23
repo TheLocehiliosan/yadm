@@ -99,7 +99,9 @@ def test_alt_conditions(
 
     # set the class
     tst_class = 'testclass'
-    utils.set_local(paths, 'class', tst_class)
+    utils.set_local(paths, 'class', tst_class + ".before")
+    utils.set_local(paths, 'class', tst_class, add=True)
+    utils.set_local(paths, 'class', tst_class + ".after", add=True)
 
     suffix = string.Template(suffix).substitute(
         tst_arch=tst_arch,

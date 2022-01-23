@@ -205,6 +205,7 @@ def test_score_values(
         YADM_TEST=1 source {yadm}
         score=0
         local_class={local_class}
+        local_classes=({local_class})
         local_arch={local_arch}
         local_system={local_system}
         local_distro={local_distro}

@@ -5,6 +5,7 @@ import pytest
 FILE_MODE = 0o754
 
 LOCAL_CLASS = "j2_Test+@-!^Class"
+LOCAL_CLASS2 = "j2_Test+@-|^2nd_Class withSpace"
 LOCAL_ARCH = "j2_Test+@-!^Arch"
 LOCAL_SYSTEM = "j2_Test+@-!^System"
 LOCAL_HOST = "j2_Test+@-!^Host"
@@ -29,6 +30,9 @@ Included j2 section for class = \
 {{%- endif %}}
 {{%- if YADM_CLASS == "wrongclass2" %}}
 wrong class 2
+{{%- endif %}}
+{{%- if "{LOCAL_CLASS2}" in YADM_CLASSES.split("\\n") %}}
+Included j2 section for second class
 {{%- endif %}}
 {{%- if YADM_ARCH == "wrongarch1" %}}
 wrong arch 1
@@ -99,6 +103,7 @@ j2 user          = >{LOCAL_USER}<
 j2 distro        = >{LOCAL_DISTRO}<
 j2 distro_family = >{LOCAL_DISTRO_FAMILY}<
 Included j2 section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
+Included j2 section for second class
 Included j2 section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)
 Included j2 section for os = {LOCAL_SYSTEM} ({LOCAL_SYSTEM} repeated)
 Included j2 section for host = {LOCAL_HOST} ({LOCAL_HOST} again)
@@ -128,6 +133,7 @@ def test_template_j2(runner, yadm, tmpdir, processor):
     script = f"""
         YADM_TEST=1 source {yadm}
         local_class="{LOCAL_CLASS}"
+        local_classes=("{LOCAL_CLASS2}" "{LOCAL_CLASS}")
         local_arch="{LOCAL_ARCH}"
         local_system="{LOCAL_SYSTEM}"
         local_host="{LOCAL_HOST}"

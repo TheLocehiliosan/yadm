@@ -218,7 +218,7 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(c|class)$ ]]; then
-      if [ "$value" = "$local_class" ]; then
+      if in_list "$value" "${local_classes[@]}"; then
         score=$((score + 16))
       else
         score=0
@@ -426,12 +426,22 @@ function replace_vars() {
     gsub(("{{" blank "*yadm\\." label blank "*}}"), c[label])
   }
 }
+function condition_helper(label, value) {
+  gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
+  return sprintf("yadm\\.%s" blank "*==" blank "*\"%s\"", label, value)
+}
 function conditions() {
   pattern = ifs blank "+("
   for (label in c) {
-    value = c[label]
-    gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
-    pattern = sprintf("%syadm\\.%s" blank "*==" blank "*\"%s\"|", pattern, label, value)
+    if (label != "class") {
+      value = c[label]
+      pattern = sprintf("%s%s|", pattern, condition_helper(label, value));
+    }
+  }
+  split(classes, cls_array, "\n")
+  for (idx in cls_array) {
+    value = cls_array[idx]
+    pattern = sprintf("%s%s|", pattern, condition_helper("class", value));
   }
   sub(/\|$/, ")" blank "*%}$", pattern)
   return pattern
@@ -448,6 +458,7 @@ EOF
     -v distro_family="$local_distro_family" \
     -v source="$input" \
     -v source_dir="$(dirname "$input")" \
+    -v classes="$(join_string $'\n' "${local_classes[@]}")" \
     "$awk_pgm" \
     "$input" > "$temp_file" || rm -f "$temp_file"
 
@@ -467,6 +478,7 @@ function template_j2cli() {
   YADM_DISTRO="$local_distro" \
   YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
+  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
   "$J2CLI_PROGRAM" "$input" -o "$temp_file"
 
   move_file "$input" "$output" "$temp_file"
@@ -485,6 +497,7 @@ function template_envtpl() {
   YADM_DISTRO="$local_distro" \
   YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
+  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
 
   move_file "$input" "$output" "$temp_file"
@@ -495,6 +508,7 @@ function template_esh() {
   output="$2"
   temp_file="${output}.$$.$RANDOM"
 
+  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
   "$ESH_PROGRAM" -o "$temp_file" "$input" \
   YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
@@ -533,6 +547,7 @@ function alt() {
 
   # gather values for processing alternates
   local local_class
+  local -a local_classes
   local local_arch
   local local_system
   local local_host
@@ -633,7 +648,12 @@ function remove_stale_links() {
 
 function set_local_alt_values() {
 
-  local_class="$(config local.class)"
+  local -a all_classes
+  all_classes=$(config --get-all local.class)
+  while IFS='' read -r local_class; do
+      local_classes+=("$local_class")
+  done <<< "$all_classes"
+  local_class="${local_classes[-1]:-}"
 
   local_arch="$(config local.arch)"
   if [ -z "$local_arch" ] ; then
@@ -2060,6 +2080,16 @@ function auto_bootstrap() {
 function join_string {
     local IFS="$1"
     printf "%s" "${*:2}"
+}
+
+function in_list {
+  local element="$1"
+  shift
+
+  for e in "$@"; do
+    [[ "$e" = "$element" ]] && return 0
+  done
+  return 1
 }
 
 function get_mode {

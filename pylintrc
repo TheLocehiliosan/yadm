@@ -8,7 +8,7 @@ max-attributes=8
 max-statements=65
 
 [SIMILARITIES]
-min-similarity-lines=7
+min-similarity-lines=8
 
 [MESSAGES CONTROL]
 disable=redefined-outer-name
