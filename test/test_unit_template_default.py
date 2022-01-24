@@ -202,3 +202,22 @@ def test_include(runner, yadm, tmpdir):
     assert run.err == ''
     assert output_file.read() == EXPECTED_INCLUDE
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
+
+
+def test_env(runner, yadm, tmpdir):
+    """Test env"""
+
+    input_file = tmpdir.join('input')
+    input_file.write('{{env.PWD}}', ensure=True)
+    input_file.chmod(FILE_MODE)
+    output_file = tmpdir.join('output')
+
+    script = f"""
+        YADM_TEST=1 source {yadm}
+        set_awk
+        template_default "{input_file}" "{output_file}"
+    """
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert output_file.read() == os.environ['PWD']
