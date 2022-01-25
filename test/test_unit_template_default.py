@@ -220,4 +220,4 @@ def test_env(runner, yadm, tmpdir):
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
-    assert output_file.read() == os.environ['PWD']
+    assert output_file.read().strip() == os.environ['PWD']
