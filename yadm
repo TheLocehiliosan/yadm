@@ -1415,6 +1415,7 @@ function print_variables(){
   local local_distro
   set_local_alt_values
 
+  if [[ -z "$2" ]]; then
   echo "Yadm variables:
   distro=$local_distro
   system=$local_system
@@ -1422,11 +1423,32 @@ function print_variables(){
   user=$local_user 
   class=$local_class
 "
+  else
+    case "$2" in
+      class)
+	echo $local_class
+	;;
+      system)
+	echo $local_system
+	;;
+      host)
+	echo $local_host
+	;;
+      user)
+	echo $local_user
+	;;
+      distro)
+	echo $local_distro
+	;;
+      *)
+	echo "$2 is not a valid option"
+    esac
+  fi
+  
 }
 
 function print_paths(){
-  echo "${2}"
-  if [[ -z $2 ]] ; then
+  if [[ -z "$2" ]] ; then
     echo "yadm paths:
   repo=$YADM_REPO
   yadm_dir=$YADM_DIR
@@ -1452,6 +1474,7 @@ function print_paths(){
 	echo $YADM_ARCHIVE
 	;;
       *)
+	echo " in path "
 	echo "$2 is not a valid option"
     esac
   fi
@@ -1466,13 +1489,18 @@ function yecho() {
   fi
 
   while [[ $# -gt 0 ]] ; do
-    echo "$1"
     case "$1" in
       vars|variables)
 	print_variables "${YADM_ARGS[@]}"
+	if [[ ! -z "$2" ]] ; then
+	  shift
+	fi
 	;;
       paths|path)
 	print_paths "${YADM_ARGS[@]}"
+	if [[ ! -z "$2" ]] ; then
+	  shift
+	fi
 	;;
       *)
 	echo "$1 is not a valid command"
