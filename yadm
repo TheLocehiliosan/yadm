@@ -144,11 +144,7 @@ function main() {
     [ ! -d "$YADM_WORK" ] && error_out "Work tree does not exist: [$YADM_WORK]"
     HOOK_COMMAND="$YADM_COMMAND"
     invoke_hook "pre"
-    if [[ "$YADM_COMMAND" =~ ^(echo)$ ]]; then
-      yecho "${YADM_ARGS[@]}"
-    else
-      $YADM_COMMAND "${YADM_ARGS[@]}"
-    fi
+    ${YADM_COMMAND/echo/yecho} "${YADM_ARGS[@]}"
   else
     # any other commands are simply passed through to git
     HOOK_COMMAND="$1"
