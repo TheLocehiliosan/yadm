@@ -110,8 +110,6 @@ function main() {
     YADM_ARGS=()
     shift
 
-    
-
     # commands listed below do not process any of the parameters
     if [[ "$YADM_COMMAND" =~ ^(enter|git_crypt)$ ]] ; then
       YADM_ARGS=("$@")
