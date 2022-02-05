@@ -26,10 +26,10 @@ A version of yadm is available via standard package repositories. Use `apt-get` 
 
 ## Arch Linux
 
-yadm is available in the [Arch User Repos](https://wiki.archlinux.org/index.php/Arch_User_Repository) and can be installed with an [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers) or with [Makepkg](https://wiki.archlinux.org/index.php/Makepkg).
+yadm is available in the official repository, simply use `pacman` to install it.
 
 ```
-yay -Syu yadm-git
+sudo pacman -S yadm
 ```
 
 ## Gentoo Linux
