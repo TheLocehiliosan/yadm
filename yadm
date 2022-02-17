@@ -425,6 +425,9 @@ function replace_vars() {
   for (label in c) {
     gsub(("{{" blank "*yadm\\." label blank "*}}"), c[label])
   }
+  for (label in ENVIRON) {
+    gsub(("{{" blank "*env\\." label blank "*}}"), ENVIRON[label])
+  }
 }
 function condition_helper(label, value) {
   gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
