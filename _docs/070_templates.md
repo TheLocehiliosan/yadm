@@ -39,7 +39,8 @@ When template processors run, they will be provided the following set of data.
 
 | Default (built-in)   | Jinja or ESH         | Description                | Source                                                                      |
 | -                    | -                    | -                          | -                                                                           |
-| `yadm.class`         | `YADM_CLASS`         | Locally defined yadm class | <code>yadm&nbsp;config&nbsp;local.class</code>                              |
+| `yadm.class`         | `YADM_CLASS`         | Last defined class         | <code>yadm&nbsp;config&nbsp;local.class</code>                              |
+| `yadm.classes`       | `YADM_CLASSES`       | All classes                | <code>yadm&nbsp;config&nbsp;&#8209;&#8209;get&#8209;all&nbsp;local.class</code> |
 | `yadm.distro`        | `YADM_DISTRO`        | Distribution               | <code>lsb_release&nbsp;&#8209;si</code><br/>or <code>/etc/os-release</code> |
 | `yadm.distro_family` | `YADM_DISTRO_FAMILY` | Distribution Family        | `ID_LIKE` from<code>/etc/os&#8209;release</code>                            |
 | `yadm.hostname`      | `YADM_HOSTNAME`      | Hostname                   | <code>uname&nbsp;&#8209;n</code> (without domain)                           |
