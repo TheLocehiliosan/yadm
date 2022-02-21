@@ -98,7 +98,12 @@ variable. Only equality can be tested. These blocks must start with
 block can also be specified using the directive `{% else %}`. These directives
 must appear on lines by themselves. They may not appear on the same line. The
 "if" directive only supports testing a single variable, and there is no "elif"
-directive as there is in Jinja. Here is an example.
+directive as there is in Jinja.
+<br><br>
+If multiple classes are defined, `yadm.class=="someclass"` will be true if *any*
+of the defined classes are "someclass".
+<br><br>
+Here is an example.
 
 ```jinja
 {% if yadm.os == "Darwin" %}
