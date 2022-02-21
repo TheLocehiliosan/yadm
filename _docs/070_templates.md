@@ -47,6 +47,7 @@ When template processors run, they will be provided the following set of data.
 | `yadm.os`            | `YADM_OS`            | Operating system    | <code>uname&nbsp;&#8209;s</code> <sup>*</sup>                               |
 | `yadm.user`          | `YADM_USER`          | Current user        | <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>                                 |
 | `yadm.source`        | `YADM_SOURCE`        | Template filename   | (fully qualified path)                                                      |
+| `env.VAR`            |                      | Env variables       | Any VAR in the environment while yadm templates are processed               |
 
 <sub><sup>*
 The OS for "Windows Subsystem for Linux" is reported as "WSL", even though uname identifies as "Linux".
