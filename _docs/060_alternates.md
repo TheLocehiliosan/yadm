@@ -27,16 +27,16 @@ be omitted. Most attributes can be abbreviated as a single letter.
 
 | Attribute | Meaning |
 | - | - |
-| `template`, `t` | Valid when the value matches a supported template processor. See the [Templates](/docs/templates) section for more details. |
-| `user`, `u` | Valid if the value matches the current user. Current user is calculated by running <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>. |
-| `distro`, `d` | Valid if the value matches the distro. Distro is calculated by running <code>lsb_release&nbsp;&#8209;si</code> or inspecting <code>/etc/os-release</code> |
-| `distro_family`, `f` | Valid if the value matches the distro family. Distro family is calculated by inspecting the `ID_LIKE` line from <code>/etc/os-release</code> |
-| `os`, `o` | Valid if the value matches the OS. OS is calculated by running <code>uname&nbsp;&#8209;s</code>. <sup>*</sup> |
 | `arch`, `architecture`, `a` | Valid if the value matches the architecture. Architecture is calculated by running <code>uname&nbsp;&#8209;m</code>. |
 | `class`, `c` | Valid if the value matches the local.class configuration. Class must be manually set using <code>yadm&nbsp;config&nbsp;local.class&nbsp;&lt;class&gt;</code>. |
-| `hostname`, `h` | Valid if the value matches the short hostname. Hostname is calculated by running <code>uname&nbsp;&#8209;n</code>, and trimming off any domain. |
 | `default` | Valid when no other alternate is valid. |
+| `distro`, `d` | Valid if the value matches the distro. Distro is calculated by running <code>lsb_release&nbsp;&#8209;si</code> or inspecting <code>/etc/os-release</code> |
+| `distro_family`, `f` | Valid if the value matches the distro family. Distro family is calculated by inspecting the `ID_LIKE` line from <code>/etc/os-release</code> |
 | `extension`, `e` | A special "condition" that doesn't affect the selection process. Its purpose is instead to allow the alternate file to end with a certain extension to e.g. make editors highlight the content properly. |
+| `hostname`, `h` | Valid if the value matches the short hostname. Hostname is calculated by running <code>uname&nbsp;&#8209;n</code>, and trimming off any domain. |
+| `os`, `o` | Valid if the value matches the OS. OS is calculated by running <code>uname&nbsp;&#8209;s</code>. <sup>*</sup> |
+| `template`, `t` | Valid when the value matches a supported template processor. See the [Templates](/docs/templates) section for more details. |
+| `user`, `u` | Valid if the value matches the current user. Current user is calculated by running <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>. |
 
 <sub><sup>*
 The OS for "Windows Subsystem for Linux" is reported as "WSL", even though uname identifies as "Linux".
