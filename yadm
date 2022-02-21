@@ -189,7 +189,7 @@ function score_file() {
     if [[ "$label" =~ ^(default)$ ]]; then
       score=$((score + 0))
     # variable conditions
-    elif [[ "$label" =~ ^(a|arch|architecture)$ ]]; then
+    elif [[ "$label" =~ ^(a|arch)$ ]]; then
       if [ "$value" = "$local_arch" ]; then
         score=$((score + 1))
       else

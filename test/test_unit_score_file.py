@@ -7,7 +7,7 @@ CONDITION = {
         'modifier': 0,
         },
     'arch': {
-        'labels': ['a', 'arch', 'architecture'],
+        'labels': ['a', 'arch'],
         'modifier': 1,
         },
     'system': {

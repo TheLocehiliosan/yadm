@@ -82,7 +82,7 @@ def test_relative_link(runner, paths, yadm_alt):
 @pytest.mark.parametrize('suffix', [
     '##default',
     '##default,e.txt', '##default,extension.txt',
-    '##a.$tst_arch', '##arch.$tst_arch', '##architecture.$tst_arch',
+    '##a.$tst_arch', '##arch.$tst_arch',
     '##o.$tst_sys', '##os.$tst_sys',
     '##d.$tst_distro', '##distro.$tst_distro',
     '##f.$tst_distro_family', '##distro_family.$tst_distro_family',
