@@ -503,6 +503,11 @@ Distro is calculated by running
 or by inspecting the ID from
 .BR "/etc/os-release" .
 .TP
+.BR distro_family , " f
+Valid if the value matches the distro family.
+Distro family is calculated by inspecting the ID_LIKE line from
+.BR "/etc/os-release" .
+.TP
 .BR os , " o
 Valid if the value matches the OS.
 OS is calculated by running
@@ -658,6 +663,7 @@ During processing, the following variables are available in the template:
  -------------   -------------   --------------------------
  yadm.class      YADM_CLASS      Locally defined yadm class
  yadm.distro     YADM_DISTRO     lsb_release -si
+ yadm.distro_family   YADM_DISTRO_FAMILY   ID_LIKE from /etc/os-release
  yadm.hostname   YADM_HOSTNAME   uname -n (without domain)
  yadm.arch       YADM_ARCH       uname -m
  yadm.os         YADM_OS         uname -s
