@@ -20,6 +20,7 @@ esh host          = ><%=$YADM_HOSTNAME%><
 esh user          = ><%=$YADM_USER%><
 esh distro        = ><%=$YADM_DISTRO%><
 esh distro_family = ><%=$YADM_DISTRO_FAMILY%><
+esh classes = ><%=$YADM_CLASSES%><
 <% if [ "$YADM_CLASS" = "wrongclass1" ]; then -%>
 wrong class 1
 <% fi -%>
@@ -99,6 +100,7 @@ esh host          = >{LOCAL_HOST}<
 esh user          = >{LOCAL_USER}<
 esh distro        = >{LOCAL_DISTRO}<
 esh distro_family = >{LOCAL_DISTRO_FAMILY}<
+esh classes = >{LOCAL_CLASS2} {LOCAL_CLASS}<
 Included esh section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Included esh section for second class
 Included esh section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)

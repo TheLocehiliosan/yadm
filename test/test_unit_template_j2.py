@@ -21,6 +21,7 @@ j2 host          = >{{{{YADM_HOSTNAME}}}}<
 j2 user          = >{{{{YADM_USER}}}}<
 j2 distro        = >{{{{YADM_DISTRO}}}}<
 j2 distro_family = >{{{{YADM_DISTRO_FAMILY}}}}<
+j2 classes = >{{{{YADM_CLASSES}}}}<
 {{%- if YADM_CLASS == "wrongclass1" %}}
 wrong class 1
 {{%- endif %}}
@@ -102,6 +103,8 @@ j2 host          = >{LOCAL_HOST}<
 j2 user          = >{LOCAL_USER}<
 j2 distro        = >{LOCAL_DISTRO}<
 j2 distro_family = >{LOCAL_DISTRO_FAMILY}<
+j2 classes = >{LOCAL_CLASS2}
+{LOCAL_CLASS}<
 Included j2 section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Included j2 section for second class
 Included j2 section for arch = {LOCAL_ARCH} ({LOCAL_ARCH} repeated)

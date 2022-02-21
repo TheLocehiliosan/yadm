@@ -21,6 +21,7 @@ default host          = >{{{{yadm.hostname}}}}<
 default user          = >{{{{yadm.user}}}}<
 default distro        = >{{{{yadm.distro}}}}<
 default distro_family = >{{{{yadm.distro_family}}}}<
+classes = >{{{{yadm.classes}}}}<
 {{% if yadm.class == "else1" %}}
 wrong else 1
 {{% else %}}
@@ -107,6 +108,8 @@ default host          = >{LOCAL_HOST}<
 default user          = >{LOCAL_USER}<
 default distro        = >{LOCAL_DISTRO}<
 default distro_family = >{LOCAL_DISTRO_FAMILY}<
+classes = >{LOCAL_CLASS2}
+{LOCAL_CLASS}<
 Included section from else
 Included section for class = {LOCAL_CLASS} ({LOCAL_CLASS} repeated)
 Multiple lines
