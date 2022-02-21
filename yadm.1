@@ -666,15 +666,15 @@ During processing, the following variables are available in the template:
 
  Default              Jinja or ESH         Description
  -------------        -------------        -------------------------------
+ yadm.arch            YADM_ARCH            uname -m
  yadm.class           YADM_CLASS           Last locally defined class
  yadm.classes         YADM_CLASSES         All classes
  yadm.distro          YADM_DISTRO          lsb_release -si
  yadm.distro_family   YADM_DISTRO_FAMILY   ID_LIKE from /etc/os-release
  yadm.hostname        YADM_HOSTNAME        uname -n (without domain)
- yadm.arch            YADM_ARCH            uname -m
  yadm.os              YADM_OS              uname -s
- yadm.user            YADM_USER            id -u -n
  yadm.source          YADM_SOURCE          Template filename
+ yadm.user            YADM_USER            id -u -n
  env.VAR                                   Environment variable VAR
 
 .BR NOTE :
