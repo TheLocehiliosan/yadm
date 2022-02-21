@@ -435,6 +435,11 @@ they are stored in the local repository.
 .B local.class
 Specify a class for the purpose of symlinking alternate files.
 By default, no class will be matched.
+The local host can be assigned multiple classes using command:
+
+.RS
+yadm config --add local.class <additional-class>
+.RE
 .TP
 .B local.arch
 Override the architecture for the purpose of symlinking alternate files.
@@ -660,8 +665,9 @@ to create or overwrite files.
 During processing, the following variables are available in the template:
 
  Default              Jinja or ESH         Description
- -------------        -------------        --------------------------
- yadm.class           YADM_CLASS           Locally defined yadm class
+ -------------        -------------        -------------------------------
+ yadm.class           YADM_CLASS           Last locally defined class
+ yadm.classes         YADM_CLASSES         All classes
  yadm.distro          YADM_DISTRO          lsb_release -si
  yadm.distro_family   YADM_DISTRO_FAMILY   ID_LIKE from /etc/os-release
  yadm.hostname        YADM_HOSTNAME        uname -n (without domain)
