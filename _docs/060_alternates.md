@@ -27,7 +27,7 @@ be omitted. Most attributes can be abbreviated as a single letter.
 
 | Attribute | Meaning |
 | - | - |
-| `arch`, `architecture`, `a` | Valid if the value matches the architecture. Architecture is calculated by running <code>uname&nbsp;&#8209;m</code>. |
+| `arch`, `a` | Valid if the value matches the architecture. Architecture is calculated by running <code>uname&nbsp;&#8209;m</code>. |
 | `class`, `c` | Valid if the value matches the local.class configuration. Class must be manually set using <code>yadm&nbsp;config&nbsp;local.class&nbsp;&lt;class&gt;</code>. |
 | `default` | Valid when no other alternate is valid. |
 | `distro`, `d` | Valid if the value matches the distro. Distro is calculated by running <code>lsb_release&nbsp;&#8209;si</code> or inspecting <code>/etc/os-release</code> |
