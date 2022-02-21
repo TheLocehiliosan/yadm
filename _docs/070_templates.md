@@ -41,6 +41,7 @@ When template processors run, they will be provided the following set of data.
 | -                  | -               | -                          | -                                              |
 | `yadm.class`       | `YADM_CLASS`    | Locally defined yadm class | <code>yadm&nbsp;config&nbsp;local.class</code> |
 | `yadm.distro`      | `YADM_DISTRO`   | Distribution               | <code>lsb_release&nbsp;&#8209;si</code><br/>or <code>/etc/os-release</code> |
+| `yadm.distro_family` | `YADM_DISTRO_FAMILY` | Distribution Family | `ID_LIKE` from<code>/etc/os&#8209;release</code> |
 | `yadm.hostname`    | `YADM_HOSTNAME` | Hostname                   | <code>uname&nbsp;&#8209;n</code> (without domain)                    |
 | `yadm.os`          | `YADM_OS`       | Operating system           | <code>uname&nbsp;&#8209;s</code> <sup>*</sup>  |
 | `yadm.user`        | `YADM_USER`     | Current user               | <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>    |
