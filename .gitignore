@@ -1,4 +1,5 @@
 .jekyll-metadata
+.testyadm
 Gemfile.lock
 _site
 testenv
