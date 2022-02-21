@@ -1247,6 +1247,7 @@ EOF
 function introspect_configs() {
   local msg
   read -r -d '' msg <<-EOF
+local.arch
 local.class
 local.hostname
 local.os

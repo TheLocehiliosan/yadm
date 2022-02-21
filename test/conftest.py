@@ -126,6 +126,7 @@ def supported_configs():
     This list should be updated every time yadm learns a new config.
     """
     return [
+        'local.arch',
         'local.class',
         'local.hostname',
         'local.os',
