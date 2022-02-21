@@ -1,4 +1,4 @@
-IGNORED = .jekyll-metadata Gemfile.lock _site
+IGNORED := $(shell grep -v testenv .gitignore)
 VOLUME_ARG =
 
 .PHONY: all
