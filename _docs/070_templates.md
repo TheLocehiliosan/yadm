@@ -45,6 +45,7 @@ When template processors run, they will be provided the following set of data.
 | `yadm.distro_family` | `YADM_DISTRO_FAMILY` | Distribution Family | `ID_LIKE` from<code>/etc/os&#8209;release</code>                            |
 | `yadm.hostname`      | `YADM_HOSTNAME`      | Hostname            | <code>uname&nbsp;&#8209;n</code> (without domain)                           |
 | `yadm.os`            | `YADM_OS`            | Operating system    | <code>uname&nbsp;&#8209;s</code> <sup>*</sup>                               |
+| `yadm.arch`          | `YADM_ARCH`          | Architecture        | <code>uname&nbsp;&#8209;m</code>                                            |
 | `yadm.user`          | `YADM_USER`          | Current user        | <code>id&nbsp;&#8209;u&nbsp;&#8209;n</code>                                 |
 | `yadm.source`        | `YADM_SOURCE`        | Template filename   | (fully qualified path)                                                      |
 | `env.VAR`            |                      | Env variables       | Any VAR in the environment while yadm templates are processed               |

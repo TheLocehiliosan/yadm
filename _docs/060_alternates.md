@@ -32,6 +32,7 @@ be omitted. Most attributes can be abbreviated as a single letter.
 | `distro`, `d` | Valid if the value matches the distro. Distro is calculated by running <code>lsb_release&nbsp;&#8209;si</code> or inspecting <code>/etc/os-release</code> |
 | `distro_family`, `f` | Valid if the value matches the distro family. Distro family is calculated by inspecting the `ID_LIKE` line from <code>/etc/os-release</code> |
 | `os`, `o` | Valid if the value matches the OS. OS is calculated by running <code>uname&nbsp;&#8209;s</code>. <sup>*</sup> |
+| `arch`, `architecture`, `a` | Valid if the value matches the architecture. Architecture is calculated by running <code>uname&nbsp;&#8209;m</code>. |
 | `class`, `c` | Valid if the value matches the local.class configuration. Class must be manually set using <code>yadm&nbsp;config&nbsp;local.class&nbsp;&lt;class&gt;</code>. |
 | `hostname`, `h` | Valid if the value matches the short hostname. Hostname is calculated by running <code>uname&nbsp;&#8209;n</code>, and trimming off any domain. |
 | `default` | Valid when no other alternate is valid. |
@@ -116,8 +117,9 @@ yadm configuration—with the `yadm config` command. The following sets the
 
     yadm config local.class Work
 
-Similarly, the values of `os`, `hostname`, and `user` can be manually overridden
-using the configuration options `local.os`, `local.hostname`, and `local.user`.
+Similarly, the values of `arch`, `os`, `hostname`, and `user` can be manually
+overridden using the configuration options `local.arch`, `local.os`,
+`local.hostname`, and `local.user`.
 
 ## Templates
 
