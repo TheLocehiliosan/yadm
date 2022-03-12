@@ -14,7 +14,12 @@ Start out with an empty local repository
 Eventually you will want to push the local repo to a remote.
 
     yadm remote add origin <url>
-    yadm push -u origin master
+    yadm push -u origin <local branch>:<remote branch>
+
+<sub><sup>
+The default branch used is dependent upon your version of Git, your remote
+repository, and your configurations.
+</sup></sub>
 
 ### If you have an existing remote repository
 Clone your existing repo using yadm.
