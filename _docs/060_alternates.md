@@ -101,7 +101,7 @@ If no `##default` version exists and no files have valid conditions, then no
 link will be created.
 
 Links are also created for directories named this way, as long as they have at
-least one yadm managed file within them.
+least one yadm managed file within them (at the top level).
 
 yadm will automatically create these links by default. This can be disabled
 using the `yadm.auto-alt` configuration. Even if disabled, links can be manually
