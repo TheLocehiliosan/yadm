@@ -15,8 +15,8 @@ jobs:
           days-before-close: 7
           days-before-stale: 60
           exempt-all-assignees: true
-          exempt-issue-labels: in develop
-          exempt-pr-labels: in develop
+          exempt-issue-labels: in develop, 1, 2, 3
+          exempt-pr-labels: in develop, 1, 2, 3
           stale-issue-label: stale
           stale-issue-message: >-
             This issue has been labeled as stale because it has been open 60
