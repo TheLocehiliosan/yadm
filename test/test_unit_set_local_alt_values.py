@@ -7,6 +7,7 @@ import utils
     'override', [
         False,
         'class',
+        'arch',
         'os',
         'hostname',
         'user',
@@ -14,6 +15,7 @@ import utils
     ids=[
         'no-override',
         'override-class',
+        'override-arch',
         'override-os',
         'override-hostname',
         'override-user',
@@ -21,7 +23,7 @@ import utils
     )
 @pytest.mark.usefixtures('ds1_copy')
 def test_set_local_alt_values(
-        runner, yadm, paths, tst_sys, tst_host, tst_user, override):
+        runner, yadm, paths, tst_arch, tst_sys, tst_host, tst_user, override):
     """Use issue_legacy_path_warning"""
     script = f"""
         YADM_TEST=1 source {yadm} &&
@@ -29,12 +31,16 @@ def test_set_local_alt_values(
         YADM_DIR={paths.yadm} YADM_DATA={paths.data} configure_paths &&
         set_local_alt_values
         echo "class='$local_class'"
+        echo "arch='$local_arch'"
         echo "os='$local_system'"
         echo "host='$local_host'"
         echo "user='$local_user'"
     """
 
-    if override:
+    if override == 'class':
+        utils.set_local(paths, override, 'first')
+        utils.set_local(paths, override, 'override', add=True)
+    elif override:
         utils.set_local(paths, override, 'override')
 
     run = runner(command=['bash'], inp=script)
@@ -45,6 +51,11 @@ def test_set_local_alt_values(
         assert "class='override'" in run.out
     else:
         assert "class=''" in run.out
+
+    if override == 'arch':
+        assert "arch='override'" in run.out
+    else:
+        assert f"arch='{tst_arch}'" in run.out
 
     if override == 'os':
         assert "os='override'" in run.out
@@ -62,17 +73,20 @@ def test_set_local_alt_values(
         assert f"user='{tst_user}'" in run.out
 
 
-def test_distro(runner, yadm):
-    """Assert that local_distro is set"""
+def test_distro_and_family(runner, yadm):
+    """Assert that local_distro/local_distro_family are set"""
 
     script = f"""
         YADM_TEST=1 source {yadm}
         function config() {{ echo "$1"; }}
         function query_distro() {{ echo "testdistro"; }}
+        function query_distro_family() {{ echo "testfamily"; }}
         set_local_alt_values
         echo "distro='$local_distro'"
+        echo "distro_family='$local_distro_family'"
     """
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
-    assert run.out.strip() == "distro='testdistro'"
+    assert "distro='testdistro'" in run.out
+    assert "distro_family='testfamily'" in run.out

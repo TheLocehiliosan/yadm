@@ -1,3 +1,10 @@
+3.2.0
+  * Support architecture for alternates/templates (#202, #203, #393)
+  * Support distro_family for alternates/templates (#213)
+  * Support setting multiple classes (#185, #304)
+  * Support environment variables in default template processor (#347)
+  * Update version command to include Bash & Git versions (#377)
+
 3.1.1
   * Fix clone support for older versions of Git (#348)
   * Fix support for multiple GPG recipients (#342)

@@ -6,25 +6,33 @@ CONDITION = {
         'labels': ['default'],
         'modifier': 0,
         },
+    'arch': {
+        'labels': ['a', 'arch'],
+        'modifier': 1,
+        },
     'system': {
         'labels': ['o', 'os'],
-        'modifier': 1,
+        'modifier': 2,
         },
     'distro': {
         'labels': ['d', 'distro'],
-        'modifier': 2,
+        'modifier': 4,
+        },
+    'distro_family': {
+        'labels': ['f', 'distro_family'],
+        'modifier': 8,
         },
     'class': {
         'labels': ['c', 'class'],
-        'modifier': 4,
+        'modifier': 16,
         },
     'hostname': {
         'labels': ['h', 'hostname'],
-        'modifier': 8,
+        'modifier': 32,
         },
     'user': {
         'labels': ['u', 'user'],
-        'modifier': 16,
+        'modifier': 64,
         },
     }
 TEMPLATE_LABELS = ['t', 'template', 'yadm']
@@ -44,6 +52,12 @@ def calculate_score(filename):
             label, value = condition.split('.', 1)
         if label in CONDITION['default']['labels']:
             score += 1000
+        elif label in CONDITION['arch']['labels']:
+            if value == 'testarch':
+                score += 1000 + CONDITION['arch']['modifier']
+            else:
+                score = 0
+                break
         elif label in CONDITION['system']['labels']:
             if value == 'testsystem':
                 score += 1000 + CONDITION['system']['modifier']
@@ -83,6 +97,8 @@ def calculate_score(filename):
 @pytest.mark.parametrize(
     'default', ['default', None], ids=['default', 'no-default'])
 @pytest.mark.parametrize(
+    'arch', ['arch', None], ids=['arch', 'no-arch'])
+@pytest.mark.parametrize(
     'system', ['system', None], ids=['system', 'no-system'])
 @pytest.mark.parametrize(
     'distro', ['distro', None], ids=['distro', 'no-distro'])
@@ -93,10 +109,11 @@ def calculate_score(filename):
 @pytest.mark.parametrize(
     'user', ['user', None], ids=['user', 'no-user'])
 def test_score_values(
-        runner, yadm, default, system, distro, cla, host, user):
+        runner, yadm, default, arch, system, distro, cla, host, user):
     """Test score results"""
     # pylint: disable=too-many-branches
     local_class = 'testclass'
+    local_arch = 'testarch'
     local_system = 'testsystem'
     local_distro = 'testdistro'
     local_host = 'testhost'
@@ -111,6 +128,18 @@ def test_score_values(
                     newfile += ','
                 newfile += label
                 filenames[newfile] = calculate_score(newfile)
+    if arch:
+        for filename in list(filenames):
+            for match in [True, False]:
+                for label in CONDITION[arch]['labels']:
+                    newfile = filename
+                    if not newfile.endswith('##'):
+                        newfile += ','
+                    newfile += '.'.join([
+                        label,
+                        local_arch if match else 'badarch'
+                        ])
+                    filenames[newfile] = calculate_score(newfile)
     if system:
         for filename in list(filenames):
             for match in [True, False]:
@@ -176,6 +205,8 @@ def test_score_values(
         YADM_TEST=1 source {yadm}
         score=0
         local_class={local_class}
+        local_classes=({local_class})
+        local_arch={local_arch}
         local_system={local_system}
         local_distro={local_distro}
         local_host={local_host}
@@ -221,6 +252,7 @@ def test_extensions(runner, yadm, ext):
 def test_score_values_templates(runner, yadm):
     """Test score results"""
     local_class = 'testclass'
+    local_arch = 'arch'
     local_system = 'testsystem'
     local_distro = 'testdistro'
     local_host = 'testhost'
@@ -239,6 +271,7 @@ def test_score_values_templates(runner, yadm):
         YADM_TEST=1 source {yadm}
         score=0
         local_class={local_class}
+        local_arch={local_arch}
         local_system={local_system}
         local_distro={local_distro}
         local_host={local_host}

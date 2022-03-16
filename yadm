@@ -1,6 +1,6 @@
 #!/bin/sh
 # yadm - Yet Another Dotfiles Manager
-# Copyright (C) 2015-2021 Tim Byrne
+# Copyright (C) 2015-2022 Tim Byrne
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ if [ -z "$BASH_VERSION" ]; then
   [ "$YADM_TEST" != 1 ] && exec bash "$0" "$@"
 fi
 
-VERSION=3.1.1
+VERSION=3.2.0
 
 YADM_WORK="$HOME"
 YADM_DIR=
@@ -170,8 +170,8 @@ function score_file() {
   tgt="${src%%##*}"
   conditions="${src#*##}"
 
-  if [ "${tgt#$YADM_ALT/}" != "${tgt}" ]; then
-    tgt="${YADM_BASE}/${tgt#$YADM_ALT/}"
+  if [ "${tgt#"$YADM_ALT/"}" != "${tgt}" ]; then
+    tgt="${YADM_BASE}/${tgt#"$YADM_ALT/"}"
   fi
 
   score=0
@@ -189,37 +189,51 @@ function score_file() {
     if [[ "$label" =~ ^(default)$ ]]; then
       score=$((score + 0))
     # variable conditions
+    elif [[ "$label" =~ ^(a|arch)$ ]]; then
+      if [ "$value" = "$local_arch" ]; then
+        score=$((score + 1))
+      else
+        score=0
+        return
+      fi
     elif [[ "$label" =~ ^(o|os)$ ]]; then
       if [ "$value" = "$local_system" ]; then
-        score=$((score + 1))
+        score=$((score + 2))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
       if [ "$value" = "$local_distro" ]; then
-        score=$((score + 2))
+        score=$((score + 4))
+      else
+        score=0
+        return
+      fi
+    elif [[ "$label" =~ ^(f|distro_family)$ ]]; then
+      if [ "$value" = "$local_distro_family" ]; then
+        score=$((score + 8))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(c|class)$ ]]; then
-      if [ "$value" = "$local_class" ]; then
-        score=$((score + 4))
+      if in_list "$value" "${local_classes[@]}"; then
+        score=$((score + 16))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(h|hostname)$ ]]; then
       if [ "$value" = "$local_host" ]; then
-        score=$((score + 8))
+        score=$((score + 32))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(u|user)$ ]]; then
       if [ "$value" = "$local_user" ]; then
-        score=$((score + 16))
+        score=$((score + 64))
       else
         score=0
         return
@@ -356,23 +370,26 @@ function template_default() {
   read -r -d '' awk_pgm << "EOF"
 # built-in default template processor
 BEGIN {
-  blank         = "[ 	]"
-  c["class"]    = class
-  c["os"]       = os
-  c["hostname"] = host
-  c["user"]     = user
-  c["distro"]   = distro
-  c["source"]   = source
-  ifs           = "^{%" blank "*if"
-  els           = "^{%" blank "*else" blank "*%}$"
-  end           = "^{%" blank "*endif" blank "*%}$"
-  skp           = "^{%" blank "*(if|else|endif)"
-  vld           = conditions()
-  inc_start     = "^{%" blank "*include" blank "+\"?"
-  inc_end       = "\"?" blank "*%}$"
-  inc           = inc_start ".+" inc_end
-  prt           = 1
-  err           = 0
+  blank              = "[ 	]"
+  c["class"]         = class
+  c["classes"]       = classes
+  c["arch"]          = arch
+  c["os"]            = os
+  c["hostname"]      = host
+  c["user"]          = user
+  c["distro"]        = distro
+  c["distro_family"] = distro_family
+  c["source"]        = source
+  ifs                = "^{%" blank "*if"
+  els                = "^{%" blank "*else" blank "*%}$"
+  end                = "^{%" blank "*endif" blank "*%}$"
+  skp                = "^{%" blank "*(if|else|endif)"
+  vld                = conditions()
+  inc_start          = "^{%" blank "*include" blank "+\"?"
+  inc_end            = "\"?" blank "*%}$"
+  inc                = inc_start ".+" inc_end
+  prt                = 1
+  err                = 0
 }
 END { exit err }
 { replace_vars() } # variable replacements
@@ -409,13 +426,26 @@ function replace_vars() {
   for (label in c) {
     gsub(("{{" blank "*yadm\\." label blank "*}}"), c[label])
   }
+  for (label in ENVIRON) {
+    gsub(("{{" blank "*env\\." label blank "*}}"), ENVIRON[label])
+  }
+}
+function condition_helper(label, value) {
+  gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
+  return sprintf("yadm\\.%s" blank "*==" blank "*\"%s\"", label, value)
 }
 function conditions() {
   pattern = ifs blank "+("
   for (label in c) {
-    value = c[label]
-    gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", value)
-    pattern = sprintf("%syadm\\.%s" blank "*==" blank "*\"%s\"|", pattern, label, value)
+    if (label != "class") {
+      value = c[label]
+      pattern = sprintf("%s%s|", pattern, condition_helper(label, value));
+    }
+  }
+  split(classes, cls_array, "\n")
+  for (idx in cls_array) {
+    value = cls_array[idx]
+    pattern = sprintf("%s%s|", pattern, condition_helper("class", value));
   }
   sub(/\|$/, ")" blank "*%}$", pattern)
   return pattern
@@ -424,12 +454,15 @@ EOF
 
   "${AWK_PROGRAM[0]}" \
     -v class="$local_class" \
+    -v arch="$local_arch" \
     -v os="$local_system" \
     -v host="$local_host" \
     -v user="$local_user" \
     -v distro="$local_distro" \
+    -v distro_family="$local_distro_family" \
     -v source="$input" \
     -v source_dir="$(dirname "$input")" \
+    -v classes="$(join_string $'\n' "${local_classes[@]}")" \
     "$awk_pgm" \
     "$input" > "$temp_file" || rm -f "$temp_file"
 
@@ -442,11 +475,14 @@ function template_j2cli() {
   temp_file="${output}.$$.$RANDOM"
 
   YADM_CLASS="$local_class"   \
+  YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
+  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
   "$J2CLI_PROGRAM" "$input" -o "$temp_file"
 
   move_file "$input" "$output" "$temp_file"
@@ -458,11 +494,14 @@ function template_envtpl() {
   temp_file="${output}.$$.$RANDOM"
 
   YADM_CLASS="$local_class"   \
+  YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
+  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
   "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
 
   move_file "$input" "$output" "$temp_file"
@@ -473,12 +512,15 @@ function template_esh() {
   output="$2"
   temp_file="${output}.$$.$RANDOM"
 
+  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
   "$ESH_PROGRAM" -o "$temp_file" "$input" \
   YADM_CLASS="$local_class"   \
+  YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
+  YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"
 
   move_file "$input" "$output" "$temp_file"
@@ -509,10 +551,13 @@ function alt() {
 
   # gather values for processing alternates
   local local_class
+  local -a local_classes
+  local local_arch
   local local_system
   local local_host
   local local_user
   local local_distro
+  local local_distro_family
   set_local_alt_values
 
   # only be noisy if the "alt" command was run directly
@@ -539,8 +584,8 @@ function alt() {
     if [[ $possible_alt =~ .\#\#. ]]; then
       base_alt="${possible_alt%%##*}"
       yadm_alt="${YADM_BASE}/${base_alt}"
-      if [ "${yadm_alt#$YADM_ALT/}" != "${yadm_alt}" ]; then
-        base_alt="${yadm_alt#$YADM_ALT/}"
+      if [ "${yadm_alt#"$YADM_ALT/"}" != "${yadm_alt}" ]; then
+        base_alt="${yadm_alt#"$YADM_ALT/"}"
       fi
       possible_alts+=("$YADM_BASE/${base_alt}")
     fi
@@ -607,7 +652,17 @@ function remove_stale_links() {
 
 function set_local_alt_values() {
 
-  local_class="$(config local.class)"
+  local -a all_classes
+  all_classes=$(config --get-all local.class)
+  while IFS='' read -r local_class; do
+      local_classes+=("$local_class")
+  done <<< "$all_classes"
+  local_class="${local_classes[-1]:-}"
+
+  local_arch="$(config local.arch)"
+  if [ -z "$local_arch" ] ; then
+    local_arch=$(uname -m)
+  fi
 
   local_system="$(config local.os)"
   if [ -z "$local_system" ] ; then
@@ -626,6 +681,7 @@ function set_local_alt_values() {
   fi
 
   local_distro="$(query_distro)"
+  local_distro_family="$(query_distro_family)"
 
 }
 
@@ -819,7 +875,7 @@ EOF
 function config() {
 
   use_repo_config=0
-  local_options="^local\.(class|os|hostname|user)$"
+  local_options="^local\.(class|arch|os|hostname|user)$"
   for option in "$@"; do
     [[ "$option" =~ $local_options ]] && use_repo_config=1
   done
@@ -1191,6 +1247,7 @@ EOF
 function introspect_configs() {
   local msg
   read -r -d '' msg <<-EOF
+local.arch
 local.class
 local.hostname
 local.os
@@ -1364,7 +1421,7 @@ function upgrade() {
   ;
   do
     if [ -e "$legacy_path" ]; then
-      new_filename=${legacy_path#$YADM_LEGACY_DIR/}
+      new_filename="${legacy_path#"$YADM_LEGACY_DIR/"}"
       new_filename="$YADM_DIR/$new_filename"
       actions_performed=1
       echo "Moving $legacy_path to $new_filename"
@@ -1395,7 +1452,9 @@ function upgrade() {
 
 function version() {
 
-  echo "yadm $VERSION"
+  echo "bash version $BASH_VERSION"
+  printf " "; "$GIT_PROGRAM" --version
+  echo "yadm version $VERSION"
   exit_with_hook 0
 
 }
@@ -1464,6 +1523,20 @@ function query_distro() {
     done < "$OS_RELEASE"
   fi
   echo "$distro"
+}
+
+function query_distro_family() {
+  family=""
+  if [ -f "$OS_RELEASE" ]; then
+    while IFS='' read -r line || [ -n "$line" ]; do
+      if [[ "$line" = ID_LIKE=* ]]; then
+        family="${line#ID_LIKE=}"
+        family="${family//\"}"
+        break
+      fi
+    done < "$OS_RELEASE"
+  fi
+  echo "$family"
 }
 
 function process_global_args() {
@@ -1928,7 +2001,7 @@ function relative_path() {
   result=""
 
   count=0
-  while [ "${full#$common_part}" == "${full}" ]; do
+  while [ "${full#"$common_part"}" == "${full}" ]; do
       [ "$count" = "500" ] && return # this is a failsafe
       # no match, means that candidate common part is not correct
       # go up one level (reduce common part)
@@ -1949,7 +2022,7 @@ function relative_path() {
 
   # since we now have identified the common part,
   # compute the non-common part
-  forward_part="${full#$common_part}"
+  forward_part="${full#"$common_part"}"
 
   # and now stick all parts together
   if [[ -n $result ]] && [[ -n $forward_part ]]; then
@@ -2012,6 +2085,16 @@ function auto_bootstrap() {
 function join_string {
     local IFS="$1"
     printf "%s" "${*:2}"
+}
+
+function in_list {
+  local element="$1"
+  shift
+
+  for e in "$@"; do
+    [[ "$e" = "$element" ]] && return 0
+  done
+  return 1
 }
 
 function get_mode {

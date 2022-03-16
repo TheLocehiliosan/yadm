@@ -25,7 +25,7 @@ def pytest_addoption(parser):
 @pytest.fixture(scope='session')
 def shellcheck_version():
     """Version of shellcheck supported"""
-    return '0.7.1'
+    return '0.8.0'
 
 
 @pytest.fixture(scope='session')
@@ -69,9 +69,26 @@ def tst_distro(runner):
 
 
 @pytest.fixture(scope='session')
+def tst_distro_family(runner):
+    """Test session's distro_family"""
+    family = ''
+    with contextlib.suppress(Exception):
+        run = runner(command=[
+            'grep', '-oP', r'ID_LIKE=\K.+', '/etc/os-release'], report=False)
+        family = run.out.strip()
+    return family
+
+
+@pytest.fixture(scope='session')
 def tst_sys():
     """Test session's uname value"""
     return platform.system()
+
+
+@pytest.fixture(scope='session')
+def tst_arch():
+    """Test session's uname value"""
+    return platform.machine()
 
 
 @pytest.fixture(scope='session')
@@ -109,6 +126,7 @@ def supported_configs():
     This list should be updated every time yadm learns a new config.
     """
     return [
+        'local.arch',
         'local.class',
         'local.hostname',
         'local.os',

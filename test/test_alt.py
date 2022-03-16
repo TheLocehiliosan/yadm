@@ -82,25 +82,32 @@ def test_relative_link(runner, paths, yadm_alt):
 @pytest.mark.parametrize('suffix', [
     '##default',
     '##default,e.txt', '##default,extension.txt',
+    '##a.$tst_arch', '##arch.$tst_arch',
     '##o.$tst_sys', '##os.$tst_sys',
     '##d.$tst_distro', '##distro.$tst_distro',
+    '##f.$tst_distro_family', '##distro_family.$tst_distro_family',
     '##c.$tst_class', '##class.$tst_class',
     '##h.$tst_host', '##hostname.$tst_host',
     '##u.$tst_user', '##user.$tst_user',
     ])
 def test_alt_conditions(
         runner, paths,
-        tst_sys, tst_distro, tst_host, tst_user, suffix):
+        tst_arch, tst_sys, tst_distro, tst_distro_family, tst_host, tst_user,
+        suffix):
     """Test conditions supported by yadm alt"""
     yadm_dir, yadm_data = setup_standard_yadm_dir(paths)
 
     # set the class
     tst_class = 'testclass'
-    utils.set_local(paths, 'class', tst_class)
+    utils.set_local(paths, 'class', tst_class + ".before")
+    utils.set_local(paths, 'class', tst_class, add=True)
+    utils.set_local(paths, 'class', tst_class + ".after", add=True)
 
     suffix = string.Template(suffix).substitute(
+        tst_arch=tst_arch,
         tst_sys=tst_sys,
         tst_distro=tst_distro,
+        tst_distro_family=tst_distro_family,
         tst_class=tst_class,
         tst_host=tst_host,
         tst_user=tst_user,

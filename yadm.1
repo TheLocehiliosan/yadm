@@ -1,5 +1,5 @@
 .\" vim: set spell so=8:
-.TH yadm 1 "23 August 2021" "3.1.1"
+.TH yadm 1 "16 March 2022" "3.2.0"
 
 .SH NAME
 
@@ -427,7 +427,7 @@ Disable the permission changes to
 This feature is enabled by default.
 
 .RE
-The following four "local" configurations are not stored in the
+The following five "local" configurations are not stored in the
 .IR $HOME/.config/yadm/config,
 they are stored in the local repository.
 
@@ -435,6 +435,14 @@ they are stored in the local repository.
 .B local.class
 Specify a class for the purpose of symlinking alternate files.
 By default, no class will be matched.
+The local host can be assigned multiple classes using command:
+
+.RS
+yadm config --add local.class <additional-class>
+.RE
+.TP
+.B local.arch
+Override the architecture for the purpose of symlinking alternate files.
 .TP
 .B local.hostname
 Override the hostname for the purpose of symlinking alternate files.
@@ -478,17 +486,11 @@ Valid if the value matches the current user.
 Current user is calculated by running
 .BR "id -u -n" .
 .TP
-.BR distro , " d
-Valid if the value matches the distro.
-Distro is calculated by running
-.B "lsb_release -si"
-or by inspecting the ID from
-.BR "/etc/os-release" .
-.TP
-.BR os , " o
-Valid if the value matches the OS.
-OS is calculated by running
-.BR "uname -s" .
+.BR hostname , " h
+Valid if the value matches the short hostname.
+Hostname is calculated by running
+.BR "uname -n" ,
+and trimming off any domain.
 .TP
 .BR class , " c
 Valid if the value matches the
@@ -499,11 +501,27 @@ Class must be manually set using
 See the CONFIGURATION section for more details about setting
 .BR local.class .
 .TP
-.BR hostname , " h
-Valid if the value matches the short hostname.
-Hostname is calculated by running
-.BR "uname -n" ,
-and trimming off any domain.
+.BR distro , " d
+Valid if the value matches the distro.
+Distro is calculated by running
+.B "lsb_release -si"
+or by inspecting the ID from
+.BR "/etc/os-release" .
+.TP
+.BR distro_family , " f
+Valid if the value matches the distro family.
+Distro family is calculated by inspecting the ID_LIKE line from
+.BR "/etc/os-release" .
+.TP
+.BR os , " o
+Valid if the value matches the OS.
+OS is calculated by running
+.BR "uname -s" .
+.TP
+.BR arch , " a
+Valid if the value matches the architecture.
+Architecture is calculated by running
+.BR "uname -m" .
 .TP
 .B default
 Valid when no other alternate is valid.
@@ -577,7 +595,7 @@ If no "##default" version exists and no files have valid conditions, then no
 link will be created.
 
 Links are also created for directories named this way, as long as they have at
-least one yadm managed file within them.
+least one yadm managed file within them (at the top level).
 
 yadm will automatically create these links by default. This can be disabled
 using the
@@ -596,8 +614,9 @@ command. The following sets the class to be "Work".
 
   yadm config local.class Work
 
-Similarly, the values of os, hostname, and user can be manually overridden
-using the configuration options
+Similarly, the values of architecture, os, hostname, and user can be manually
+overridden using the configuration options
+.BR local.arch ,
 .BR local.os ,
 .BR local.hostname ,
 and
@@ -645,14 +664,18 @@ to create or overwrite files.
 
 During processing, the following variables are available in the template:
 
- Default         Jinja or ESH    Description
- -------------   -------------   --------------------------
- yadm.class      YADM_CLASS      Locally defined yadm class
- yadm.distro     YADM_DISTRO     lsb_release -si
- yadm.hostname   YADM_HOSTNAME   uname -n (without domain)
- yadm.os         YADM_OS         uname -s
- yadm.user       YADM_USER       id -u -n
- yadm.source     YADM_SOURCE     Template filename
+ Default              Jinja or ESH         Description
+ -------------        -------------        ----------------------------
+ yadm.arch            YADM_ARCH            uname -m
+ yadm.class           YADM_CLASS           Last locally defined class
+ yadm.classes         YADM_CLASSES         All classes
+ yadm.distro          YADM_DISTRO          lsb_release -si
+ yadm.distro_family   YADM_DISTRO_FAMILY   ID_LIKE from /etc/os-release
+ yadm.hostname        YADM_HOSTNAME        uname -n (without domain)
+ yadm.os              YADM_OS              uname -s
+ yadm.source          YADM_SOURCE          Template filename
+ yadm.user            YADM_USER            id -u -n
+ env.VAR                                   Environment variable VAR
 
 .BR NOTE :
 The OS for "Windows Subsystem for Linux" is reported as "WSL", even

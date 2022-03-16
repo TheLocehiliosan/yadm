@@ -2,8 +2,8 @@ FROM ubuntu:18.04
 MAINTAINER Tim Byrne <sultan@locehilios.com>
 
 # Shellcheck and esh versions
-ARG SC_VER=0.7.1
-ARG ESH_VER=0.3.0
+ARG SC_VER=0.8.0
+ARG ESH_VER=0.3.1
 
 # Install prerequisites and configure UTF-8 locale
 RUN \
