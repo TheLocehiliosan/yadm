@@ -1,3 +1,6 @@
+3.2.1
+  * Fix Bash 3 bad array subscript bug (#411)
+
 3.2.0
   * Support architecture for alternates/templates (#202, #203, #393)
   * Support distro_family for alternates/templates (#213)
