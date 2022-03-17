@@ -654,10 +654,10 @@ function set_local_alt_values() {
 
   local -a all_classes
   all_classes=$(config --get-all local.class)
-  while IFS='' read -r local_class; do
-      local_classes+=("$local_class")
+  while IFS='' read -r class; do
+      local_classes+=("$class")
+      local_class="$class"
   done <<< "$all_classes"
-  local_class="${local_classes[-1]:-}"
 
   local_arch="$(config local.arch)"
   if [ -z "$local_arch" ] ; then
