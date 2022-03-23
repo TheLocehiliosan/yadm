@@ -15,10 +15,30 @@ brew install yadm
 
 ## RPM Based Installations
 
-For RPM based systems like Fedora, Red Hat, CentOS, openSUSE, etc, there are
-repositories hosted by openSUSE Build Service.
+For RPM based systems like Fedora, Red Hat, CentOS, etc, there are repositories hosted by openSUSE Build Service.
 
 Follow this link for [repositories and installation instructions][OBS].
+
+## openSUSE
+
+### Tumbleweed
+
+`yadm` is available in the official repository.
+Use `zypper` or `dnf` to install.
+
+### Leap/SLE 15
+
+`yadm` is available to install manually via the `utilities` repository
+
+Instructions are to be found in [OBS](https://software.opensuse.org//download.html?project=utilities&package=yadm)
+
+*Note : 15.3 and further are located under SLE and not openSUSE*
+
+It is recommended to modify the priority of the repository to limit breakage :
+
+```
+zypper modifyrepo -p 100 utilities
+```
 
 ## Ubuntu/Debian
 
