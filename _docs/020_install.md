@@ -23,12 +23,12 @@ Follow this link for [repositories and installation instructions][OBS].
 
 ### Tumbleweed
 
-`yadm` is available in the official repository.
+yadm is available in the official repository.
 Use `zypper` or `dnf` to install.
 
 ### Leap/SLE 15
 
-`yadm` is available to install manually via the `utilities` repository
+yadm is available to install manually via the `utilities` repository
 
 Instructions are to be found in [OBS](https://software.opensuse.org//download.html?project=utilities&package=yadm)
 
