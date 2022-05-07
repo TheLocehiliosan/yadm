@@ -12,10 +12,8 @@ function _yadm-add(){
   yadm_path="$(yadm rev-parse --show-toplevel)"
   yadm_options=($(yadm status --porcelain=v1 |
     awk -v yadm_path=${yadm_path} '{printf "%s/%s:%s\n",  yadm_path, $2, $1}' ))
-  local expl
-  local line=( $yadm_options[1,CURRENT-1] )
 
-  _describe 'command' yadm_options -F line
+  _describe 'command' yadm_options
   _files
 }
 
