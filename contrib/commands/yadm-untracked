@@ -7,7 +7,7 @@
 #     `yadm gitconfig alias.untracked '!<PATH>/yadm-untracked'`
 
 # Possible script improvements:
-# - Reduce the amount of configuration; I have not figured out a way to 
+# - Reduce the amount of configuration; I have not figured out a way to
 #   get rid of the non-recursive and ignore. The recursive list could be
 #   built from the directories that are present in `yadm list`
 
