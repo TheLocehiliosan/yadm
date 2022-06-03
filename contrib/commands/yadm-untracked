@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+# To run: `yadm-untracked <config-file>`
+#
+# If you wish to create a YADM alias to run this as, for example `yadm untracked`
+# then the following command will add the alias:
+#     `yadm gitconfig alias.untracked '!<PATH>/yadm-untracked'`
+
+# Possible script improvements:
+# - Reduce the amount of configuration; I have not figured out a way to 
+#   get rid of the non-recursive and ignore. The recursive list could be
+#   built from the directories that are present in `yadm list`
+
+# Configuration... The script looks at the following 3 arrays:
+#
+# yadm_tracked_recursively
+#     The directories and files in this list are searched recursively to build
+#     a list of files that you expect are tracked with `yadm`. Items in this
+#     list are relative to the root of your YADM repo (which is $HOME for most).
+
+# yadm_tracked_nonrecursively
+#     Same as above but don't search recursively
+#
+# ignore_files_and_dirs
+#     A list of directories and files that will not be reported as untracked if
+#     found in the above two searches.
+#
+# Example configuration file (uncomment it to use):
+# yadm_tracked_recursively=(
+#     bin .config .vim
+# )
+#
+# yadm_tracked_nonrecursively=(
+#     ~
+# )
+#
+# ignore_files_and_dirs=(
+#     .CFUserTextEncoding .DS_Store .config/gh
+#     .vim/autoload/plug.vim
+# )
+
+if [[ $# -ne 1 ]]; then
+    echo 'Usage: yadm-untracked <config-file>'
+    exit 1
+fi
+
+yadm_tracked_recursively=()
+yadm_tracked_nonrecursively=()
+ignore_files_and_dirs=()
+
+source $1
+
+root=`yadm enter echo '$GIT_WORK_TREE'`
+
+cd $root
+
+find_list=$(mktemp -t find_list)
+find ${yadm_tracked_recursively[*]} -type f >$find_list
+find ${yadm_tracked_nonrecursively[*]} -maxdepth 1 -type f |
+  awk "{sub(\"^\./\", \"\"); sub(\"^$root/\", \"\"); print }" >>$find_list
+sort -o $find_list $find_list
+
+yadm_list=$(mktemp -t yadm_list)
+yadm list >$yadm_list
+find ${ignore_files_and_dirs[*]} -type f >>$yadm_list
+sort -o $yadm_list $yadm_list
+
+# Show the files not in `yadm list`
+comm -23 $find_list $yadm_list
+
+rm -f $find_list $yadm_list
