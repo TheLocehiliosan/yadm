@@ -17,8 +17,8 @@ function _yadm-add(){
   _files
 }
 
-function _yadm-checkout(){ 
-    _yadm-add 
+function _yadm-checkout(){
+    _yadm-add
 }
 
 _yadm-alt() {
