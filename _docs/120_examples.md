@@ -19,3 +19,4 @@ list.
 * [mes5k/dotfiles](https://github.com/mes5k/dotfiles)
 * [overclockedllama/dotfiles](https://github.com/overclockedllama/dotfiles)
 * [pendowski/dotfiles](https://github.com/pendowski/dotfiles)
+* [schneiderfelipe/dotfiles](https://github.com/schneiderfelipe/dotfiles)
