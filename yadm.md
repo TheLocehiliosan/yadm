@@ -616,7 +616,7 @@
        version  can  be  maintained  in the Git repository.  This feature will
        only work if a supported tool is available.  Both gpg(1) and openssl(1)
        are  supported.   gpg is used by default, but openssl can be configured
-       with the yadm.cypher configuration.
+       with the yadm.cipher configuration.
 
        To use this feature, a list of patterns must be created  and  saved  as
        $HOME/.config/yadm/encrypt.   This  list of patterns should be relative
