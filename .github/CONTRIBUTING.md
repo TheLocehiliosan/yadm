@@ -213,7 +213,7 @@ these principles when making changes.
     $ make test
     ```
     If you don't use `docker` but an OCI engine akin to `podman`, you can set it through the `OCI` switch for every target
-    
+
     ```text
     $ make test OCI=podman
     ```
