@@ -1,5 +1,6 @@
 PYTESTS = $(wildcard test/test_*.py)
-IMAGE = yadm/testbed:2022-01-07
+IMAGE = docker.io/yadm/testbed:2022-01-07
+OCI = docker
 
 .PHONY: all
 all:
@@ -94,7 +95,7 @@ test:
 		py.test -v $(testargs); \
 	else \
 		$(MAKE) -s require-docker && \
-		docker run \
+		$(OCI) run \
 			--rm -t$(shell test -t 0 && echo i) \
 			-v "$(CURDIR):/yadm:ro" \
 			$(IMAGE) \
@@ -117,7 +118,7 @@ test:
 .PHONY: testhost
 testhost: require-docker .testyadm
 	@echo "Starting testhost"
-	@docker run \
+	@$(OCI) run \
 		-w /root \
 		--hostname testhost \
 		--rm -it \
@@ -129,7 +130,7 @@ testhost: require-docker .testyadm
 scripthost: require-docker .testyadm
 	@echo "Starting scripthost \(recording script\)"
 	@printf '' > script.gz
-	@docker run \
+	@$(OCI) run \
 		-w /root \
 		--hostname scripthost \
 		--rm -it \
@@ -159,7 +160,7 @@ testenv:
 
 .PHONY: image
 image:
-	@docker build -f test/Dockerfile . -t "$(IMAGE)"
+	@$(OCI) build -f test/Dockerfile . -t "$(IMAGE)"
 
 
 .PHONY: man
@@ -204,11 +205,11 @@ install:
 
 .PHONY: sync-clock
 sync-clock:
-	docker run --rm --privileged alpine hwclock -s
+	$(OCI) run --rm --privileged alpine hwclock -s
 
 .PHONY: require-docker
 require-docker:
-	@if ! command -v "docker" > /dev/null 2>&1; then \
-		echo "Sorry, this make target requires docker to be installed."; \
+	@if ! command -v $(OCI) > /dev/null 2>&1; then \
+		echo "Sorry, this make target requires docker to be installed, to use another docker-compatible engine, like podman, re-run the make command adding OCI=podman"; \
 		false; \
 	fi
