@@ -212,6 +212,11 @@ these principles when making changes.
     ```text
     $ make test
     ```
+    If you don't use `docker` but an OCI engine akin to `podman`, you can set it through the `OCI` switch for every target
+    
+    ```text
+    $ make test OCI=podman
+    ```
 
 5. Create a feature branch, based off the `develop` branch.
 
