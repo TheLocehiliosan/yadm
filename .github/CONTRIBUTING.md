@@ -328,6 +328,9 @@ produce a help page.
 * `make clean`:
     Remove previously built data any any Jekyll containers.
 
+Please note that the Makefile will by default, for backwards-compatibility reasons, use the Python `docker-compose` (v1) and not the *new* integrated version ([v2][compose-v2]).  
+To use the newer version instead of the legacy one, add `COMPOSE_V2=1` at the end of the `make` command.
+
 When making website changes, be sure to adhere to [code](#code-conventions) and
 [commit](#commit-conventions) conventions. Use the same [GitHub
 workflow](#github-workflow) when creating a pull request. However use the
@@ -362,6 +365,7 @@ see if you can help.
 [commit-style]: https://chris.beams.io/posts/git-commit/#seven-rules
 [conduct]: CODE_OF_CONDUCT.md
 [contrib-hooks]: https://github.com/TheLocehiliosan/yadm/tree/master/contrib/hooks
+[compose-v2]: https://docs.docker.com/compose/#compose-v2-and-the-new-docker-compose-command
 [flake8]: https://pypi.org/project/flake8/
 [groff-man]: https://www.gnu.org/software/groff/manual/html_node/man.html
 [hooks-help]: https://github.com/TheLocehiliosan/yadm/blob/master/yadm.md#hooks
