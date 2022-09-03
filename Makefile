@@ -1,5 +1,12 @@
 IGNORED := $(shell grep -v testenv .gitignore)
 VOLUME_ARG =
+COMPOSE_V2 = 0
+
+ifeq ($(COMPOSE_V2),1)
+	COMPOSE_COMMAND = docker compose
+else
+	COMPOSE_COMMAND = docker-compose
+endif
 
 .PHONY: all
 all:
@@ -44,11 +51,11 @@ usage:
 
 .PHONY: test
 test: require-docker-compose clean
-	docker-compose run --rm website test/validate
+	$(COMPOSE_COMMAND) run --rm website test/validate
 
 .PHONY: up
 up: require-docker-compose
-	docker-compose up --no-recreate -d
+	$(COMPOSE_COMMAND) up --no-recreate -d
 	@echo
 	@echo Started docker container. It will probably take a bit of time before
 	@echo the webserver is listening. You can run \"make logs\" to watch the logs
@@ -58,15 +65,15 @@ up: require-docker-compose
 
 .PHONY: logs
 logs: require-docker-compose
-	docker-compose logs --tail 0 -f
+	$(COMPOSE_COMMAND) logs --tail 0 -f
 
 .PHONY: restart
 restart: require-docker-compose
-	docker-compose restart
+	$(COMPOSE_COMMAND) restart
 
 .PHONY: down
 down: require-docker-compose
-	docker-compose down --remove-orphans ${VOLUME_ARG}
+	$(COMPOSE_COMMAND) down --remove-orphans ${VOLUME_ARG}
 
 .PHONY: clean
 clean: down
@@ -78,9 +85,16 @@ fresh: clean
 
 .PHONY: require-docker-compose
 require-docker-compose: require-docker
-	@if ! command -v "docker-compose" >/dev/null 2>&1; then \
-		echo "Sorry, this make target requires docker-compose to be installed."; \
-		false; \
+	@if [ "$(COMPOSE_V2)" = "0" ]; then \
+	  if ! command -v "docker-compose" >/dev/null 2>&1; then \
+		  echo "Sorry, this make target requires docker-compose to be installed. To use compose v2, re-run with COMPOSE_V2=1"; \
+		  false; \
+	  fi \
+	else \
+	  if ! $(COMPOSE_COMMAND) >/dev/null 2>&1; then \
+		  echo "Sorry, this make target has been configured to support docker compose v2 but the compose subcommand isn't present in docker. To use docker-compose v1, remove the COMPOSE_V2 switch"; \
+		  false; \
+	  fi \
 	fi
 
 .PHONY: require-docker
