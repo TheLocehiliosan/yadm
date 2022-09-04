@@ -121,6 +121,14 @@ Similarly, the values of `arch`, `os`, `hostname`, and `user` can be manually
 overridden using the configuration options `local.arch`, `local.os`,
 `local.hostname`, and `local.user`.
 
+Additional local classes can be defined using the `--add` switch.
+
+    yadm config --add local.class <additional-class>
+
+You can display all of the classes using `--get-all`.
+
+    yadm config --get-all local.class
+
 ## Templates
 
 Templates are another powerful tool for creating alternate content on each host.
