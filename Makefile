@@ -1,11 +1,13 @@
 IGNORED := $(shell grep -v testenv .gitignore)
 VOLUME_ARG =
-COMPOSE_V2 = 0
-
-ifeq ($(COMPOSE_V2),1)
+COMPOSE_V2 := $(shell $(SHELL) -c "docker compose; exit 0" 2>&1 1>/dev/null)
+ifndef COMPOSE_V2
 	COMPOSE_COMMAND = docker compose
 else
-	COMPOSE_COMMAND = docker-compose
+	COMPOSE_V1 := $(shell command -v docker-compose)
+	ifdef COMPOSE_V1
+		COMPOSE_COMMAND = docker-compose
+	endif
 endif
 
 .PHONY: all
@@ -85,16 +87,9 @@ fresh: clean
 
 .PHONY: require-docker-compose
 require-docker-compose: require-docker
-	@if [ "$(COMPOSE_V2)" = "0" ]; then \
-	  if ! command -v "docker-compose" >/dev/null 2>&1; then \
-		  echo "Sorry, this make target requires docker-compose to be installed. To use compose v2, re-run with COMPOSE_V2=1"; \
-		  false; \
-	  fi \
-	else \
-	  if ! $(COMPOSE_COMMAND) >/dev/null 2>&1; then \
-		  echo "Sorry, this make target has been configured to support docker compose v2 but the compose subcommand isn't present in docker. To use docker-compose v1, remove the COMPOSE_V2 switch"; \
-		  false; \
-	  fi \
+	@if [ -z "$(COMPOSE_COMMAND)" ]; then \
+		echo "Sorry, this make target requires docker compose to be supported."; \
+		false; \
 	fi
 
 .PHONY: require-docker
