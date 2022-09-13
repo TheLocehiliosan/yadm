@@ -315,3 +315,37 @@ def test_template_recording(runner, yadm, cmd_generated):
     assert run.success
     assert run.err == ''
     assert run.out.rstrip() == expected
+
+
+def test_underscores_in_distro_and_family(runner, yadm):
+    """Test replacing spaces in distro / distro_family with underscores"""
+    local_distro = 'test distro'
+    local_distro_family = 'test family'
+    filenames = {
+            'filename##distro.test distro': 1004,
+            'filename##distro.test-distro': 0,
+            'filename##distro.test_distro': 1004,
+            'filename##distro_family.test family': 1008,
+            'filename##distro_family.test-family': 0,
+            'filename##distro_family.test_family': 1008,
+            }
+
+    script = f"""
+        YADM_TEST=1 source {yadm}
+        score=0
+        local_distro="{local_distro}"
+        local_distro_family="{local_distro_family}"
+    """
+    expected = ''
+    for filename in filenames:
+        script += f"""
+            score_file "{filename}"
+            echo "{filename}"
+            echo "$score"
+        """
+        expected += filename + '\n'
+        expected += str(filenames[filename]) + '\n'
+    run = runner(command=['bash'], inp=script)
+    assert run.success
+    assert run.err == ''
+    assert run.out == expected
