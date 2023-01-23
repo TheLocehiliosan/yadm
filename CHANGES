@@ -1,3 +1,10 @@
+3.2.2
+  * Support spaces in distro/distro-family (#432)
+  * Fix zsh hanging when tab completing add/checkout (#417)
+  * Add yadm-untracked script to contributed files (#418)
+  * Fix documentation typos (#425)
+  * Support docker-like OCI engines for dev testing (#431)
+
 3.2.1
   * Fix Bash 3 bad array subscript bug (#411)
 
