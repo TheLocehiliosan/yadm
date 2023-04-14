@@ -684,7 +684,7 @@ function set_local_alt_values() {
   local_distro_family="$(query_distro_family)"
 
 }
-
+u
 function alt_linking() {
 
   local alt_scores=()
@@ -1772,7 +1772,9 @@ function set_operating_system() {
       OPERATING_SYSTEM=$(uname -o)
       ;;
     *)
-      ;;
+      if [[ "$(uname -o)" == "Android" ]]; then
+        OPERATING_SYSTEM=Android
+      fi
   esac
 
 }
