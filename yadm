@@ -540,6 +540,7 @@ function move_file() {
 
   mv -f "$temp_file" "$output"
   copy_perms "$input" "$output"
+  [ "$(config --bool yadm.template-read-only)" == "true" ] && chmod -w "$output"
 }
 
 # ****** yadm Commands ******
