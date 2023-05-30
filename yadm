@@ -204,7 +204,7 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
-      value=$(echo $value | tr '[:upper:]' '[:lower:]')
+      value="$(echo $value | tr '[:upper:]' '[:lower:]')"
       if [ "${value/\ /_}" = "${local_distro/\ /_}" ]; then
         score=$((score + 4))
       else
@@ -212,7 +212,7 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(f|distro_family)$ ]]; then
-      value=$(echo $value | tr '[:upper:]' '[:lower:]')
+      value="$(echo $value | tr '[:upper:]' '[:lower:]')"
       if [ "${value/\ /_}" = "${local_distro_family/\ /_}" ]; then
         score=$((score + 8))
       else
