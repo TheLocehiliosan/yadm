@@ -204,7 +204,7 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
-      value=${value,,}
+      value=$(echo $value | tr '[:upper:]' '[:lower:]')
       if [ "${value/\ /_}" = "${local_distro/\ /_}" ]; then
         score=$((score + 4))
       else
@@ -212,7 +212,7 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(f|distro_family)$ ]]; then
-      value=${value,,}
+      value=$(echo $value | tr '[:upper:]' '[:lower:]')
       if [ "${value/\ /_}" = "${local_distro_family/\ /_}" ]; then
         score=$((score + 8))
       else
@@ -1524,7 +1524,7 @@ function query_distro() {
       fi
     done < "$OS_RELEASE"
   fi
-  echo "${distro,,}"
+  echo "$distro" | tr '[:upper:]' '[:lower:]'
 }
 
 function query_distro_family() {
@@ -1538,7 +1538,7 @@ function query_distro_family() {
       fi
     done < "$OS_RELEASE"
   fi
-  echo "${family,,}"
+  echo "$family" | tr '[:upper:]' '[:lower:]'
 }
 
 function process_global_args() {
