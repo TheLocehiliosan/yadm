@@ -204,7 +204,6 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
-      #value=$(echo "$value" | "${AWK_PROGRAM[0]}" '{print tolower($0)}') # FIXME Remove
       value=$("${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$value")
       if [ "${value/\ /_}" = "${local_distro/\ /_}" ]; then
         score=$((score + 4))
@@ -213,7 +212,6 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(f|distro_family)$ ]]; then
-      #value=$(echo "$value" | "${AWK_PROGRAM[0]}" '{print tolower($0)}') # FIXME Remove
       value=$("${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$value")
       if [ "${value/\ /_}" = "${local_distro_family/\ /_}" ]; then
         score=$((score + 8))
@@ -1526,7 +1524,6 @@ function query_distro() {
       fi
     done < "$OS_RELEASE"
   fi
-  #echo "$distro" | "${AWK_PROGRAM[0]}" '{print tolower($0)}' ## FIXME Remove
   "${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$distro"
 }
 
@@ -1544,7 +1541,6 @@ function query_distro_family() {
       fi
     done < "$OS_RELEASE"
   fi
-  #echo "$distro" | "${AWK_PROGRAM[0]}" '{print tolower($0)}' ##  FIXME Remove
   "${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$distro"
 }
 
