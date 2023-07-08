@@ -214,7 +214,7 @@ def test_symmetric_encrypt(
     if missing_encrypt:
         assert 'does not exist' in run.err
     elif bad_phrase:
-        assert 'Invalid passphrase' in run.err
+        assert 'Invalid IPC' in run.err
     else:
         assert encrypted_data_valid(
             runner, gnupg, paths.archive, encrypt_targets)

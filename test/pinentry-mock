@@ -1,12 +1,20 @@
 #!/bin/bash
 # This program is a custom mock pinentry program
-# It always uses whatever password is found in the /tmp directory
-password="$(cat /tmp/mock-password 2>/dev/null)"
+# It uses whatever password is found in the /tmp directory
+# If the password is empty, replies CANCEL causing an error to similate invalid
+# credentials
 echo "OK Pleased to meet you"
 while read -r line; do
   if [[ $line =~ GETPIN ]]; then
-    echo -n "D "
-    echo "$password"
+    password="$(cat /tmp/mock-password 2>/dev/null)"
+    if [ -n "$password" ]; then
+      echo -n "D "
+      echo "$password"
+      echo "OK";
+    else
+      echo "CANCEL";
+    fi
+  else
+    echo "OK";
   fi
-  echo "OK";
 done
