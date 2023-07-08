@@ -1,9 +1,9 @@
-FROM ubuntu:18.04
+FROM ubuntu:23.04
 MAINTAINER Tim Byrne <sultan@locehilios.com>
 
 # Shellcheck and esh versions
-ARG SC_VER=0.8.0
-ARG ESH_VER=0.3.1
+ARG SC_VER=0.9.0
+ARG ESH_VER=0.3.2
 
 # Install prerequisites and configure UTF-8 locale
 RUN \
@@ -41,8 +41,8 @@ RUN cd /opt \
 
 # Upgrade pip3 and install requirements
 COPY test/requirements.txt /tmp/requirements.txt
-RUN python3 -m pip install --upgrade pip setuptools \
-  && python3 -m pip install --upgrade -r /tmp/requirements.txt \
+RUN python3 -m pip install --break-system-packages --upgrade pip setuptools \
+  && python3 -m pip install --break-system-packages --upgrade -r /tmp/requirements.txt \
   && rm -f /tmp/requirements
 
 # Install esh

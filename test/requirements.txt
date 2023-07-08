@@ -1,6 +1,8 @@
+black==23.1.0
 envtpl
-flake8==3.8.4
+flake8==6.0.0
+isort==5.12.0
 j2cli
-pylint==2.6.0
-pytest==6.2.1
-yamllint==1.25.0
+pylint==2.17.0
+pytest==7.2.2
+yamllint==1.30.0
