@@ -1,7 +1,7 @@
 """Test encryption"""
 
 import os
-import pipes
+import shlex
 import time
 import pytest
 
@@ -19,12 +19,12 @@ def add_asymmetric_key(runner, gnupg):
     env = os.environ.copy()
     env['GNUPGHOME'] = gnupg.home
     runner(
-        ['gpg', '--import', pipes.quote(KEY_FILE)],
+        ['gpg', '--import', shlex.quote(KEY_FILE)],
         env=env,
         shell=True,
     )
     runner(
-        ['gpg', '--import-ownertrust', '<', pipes.quote(KEY_TRUST)],
+        ['gpg', '--import-ownertrust', '<', shlex.quote(KEY_TRUST)],
         env=env,
         shell=True,
     )
@@ -37,7 +37,7 @@ def remove_asymmetric_key(runner, gnupg):
     runner(
         [
             'gpg', '--batch', '--yes',
-            '--delete-secret-keys', pipes.quote(KEY_FINGERPRINT)
+            '--delete-secret-keys', shlex.quote(KEY_FINGERPRINT)
         ],
         env=env,
         shell=True,
@@ -45,7 +45,7 @@ def remove_asymmetric_key(runner, gnupg):
     runner(
         [
             'gpg', '--batch', '--yes',
-            '--delete-key', pipes.quote(KEY_FINGERPRINT)
+            '--delete-key', shlex.quote(KEY_FINGERPRINT)
         ],
         env=env,
         shell=True,
@@ -149,7 +149,7 @@ def decrypt_targets(tmpdir_factory, runner, gnupg):
         ['tar', 'cvf', '-'] +
         expected +
         ['|', 'gpg', '--batch', '--yes', '-c'] +
-        ['--output', pipes.quote(str(symmetric))],
+        ['--output', shlex.quote(str(symmetric))],
         cwd=tmpdir,
         env=env,
         shell=True)
@@ -161,8 +161,8 @@ def decrypt_targets(tmpdir_factory, runner, gnupg):
         ['tar', 'cvf', '-'] +
         expected +
         ['|', 'gpg', '--batch', '--yes', '-e'] +
-        ['-r', pipes.quote(KEY_NAME)] +
-        ['--output', pipes.quote(str(asymmetric))],
+        ['-r', shlex.quote(KEY_NAME)] +
+        ['--output', shlex.quote(str(asymmetric))],
         cwd=tmpdir,
         env=env,
         shell=True)
@@ -465,7 +465,7 @@ def encrypted_data_valid(runner, gnupg, encrypted, expected):
     env['GNUPGHOME'] = gnupg.home
     run = runner([
         'gpg',
-        '-d', pipes.quote(str(encrypted)),
+        '-d', shlex.quote(str(encrypted)),
         '2>/dev/null',
         '|', 'tar', 't'], env=env, shell=True, report=False)
     file_count = 0
