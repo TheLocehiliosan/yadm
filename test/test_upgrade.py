@@ -22,6 +22,10 @@ def test_upgrade(tmpdir, runner, versions, submodule):
     # pylint: disable=too-many-statements
     home = tmpdir.mkdir('HOME')
     env = {'HOME': str(home)}
+    runner(['git', 'config', '--global', 'init.defaultBranch', 'master'],
+           env=env)
+    runner(['git', 'config', '--global', 'protocol.file.allow', 'always'],
+           env=env)
 
     if submodule:
         ext_repo = tmpdir.mkdir('ext_repo')

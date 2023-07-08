@@ -56,6 +56,8 @@ def test_init(
         args.append('-f')
 
     # run init
+    runner(['git', 'config', '--global', 'init.defaultBranch', 'master'],
+           env={'HOME': home}, cwd=cwd)
     run = runner(yadm_cmd(*args), env={'HOME': home}, cwd=cwd)
 
     if repo_present and not force:

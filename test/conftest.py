@@ -268,6 +268,9 @@ def runner():
 def config_git():
     """Configure global git configuration, if missing"""
     os.system(
+        'git config init.defaultBranch || '
+        'git config --global init.defaultBranch master')
+    os.system(
         'git config user.name || '
         'git config --global user.name "test"')
     os.system(
