@@ -37,7 +37,7 @@ def pylint_version():
 @pytest.fixture(scope='session')
 def flake8_version():
     """Version of flake8 supported"""
-    return '3.8.4'
+    return '6.0.0'
 
 
 @pytest.fixture(scope='session')

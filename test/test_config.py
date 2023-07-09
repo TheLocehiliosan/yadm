@@ -140,7 +140,7 @@ def test_config_local_write(runner, yadm_cmd, paths, supported_local_configs):
 
 
 def test_config_without_parent_directory(runner, yadm_cmd, paths):
-    """Write and read attribute to/from config file with non-existent parent dir
+    """Write/read attribute to/from config file with non-existent parent dir
 
     Update configuration file
     Display value
