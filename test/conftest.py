@@ -25,7 +25,7 @@ def pytest_addoption(parser):
 @pytest.fixture(scope='session')
 def shellcheck_version():
     """Version of shellcheck supported"""
-    return '0.8.0'
+    return '0.9.0'
 
 
 @pytest.fixture(scope='session')

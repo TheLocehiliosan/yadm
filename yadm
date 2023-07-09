@@ -289,18 +289,18 @@ function record_score() {
         # increase the index of any existing alt_template_cmds
         new_cmds=()
         for cmd_index in "${!alt_template_cmds[@]}"; do
-            new_cmds[$((cmd_index+1))]="${alt_template_cmds[$cmd_index]}"
+            new_cmds[cmd_index+1]="${alt_template_cmds[$cmd_index]}"
         done
         alt_template_cmds=()
         for cmd_index in "${!new_cmds[@]}"; do
-            alt_template_cmds[$cmd_index]="${new_cmds[$cmd_index]}"
+            alt_template_cmds[cmd_index]="${new_cmds[$cmd_index]}"
         done
     else
         alt_targets+=("$tgt")
         # set index to the last index (newly created one)
         for index in "${!alt_targets[@]}"; do :; done
         # and set its initial score to zero
-        alt_scores[$index]=0
+        alt_scores[index]=0
      fi
   fi
 
@@ -309,8 +309,8 @@ function record_score() {
 
   # record higher scoring sources
   if [ "$score" -gt "${alt_scores[$index]}" ]; then
-    alt_scores[$index]="$score"
-    alt_sources[$index]="$src"
+    alt_scores[index]="$score"
+    alt_sources[index]="$src"
   fi
 
 }
@@ -336,8 +336,8 @@ function record_template() {
   fi
 
   # record the template command, last one wins
-  alt_template_cmds[$index]="$cmd"
-  alt_sources[$index]="$src"
+  alt_template_cmds[index]="$cmd"
+  alt_sources[index]="$src"
 
 }
 
