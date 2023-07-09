@@ -213,14 +213,14 @@ def test_score_values(
         local_user={local_user}
     """
     expected = ''
-    for filename in filenames:
+    for filename, score in filenames.items():
         script += f"""
             score_file "{filename}"
             echo "{filename}"
             echo "$score"
         """
         expected += filename + '\n'
-        expected += str(filenames[filename]) + '\n'
+        expected += str(score) + '\n'
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
@@ -278,14 +278,14 @@ def test_score_values_templates(runner, yadm):
         local_user={local_user}
     """
     expected = ''
-    for filename in filenames:
+    for filename, score in filenames.items():
         script += f"""
             score_file "{filename}"
             echo "{filename}"
             echo "$score"
         """
         expected += filename + '\n'
-        expected += str(filenames[filename]) + '\n'
+        expected += str(score) + '\n'
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''
@@ -337,14 +337,14 @@ def test_underscores_in_distro_and_family(runner, yadm):
         local_distro_family="{local_distro_family}"
     """
     expected = ''
-    for filename in filenames:
+    for filename, score in filenames.items():
         script += f"""
             score_file "{filename}"
             echo "{filename}"
             echo "$score"
         """
         expected += filename + '\n'
-        expected += str(filenames[filename]) + '\n'
+        expected += str(score) + '\n'
     run = runner(command=['bash'], inp=script)
     assert run.success
     assert run.err == ''

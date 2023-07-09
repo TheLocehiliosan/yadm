@@ -10,9 +10,8 @@ def expected_version(yadm):
     Expected semantic version number. This is taken directly out of yadm,
     searching for the VERSION= string.
     """
-    yadm_version = re.findall(
-        r'VERSION=([^\n]+)',
-        open(yadm).read())
+    with open(yadm, encoding='utf-8') as source_file:
+        yadm_version = re.findall(r'VERSION=([^\n]+)', source_file.read())
     if yadm_version:
         return yadm_version[0]
     pytest.fail(f'version not found in {yadm}')

@@ -3,10 +3,10 @@
 import collections
 import contextlib
 import copy
-import distutils.dir_util  # pylint: disable=no-name-in-module,import-error
 import os
 import platform
 import pwd
+import shutil
 from subprocess import Popen, PIPE
 import py
 import pytest
@@ -31,7 +31,7 @@ def shellcheck_version():
 @pytest.fixture(scope='session')
 def pylint_version():
     """Version of pylint supported"""
-    return '2.6.0'
+    return '2.17.0'
 
 
 @pytest.fixture(scope='session')
@@ -204,7 +204,7 @@ class Runner():
         merged_env.update(env)
         self.inp = inp
         self.wrap(expect)
-        process = Popen(
+        with Popen(
             self.command,
             stdin=PIPE,
             stdout=PIPE,
@@ -212,14 +212,14 @@ class Runner():
             shell=shell,
             cwd=cwd,
             env=merged_env,
-        )
-        input_bytes = self.inp
-        if self.inp:
-            input_bytes = self.inp.encode()
-        (out_bstream, err_bstream) = process.communicate(input=input_bytes)
-        self.out = out_bstream.decode()
-        self.err = err_bstream.decode()
-        self.code = process.wait()
+        ) as process:
+            input_bytes = self.inp
+            if self.inp:
+                input_bytes = self.inp.encode()
+            (out_bstream, err_bstream) = process.communicate(input=input_bytes)
+            self.out = out_bstream.decode()
+            self.err = err_bstream.decode()
+            self.code = process.wait()
         self.success = self.code == 0
         self.failure = self.code != 0
         if report:
@@ -365,6 +365,10 @@ def yadm_cmd(paths):
     return command_list
 
 
+class NoRelativePath(Exception):
+    """Exception when finding relative paths"""
+
+
 class DataFile():
     """Datafile object"""
 
@@ -384,7 +388,7 @@ class DataFile():
         """Relative path property"""
         if self.__parent:
             return self.__parent.join(self.path)
-        raise BaseException('Unable to provide relative path, no parent')
+        raise NoRelativePath('Unable to provide relative path, no parent')
 
     @property
     def tracked(self):
@@ -405,10 +409,10 @@ class DataSet():
     """Dataset object"""
 
     def __init__(self):
-        self.__files = list()
-        self.__dirs = list()
-        self.__tracked_dirs = list()
-        self.__private_dirs = list()
+        self.__files = []
+        self.__dirs = []
+        self.__tracked_dirs = []
+        self.__private_dirs = []
         self.__relpath = None
 
     def __repr__(self):
@@ -562,15 +566,13 @@ def ds1_data(tmpdir_factory, config_git, ds1_dset, runner):
 @pytest.fixture()
 def ds1_work_copy(ds1_data, paths):
     """Function scoped copy of ds1_data.work"""
-    distutils.dir_util.copy_tree(  # pylint: disable=no-member
-        str(ds1_data.work), str(paths.work))
+    shutil.copytree(str(ds1_data.work), str(paths.work), dirs_exist_ok=True)
 
 
 @pytest.fixture()
 def ds1_repo_copy(runner, ds1_data, paths):
     """Function scoped copy of ds1_data.repo"""
-    distutils.dir_util.copy_tree(  # pylint: disable=no-member
-        str(ds1_data.repo), str(paths.repo))
+    shutil.copytree(str(ds1_data.repo), str(paths.repo), dirs_exist_ok=True)
     env = os.environ.copy()
     env['GIT_DIR'] = str(paths.repo)
     runner(

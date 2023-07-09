@@ -39,7 +39,7 @@ def test_upgrade(tmpdir, runner, versions, submodule):
     os.environ.pop('XDG_DATA_HOME', None)
 
     def run_version(version, *args, check_stderr=True):
-        yadm = 'yadm-%s' % version if version else '/yadm/yadm'
+        yadm = f'yadm-{version}' if version else '/yadm/yadm'
         run = runner([yadm, *args], shell=True, cwd=str(home), env=env)
         assert run.success
         if check_stderr:

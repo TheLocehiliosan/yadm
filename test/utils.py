@@ -81,7 +81,7 @@ def parse_alt_output(output, linked=True):
     regex = r'Creating (.+) from template (.+)$'
     if linked:
         regex = r'Linking (.+) to (.+)$'
-    parsed_list = dict()
+    parsed_list = {}
     for line in output.splitlines():
         match = re.match(regex, line)
         if match:

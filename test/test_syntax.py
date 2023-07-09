@@ -26,7 +26,7 @@ def test_pylint(pytestconfig, runner, pylint_version):
         run = runner(command=['pylint', '--version'], report=False)
         if f'pylint {pylint_version}' not in run.out:
             pytest.skip('Unsupported pylint version')
-    pyfiles = list()
+    pyfiles = []
     for tfile in os.listdir('test'):
         if tfile.endswith('.py'):
             pyfiles.append(f'test/{tfile}')
