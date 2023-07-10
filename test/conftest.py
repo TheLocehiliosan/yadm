@@ -48,6 +48,12 @@ def flake8_version():
 
 
 @pytest.fixture(scope='session')
+def black_version():
+    """Version of black supported"""
+    return '23.1.0'
+
+
+@pytest.fixture(scope='session')
 def yamllint_version():
     """Version of yamllint supported"""
     return '1.30.0'

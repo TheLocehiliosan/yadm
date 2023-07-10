@@ -55,6 +55,16 @@ def test_flake8(pytestconfig, runner, flake8_version):
     assert run.success
 
 
+def test_black(pytestconfig, runner, black_version):
+    """Passes black"""
+    if not pytestconfig.getoption("--force-linters"):
+        run = runner(command=['black', '--version'], report=False)
+        if black_version not in run.out:
+            pytest.skip('Unsupported black version')
+    run = runner(command=['black', '--check', 'test'])
+    assert run.success
+
+
 def test_yamllint(pytestconfig, runner, yamllint_version):
     """Passes yamllint"""
     if not pytestconfig.getoption("--force-linters"):
