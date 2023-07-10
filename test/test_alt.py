@@ -1,6 +1,7 @@
 """Test alt"""
 import os
 import string
+
 import py
 import pytest
 import utils

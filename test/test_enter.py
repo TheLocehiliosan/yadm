@@ -1,6 +1,7 @@
 """Test enter"""
 
 import os
+
 import pytest
 
 

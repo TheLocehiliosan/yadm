@@ -1,5 +1,6 @@
 """Unit tests: remove_stale_links"""
 import os
+
 import pytest
 
 

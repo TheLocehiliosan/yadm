@@ -1,6 +1,7 @@
 """Test yadm.alt-copy"""
 
 import os
+
 import pytest
 
 

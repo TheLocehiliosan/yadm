@@ -3,8 +3,8 @@
 This module holds values/functions common to multiple tests.
 """
 
-import re
 import os
+import re
 
 ALT_FILE1 = 'test_alt'
 ALT_FILE2 = 'test alt/test alt'

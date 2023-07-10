@@ -7,7 +7,8 @@ import os
 import platform
 import pwd
 import shutil
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
+
 import py
 import pytest
 
@@ -32,6 +33,12 @@ def shellcheck_version():
 def pylint_version():
     """Version of pylint supported"""
     return '2.17.0'
+
+
+@pytest.fixture(scope='session')
+def isort_version():
+    """Version of isort supported"""
+    return '5.12.0'
 
 
 @pytest.fixture(scope='session')

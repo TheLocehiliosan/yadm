@@ -1,5 +1,6 @@
 """Unit tests: template_j2cli & template_envtpl"""
 import os
+
 import pytest
 
 FILE_MODE = 0o754

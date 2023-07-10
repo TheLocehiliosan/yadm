@@ -1,6 +1,7 @@
 """Test upgrade"""
 
 import os
+
 import pytest
 
 

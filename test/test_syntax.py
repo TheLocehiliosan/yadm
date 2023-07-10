@@ -1,6 +1,7 @@
 """Syntax checks"""
 
 import os
+
 import pytest
 
 
@@ -31,6 +32,16 @@ def test_pylint(pytestconfig, runner, pylint_version):
         if tfile.endswith('.py'):
             pyfiles.append(f'test/{tfile}')
     run = runner(command=['pylint'] + pyfiles)
+    assert run.success
+
+
+def test_isort(pytestconfig, runner, isort_version):
+    """Passes isort"""
+    if not pytestconfig.getoption("--force-linters"):
+        run = runner(command=['isort', '--version'], report=False)
+        if isort_version not in run.out:
+            pytest.skip('Unsupported isort version')
+    run = runner(command=['isort', '-c', 'test'])
     assert run.success
 
 

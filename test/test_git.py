@@ -1,6 +1,7 @@
 """Test git"""
 
 import re
+
 import pytest
 
 

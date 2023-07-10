@@ -1,6 +1,7 @@
 """Test config"""
 
 import os
+
 import pytest
 
 TEST_SECTION = 'test'

@@ -1,5 +1,6 @@
 """Unit tests: copy_perms"""
 import os
+
 import pytest
 
 OCTAL = '7654'
