@@ -4,38 +4,38 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    'name', [
-        '',
-        'invalid',
-        'commands',
-        'configs',
-        'repo',
-        'switches',
-    ])
-def test_introspect_category(
-        runner, yadm_cmd, paths, name,
-        supported_commands, supported_configs, supported_switches):
+    "name",
+    [
+        "",
+        "invalid",
+        "commands",
+        "configs",
+        "repo",
+        "switches",
+    ],
+)
+def test_introspect_category(runner, yadm_cmd, paths, name, supported_commands, supported_configs, supported_switches):
     """Validate introspection category"""
     if name:
-        run = runner(command=yadm_cmd('introspect', name))
+        run = runner(command=yadm_cmd("introspect", name))
     else:
-        run = runner(command=yadm_cmd('introspect'))
+        run = runner(command=yadm_cmd("introspect"))
 
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
 
     expected = []
-    if name == 'commands':
+    if name == "commands":
         expected = supported_commands
-    elif name == 'configs':
+    elif name == "configs":
         expected = supported_configs
-    elif name == 'switches':
+    elif name == "switches":
         expected = supported_switches
 
     # assert values
-    if name in ('', 'invalid'):
-        assert run.out == ''
-    if name == 'repo':
+    if name in ("", "invalid"):
+        assert run.out == ""
+    if name == "repo":
         assert run.out.rstrip() == paths.repo
 
     # make sure every expected value is present

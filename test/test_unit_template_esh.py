@@ -11,7 +11,7 @@ LOCAL_HOST = "esh_Test+@-!^Host"
 LOCAL_USER = "esh_Test+@-!^User"
 LOCAL_DISTRO = "esh_Test+@-!^Distro"
 LOCAL_DISTRO_FAMILY = "esh_Test+@-!^Family"
-TEMPLATE = f'''
+TEMPLATE = f"""
 start of template
 esh class         = ><%=$YADM_CLASS%><
 esh arch          = ><%=$YADM_ARCH%><
@@ -90,8 +90,8 @@ Included esh section for distro_family = \
 wrong family 2
 <% fi -%>
 end of template
-'''
-EXPECTED = f'''
+"""
+EXPECTED = f"""
 start of template
 esh class         = >{LOCAL_CLASS}<
 esh arch          = >{LOCAL_ARCH}<
@@ -111,21 +111,22 @@ Included esh section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
 Included esh section for distro_family = \
 {LOCAL_DISTRO_FAMILY} ({LOCAL_DISTRO_FAMILY} again)
 end of template
-'''
+"""
 
 
 def test_template_esh(runner, yadm, tmpdir):
     """Test processing by esh"""
+    # pylint: disable=duplicate-code
 
-    input_file = tmpdir.join('input')
+    input_file = tmpdir.join("input")
     input_file.write(TEMPLATE, ensure=True)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     # ensure overwrite works when file exists as read-only (there is some
     # special processing when this is encountered because some environments do
     # not properly overwrite read-only files)
-    output_file.write('existing')
+    output_file.write("existing")
     output_file.chmod(0o400)
 
     script = f"""
@@ -140,9 +141,9 @@ def test_template_esh(runner, yadm, tmpdir):
         local_distro_family="{LOCAL_DISTRO_FAMILY}"
         template_esh "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert output_file.read().strip() == str(EXPECTED).strip()
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
@@ -150,17 +151,17 @@ def test_template_esh(runner, yadm, tmpdir):
 def test_source(runner, yadm, tmpdir):
     """Test YADM_SOURCE"""
 
-    input_file = tmpdir.join('input')
-    input_file.write('<%= $YADM_SOURCE %>', ensure=True)
+    input_file = tmpdir.join("input")
+    input_file.write("<%= $YADM_SOURCE %>", ensure=True)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     script = f"""
         YADM_TEST=1 source {yadm}
         template_esh "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert output_file.read().strip() == str(input_file)
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode

@@ -5,7 +5,7 @@ import re
 import pytest
 
 
-@pytest.mark.usefixtures('ds1_copy')
+@pytest.mark.usefixtures("ds1_copy")
 def test_git(runner, yadm_cmd, paths):
     """Test series of passthrough git commands
 
@@ -18,42 +18,42 @@ def test_git(runner, yadm_cmd, paths):
     """
 
     # passthru unknown commands to Git
-    run = runner(command=yadm_cmd('bogus'))
+    run = runner(command=yadm_cmd("bogus"))
     assert run.failure
     assert "git: 'bogus' is not a git command." in run.err
     assert "See 'git --help'" in run.err
-    assert run.out == ''
+    assert run.out == ""
 
     # git command 'add' - badfile
-    run = runner(command=yadm_cmd('add', '-v', 'does_not_exist'))
+    run = runner(command=yadm_cmd("add", "-v", "does_not_exist"))
     assert run.code == 128
     assert "pathspec 'does_not_exist' did not match any files" in run.err
-    assert run.out == ''
+    assert run.out == ""
 
     # git command 'add'
-    newfile = paths.work.join('test_git')
-    newfile.write('test_git')
-    run = runner(command=yadm_cmd('add', '-v', str(newfile)))
+    newfile = paths.work.join("test_git")
+    newfile.write("test_git")
+    run = runner(command=yadm_cmd("add", "-v", str(newfile)))
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert "add 'test_git'" in run.out
 
     # git command 'status'
-    run = runner(command=yadm_cmd('status'))
+    run = runner(command=yadm_cmd("status"))
     assert run.success
-    assert run.err == ''
-    assert re.search(r'new file:\s+test_git', run.out)
+    assert run.err == ""
+    assert re.search(r"new file:\s+test_git", run.out)
 
     # git command 'commit'
-    run = runner(command=yadm_cmd('commit', '-m', 'Add test_git'))
+    run = runner(command=yadm_cmd("commit", "-m", "Add test_git"))
     assert run.success
-    assert run.err == ''
-    assert '1 file changed' in run.out
-    assert '1 insertion' in run.out
-    assert re.search(r'create mode .+ test_git', run.out)
+    assert run.err == ""
+    assert "1 file changed" in run.out
+    assert "1 insertion" in run.out
+    assert re.search(r"create mode .+ test_git", run.out)
 
     # git command 'log'
-    run = runner(command=yadm_cmd('log', '--oneline'))
+    run = runner(command=yadm_cmd("log", "--oneline"))
     assert run.success
-    assert run.err == ''
-    assert 'Add test_git' in run.out
+    assert run.err == ""
+    assert "Add test_git" in run.out

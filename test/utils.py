@@ -6,35 +6,39 @@ This module holds values/functions common to multiple tests.
 import os
 import re
 
-ALT_FILE1 = 'test_alt'
-ALT_FILE2 = 'test alt/test alt'
-ALT_DIR = 'test alt/test alt dir'
+ALT_FILE1 = "test_alt"
+ALT_FILE2 = "test alt/test alt"
+ALT_DIR = "test alt/test alt dir"
 
 # Directory based alternates must have a tracked contained file.
 # This will be the test contained file name
-CONTAINED = 'contained_file'
+CONTAINED = "contained_file"
 
 # These variables are used for making include files which will be processed
 # within jinja templates
-INCLUDE_FILE = 'inc_file'
-INCLUDE_DIRS = ['', 'test alt']
-INCLUDE_CONTENT = '8780846c02e34c930d0afd127906668f'
+INCLUDE_FILE = "inc_file"
+INCLUDE_DIRS = ["", "test alt"]
+INCLUDE_CONTENT = "8780846c02e34c930d0afd127906668f"
 
 
 def set_local(paths, variable, value, add=False):
     """Set local override"""
     add = "--add" if add else ""
-    os.system(
-        f'GIT_DIR={str(paths.repo)} '
-        f'git config --local {add} "local.{variable}" "{value}"'
-    )
+    os.system(f"GIT_DIR={str(paths.repo)} " f'git config --local {add} "local.{variable}" "{value}"')
 
 
-def create_alt_files(paths, suffix,
-                     preserve=False, tracked=True,
-                     encrypt=False, exclude=False,
-                     content=None, includefile=False,
-                     yadm_alt=False, yadm_dir=None):
+def create_alt_files(
+    paths,
+    suffix,
+    preserve=False,
+    tracked=True,
+    encrypt=False,
+    exclude=False,
+    content=None,
+    includefile=False,
+    yadm_alt=False,
+    yadm_dir=None,
+):
     """Create new files, and add to the repo
 
     This is used for testing alternate files. In each case, a suffix is
@@ -42,7 +46,7 @@ def create_alt_files(paths, suffix,
     repo handling are dependent upon the function arguments.
     """
 
-    basepath = yadm_dir.join('alt') if yadm_alt else paths.work
+    basepath = yadm_dir.join("alt") if yadm_alt else paths.work
 
     if not preserve:
         for remove_path in (ALT_FILE1, ALT_FILE2, ALT_DIR):
@@ -60,27 +64,27 @@ def create_alt_files(paths, suffix,
     # Do not test directory support for jinja alternates
     test_paths = [new_file1, new_file2]
     test_names = [ALT_FILE1, ALT_FILE2]
-    if not re.match(r'##(t$|t\.|template|yadm)', suffix):
+    if not re.match(r"##(t$|t\.|template|yadm)", suffix):
         test_paths += [new_dir]
         test_names += [ALT_DIR]
 
     for test_path in test_paths:
         if content:
-            test_path.write('\n' + content, mode='a', ensure=True)
+            test_path.write("\n" + content, mode="a", ensure=True)
         assert test_path.exists()
 
     _create_includefiles(includefile, test_paths, basepath)
     _create_tracked(tracked, test_paths, paths)
 
-    prefix = '.config/yadm/alt/' if yadm_alt else ''
+    prefix = ".config/yadm/alt/" if yadm_alt else ""
     _create_encrypt(encrypt, test_names, suffix, paths, exclude, prefix)
 
 
 def parse_alt_output(output, linked=True):
     """Parse output of 'alt', and return list of linked files"""
-    regex = r'Creating (.+) from template (.+)$'
+    regex = r"Creating (.+) from template (.+)$"
     if linked:
-        regex = r'Linking (.+) to (.+)$'
+        regex = r"Linking (.+) to (.+)$"
     parsed_list = {}
     for line in output.splitlines():
         match = re.match(regex, line)
@@ -95,7 +99,7 @@ def parse_alt_output(output, linked=True):
 def _create_includefiles(includefile, test_paths, basepath):
     if includefile:
         for dpath in INCLUDE_DIRS:
-            incfile = basepath.join(dpath + '/' + INCLUDE_FILE)
+            incfile = basepath.join(dpath + "/" + INCLUDE_FILE)
             incfile.write(INCLUDE_CONTENT, ensure=True)
             test_paths += [incfile]
 
@@ -110,8 +114,6 @@ def _create_tracked(tracked, test_paths, paths):
 def _create_encrypt(encrypt, test_names, suffix, paths, exclude, prefix):
     if encrypt:
         for encrypt_name in test_names:
-            paths.encrypt.write(
-                f'{prefix + encrypt_name + suffix}\n', mode='a')
+            paths.encrypt.write(f"{prefix + encrypt_name + suffix}\n", mode="a")
             if exclude:
-                paths.encrypt.write(
-                    f'!{prefix + encrypt_name + suffix}\n', mode='a')
+                paths.encrypt.write(f"!{prefix + encrypt_name + suffix}\n", mode="a")

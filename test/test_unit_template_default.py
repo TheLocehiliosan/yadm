@@ -12,7 +12,7 @@ LOCAL_HOST = "default_Test+@-!^Host"
 LOCAL_USER = "default_Test+@-!^User"
 LOCAL_DISTRO = "default_Test+@-!^Distro"
 LOCAL_DISTRO_FAMILY = "default_Test+@-!^Family"
-TEMPLATE = f'''
+TEMPLATE = f"""
 start of template
 default class         = >{{{{yadm.class}}}}<
 default arch          = >{{{{yadm.arch}}}}<
@@ -98,8 +98,8 @@ Included section for distro_family = \
 wrong family 2
 {{% endif %}}
 end of template
-'''
-EXPECTED = f'''
+"""
+EXPECTED = f"""
 start of template
 default class         = >{LOCAL_CLASS}<
 default arch          = >{LOCAL_ARCH}<
@@ -122,17 +122,17 @@ Included section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
 Included section for distro_family = \
 {LOCAL_DISTRO_FAMILY} ({LOCAL_DISTRO_FAMILY} again)
 end of template
-'''
+"""
 
-INCLUDE_BASIC = 'basic\n'
-INCLUDE_VARIABLES = '''\
+INCLUDE_BASIC = "basic\n"
+INCLUDE_VARIABLES = """\
 included <{{ yadm.class }}> file
 
 empty line above
-'''
-INCLUDE_NESTED = 'no newline at the end'
+"""
+INCLUDE_NESTED = "no newline at the end"
 
-TEMPLATE_INCLUDE = '''\
+TEMPLATE_INCLUDE = """\
 The first line
 {% include empty %}
 An empty file removes the line above
@@ -141,8 +141,8 @@ An empty file removes the line above
 {% include dir/nested %}
 Include basic again:
 {% include basic %}
-'''
-EXPECTED_INCLUDE = f'''\
+"""
+EXPECTED_INCLUDE = f"""\
 The first line
 An empty file removes the line above
 basic
@@ -152,21 +152,21 @@ empty line above
 no newline at the end
 Include basic again:
 basic
-'''
+"""
 
 
 def test_template_default(runner, yadm, tmpdir):
     """Test template_default"""
 
-    input_file = tmpdir.join('input')
+    input_file = tmpdir.join("input")
     input_file.write(TEMPLATE, ensure=True)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     # ensure overwrite works when file exists as read-only (there is some
     # special processing when this is encountered because some environments do
     # not properly overwrite read-only files)
-    output_file.write('existing')
+    output_file.write("existing")
     output_file.chmod(0o400)
 
     script = f"""
@@ -182,9 +182,9 @@ def test_template_default(runner, yadm, tmpdir):
         local_distro_family="{LOCAL_DISTRO_FAMILY}"
         template_default "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert output_file.read() == EXPECTED
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
@@ -192,19 +192,19 @@ def test_template_default(runner, yadm, tmpdir):
 def test_source(runner, yadm, tmpdir):
     """Test yadm.source"""
 
-    input_file = tmpdir.join('input')
-    input_file.write('{{yadm.source}}', ensure=True)
+    input_file = tmpdir.join("input")
+    input_file.write("{{yadm.source}}", ensure=True)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     script = f"""
         YADM_TEST=1 source {yadm}
         set_awk
         template_default "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert output_file.read().strip() == str(input_file)
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
@@ -212,22 +212,22 @@ def test_source(runner, yadm, tmpdir):
 def test_include(runner, yadm, tmpdir):
     """Test include"""
 
-    empty_file = tmpdir.join('empty')
-    empty_file.write('', ensure=True)
+    empty_file = tmpdir.join("empty")
+    empty_file.write("", ensure=True)
 
-    basic_file = tmpdir.join('basic')
+    basic_file = tmpdir.join("basic")
     basic_file.write(INCLUDE_BASIC)
 
-    variables_file = tmpdir.join(f'variables.{LOCAL_SYSTEM}')
+    variables_file = tmpdir.join(f"variables.{LOCAL_SYSTEM}")
     variables_file.write(INCLUDE_VARIABLES)
 
-    nested_file = tmpdir.join('dir').join('nested')
+    nested_file = tmpdir.join("dir").join("nested")
     nested_file.write(INCLUDE_NESTED, ensure=True)
 
-    input_file = tmpdir.join('input')
+    input_file = tmpdir.join("input")
     input_file.write(TEMPLATE_INCLUDE)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     script = f"""
         YADM_TEST=1 source {yadm}
@@ -236,9 +236,9 @@ def test_include(runner, yadm, tmpdir):
         local_system="{LOCAL_SYSTEM}"
         template_default "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert output_file.read() == EXPECTED_INCLUDE
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
@@ -246,17 +246,17 @@ def test_include(runner, yadm, tmpdir):
 def test_env(runner, yadm, tmpdir):
     """Test env"""
 
-    input_file = tmpdir.join('input')
-    input_file.write('{{env.PWD}}', ensure=True)
+    input_file = tmpdir.join("input")
+    input_file.write("{{env.PWD}}", ensure=True)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     script = f"""
         YADM_TEST=1 source {yadm}
         set_awk
         template_default "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
-    assert output_file.read().strip() == os.environ['PWD']
+    assert run.err == ""
+    assert output_file.read().strip() == os.environ["PWD"]

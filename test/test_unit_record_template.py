@@ -25,13 +25,13 @@ def test_new_template(runner, yadm):
         record_template "tgt_three" "cmd_three" "src_three"
         {REPORT_RESULTS}
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
-    assert 'SIZE:3\n' in run.out
-    assert 'TARGETS:tgt_one tgt_two tgt_three\n' in run.out
-    assert 'CMDS:cmd_one cmd_two cmd_three\n' in run.out
-    assert 'SOURCES:src_one src_two src_three\n' in run.out
+    assert run.err == ""
+    assert "SIZE:3\n" in run.out
+    assert "TARGETS:tgt_one tgt_two tgt_three\n" in run.out
+    assert "CMDS:cmd_one cmd_two cmd_three\n" in run.out
+    assert "SOURCES:src_one src_two src_three\n" in run.out
 
 
 def test_existing_template(runner, yadm):
@@ -46,10 +46,10 @@ def test_existing_template(runner, yadm):
         record_template "testtgt" "new_cmd" "new_src"
         {REPORT_RESULTS}
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
-    assert 'SIZE:1\n' in run.out
-    assert 'TARGETS:testtgt\n' in run.out
-    assert 'CMDS:new_cmd\n' in run.out
-    assert 'SOURCES:new_src\n' in run.out
+    assert run.err == ""
+    assert "SIZE:1\n" in run.out
+    assert "TARGETS:testtgt\n" in run.out
+    assert "CMDS:new_cmd\n" in run.out
+    assert "SOURCES:new_src\n" in run.out

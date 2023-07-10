@@ -4,26 +4,26 @@ import utils
 
 
 @pytest.mark.parametrize(
-    'override', [
+    "override",
+    [
         False,
-        'class',
-        'arch',
-        'os',
-        'hostname',
-        'user',
-        ],
+        "class",
+        "arch",
+        "os",
+        "hostname",
+        "user",
+    ],
     ids=[
-        'no-override',
-        'override-class',
-        'override-arch',
-        'override-os',
-        'override-hostname',
-        'override-user',
-        ]
-    )
-@pytest.mark.usefixtures('ds1_copy')
-def test_set_local_alt_values(
-        runner, yadm, paths, tst_arch, tst_sys, tst_host, tst_user, override):
+        "no-override",
+        "override-class",
+        "override-arch",
+        "override-os",
+        "override-hostname",
+        "override-user",
+    ],
+)
+@pytest.mark.usefixtures("ds1_copy")
+def test_set_local_alt_values(runner, yadm, paths, tst_arch, tst_sys, tst_host, tst_user, override):
     """Use issue_legacy_path_warning"""
     script = f"""
         YADM_TEST=1 source {yadm} &&
@@ -37,37 +37,37 @@ def test_set_local_alt_values(
         echo "user='$local_user'"
     """
 
-    if override == 'class':
-        utils.set_local(paths, override, 'first')
-        utils.set_local(paths, override, 'override', add=True)
+    if override == "class":
+        utils.set_local(paths, override, "first")
+        utils.set_local(paths, override, "override", add=True)
     elif override:
-        utils.set_local(paths, override, 'override')
+        utils.set_local(paths, override, "override")
 
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
 
-    if override == 'class':
+    if override == "class":
         assert "class='override'" in run.out
     else:
         assert "class=''" in run.out
 
-    if override == 'arch':
+    if override == "arch":
         assert "arch='override'" in run.out
     else:
         assert f"arch='{tst_arch}'" in run.out
 
-    if override == 'os':
+    if override == "os":
         assert "os='override'" in run.out
     else:
         assert f"os='{tst_sys}'" in run.out
 
-    if override == 'hostname':
+    if override == "hostname":
         assert "host='override'" in run.out
     else:
         assert f"host='{tst_host}'" in run.out
 
-    if override == 'user':
+    if override == "user":
         assert "user='override'" in run.out
     else:
         assert f"user='{tst_user}'" in run.out
@@ -85,8 +85,8 @@ def test_distro_and_family(runner, yadm):
         echo "distro='$local_distro'"
         echo "distro_family='$local_distro_family'"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert "distro='testdistro'" in run.out
     assert "distro_family='testfamily'" in run.out

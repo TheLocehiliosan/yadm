@@ -13,7 +13,7 @@ LOCAL_HOST = "j2_Test+@-!^Host"
 LOCAL_USER = "j2_Test+@-!^User"
 LOCAL_DISTRO = "j2_Test+@-!^Distro"
 LOCAL_DISTRO_FAMILY = "j2_Test+@-!^Family"
-TEMPLATE = f'''
+TEMPLATE = f"""
 start of template
 j2 class         = >{{{{YADM_CLASS}}}}<
 j2 arch          = >{{{{YADM_ARCH}}}}<
@@ -94,8 +94,8 @@ Included j2 section for distro_family = \
 wrong family 2
 {{%- endif %}}
 end of template
-'''
-EXPECTED = f'''
+"""
+EXPECTED = f"""
 start of template
 j2 class         = >{LOCAL_CLASS}<
 j2 arch          = >{LOCAL_ARCH}<
@@ -116,22 +116,23 @@ Included j2 section for distro = {LOCAL_DISTRO} ({LOCAL_DISTRO} again)
 Included j2 section for distro_family = \
 {LOCAL_DISTRO_FAMILY} ({LOCAL_DISTRO_FAMILY} again)
 end of template
-'''
+"""
 
 
-@pytest.mark.parametrize('processor', ('j2cli', 'envtpl'))
+@pytest.mark.parametrize("processor", ("j2cli", "envtpl"))
 def test_template_j2(runner, yadm, tmpdir, processor):
     """Test processing by j2cli & envtpl"""
+    # pylint: disable=duplicate-code
 
-    input_file = tmpdir.join('input')
+    input_file = tmpdir.join("input")
     input_file.write(TEMPLATE, ensure=True)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     # ensure overwrite works when file exists as read-only (there is some
     # special processing when this is encountered because some environments do
     # not properly overwrite read-only files)
-    output_file.write('existing')
+    output_file.write("existing")
     output_file.chmod(0o400)
 
     script = f"""
@@ -146,28 +147,28 @@ def test_template_j2(runner, yadm, tmpdir, processor):
         local_distro_family="{LOCAL_DISTRO_FAMILY}"
         template_{processor} "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert output_file.read() == EXPECTED
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
 
 
-@pytest.mark.parametrize('processor', ('j2cli', 'envtpl'))
+@pytest.mark.parametrize("processor", ("j2cli", "envtpl"))
 def test_source(runner, yadm, tmpdir, processor):
     """Test YADM_SOURCE"""
 
-    input_file = tmpdir.join('input')
-    input_file.write('{{YADM_SOURCE}}', ensure=True)
+    input_file = tmpdir.join("input")
+    input_file.write("{{YADM_SOURCE}}", ensure=True)
     input_file.chmod(FILE_MODE)
-    output_file = tmpdir.join('output')
+    output_file = tmpdir.join("output")
 
     script = f"""
         YADM_TEST=1 source {yadm}
         template_{processor} "{input_file}" "{output_file}"
     """
-    run = runner(command=['bash'], inp=script)
+    run = runner(command=["bash"], inp=script)
     assert run.success
-    assert run.err == ''
+    assert run.err == ""
     assert output_file.read().strip() == str(input_file)
     assert os.stat(output_file).st_mode == os.stat(input_file).st_mode
