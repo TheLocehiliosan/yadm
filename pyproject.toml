@@ -1,0 +1,31 @@
+[tool.pytest.ini_options]
+cache_dir = "/tmp"
+addopts = "-ra"
+markers = [
+  "deprecated", # marks tests for deprecated features (deselect with '-m "not deprecated"')
+]
+
+[tool.pylint.design]
+max-args = 14
+max-locals = 28
+max-attributes = 8
+max-statements = 65
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint."messages control"]
+disable = [
+  "redefined-outer-name",
+]
+
+[tool.pylint.similarities]
+ignore-imports = "yes"
+min-similarity-lines = 8
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+line_length = 120
+profile = "black"
