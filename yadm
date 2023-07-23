@@ -827,7 +827,7 @@ function clone() {
   rm -rf "$wc"
 
   # then reset the index as the --no-checkout flag makes the index empty
-  "$GIT_PROGRAM" reset --quiet -- .
+  "$GIT_PROGRAM" reset --quiet -- "$YADM_WORK"
 
   if [ "$YADM_WORK" = "$HOME" ]; then
     debug "Determining if repo tracks private directories"
