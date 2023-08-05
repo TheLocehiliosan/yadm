@@ -204,7 +204,6 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
-      value=$("${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$value")
       if [ "${value/\ /_}" = "${local_distro/\ /_}" ]; then
         score=$((score + 4))
       else
@@ -212,7 +211,6 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(f|distro_family)$ ]]; then
-      value=$("${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$value")
       if [ "${value/\ /_}" = "${local_distro_family/\ /_}" ]; then
         score=$((score + 8))
       else
@@ -1524,7 +1522,7 @@ function query_distro() {
       fi
     done < "$OS_RELEASE"
   fi
-  "${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$distro"
+  echo "$distro"
 }
 
 function query_distro_family() {
@@ -1535,13 +1533,10 @@ function query_distro_family() {
         family="${line#ID_LIKE=}"
         family="${family//\"}"
         break
-      elif [[ -z "$family" && "$line" = ID=* ]]; then
-        family="${line#ID=}"
-        family="${family//\"}"
       fi
     done < "$OS_RELEASE"
   fi
-  "${AWK_PROGRAM[0]}" '{print tolower($0)}' <<<"$distro"
+  echo "$family"
 }
 
 function process_global_args() {
