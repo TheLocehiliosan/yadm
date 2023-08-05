@@ -2131,6 +2131,25 @@ function mk_tmp_dir {
   echo "$tempdir"
 }
 
+function to_lower {
+  local str="$1"
+  local length="${#str}"
+
+  for ((i = 0; i < length; i++)); do
+    local char="${str:i:1}"
+    local ascii_val
+    ascii_val=$(printf "%d" "'$char'")
+
+    if ((ascii_val>=65 && ascii_val<=90)); then
+      ascii_val=$((ascii_val + 32))
+      # shellcheck disable=SC2059
+      printf "\\$(printf '%03o' "$ascii_val")"
+    else
+      printf '%s' "$char"
+    fi
+  done
+}
+
 # ****** Prerequisites Functions ******
 
 function require_archive() {
