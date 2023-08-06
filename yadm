@@ -190,28 +190,28 @@ function score_file() {
       score=$((score + 0))
     # variable conditions
     elif [[ "$label" =~ ^(a|arch)$ ]]; then
-      if [ "$value" = "$local_arch" ]; then
+      if nocase_cmp "$value" "$local_arch"; then
         score=$((score + 1))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(o|os)$ ]]; then
-      if [ "$value" = "$local_system" ]; then
+      if nocase_cmp "$value" "$local_system"; then
         score=$((score + 2))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(d|distro)$ ]]; then
-      if [ "${value/\ /_}" = "${local_distro/\ /_}" ]; then
+      if nocase_cmp "${value/\ /_}" "${local_distro/\ /_}"; then
         score=$((score + 4))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(f|distro_family)$ ]]; then
-      if [ "${value/\ /_}" = "${local_distro_family/\ /_}" ]; then
+      if nocase_cmp "${value/\ /_}" "${local_distro_family/\ /_}"; then
         score=$((score + 8))
       else
         score=0
@@ -225,14 +225,14 @@ function score_file() {
         return
       fi
     elif [[ "$label" =~ ^(h|hostname)$ ]]; then
-      if [ "$value" = "$local_host" ]; then
+      if nocase_cmp "$value" "$local_host"; then
         score=$((score + 32))
       else
         score=0
         return
       fi
     elif [[ "$label" =~ ^(u|user)$ ]]; then
-      if [ "$value" = "$local_user" ]; then
+      if nocase_cmp "$value" "$local_user"; then
         score=$((score + 64))
       else
         score=0
@@ -2130,6 +2130,16 @@ function mk_tmp_dir {
   assert_parent "$tempdir/"
   echo "$tempdir"
 }
+
+if ((BASH_VERSINFO[0]>3)); then
+  function nocase_cmp {
+    [ "${1,,}" = "${2,,}" ]
+  }
+else
+  function nocase_cmp {
+    [ "$(to_lower "$1")" = "$(to_lower "$2")" ]
+  }
+fi
 
 function to_lower {
   local str="$1"
