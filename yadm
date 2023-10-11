@@ -363,7 +363,6 @@ function choose_template_cmd() {
 function template_default() {
   input="$1"
   output="$2"
-  temp_file="${output}.$$.$RANDOM"
 
   # the explicit "space + tab" character class used below is used because not
   # all versions of awk seem to support the POSIX character classes [[:blank:]]
@@ -452,7 +451,10 @@ function conditions() {
 }
 EOF
 
-  "${AWK_PROGRAM[0]}" \
+  local source_dir=$(dirname "$input")
+  local yadm_classes out
+  yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
+  out=$("${AWK_PROGRAM[0]}" \
     -v class="$local_class" \
     -v arch="$local_arch" \
     -v os="$local_system" \
@@ -461,20 +463,20 @@ EOF
     -v distro="$local_distro" \
     -v distro_family="$local_distro_family" \
     -v source="$input" \
-    -v source_dir="$(dirname "$input")" \
-    -v classes="$(join_string $'\n' "${local_classes[@]}")" \
+    -v source_dir="$source_dir" \
+    -v classes="$yadm_classes" \
     "$awk_pgm" \
-    "$input" > "$temp_file" || rm -f "$temp_file"
+    "$input")
 
-  move_file "$input" "$output" "$temp_file"
+  move_file "$input" "$output" "$out"
 }
 
 function template_j2cli() {
-  input="$1"
-  output="$2"
-  temp_file="${output}.$$.$RANDOM"
-
-  YADM_CLASS="$local_class"   \
+  local input="$1"
+  local output="$2"
+  local yadm_classes out
+  yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
+  out=$(YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
@@ -482,18 +484,18 @@ function template_j2cli() {
   YADM_DISTRO="$local_distro" \
   YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
-  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
-  "$J2CLI_PROGRAM" "$input" -o "$temp_file"
+  YADM_CLASSES="$yadm_classes" \
+  "$J2CLI_PROGRAM" "$input")
 
-  move_file "$input" "$output" "$temp_file"
+  move_file "$input" "$output" "$out" "$?"
 }
 
 function template_envtpl() {
-  input="$1"
-  output="$2"
-  temp_file="${output}.$$.$RANDOM"
-
-  YADM_CLASS="$local_class"   \
+  local input="$1"
+  local output="$2"
+  local yadm_classes out
+  yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
+  out=$(YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
@@ -501,19 +503,19 @@ function template_envtpl() {
   YADM_DISTRO="$local_distro" \
   YADM_DISTRO_FAMILY="$local_distro_family" \
   YADM_SOURCE="$input"        \
-  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
-  "$ENVTPL_PROGRAM" --keep-template "$input" -o "$temp_file"
+  YADM_CLASSES="$yadm_classes" \
+  "$ENVTPL_PROGRAM" --keep-template "$input")
 
-  move_file "$input" "$output" "$temp_file"
+  move_file "$input" "$output" "$out" "$?"
 }
 
 function template_esh() {
-  input="$1"
-  output="$2"
-  temp_file="${output}.$$.$RANDOM"
+  local input="$1"
+  local output="$2"
 
-  YADM_CLASSES="$(join_string $'\n' "${local_classes[@]}")" \
-  "$ESH_PROGRAM" -o "$temp_file" "$input" \
+  local yadm_classes out
+  yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
+  out=$("$ESH_PROGRAM" "$input" \
   YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
@@ -521,25 +523,61 @@ function template_esh() {
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
   YADM_DISTRO_FAMILY="$local_distro_family" \
-  YADM_SOURCE="$input"
+  YADM_SOURCE="$input" \
+  YADM_CLASSES="$yadm_classes")
 
-  move_file "$input" "$output" "$temp_file"
+  move_file "$input" "$output" "$out" "$?"
 }
 
 function move_file() {
-  local input=$1
-  local output=$2
-  local temp_file=$3
+  local input="$1"
+  local output="$2"
+  local new="$3"
+  local err="${4:-}"
 
-  [ ! -f "$temp_file" ] && return
+  if [[ -s "$input" && -z "$new" ]]; then
+    debug "Failed to create $output from template $input: error $err"
+    return 1
+  fi
 
-  # if the output files already exists as read-only, change it to be writable.
-  # there are some environments in which a read-only file will prevent the move
-  # from being successful.
-  [[ -e "$output" && ! -w "$output" ]] && chmod u+w "$output"
+  if [[ -r "$output" ]]; then
+    local old
+    old=$(< "$output")
 
-  mv -f "$temp_file" "$output"
-  copy_perms "$input" "$output"
+    if [[ "$old" == "$new" ]]; then
+      debug "Not rewriting file as contents have not changed: $output"
+      return 0
+    fi
+
+    # if the output files already exists as read-only, change it to be writable.
+    # there are some environments in which a read-only file will prevent the move
+    # from being successful.
+
+    if [[ ! -w "$output" ]]; then
+      if ! chmod u+w "$output"; then
+        debug "Unable to make '$output' writeable"
+      fi
+    fi
+  fi
+
+  if [ -n "$loud" ]; then
+    echo "Creating $output from template $input"
+  else
+    debug "Creating $output from template $input"
+  fi
+
+  local temp_file="${output}.$$.$RANDOM"
+  if printf '%s' "${new}" >"$temp_file"; then
+    if mv -f "$temp_file" "$output"; then
+      copy_perms "$input" "$output"
+      return
+    fi
+    debug "Failed to rename '$temp_file' to '$output'"
+    rm -f "$temp_file" &>/dev/null
+  else
+    debug "Failed to create '$temp_file' to generate '$output'"
+  fi
+  return 1
 }
 
 # ****** yadm Commands ******
@@ -707,8 +745,6 @@ function alt_linking() {
     template_cmd="${alt_template_cmds[$index]}"
     if [ -n "$template_cmd" ]; then
       # a template is defined, process the template
-      debug "Creating $tgt from template $src"
-      [ -n "$loud" ] && echo "Creating $tgt from template $src"
       # ensure the destination path exists
       assert_parent "$tgt"
       # remove any existing symlink before processing template
@@ -2111,7 +2147,7 @@ function get_mode {
 
   # only accept results if they are octal
   if [[ ! $mode =~ ^[0-7]+$ ]] ; then
-    mode=""
+    return
   fi
 
   echo "$mode"
@@ -2121,7 +2157,14 @@ function copy_perms {
   local source="$1"
   local dest="$2"
   mode=$(get_mode "$source")
-  [ -n "$mode" ] && chmod "$mode" "$dest"
+  if [[ -z "$mode" ]]; then
+    debug "Unable to get mode for '$source'"
+    return 1
+  fi
+  if ! chmod "$mode" "$dest"; then
+    debug "Unable to set mode to '$mode' on '$dest'"
+    return 1
+  fi
   return 0
 }
 
