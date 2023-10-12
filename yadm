@@ -364,6 +364,7 @@ function template_default() {
   input="$1"
   output="$2"
 
+  local awk_pgm
   # the explicit "space + tab" character class used below is used because not
   # all versions of awk seem to support the POSIX character classes [[:blank:]]
   read -r -d '' awk_pgm << "EOF"
@@ -451,10 +452,10 @@ function conditions() {
 }
 EOF
 
-  local source_dir=$(dirname "$input")
-  local yadm_classes out
-  yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
-  out=$("${AWK_PROGRAM[0]}" \
+  local source_dir yadm_classes content
+  source_dir=$(dirname "$input")
+  yadm_classes=$(join_string $'\n' "${local_classes[@]}")
+  content=$("${AWK_PROGRAM[0]}" \
     -v class="$local_class" \
     -v arch="$local_arch" \
     -v os="$local_system" \
@@ -468,15 +469,16 @@ EOF
     "$awk_pgm" \
     "$input")
 
-  move_file "$input" "$output" "$out"
+  move_file "$input" "$output" "$content"
 }
 
 function template_j2cli() {
   local input="$1"
   local output="$2"
-  local yadm_classes out
-  yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
-  out=$(YADM_CLASS="$local_class"   \
+  local yadm_classes content
+
+  yadm_classes=$(join_string $'\n' "${local_classes[@]}")
+  content=$(YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
@@ -487,15 +489,16 @@ function template_j2cli() {
   YADM_CLASSES="$yadm_classes" \
   "$J2CLI_PROGRAM" "$input")
 
-  move_file "$input" "$output" "$out" "$?"
+  move_file "$input" "$output" "$content" "$?"
 }
 
 function template_envtpl() {
   local input="$1"
   local output="$2"
-  local yadm_classes out
-  yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
-  out=$(YADM_CLASS="$local_class"   \
+  local yadm_classes content
+
+  yadm_classes=$(join_string $'\n' "${local_classes[@]}")
+  content=$(YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
   YADM_HOSTNAME="$local_host" \
@@ -506,16 +509,16 @@ function template_envtpl() {
   YADM_CLASSES="$yadm_classes" \
   "$ENVTPL_PROGRAM" --keep-template "$input")
 
-  move_file "$input" "$output" "$out" "$?"
+  move_file "$input" "$output" "$content" "$?"
 }
 
 function template_esh() {
   local input="$1"
   local output="$2"
+  local yadm_classes content
 
-  local yadm_classes out
   yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
-  out=$("$ESH_PROGRAM" "$input" \
+  content=$("$ESH_PROGRAM" "$input" \
   YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
@@ -526,25 +529,25 @@ function template_esh() {
   YADM_SOURCE="$input" \
   YADM_CLASSES="$yadm_classes")
 
-  move_file "$input" "$output" "$out" "$?"
+  move_file "$input" "$output" "$content" "$?"
 }
 
 function move_file() {
   local input="$1"
   local output="$2"
-  local new="$3"
+  local content="$3"
   local err="${4:-}"
 
-  if [[ -s "$input" && -z "$new" ]]; then
+  if [[ -s "$input" && -z "$content" ]]; then
     debug "Failed to create $output from template $input: error $err"
     return 1
   fi
 
   if [[ -r "$output" ]]; then
-    local old
-    old=$(< "$output")
+    local old_content
+    old_content=$(< "$output")
 
-    if [[ "$old" == "$new" ]]; then
+    if [[ "$old_content" == "$content" ]]; then
       debug "Not rewriting file as contents have not changed: $output"
       return 0
     fi
@@ -567,16 +570,16 @@ function move_file() {
   fi
 
   local temp_file="${output}.$$.$RANDOM"
-  if printf '%s' "${new}" >"$temp_file"; then
+  if printf '%s' "$content" >"$temp_file"; then
     if mv -f "$temp_file" "$output"; then
       copy_perms "$input" "$output"
       return
     fi
     debug "Failed to rename '$temp_file' to '$output'"
-    rm -f "$temp_file" &>/dev/null
   else
     debug "Failed to create '$temp_file' to generate '$output'"
   fi
+  rm -f "$temp_file" &>/dev/null
   return 1
 }
 
