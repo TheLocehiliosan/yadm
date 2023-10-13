@@ -519,7 +519,8 @@ function template_esh() {
   local yadm_classes content
 
   yadm_classes="$(join_string $'\n' "${local_classes[@]}")"
-  content=$("$ESH_PROGRAM" "$input" \
+  content=$(YADM_CLASSES="$yadm_classes" \
+  "$ESH_PROGRAM" "$input" \
   YADM_CLASS="$local_class"   \
   YADM_ARCH="$local_arch"     \
   YADM_OS="$local_system"     \
@@ -527,8 +528,7 @@ function template_esh() {
   YADM_USER="$local_user"     \
   YADM_DISTRO="$local_distro" \
   YADM_DISTRO_FAMILY="$local_distro_family" \
-  YADM_SOURCE="$input" \
-  YADM_CLASSES="$yadm_classes")
+  YADM_SOURCE="$input")
 
   move_file "$input" "$output" "$content" "$?"
 }
