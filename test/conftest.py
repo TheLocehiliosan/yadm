@@ -157,6 +157,7 @@ def supported_configs():
         "yadm.openssl-old",
         "yadm.openssl-program",
         "yadm.ssh-perms",
+        "yadm.template-read-only",
     ]
 
 

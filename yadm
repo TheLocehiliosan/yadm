@@ -540,7 +540,7 @@ function move_file() {
 
   mv -f "$temp_file" "$output"
   copy_perms "$input" "$output"
-  [ "$(config --bool yadm.template-read-only)" == "true" ] && chmod a-w "$output"
+  [ "$(config --bool yadm.template-read-only)" != "false" ] && chmod a-w "$output"
 }
 
 # ****** yadm Commands ******
@@ -1267,6 +1267,7 @@ yadm.openssl-ciphername
 yadm.openssl-old
 yadm.openssl-program
 yadm.ssh-perms
+yadm.template-read-only
 EOF
   printf '%s' "$msg"
 }
