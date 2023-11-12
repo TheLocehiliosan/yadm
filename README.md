@@ -56,8 +56,8 @@ The star count helps others discover yadm.
 [Git]: https://git-scm.com/
 [GnuPG]: https://gnupg.org/
 [OpenSSL]: https://www.openssl.org/
-[arch-badge]: https://img.shields.io/archlinux/v/community/any/yadm
-[arch-link]: https://archlinux.org/packages/community/any/yadm/
+[arch-badge]: https://img.shields.io/archlinux/v/extra/any/yadm
+[arch-link]: https://archlinux.org/packages/extra/any/yadm/
 [dev-pages-badge]: https://img.shields.io/github/actions/workflow/status/TheLocehiliosan/yadm/test.yml?branch=dev-pages
 [develop-badge]: https://img.shields.io/github/actions/workflow/status/TheLocehiliosan/yadm/test.yml?branch=develop
 [develop-commits]: https://github.com/TheLocehiliosan/yadm/commits/develop
