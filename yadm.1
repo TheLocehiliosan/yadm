@@ -108,6 +108,9 @@ unnecessary to run this command, as yadm automatically processes alternates by
 default. This automatic behavior can be disabled by setting the configuration
 .I yadm.auto-alt
 to "false".
+The resulting file's write permission can be controlled with the
+.I yadm.template-read-only
+configuration.
 .TP
 .B bootstrap
 Execute
@@ -424,6 +427,10 @@ By default, the first "openssl" found in $PATH is used.
 .B yadm.ssh-perms
 Disable the permission changes to
 .IR $HOME/.ssh/* .
+This feature is enabled by default.
+.TP
+.B yadm.template-read-only
+Remove write permissions from the resulting template file.
 This feature is enabled by default.
 
 .RE

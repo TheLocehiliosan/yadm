@@ -67,7 +67,9 @@
               TEMPLATES sections. It is usually unnecessary to run  this  com‐
               mand,  as  yadm  automatically  processes alternates by default.
               This automatic behavior can be disabled by setting the  configu‐
-              ration yadm.auto-alt to "false".
+              ration  yadm.auto-alt  to  "false".   The resulting file's write
+              permission can be controlled  with  the  yadm.template-read-only
+              configuration.
 
        bootstrap
               Execute $HOME/.config/yadm/bootstrap if it exists.
