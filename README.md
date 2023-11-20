@@ -13,16 +13,14 @@
 [![GH Pages Status][gh-pages-badge]][workflow-gh-pages]
 [![Dev Pages Status][dev-pages-badge]][workflow-dev-pages]
 
-[https://yadm.io/][website-link]
+[**yadm**][website-link] is a tool for managing [dotfiles].
 
-**yadm** is a tool for managing [dotfiles][].
-
-* Based on [Git][], with full range of Git's features
+* Based on [Git], with full range of Git's features
 * Supports system-specific alternative files or templated files
-* Encryption of private data using [GnuPG][], [OpenSSL][], [transcrypt][], or
-  [git-crypt][]
-* Customizable initialization (bootstrapping)
-* Customizable hooks for before and after any operation
+* Encryption of private data using [GnuPG], [OpenSSL], [transcrypt], or
+  [git-crypt]
+* Customizable initialization ([bootstrapping](https://yadm.io/docs/bootstrap))
+* Customizable [hooks](https://yadm.io/docs/hooks) for before and after any operation
 
 Complete features, usage, examples and installation instructions can be found on
 the [yadm.io][website-link] website.
