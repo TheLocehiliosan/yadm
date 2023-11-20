@@ -99,7 +99,7 @@ function main() {
 
   # parse command line arguments
   local retval=0
-  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|git-crypt|help|--help|init|introspect|list|perms|transcrypt|upgrade|version|--version)$"
+  internal_commands="^(alt|bootstrap|clean|clone|config|decrypt|encrypt|enter|echo|git-crypt|help|--help|init|introspect|list|perms|transcrypt|upgrade|version|--version)$"
   if [ -z "$*" ] ; then
     # no argumnts will result in help()
     help
@@ -144,7 +144,7 @@ function main() {
     [ ! -d "$YADM_WORK" ] && error_out "Work tree does not exist: [$YADM_WORK]"
     HOOK_COMMAND="$YADM_COMMAND"
     invoke_hook "pre"
-    $YADM_COMMAND "${YADM_ARGS[@]}"
+    ${YADM_COMMAND/echo/yecho} "${YADM_ARGS[@]}"
   else
     # any other commands are simply passed through to git
     HOOK_COMMAND="$1"
@@ -1173,6 +1173,7 @@ Commands:
   yadm enter [COMMAND]       - Run sub-shell with GIT variables set
   yadm git-crypt [OPTIONS]   - Run git-crypt commands for the yadm repo
   yadm transcrypt [OPTIONS]  - Run transcrypt commands for the yadm repo
+  yadm echo [OPTIONS]        - View yadm internal commands and file paths
 
 Files:
   \$HOME/.config/yadm/config        - yadm's configuration file
@@ -1457,6 +1458,110 @@ function version() {
   echo "yadm version $VERSION"
   exit_with_hook 0
 
+}
+
+function print_variables(){
+  local local_class
+  local local_system
+  local local_host
+  local local_user
+  local local_distro
+  set_local_alt_values
+
+  if [[ -z "$2" ]]; then
+  echo "Yadm variables:
+  distro=$local_distro
+  system=$local_system
+  hostname=$local_host
+  user=$local_user 
+  class=$local_class
+"
+  else
+    case "$2" in
+      class)
+	echo $local_class
+	;;
+      system)
+	echo $local_system
+	;;
+      host)
+	echo $local_host
+	;;
+      user)
+	echo $local_user
+	;;
+      distro)
+	echo $local_distro
+	;;
+      *)
+	echo "$2 is not a valid option"
+    esac
+  fi
+  
+}
+
+function print_paths(){
+  if [[ -z "$2" ]] ; then
+    echo "yadm paths:
+  repo=$YADM_REPO
+  yadm_dir=$YADM_DIR
+  config=$YADM_CONFIG
+  encrypt=$YADM_ENCRYPT
+  archive=$YADM_ARCHIVE
+  "
+  else   
+    case "$2" in
+      repo)
+	echo $YADM_REPO
+	;;
+      dir|yadm_dir)
+	echo $YADM_DIR
+	;;
+      config)
+	echo $YADM_CONFIG
+	;;
+      encrypt)
+	echo $YADM_ENCRYPT
+	;;
+      archive)
+	echo $YADM_ARCHIVE
+	;;
+      *)
+	echo " in path "
+	echo "$2 is not a valid option"
+    esac
+  fi
+ }
+
+function yecho() {
+  #verify internal yadm variables
+ 
+  if [[ $# -eq 0 ]] ; then
+    print_variables
+    print_paths
+  fi
+
+  while [[ $# -gt 0 ]] ; do
+    case "$1" in
+      vars|variables)
+	print_variables "${YADM_ARGS[@]}"
+	if [[ ! -z "$2" ]] ; then
+	  shift
+	fi
+	;;
+      paths|path)
+	print_paths "${YADM_ARGS[@]}"
+	if [[ ! -z "$2" ]] ; then
+	  shift
+	fi
+	;;
+      *)
+	echo "$1 is not a valid command"
+	;;
+    esac
+    shift
+  done
+  
 }
 
 # ****** Utility Functions ******
