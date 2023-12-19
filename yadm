@@ -754,7 +754,7 @@ function bootstrap() {
   unset GIT_DIR
 
   echo "Executing $YADM_BOOTSTRAP"
-  exec "$YADM_BOOTSTRAP"
+  exec "$YADM_BOOTSTRAP" "$@"
 
 }
 
