@@ -5,9 +5,9 @@
 # `source` can be relative to ~/.config/yadm/ or full path.
 #
 #  Usage:
-#   source=install yadm bootstrap
+#	source=install yadm bootstrap
 #  or
-#   source=~/.config/yadm/install yadm bootstrap
+#	source=~/.config/yadm/install yadm bootstrap
 #
 # where `~/.config/yadm/install` can be like this:
 #
@@ -26,27 +26,27 @@ TEXT_COLOR_YELLOW=$(tput setaf 3)
 TEXT_DEFAULT=$(tput sgr0)
 
 info() {
-    printf "${TEXT_COLOR_BLUE}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+	printf "${TEXT_COLOR_BLUE}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
 }
 
 error() {
-    printf "${TEXT_COLOR_RED}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+	printf "${TEXT_COLOR_RED}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
 }
 
 success() {
-    printf "${TEXT_COLOR_GREEN}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+	printf "${TEXT_COLOR_GREEN}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
 }
 
 warning() {
-    printf "${TEXT_COLOR_YELLOW}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+	printf "${TEXT_COLOR_YELLOW}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
 }
 
 source_if_exists() {
-    if [[ -f $1 ]]; then source "$1"; else return 1; fi
+	if [[ -f $1 ]]; then source "$1"; else return 1; fi
 }
 
 command_exists () {
-    command -v "$1" &> /dev/null
+	command -v "$1" &> /dev/null
 }
 
 # install a 'command' via 'code' if it was not previously installed yet
@@ -68,13 +68,13 @@ confirm() {
 	local default_answer="${1:-no}"
 	local code=$2
 	local message=$3
-  local options answer
+	local options answer
 
 	if [[ "${default_answer:0:1}" == y* ]]; then
-        options="$(success 'YES')/no"
-    else
-        options="yes/$(success 'NO')"
-    fi
+		options="$(success 'YES')/no"
+	else
+		options="yes/$(success 'NO')"
+	fi
 
 	read -r -p "${message} [${options}]:" answer
 	answer=${answer:-$default_answer}
