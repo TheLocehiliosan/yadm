@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Save this file as ~/.config/yadm/bootstrap and make it executable. It expects
+# environment variable `source` with a name of shell script to execute.
+# `source` can be relative to ~/.config/yadm/ or full path.
+#
+#  Usage:
+#   source=install yadm bootstrap
+#  or
+#   source=~/.config/yadm/install yadm bootstrap
+#
+# where `~/.config/yadm/install` can be like this:
+#
+# [[ ! $(type -t install) = 'function' ]] && echo "Usage: source=$(basename "$0") yadm bootstrap" && exit 1
+#
+# confirm yes 'softwareupdate --agree-to-license --install --all' "$(info 'Install ' warning 'OSX updates')"
+# install 'brew' '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+#
+# brew bundle --global
+#
+
+TEXT_COLOR_RED=$(tput setaf 1)
+TEXT_COLOR_GREEN=$(tput setaf 2)
+TEXT_COLOR_BLUE=$(tput setaf 4)
+TEXT_COLOR_YELLOW=$(tput setaf 3)
+TEXT_DEFAULT=$(tput sgr0)
+
+info() {
+    printf "${TEXT_COLOR_BLUE}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+}
+
+error() {
+    printf "${TEXT_COLOR_RED}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+}
+
+success() {
+    printf "${TEXT_COLOR_GREEN}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+}
+
+warning() {
+    printf "${TEXT_COLOR_YELLOW}%s${TEXT_DEFAULT}" "$1"; "${@:2}"
+}
+
+source_if_exists() {
+    if [[ -f $1 ]]; then source "$1"; else return 1; fi
+}
+
+command_exists () {
+    command -v "$1" &> /dev/null
+}
+
+# install a 'command' via 'code' if it was not previously installed yet
+install() {
+	local command=$1
+	local code=$2
+	local message=$(info 'Installing ' warning "$command")
+
+	if command_exists "$command"; then
+		echo "$message...[$(success 'already')]"
+	else
+		echo "$message..."
+		eval "$code"
+	fi
+}
+
+# execute a 'code' after confirmation from user
+confirm() {
+	local default_answer="${1:-no}"
+	local code=$2
+	local message=$3
+  local options answer
+
+	if [[ "${default_answer:0:1}" == y* ]]; then
+        options="$(success 'YES')/no"
+    else
+        options="yes/$(success 'NO')"
+    fi
+
+	read -r -p "${message} [${options}]:" answer
+	answer=${answer:-$default_answer}
+
+	if [[ "${answer:0:1}" == y* ]]; then
+		eval "$code"
+	fi
+}
+
+source_if_exists "$(dirname "${0}")/$source" ||
+source_if_exists $source ||
+([[ -z $source ]] && echo "Usage: source=FILE yadm bootstrap" || echo "Can't locate file '$source' for bootstrapping")
