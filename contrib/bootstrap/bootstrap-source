@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # Save this file as ~/.config/yadm/bootstrap and make it executable. It expects
-# environment variable `source` with a name of shell script to execute.
-# `source` can be relative to ~/.config/yadm/ or full path.
+# environment variable `file` with a name of shell script to execute.
+# `file` can be relative to ~/.config/yadm/ or has full path.
 #
 #  Usage:
-#	source=install yadm bootstrap
+#    file=install yadm bootstrap
 #  or
-#	source=~/.config/yadm/install yadm bootstrap
+#    file=~/.config/yadm/install yadm bootstrap
 #
 # where `~/.config/yadm/install` can be like this:
 #
-# [[ ! $(type -t install) = 'function' ]] && echo "Usage: source=$(basename "$0") yadm bootstrap" && exit 1
+# [[ ! $(type -t install) = 'function' ]] && echo "Usage: file=$(basename "$0") yadm bootstrap" && exit 1
 #
 # confirm yes 'softwareupdate --agree-to-license --install --all' "$(info 'Install ' warning 'OSX updates')"
 # install 'brew' '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
@@ -42,7 +42,12 @@ warning() {
 }
 
 source_if_exists() {
-	if [[ -f $1 ]]; then source "$1"; else return 1; fi
+	local src=$1
+	local verbose="${2:-no}"
+
+	[[ ! -f $src ]] && return 1;
+	[[ "${verbose:0:1}" == v* ]] && printf "%s\n\n" "$(info "-> $src")";
+	source "$src"
 }
 
 command_exists () {
@@ -84,6 +89,6 @@ confirm() {
 	fi
 }
 
-source_if_exists "$(dirname "${0}")/$source" ||
-source_if_exists $source ||
-([[ -z $source ]] && echo "Usage: source=FILE yadm bootstrap" || echo "Can't locate file '$source' for bootstrapping")
+source_if_exists "$(dirname "${0}")/$file" v ||
+source_if_exists $file v ||
+([[ -z $file ]] && echo "Usage: file=FILENAME yadm bootstrap" || echo "Can't locate file '$file' for bootstrapping")
