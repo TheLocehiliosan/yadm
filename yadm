@@ -2051,7 +2051,7 @@ function auto_alt() {
   if [ "$CHANGES_POSSIBLE" = "1" ] ; then
     auto_alt=$(config --bool yadm.auto-alt)
     if [ "$auto_alt" != "false" ] ; then
-      [ -d "$YADM_REPO" ] && alt
+      [ -d "$YADM_REPO" ] && QUIET="YES" alt
     fi
   fi
 
