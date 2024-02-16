@@ -77,6 +77,10 @@ CHANGES_POSSIBLE=0
 # 0: skip auto_bootstrap, 1: ask, 2: perform bootstrap, 3: prevent bootstrap
 DO_BOOTSTRAP=0
 
+# flag to indicate if the program should be quiet or not
+# YES: be quiet, NO: be more noisy
+QUIET="NO"
+
 function main() {
 
   require_git
@@ -120,7 +124,7 @@ function main() {
           -a) # used by list()
             LIST_ALL="YES"
           ;;
-          -d) # used by all commands
+          -d|--debug) # used by all commands
             DEBUG="YES"
           ;;
           -f) # used by init(), clone() and upgrade()
@@ -129,6 +133,9 @@ function main() {
           -l) # used by decrypt()
             DO_LIST="YES"
             [[ "$YADM_COMMAND" =~ ^(clone|config)$ ]] && YADM_ARGS+=("$1")
+          ;;
+          -q|--quiet) # used by all commands
+            QUIET="YES"
           ;;
           -w) # used by init() and clone()
             YADM_WORK="$(qualify_path "$2" "work tree")"
@@ -246,7 +253,7 @@ function score_file() {
         record_template "$tgt" "$cmd" "$src"
       else
         debug "No supported template processor for template $src"
-        [ -n "$loud" ] && echo "No supported template processor for template $src"
+        [ "$QUIET" = "NO" ] && echo "No supported template processor for template $src"
       fi
       return 0
     # unsupported values
@@ -560,10 +567,6 @@ function alt() {
   local local_distro_family
   set_local_alt_values
 
-  # only be noisy if the "alt" command was run directly
-  local loud=
-  [ "$YADM_COMMAND" = "alt" ] && loud="YES"
-
   # decide if a copy should be done instead of a symbolic link
   local do_copy=0
   [ "$(config --bool yadm.alt-copy)" == "true" ] && do_copy=1
@@ -708,7 +711,7 @@ function alt_linking() {
     if [ -n "$template_cmd" ]; then
       # a template is defined, process the template
       debug "Creating $tgt from template $src"
-      [ -n "$loud" ] && echo "Creating $tgt from template $src"
+      [ "$QUIET" = "NO" ] && echo "Creating $tgt from template $src"
       # ensure the destination path exists
       assert_parent "$tgt"
       # remove any existing symlink before processing template
@@ -717,7 +720,7 @@ function alt_linking() {
     elif [ -n "$src" ]; then
       # a link source is defined, create symlink
       debug "Linking $src to $tgt"
-      [ -n "$loud" ] && echo "Linking $src to $tgt"
+      [ "$QUIET" = "NO" ] && echo "Linking $src to $tgt"
       # ensure the destination path exists
       assert_parent "$tgt"
       if [ "$do_copy" -eq 1 ]; then
@@ -1173,6 +1176,11 @@ Commands:
   yadm enter [COMMAND]       - Run sub-shell with GIT variables set
   yadm git-crypt [OPTIONS]   - Run git-crypt commands for the yadm repo
   yadm transcrypt [OPTIONS]  - Run transcrypt commands for the yadm repo
+
+General Options:
+  --help                     - Display this help message
+  -d, --debug                - Enable debug output
+  -q, --quiet                - Suppress output
 
 Files:
   \$HOME/.config/yadm/config        - yadm's configuration file
